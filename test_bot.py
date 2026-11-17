@@ -102364,19 +102364,18 @@ try:
           and _xms_k > 0 and _xms_src.count("xmove_cycle(seen, _d, _m)") == 1,
           f"i0={_xms_i0} i1={_xms_i1} j0={_xms_j0} k={_xms_k}")
     import trade_journal as _TJ
-    _tj_rows = [{"from_admin": True, "message_id": 5, "date": "2026-11-17T14:00:00Z", "text": "صفقة: $abcd · ١٫٢٥ · ارتداد"},
-                {"from_admin": True, "message_id": 6, "date": "2026-11-17T15:00:00Z", "text": "خروج: ABCD · 1.5"},
-                {"from_admin": True, "message_id": 8, "date": "2026-11-17T15:30:00Z", "text": "صفقة: ABCD · 2"},
-                {"from_admin": False, "message_id": 7, "date": "2026-11-17T15:10:00Z", "text": "صفقة: XX · 1"},
-                {"from_admin": True, "message_id": 9, "date": "2026-11-17T16:00:00Z", "text": "خروج: ABCD"},
-                {"from_admin": True, "message_id": 10, "date": "2026-11-17T16:10:00Z", "text": "صباح الخير"}]
+    _tj_rows = [{"message_id": 5, "date": "2026-11-17T14:00:00Z", "text": "صفقة: $abcd · ١٫٢٥ · ارتداد"},
+                {"message_id": 6, "date": "2026-11-17T15:00:00Z", "text": "خروج: ABCD · 1.5"},
+                {"message_id": 8, "date": "2026-11-17T15:30:00Z", "text": "صفقة: ABCD · 2"},
+                {"message_id": 9, "date": "2026-11-17T16:00:00Z", "text": "خروج: ABCD"},
+                {"message_id": 10, "date": "2026-11-17T16:10:00Z", "text": "صباح الخير"}]
     _tj_new = _TJ.new_commands(_tj_rows, {8})
     _tj_e = dict(_tj_new[0], state={"x30": {"px": 1.0, "ms": 1, "before_you": True}, "gold": True, "list": True})
     _tj_cl = _TJ.pair([_tj_e, _tj_new[1], {"id": 11, "date": "2026-11-17T17:00:00Z", "kind": "exit", "sym": "ZZ", "price": 1}])
     _tj_out = _TJ.outcome(*_tj_cl[0])
     _tj_rep = _TJ.report([(_tj_e, _tj_new[1])] * 10, 10)
     check("📒 TJR1 الدفتر: «صفقة: الرمز · دخول · السبب» و«خروج: الرمز · السعر» بالأرقام الهنديّة · المشرفُ وحدَه · لا تكرارَ للمعرّف · "
-          "الأمرُ الناقص «غيرُ مقروء» لا يُخمَّن · الخروجُ يُغلق أقدمَ دخولٍ لرمزه · والبوتُ = سعرُ إشعاره بخروجك نفسِه",
+          "الأمرُ الناقص «غيرُ مقروء» لا يُخمَّن · الخروجُ يُغلق أقدمَ دخولٍ لرمزه · والبوتُ = سعرُ إشعاره بخروجك نفسِه (من صندوق الخزنة)",
           [(c["id"], c["kind"]) for c in _tj_new] == [(5, "entry"), (6, "exit"), (9, "bad")] and _tj_new[0]["price"] == 1.25
           and _tj_new[0]["sym"] == "ABCD" and _tj_new[0]["reason"] == "ارتداد" and len(_tj_cl) == 1
           and [(e["id"], x["id"]) for e, x in _TJ.pair([
@@ -102404,40 +102403,111 @@ try:
           f"{_tj_s1} {_tj_s2}")
     _tj_wf = open(".github/workflows/telegram_collect.yml", encoding="utf-8").read()
     _tj_doc = open("trade_journal_prereg.md", encoding="utf-8").read()
-    check("📒 TJR3 الدفترُ موصولٌ بعد الجامع (لا سحبَ ثانيًا من تلغرام) وفاشلٌ-آمن · وملفّاه يُدفَعان · والعقدُ يكتب «ما كان البوت سيفعله» قبل أيّ صفقة",
+    _tj_commit = _tj_wf.split("- name: Commit what arrived")[-1]
+    check("📒 TJR3 الدفترُ موصولٌ بعد الجامع (لا سحبَ ثانيًا من تلغرام) وفاشلٌ-آمن · و🔐 الخزنةُ المشفّرة وحدَها تُدفَع (لا jsonl ولا حالةَ نصّيّة) · "
+          "والعقدُ يكتب «ما كان البوت سيفعله» قبل أيّ صفقة",
           "python trade_journal.py || echo" in _tj_wf and _tj_wf.find("python telegram_collect.py") < _tj_wf.find("python trade_journal.py")
-          and "trade_journal.jsonl trade_journal_state.json" in _tj_wf and "getUpdates" not in open("trade_journal.py", encoding="utf-8").read()
+          and "git add -f trade_journal.vault" in _tj_commit and "trade_journal.jsonl" not in _tj_commit
+          and "trade_journal_state.json" not in _tj_commit and "getUpdates" not in open("trade_journal.py", encoding="utf-8").read()
           and "سعرُ خروجك ÷ سعرُ إشعاره − 1" in _tj_doc and "FIFO" in _tj_doc,
           "")
     import telegram_collect as _TJC
 
-    def _tj_mm(chat, text, owner):
+    _tj_sunk = []
+
+    def _tj_mm(chat, text, owner, sink=None):
         _r = _TJC.msg_meta({"update_id": 1}, {"message_id": 3, "date": 1791370000, "chat": {"id": chat}, "text": text},
-                           "no_media", None, ["111", "555"], owner=owner)
+                           "no_media", None, ["111", "555"], owner=owner, journal_sink=sink)
         _r.pop("collected_utc", None)
         return _r
-    _tj_o1 = _tj_mm(555, "صفقة: ABCD · ١٫٢", "555")
-    _tj_o2 = _tj_mm(555, "مرحبا يا بوت", "555")
-    _tj_o3 = _tj_mm(777, "خروج: ABCD · 2", "555")
+    _tj_sink = lambda it: _tj_sunk.append(it) or True                           # noqa: E731
+    _tj_o1 = _tj_mm(555, "صفقة: ABCD · ١٫٢", "555", _tj_sink)
+    _tj_o2 = _tj_mm(555, "مرحبا يا بوت", "555", _tj_sink)
+    _tj_o3 = _tj_mm(777, "خروج: ABCD · 2", "555", _tj_sink)
     _tj_o4 = _tj_mm(555, "صفقة: ABCD · 1.2", None)
+    _tj_oa = _tj_mm(111, "خروج: ABCD · 2", "555", _tj_sink)
+    _tj_oan = _tj_mm(111, "صباح الخير", "555", _tj_sink)
+    _tj_on = _tj_mm(555, "صفقة: ABCD · 1.2", "555")
     _tj_base = _TJC.msg_meta({"update_id": 1}, {"message_id": 3, "date": 1791370000, "chat": {"id": 555}, "text": "صفقة: ABCD · 1.2"},
                              "no_media", None, ["111", "555"])
     _tj_base.pop("collected_utc", None)
-    _tj_oc = _TJ.new_commands([dict(_tj_o1, message_id=3, date="2026-11-17T14:00:00Z"),
-                               {"from_admin": False, "from_owner": False, "journal_cmd": "صفقة: QQ · 1", "message_id": 4},
-                               {"from_admin": False, "text": "صفقة: RR · 1", "message_id": 5}], set())
     _tj_csrc = open("telegram_collect.py", encoding="utf-8").read()
-    _tj_wf = open(".github/workflows/telegram_collect.yml", encoding="utf-8").read()
     _tj_step = _tj_wf.split("- name: Pull images from the Telegram bot")[-1].split("- name:")[0]
-    check("📒 TJR4 حسابُ المالك (`TELEGRAM_OWNER_ID`): أمرُ الدفتر وحدَه من حسابه يُحفظ نصُّه (`journal_cmd`) والدفترُ يقرؤه · رسائلُه الأخرى "
-          "ومستلمٌ آخرُ محجوبةٌ كما كانت · وبلا السرّ الصفُّ بت-بت · والجامعُ يمرّره في مسار النصّ والسرُّ في خطوة الجمع",
-          _tj_o1.get("from_owner") is True and _tj_o1.get("journal_cmd") == "صفقة: ABCD · ١٫٢" and "text" not in _tj_o1
-          and _tj_o1.get("redacted") is True and _tj_o1.get("from_admin") is False
-          and "journal_cmd" not in _tj_o2 and "from_owner" not in _tj_o2 and "journal_cmd" not in _tj_o3
-          and _tj_o4 == _tj_base and _TJC.owner_id("") is None and _TJC.owner_id(" 555 ") == "555"
-          and [(c["id"], c["sym"], c["price"]) for c in _tj_oc] == [(3, "ABCD", 1.2)]
-          and _tj_csrc.count("owner=owner_id()") == 1 and "TELEGRAM_OWNER_ID: ${{ secrets.TELEGRAM_OWNER_ID }}" in _tj_step,
-          f"{_tj_o1} {_tj_oc}")
+    _tj_dump = json.dumps([_tj_o1, _tj_o3, _tj_oa, _tj_on], ensure_ascii=False)
+    check("📒 TJR4 🔐 (أمرُ المالك ①-2) أمرُ الدفتر — من حساب المالك أو المشرف — **لا يُكتب نصُّه في سجلّ الجامع العامّ** بل يُسلَّم للخزنة "
+          "(`journal_sink`) · رسائلُ المالك الأخرى ومستلمٌ آخرُ محجوبةٌ كما كانت ولا تُسلَّم · نصُّ المشرف غيرُ الأمر كما كان · بلا خزنةٍ لا التقاط · "
+          "والجامعُ يمرّر السرّين في خطوة الجمع",
+          _tj_o1.get("from_owner") is True and _tj_o1.get("journal_vaulted") is True and "text" not in _tj_o1 and "journal_cmd" not in _tj_o1
+          and _tj_o1.get("redacted") is True and _tj_oa.get("journal_vaulted") is True and "text" not in _tj_oa
+          and _tj_oan.get("text") == "صباح الخير" and "journal_vaulted" not in _tj_oan
+          and [x["text"] for x in _tj_sunk] == ["صفقة: ABCD · ١٫٢", "خروج: ABCD · 2"] and "ABCD" not in _tj_dump
+          and "from_owner" not in _tj_o2 and "journal_vaulted" not in _tj_o2 and "journal_vaulted" not in _tj_o3
+          and _tj_on.get("journal_vaulted") is False and _tj_o4 == _tj_base and _TJC.owner_id("") is None and _TJC.owner_id(" 555 ") == "555"
+          and _tj_csrc.count("owner=owner_id(), journal_sink=journal_sink()") == 1
+          and "TELEGRAM_OWNER_ID: ${{ secrets.TELEGRAM_OWNER_ID }}" in _tj_step and 'TRADE_JOURNAL: "1"' in _tj_step,
+          f"{_tj_o1} {_tj_oa} {_tj_sunk}")
+    import journal_vault as _TJV
+    import tempfile as _tj_tf
+    _tj_dir = _tj_tf.mkdtemp()
+    _tj_vp = _os_hc.path.join(_tj_dir, "t.vault")
+    _tj_env = {"TELEGRAM_BOT_TOKEN": "tok-A"}
+    _tj_ok = _TJV.add_inbox({"message_id": 3, "date": "2026-11-17T14:00:00Z", "text": "صفقة: ZQXW · 1.25"}, _tj_vp, _tj_env)
+    _TJV.add_inbox({"message_id": 3, "date": "2026-11-17T14:00:00Z", "text": "صفقة: ZQXW · 1.25"}, _tj_vp, _tj_env)
+    _tj_raw = open(_tj_vp, encoding="utf-8").read()
+    _tj_v = _TJV.load(_tj_vp, _tj_env)
+    _tj_wrong = _TJV.load(_tj_vp, {"TELEGRAM_BOT_TOKEN": "tok-B"})
+    _tj_wadd = _TJV.add_inbox({"message_id": 4, "text": "x"}, _tj_vp, {"TELEGRAM_BOT_TOKEN": "tok-B"})
+    _tj_raw2 = open(_tj_vp, encoding="utf-8").read()
+    _tj_key = _TJV.load(_tj_vp, {"TELEGRAM_BOT_TOKEN": "tok-B", "TRADE_JOURNAL_KEY": "k1"})
+    check("🔐 TJV1 الخزنة: الملفُّ مشفَّرٌ (لا رمزَ ولا سعرَ فيه) ويُفكّ بالمفتاح نفسِه · بلا تكرارٍ بالمعرّف · مفتاحٌ خاطئ ⟵ None **ولا كتابةَ فوقها** · "
+          "`TRADE_JOURNAL_KEY` يعلو المشتقّ · `TRADE_JOURNAL=0` أو بلا مفتاح ⟵ مطفأ",
+          _tj_ok is True and "ZQXW" not in _tj_raw and "1.25" not in _tj_raw and len(_tj_v["inbox"]) == 1
+          and _tj_v["inbox"][0]["text"] == "صفقة: ZQXW · 1.25" and _tj_wrong is None and _tj_wadd is False and _tj_raw2 == _tj_raw
+          and _tj_key is None and _TJV.enabled({"TELEGRAM_BOT_TOKEN": "t", "TRADE_JOURNAL": "0"}) is False and _TJV.enabled({}) is False
+          and _TJV.enabled({"TRADE_JOURNAL_KEY": "k"}) is True,
+          f"{_tj_v} {_tj_wrong}")
+
+    class _TjFakeV:
+        def __init__(self, v):
+            self.v, self.saved = v, None
+
+        def enabled(self):
+            return True
+
+        def load(self):
+            return self.v
+
+        def save(self, v):
+            self.saved = json.loads(json.dumps(v))
+            return True
+    _tj_inbox = []
+    for _k in range(10):
+        _tj_inbox += [{"message_id": 100 + 2 * _k, "date": f"2026-11-17T14:{_k:02d}:00Z", "text": f"صفقة: ZQXW · {1 + _k}"},
+                      {"message_id": 101 + 2 * _k, "date": f"2026-11-17T15:{_k:02d}:00Z", "text": f"خروج: ZQXW · {2 + _k}"}]
+    _tj_fv = _TjFakeV({"v": 1, "inbox": _tj_inbox, "ledger": [], "state": {"reported": 0}})
+    _tj_sent = []
+    _tj_files0 = _TJ.files_at
+    _tj_buf = __import__("io").StringIO()
+    try:
+        _TJ.files_at = lambda iso: ({}, False)
+        import contextlib as _tj_cl2
+        with _tj_cl2.redirect_stdout(_tj_buf):
+            _tj_rc = _TJ.main(_tj_fv, send=lambda t: _tj_sent.append(t) or True)
+            _tj_fv2 = _TjFakeV(None)
+            _tj_rc2 = _TJ.main(_tj_fv2, send=lambda t: True)
+    finally:
+        _TJ.files_at = _tj_files0
+    _tj_out = _tj_buf.getvalue()
+    _tj_src2 = open("trade_journal.py", encoding="utf-8").read()
+    _tj_gi = open(".gitignore", encoding="utf-8").read()
+    check("🔐 TJV2 الدفتر: يقرأ صندوقَ الخزنة ويكتب فيها وحدَها · التقريرُ يُرسَل عبر دالّة المالك وحدَها ولا يُطبَع في السجلّ العامّ (لا رمزَ ولا سعر) · "
+          "خزنةٌ لا تُفكّ ⟵ خروج 1 بلا حفظ · لا ملفَّ نصّيٍّ للدفتر · والتقريرُ لـ`TELEGRAM_OWNER_ID` لا لمستلمي التقرير اليوميّ",
+          _tj_rc == 0 and len(_tj_sent) == 1 and "ZQXW" in _tj_sent[0] and "ZQXW" not in _tj_out and "$" not in _tj_out
+          and _tj_fv.saved["state"]["reported"] == 10 and len(_tj_fv.saved["ledger"]) == 20 and _tj_rc2 == 1 and _tj_fv2.saved is None
+          and "telegram_collect_meta" not in _tj_src2 and ".jsonl\"" not in _tj_src2.replace("tier_fwd_ledger.jsonl", "")
+          and "bot.send_telegram" not in _tj_src2 and "TELEGRAM_OWNER_ID" in _tj_src2
+          and "trade_journal.jsonl" in _tj_gi and _TJ.send_owner("x", owner="", token="t") is False,
+          f"rc={_tj_rc} sent={len(_tj_sent)} out={_tj_out[:120]!r}")
 except Exception as _e:                                          # noqa: BLE001
     check("📣 أقفالُ «تحرّك 30%» والدفتر انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
@@ -102680,11 +102750,16 @@ try:
     finally:
         S.CONFIG["X30_STAT_LINE"], S.CONFIG["OE_STAT_LINE"] = _xcs_cfg0
     _xcs_nofile = S.load_oe_card_stats(_os_hc.path.join("fm_forensics", "xmove", "__لا_ملفّ__.json"), fresh=True)
-    check("📊📣 XCS2 السطرُ = `oe_stat_line` حرفًا (العاديّ ‏+ 🥇 حين في الرسالة 🥇 وحدَه) · عيّنةٌ دون 30 لا سطر · بلا ملفٍّ لا سطر · "
-          "`X30_STAT_LINE=False` ⟵ لا سطر",
-          _xcs_l2 == _xcs_oe and _xcs_l1 == _xcs_oe[:1] and _xcs_small == _xcs_oe[1:] and _xcs_off == []
+    _xcs_exp = [_xcs_oe[0] + " (800)", _xcs_oe[1] + " (120)"]           # 🔢 ①-1: حجمُ العيّنة آخرَ السطر
+    _xcs_tiny = S.x30_stat_lines(_xcs_rows, {"normal": _xcs_st["normal"], "gold": dict(_xcs_st["gold"], n=99)})
+    _xcs_big = S.x30_stat_lines(_xcs_rows, {"normal": dict(_xcs_st["normal"], n=1038), "gold": dict(_xcs_st["gold"], n=100)})
+    check("📊📣 XCS2 السطرُ = `oe_stat_line` حرفًا ‏+ حجمُ العيّنة «(N)» آخرَه ودون 100 «عيّنة صغيرة» بعده (أمرُ المالك ①-1) · العاديّ ‏+ 🥇 حين "
+          "في الرسالة 🥇 وحدَه · عيّنةٌ دون 30 لا سطر · بلا ملفٍّ لا سطر · `X30_STAT_LINE=False` ⟵ لا سطر",
+          _xcs_l2 == _xcs_exp and _xcs_l1 == _xcs_exp[:1] and _xcs_small == _xcs_exp[1:] and _xcs_off == []
+          and _xcs_tiny[1] == _xcs_oe[1] + " (99) عيّنة صغيرة" and _xcs_big == [_xcs_oe[0] + " (1,038)", _xcs_oe[1] + " (100)"]
+          and S.X30_SMALL_N == 100
           and _xcs_nofile == {} and S.x30_stat_lines(_xcs_rows, {}) == [] and S.CONFIG.get("X30_STAT_LINE") is True,
-          f"{_xcs_l2} {_xcs_small} {_xcs_off}")
+          f"{_xcs_l2} {_xcs_small} {_xcs_off} {_xcs_tiny}")
     _xcs_src = _insp.getsource(S.build_xmove_alert)
     _xcs_cfg1 = S.CONFIG.get("X30_STAT_LINE")
     _xcs_load0 = S.load_oe_card_stats
@@ -102701,14 +102776,35 @@ try:
     _xcs_wy = _e2p_yaml.safe_load(_xcs_wf)
     _xcs_on_key = _xcs_wy.get("on", _xcs_wy.get(True)) or {}
     _xcs_tool = open(_os_hc.path.join("fm_forensics", "xmove", "x30_card_stats.py"), encoding="utf-8").read()
+    _xcs_cron = [c.get("cron") for c in (_xcs_on_key.get("schedule") or [])]
     check("📊📣 XCS3 الوصل: الرسالةُ تحمل السطرين قبل سطر ℹ️ والمفتاحُ مطفأً يُرجعها بلا سطرٍ واحدٍ زائد (بت-بت عدا ذلك) · "
-          "والـworkflow يدويٌّ بلا كرون ولا تلغرام · والأداةُ تقيس بدالّتَي `opsig` بالاسم ولا ترسل",
+          "والـworkflow كرونُ السبت وحدَه (وضعُ live · ①-1) ‏+ يدويّ بلا تلغرام · والأداةُ تقيس بدالّتَي `opsig` بالاسم ولا ترسل",
           "x30_stat_lines(rows)" in _xcs_src and len(_xcs_on_l) == len(_xcs_off_l) + 2
           and _xcs_on_l[-1] == _xcs_off_l[-1] and _xcs_on_l[:-3] == _xcs_off_l[:-1]
-          and [x.lstrip("‏") for x in _xcs_on_l[-3:-1]] == _xcs_oe
-          and "schedule" not in _xcs_on_key and "workflow_dispatch" in _xcs_on_key and "TELEGRAM" not in _xcs_wf
+          and [x.lstrip("‏") for x in _xcs_on_l[-3:-1]] == _xcs_exp
+          and _xcs_cron == ["43 15 * * 6"] and "workflow_dispatch" in _xcs_on_key and "TELEGRAM" not in _xcs_wf
+          and "github.event_name == 'schedule' && 'live'" in _xcs_wf and "x30_card_stats.py live" in _xcs_wf
           and "OP.outcome" in _xcs_tool and "OP.card_stats" in _xcs_tool and "send_telegram" not in _xcs_tool,
           f"{len(_xcs_on_l)} {len(_xcs_off_l)} {_xcs_on_l[-3:]}")
+    _xcs_states = [{"XM:aa": {"date": "2026-11-16", "ms": 500, "px": 2.0, "gold": True}, "OE:QQ": {"date": "2026-11-16", "ms": 1, "px": 1.0},
+                    "XM:BB": {"date": "2026-11-18", "ms": 9, "px": 1.0}},
+                   {"XM:AA": {"date": "2026-11-16", "ms": 400, "px": 1.9}, "XM:CC": {"date": "2026-11-17", "ms": 7, "px": 0.0},
+                    "XM:DD": {"date": "2026-11-17", "px": 1.0}, "XM:EE": {"date": "2026-11-17", "ms": 70, "px": 3.0}}]
+    _xcs_lf = _XCS.live_fires(_xcs_states, "2026-11-18")
+    _xcs_lseen = []
+
+    def _xcs_lout(bars, t0, E):
+        _xcs_lseen.append((t0, E))
+        return {"maxg": 1.0}
+    _xcs_lb = [(400, 1, 1, 1, 1.95, 1), (60_400, 1, 2, 1, 2.0, 1)]
+    check("📊📣 XCS4 الحيّ (①-1): إشعاراتُ «تحرّك 30%» المُرسَلة من ختم `XM:` في لقطات الحالة · الأبكرُ لكلّ (يوم، رمز) · الجلسةُ غيرُ المكتملة "
+          "(اليومُ فما بعد) خارجها · سعرٌ صفرٌ أو ناقصٌ لا يُخترَع · والنتيجةُ من سعر الإشعار على الشموع **بعد** دقيقته · وبلا شمعته لا نتيجة",
+          [(f["d"], f["sym"], f["ms"], f["px"], f["gold"], f["src"]) for f in _xcs_lf]
+          == [("2026-11-16", "AA", 400, 1.9, False, "live"), ("2026-11-17", "EE", 70, 3.0, False, "live")]
+          and _XCS.live_outcome(_xcs_lb, 400, 1.9, _xcs_lout) == ({"maxg": 1.0}, 1.95) and _xcs_lseen == [(60_400, 1.9)]
+          and _XCS.live_outcome(_xcs_lb, 999, 1.9, _xcs_lout) == (None, None)
+          and _XCS.publish({"normal": {"n": 3}}, 3, "d", n_live=2)["source"].endswith("منها حيّةٌ مُرسَلة 2"),
+          f"{_xcs_lf} {_xcs_lseen}")
 except Exception as _e:                                          # noqa: BLE001
     check("📊📣 أقفالُ سطر «تحرّك 30%» انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 

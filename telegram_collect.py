@@ -103,6 +103,15 @@ def owner_id(raw=None):
 JOURNAL_CMD_RE = re.compile(r"^\s*(?:صفقة|خروج)\s*[:：]")     # أوامرُ الدفتر وحدَها (`trade_journal.parse_cmd`)
 
 
+def journal_sink():
+    """🔐 خزنةُ الدفتر إن كانت مُفعَّلة (`journal_vault.enabled`) ⟵ دالّةُ الإلحاق · وإلّا None (لا التقاط)."""
+    try:
+        import journal_vault as JV                       # noqa: E402 — كسول
+    except Exception:                                    # noqa: BLE001
+        return None
+    return JV.add_inbox if JV.enabled() else None
+
+
 def forward_meta(msg):
     """🧾 مصدرُ إعادة التوجيه **بلا هويّةٍ شخصيّة** ⇒ dict أو None (رسالةٌ غيرُ مُعادٍ توجيهُها). نقيّة.
 
@@ -182,7 +191,7 @@ def file_meta(msg, f):
     return {k: v for k, v in got.items() if v is not None}
 
 
-def msg_meta(u, msg, status, f=None, admin=None, owner=None, **extra):
+def msg_meta(u, msg, status, f=None, admin=None, owner=None, journal_sink=None, **extra):
     """🧾 صفُّ بياناتٍ لرسالةٍ واحدة ⇒ dict جاهزٌ لسطر JSONL (نقيّةٌ عدا `collected_utc`).
 
     `admin` = معرّفُ المشرف · أو قائمةُ المستلمين كلِّهم (`recipient_ids` · الأوّلُ = المشرف) يُقارَن بمعرّف المحادثة **ولا
@@ -205,11 +214,15 @@ def msg_meta(u, msg, status, f=None, admin=None, owner=None, **extra):
            "file": (file_meta(msg, f) or None) if f else None,
            "collected_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
            "run_id": os.environ.get("GITHUB_RUN_ID") or None}
+    # 🔐 (أمرُ المالك 2026-11-17 ①-2) أمرُ الدفتر «صفقة:»/«خروج:» **لا يُكتب نصُّه في هذا الملفّ العامّ أبدًا** — من المشرف أو من
+    #    حساب المالك — بل يُسلَّم للخزنة المشفّرة (`journal_sink` ⟵ `journal_vault.add_inbox`) · وبلا خزنةٍ لا يُحفظ في أيّ مكان.
+    _jtxt = str(msg.get("text") or "")
+    _jcmd = bool(JOURNAL_CMD_RE.match(_jtxt))
     if from_admin:
         row["forward"] = fm
         if msg.get("caption"):
             row["caption"] = str(msg.get("caption"))[:TEXT_CAP]
-        if msg.get("text"):
+        if msg.get("text") and not _jcmd:
             row["text"] = str(msg.get("text"))[:TEXT_CAP]
         links = [e.get("url") for e in (list(msg.get("caption_entities") or [])
                                         + list(msg.get("entities") or []))
@@ -221,10 +234,14 @@ def msg_meta(u, msg, status, f=None, admin=None, owner=None, **extra):
         row["forward"] = forward_public(fm)
         if from_admin is False:
             row["from_recipient"] = str(cid) in ids
-        # 📒 دفترُ الصفقات: **أمرُ الدفتر وحدَه** من حساب المالك (`owner_id`) يُحفظ نصُّه · وما سواه محجوبٌ كما كان · وبلا السرّ بت-بت
-        if owner and cid is not None and str(cid) == str(owner) and JOURNAL_CMD_RE.match(str(msg.get("text") or "")):
+        # 📒 دفترُ الصفقات: أمرُ الدفتر من حساب المالك (`owner_id`) يُعلَّم `from_owner` · ونصُّه للخزنة وحدَها · وما سواه محجوبٌ كما كان
+        if owner and cid is not None and str(cid) == str(owner) and _jcmd:
             row["from_owner"] = True
-            row["journal_cmd"] = str(msg.get("text"))[:TEXT_CAP]
+        else:
+            _jcmd = False
+    if _jcmd:
+        row["journal_vaulted"] = bool(journal_sink and journal_sink(
+            {"message_id": msg.get("message_id"), "date": _iso(msg.get("date")), "text": _jtxt[:TEXT_CAP]}))
     row.update(extra)
     return {k: v for k, v in row.items() if v is not None or k in KEEP_NULL}
 
@@ -695,7 +712,7 @@ def main():
                 else:
                     no_media.append(int(msg.get("message_id") or 0))
                 _mrow(msg_meta(u, msg, f"dropped:{_media}" if _media else "no_media",
-                               None, adm, owner=owner_id()))
+                               None, adm, owner=owner_id(), journal_sink=journal_sink()))
                 marks.append((uid, True))            # نصّ ⇒ لا شيء يُفقَد
                 continue
             if f["file_id"] in seen_uid:
