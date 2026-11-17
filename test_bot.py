@@ -101697,7 +101697,7 @@ try:
     _cells = _MM.cell_diffs(_ours, _MM.MOMO)
     _sc = _MM.score(_cells)
     _gt = (_MM.gate([30.0, 45.0]), _MM.gate([30.0001, 45.0]), _MM.gate([None, 12.0]), _MM.gate([None, None]))
-    _env0 = {k: v for k, v in _mm_os.environ.items() if k != "POLYGON_API_KEY"}
+    _env0 = {k: v for k, v in _mm_os.environ.items() if k != "POLYGON_API_KEY"} | {"MOMO_REOPEN": "1"}
     _rc = lambda m: _mm_spr.run([_mm_sys.executable, "fm_forensics/tblock/momo.py", "--mode", m], env=_env0, capture_output=True,
                                 text=True, timeout=120).returncode
     _rcs = (_rc("check"), _rc("run"))
@@ -101739,7 +101739,7 @@ try:
     _cuts = (_M19.cut_by_volume(_t, 300), _M19.cut_by_volume(_t, 301), _M19.cut_by_volume(_t, 5000))
     _gates = (_M19.gate_any({("R-Q", "all"): 31.0, ("R-T", "cond"): 30.0}), _M19.gate_any({("R-Q", "all"): 25.0, ("R-T", "cond"): 25.0}),
               _M19.gate_any({("R-Q", "all"): 30.0001}), _M19.gate_any({("R-Q", "all"): None}))
-    _env = {k: v for k, v in _c19_os.environ.items() if k != "POLYGON_API_KEY"}
+    _env = {k: v for k, v in _c19_os.environ.items() if k != "POLYGON_API_KEY"} | {"MOMO_REOPEN": "1"}
     _rc3 = _c19_sp.run([_c19_sys.executable, "fm_forensics/tblock/momo.py", "--mode", "cut"], env=_env, capture_output=True, text=True,
                        timeout=120).returncode
     _td = _c19_tf.mkdtemp()
@@ -101790,7 +101790,7 @@ try:
     _cells_n = lambda pct: {("S%d" % k, "buy"): (0, 20000, pct, True) for k in range(4)}
     _g4 = (_M20.gate4(_cells_n(30.0)), _M20.gate4(_cells_n(30.0001)),
            _M20.gate4({("S", "buy"): (0, 20000, 5.0, True), ("S", "sell"): (0, 900, 500.0, False)}))
-    _env = {k: v for k, v in _c20_os.environ.items() if k != "POLYGON_API_KEY"}
+    _env = {k: v for k, v in _c20_os.environ.items() if k != "POLYGON_API_KEY"} | {"MOMO_REOPEN": "1"}
     _rc7 = _c20_sp.run([_c20_sys.executable, "fm_forensics/tblock/momo.py", "--mode", "set"], env=_env, capture_output=True, text=True,
                        timeout=120).returncode if not _c20_os.path.exists(_M20.SET_FILE) else 7
     _c20_sh.copy("fm_forensics/tblock/momo.py", _td)
@@ -102976,6 +102976,136 @@ try:
           str(_nqh2_c[("4", "2023")]))
 except Exception as _e:                                          # noqa: BLE001
     check("📗⏱️ أقفالُ الاستثناءين الأخيرين انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+# 🥁 RHY1 — T-RHYTHM (عقد `T_RHYTHM_prereg.md` · أمرُ المالك 2026-11-17): «في موعده» = |s − ḡ| ضمن 25% من ḡ شاملًا الحدّين · الانفجاراتُ
+#    من `daily_filters.explosions` بالاسم · اختلافُ عدد الانفجارات عن المسجَّل ⟵ mismatch · وأقلّ من اثنين ⟵ out · والعقدُ ببصمته وإلّا 11.
+try:
+    import importlib.util as _rhy_iu, sys as _rhy_sys, os as _rhy_os, subprocess as _rhy_sp, shutil as _rhy_sh, tempfile as _rhy_tf
+    _rhy_sys.path.insert(0, _rhy_os.path.abspath("fm_forensics/nawaqis"))
+    _rhy_s = _rhy_iu.spec_from_file_location("rhythm_rhy1", "fm_forensics/nawaqis/rhythm.py")
+    _RHY = _rhy_iu.module_from_spec(_rhy_s); _rhy_s.loader.exec_module(_RHY)
+    _rhy_c = [1.0] * 260
+    for _e in (30, 80, 130):
+        _rhy_c[_e] = 2.5
+    _rhy_r = [(_RHY.rhythm(_rhy_c, i) or {}).get("R") for i in (167, 168, 180, 192, 193)]
+    _rhy_c1 = [1.0] * 260; _rhy_c1[30] = 2.5
+
+    def _rhy_fx(es):
+        c = [1.0] * 260
+        for e in es:
+            c[e] = 2.5
+        return c
+    _rhy_b = [(_RHY.rhythm(_rhy_fx((30, 70, 110)), i) or {}).get("R") for i in (139, 140, 159, 160, 161)]   # ḡ=40 ⟵ الحدُّ 10 بالضبط
+    _rhy_cc = _RHY.rhythm(_rhy_fx((30, 70, 130)), 168)                                                     # فواصلُ 40 و60 ⟵ المتوسّط 50 لا الأكبر
+    _rhy_dd = _RHY.rhythm(_rhy_fx((30, 80, 175)), 180)                                                     # انفجارٌ داخل العشرين الأخيرة لا يُعَدّ
+    _rhy_env = {k: v for k, v in _rhy_os.environ.items() if k != "POLYGON_API_KEY"}
+    _rhy_rc2 = _rhy_sp.run([_rhy_sys.executable, "fm_forensics/nawaqis/rhythm.py", "shard", "0"], env=_rhy_env, capture_output=True, text=True,
+                           timeout=120).returncode
+    _rhy_td = _rhy_tf.mkdtemp()
+    for _f in ("rhythm.py", "daily_filters.py", "filter_core.py", "tbook.py", "FILTER_PROTOCOL.md"):
+        _rhy_sh.copy(_rhy_os.path.join("fm_forensics/nawaqis", _f), _rhy_td)
+    open(_rhy_os.path.join(_rhy_td, "T_RHYTHM_prereg.md"), "w", encoding="utf-8").write("x")
+    _rhy_rc11 = _rhy_sp.run([_rhy_sys.executable, _rhy_os.path.join(_rhy_td, "rhythm.py"), "assemble"], env=_rhy_env, capture_output=True,
+                            text=True, timeout=120).returncode
+    _rhy_sh.rmtree(_rhy_td, ignore_errors=True)
+    _rhy_v = (_rhy_r, _RHY.rhythm(_rhy_c, 180, 2), _RHY.rhythm(_rhy_c, 180, 3)["g"], _RHY.rhythm(_rhy_c1, 180), _RHY.TOL,
+              _RHY.contract_ok(), _rhy_rc2, _rhy_rc11, _RHY.FPRINT_RUN, _rhy_b, _rhy_cc, _rhy_dd)
+except Exception as _e:                                          # noqa: BLE001
+    _rhy_v = f"⛔ {type(_e).__name__}: {_e}"
+check("🥁 RHY1 T-RHYTHM: «في موعده» ±25% شاملًا (37 لا · 38 نعم · 50 · 62 نعم · 63 لا على ḡ=50) · العددُ المخالف للمسجَّل ⟵ mismatch · "
+      "انفجارٌ واحد ⟵ out · العقدُ يطابق بصمتَه (وإلّا 11) · وبلا مفتاح ⟵ 2 · ومجتمعُ fprint من 44071032068",
+      _rhy_v == ([False, True, True, True, False], "mismatch", 50.0, "out", 0.25, True, 2, 11, 44071032068, [False, True, True, True, False],
+                 {"R": True, "s": 38, "g": 50.0, "k": 3}, {"R": False, "s": 100, "g": 50.0, "k": 2}), str(_rhy_v)[:260])
+
+# 🙈 BPK1 — T-BLIND-PICK (عقد `T_BLIND_PICK_prereg.md` · أمرُ المالك 2026-11-17): الجلسةُ = آخرُ جلسةٍ أُغلقت قبل اللقطة والأحدثُ يغلب وحتى 10-16 ·
+#    الاختيارُ بالدرجة ثمّ القرعة بلا تكرار · المجهولُ لا يُعدّ · المتاحُ في [d−7، d] · الفلوتُ المؤرَّخُ بعد اللقطة لا يُقرأ · الردُّ صارم ·
+#    وترقيمُ الجلسات بقرعةٍ لا بالزمن · والحكمُ «لا قياس» دون 30 · و«تعبر» يلزمه r موجب · والعقدُ ببصمته وإلّا 11.
+try:
+    import importlib.util as _bp_iu, sys as _bp_sys, os as _bp_os, subprocess as _bp_sp, datetime as _bp_dt
+    _bp_s = _bp_iu.spec_from_file_location("blindpick_bpk1", "fm_forensics/blindpick/blindpick.py")
+    _BP = _bp_iu.module_from_spec(_bp_s); _bp_s.loader.exec_module(_BP)
+    _bp_U = _bp_dt.timezone.utc
+    _bp_cl = lambda d: _bp_dt.datetime.fromisoformat(d + "T21:00:00+00:00")                       # noqa: E731
+    _bp_snaps = [(_bp_dt.datetime(2026, 10, 15, 6, tzinfo=_bp_U), "a"), (_bp_dt.datetime(2026, 10, 15, 22, tzinfo=_bp_U), "b"),
+                 (_bp_dt.datetime(2026, 10, 16, 20, tzinfo=_bp_U), "c"), (_bp_dt.datetime(2026, 10, 17, 1, tzinfo=_bp_U), "d"),
+                 (_bp_dt.datetime(2026, 10, 20, 6, tzinfo=_bp_U), "e")]
+    _bp_plan = [(d, h) for d, _t, h in _BP.plan_sessions(_bp_snaps, ["2026-10-14", "2026-10-15", "2026-10-16", "2026-10-19"], _bp_cl)]
+    _bp_sel = _BP.select([("2026-08-24", [("C", 5), ("A", 4), ("G", 1), ("H", 1), ("I", 1), ("J", 0)]),
+                          ("2026-08-21", [("A", 3), ("B", 3), ("C", 5), ("D", 1), ("E", 2), ("F", 2)])])
+    _bp_tie = sorted(["A", "B"], key=lambda x: _BP.lottery("2026-08-21", x))
+    _bp_idx = {"X": [("2026-10-08", 9.0), ("2026-10-09", 5.0), ("2026-10-17", 1.0)]}
+    _bp_av = (_BP.avail_asof(_bp_idx, "X", "2026-10-16"), _BP.avail_asof(_bp_idx, "X", "2026-10-15"), _BP.avail_asof(_bp_idx, "X", "2026-10-19"))
+    _bp_fl = (_BP.float_asof({"symbol": "X", "float": 1e6, "float_date": "2026-10-01"}, "2026-10-01", {}),
+              _BP.float_asof({"symbol": "X", "float": 1e6, "float_date": "2026-10-02"}, "2026-10-01", {"X": {"float": 7e6}}),
+              _BP.float_asof({"symbol": "Y"}, "2026-10-01", {}))
+    _bp_f = (_BP.flags_of(32.9, 3.9e6, 19999, {"stable": True}, {"boom": False}, 4e6, 20000)[1],
+             _BP.flags_of(33.0, 4e6, 20000, {"stable": False}, {"boom": True}, 4e6, 20000)[1],
+             _BP.flags_of(None, None, None, None, None, 4e6, 20000)[1])
+    _bp_bad = 0
+    for _x in ("41-1", "1-6", "1-2,1-3", "x", "0-1"):
+        try:
+            _BP.parse_picks(_x, 40)
+        except ValueError:
+            _bp_bad += 1
+    _bp_FC = _bp_iu.spec_from_file_location("fc_bpk1", "fm_forensics/nawaqis/filter_core.py"); _bp_fcm = _bp_iu.module_from_spec(_bp_FC)
+    _bp_FC.loader.exec_module(_bp_fcm)
+    _bp_ci = lambda pairs: [-1.0, 1.0] if pairs and min(v for _s, v in pairs) < 0 else [0.01, 1.0]                       # noqa: E731
+
+    def _bp_rec(s, d, r, c):
+        return {"sym": s, "d": d, "res": {"O0": {"r": r}, "O50": {"r": r}}, "ctrl": [{"O0": c, "O50": c}]}
+    _bp_recs = [_bp_rec(f"P{i}", f"d{i}", 0.3, 0.0) for i in range(30)] + [_bp_rec(f"Q{i}", f"d{i}", -0.2, 0.0) for i in range(120)]
+    _bp_pk = {(f"P{i}", f"d{i}") for i in range(30)}
+    _bp_old = _bp_fcm.boot_diff
+    try:
+        _bp_fcm.boot_diff = lambda a, b, *k, **kw: [0.01, 1.0]
+        _bp_e1 = _BP.judge_eval(_bp_recs, _bp_pk, _bp_fcm, _bp_ci)
+        _bp_e2 = _BP.judge_eval(_bp_recs[1:], {k for k in _bp_pk if k != ("P0", "d0")}, _bp_fcm, _bp_ci)
+        _bp_recs3 = [_bp_rec(f"P{i}", f"d{i}", -0.01, -0.5) for i in range(30)] + _bp_recs[30:]
+        _bp_e3 = _BP.judge_eval(_bp_recs3, _bp_pk, _bp_fcm, _bp_ci)
+    finally:
+        _bp_fcm.boot_diff = _bp_old
+    _bp_env = {k: v for k, v in _bp_os.environ.items() if k != "POLYGON_API_KEY"}
+    _bp_rc2 = _bp_sp.run([_bp_sys.executable, "fm_forensics/blindpick/blindpick.py", "cards"], env=_bp_env, capture_output=True, text=True,
+                         timeout=120).returncode
+    import tempfile as _bp_tf, shutil as _bp_sh
+    _bp_td = _bp_tf.mkdtemp()
+    _bp_sh.copy("fm_forensics/blindpick/blindpick.py", _bp_td)
+    open(_bp_os.path.join(_bp_td, "T_BLIND_PICK_prereg.md"), "w", encoding="utf-8").write("x")
+    _bp_rc11 = _bp_sp.run([_bp_sys.executable, _bp_os.path.join(_bp_td, "blindpick.py"), "cards"], env=_bp_env, capture_output=True,
+                          text=True, timeout=120).returncode
+    _bp_sh.rmtree(_bp_td, ignore_errors=True)
+    _bp_rc2 = (_bp_rc2, _bp_rc11)
+    _bp_v = (_bp_plan, _bp_sel, _bp_tie, _bp_av, _bp_fl, _bp_f, _bp_bad, _BP.sess_order(["2026-08-21", "2026-08-24", "2026-10-16"]),
+             (_bp_e1["verdict"], _bp_e1["best"], _bp_e1["best_n"]), _bp_e2["verdict"], _bp_e3["verdict"], _BP.contract_ok(), _bp_rc2,
+             _BP.D_MAX, _BP.N_SESS, _BP.RSI_MAX, _BP.BASKET_RUN)
+except Exception as _e:                                          # noqa: BLE001
+    _bp_v = f"⛔ {type(_e).__name__}: {_e}"
+check("🙈 BPK1 T-BLIND-PICK: الجلسةُ آخرُ مُغلقةٍ قبل اللقطة والأحدثُ يغلب وحتى 10-16 · الاختيارُ بالدرجة ثمّ القرعة بلا تكرار (من الأقدم) · "
+      "المتاحُ في [d−7، d] · الفلوتُ بعد اللقطة لا يُقرأ · المجهولُ لا يُعدّ · الردُّ صارم · وترقيمُ الجلسات بقرعة · و«لا قياس» دون 30 · و«تعبر» يلزمه r موجب",
+      isinstance(_bp_v, tuple) and _bp_v[0] == [("2026-10-14", "a"), ("2026-10-15", "c"), ("2026-10-16", "d")]
+      and _bp_v[1]["2026-08-21"][:3] == ["C"] + _bp_v[2] and set(_bp_v[1]["2026-08-21"]) == {"C", "A", "B", "E", "F"}
+      and _bp_v[1]["2026-08-21"][3:] == sorted(["E", "F"], key=lambda x: _BP.lottery("2026-08-21", x))
+      and _bp_v[1]["2026-08-24"] == sorted(["G", "H", "I"], key=lambda x: _BP.lottery("2026-08-24", x)) + ["J"]
+      and _bp_v[3] == (5.0, 5.0, 1.0) and _bp_v[4] == (1e6, 7e6, None) and _bp_v[5] == (5, 0, 0) and _bp_v[6] == 5
+      and _bp_v[7] == ["2026-08-24", "2026-08-21", "2026-10-16"] and _bp_v[8] == ("✅ تعبر", 30, 30) and _bp_v[9] == "لا قياس"
+      and _bp_v[10] == "❌ لا تعبر" and _bp_v[11:] == (True, (2, 11), "2026-10-16", 40, 33.0, 43955351411), str(_bp_v)[:300])
+
+# 🔒 MOC1 — «اقفل كمية التجميع» (أمرُ المالك 2026-11-17): momo.py ‏run/cut/set تخرج 8 بلا MOMO_REOPEN=1 حرفيًّا · وcheck مفتوح (0).
+try:
+    import importlib.util as _moc_iu, subprocess as _moc_sp, sys as _moc_sys, os as _moc_os
+    _moc_s = _moc_iu.spec_from_file_location("momo_moc1", "fm_forensics/tblock/momo.py")
+    _MOC = _moc_iu.module_from_spec(_moc_s); _moc_s.loader.exec_module(_MOC)
+    _moc_env = {k: v for k, v in _moc_os.environ.items() if k not in ("POLYGON_API_KEY", "MOMO_REOPEN")}
+    _moc_rc = lambda m, e: _moc_sp.run([_moc_sys.executable, "fm_forensics/tblock/momo.py", "--mode", m], env=e, capture_output=True,
+                                       text=True, timeout=120).returncode
+    _moc_v = (_moc_rc("run", _moc_env), _moc_rc("cut", _moc_env), _moc_rc("set", _moc_env), _moc_rc("check", _moc_env),
+              _moc_rc("run", _moc_env | {"MOMO_REOPEN": "0"}), _moc_rc("run", _moc_env | {"MOMO_REOPEN": "1"}),
+              _MOC.CLOSED, _MOC.blocked({}, True), _MOC.blocked({"MOMO_REOPEN": "1"}, True), _MOC.blocked({"MOMO_REOPEN": "yes"}, True),
+              _MOC.blocked({}, False))
+except Exception as _e:                                          # noqa: BLE001
+    _moc_v = f"⛔ {type(_e).__name__}: {_e}"
+check("🔒 MOC1 كميةُ التجميع مُغلَقةٌ مُنفَّذًا: run/cut/set ⟵ 8 بلا MOMO_REOPEN=1 (و«0» يبقى 8) · وبالإقرار run بلا مفتاح ⟵ 3 · وcheck ⟵ 0",
+      _moc_v == (8, 8, 8, 0, 8, 3, True, True, False, True, False), str(_moc_v)[:200])
 
 # 🪜 NQS2 — عطلٌ مُثبَت 2026-11-17 (`44070973064`): `tested_level` يُرجع {"level","touches"} فـ`float(L)` رمى في الشرائح الأربعين
 #    ⟵ المستوى يمرّ بـ`filter_core.level_value` في `support2.level_of` و`tbook.level_at` (سلوكيًّا بجذعٍ يُرجع القاموسَ نفسَه).

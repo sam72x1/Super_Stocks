@@ -1,0 +1,75 @@
+name: "🙈 T-BLIND-PICK اختبارٌ أعمى لاختيار المالك (يدويّ)"
+
+# أمرُ المالك 2026-11-17 «برومبت شامل» ② — العقد `fm_forensics/blindpick/T_BLIND_PICK_prereg.md` · لا كرون.
+# cards: 40 جلسة × 5 بطاقات بلا رمزٍ ولا تاريخ ⟵ ملفٌّ واحد على تلغرام (أمرُ المالك) · ومفتاحُ البطاقات مشفّرٌ وحدَه في blind_pick.vault.
+# judge: اختياراتُ المالك ⟵ داخل الخزنة ⟵ الحكمُ بقاعدة FILTER_PROTOCOL على آلة T-BASKET وضابطها (43955351411).
+permissions:
+  contents: write
+  actions: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "cards (البناءُ والإرسال) | judge (الحكم بعد الاختيارات)"
+        required: true
+        default: "cards"
+      picks:
+        description: "judge فقط: «1-3, 2-5, 3: أعرفه …» (أرقامُ بطاقاتٍ بلا رموز)"
+        required: false
+        default: ""
+
+concurrency:
+  group: super-stocks-blindpick
+  cancel-in-progress: false
+
+jobs:
+  blindpick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: 📥 prep من T-BASKET (للحكم)
+        if: ${{ inputs.mode == 'judge' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: basket-prep
+          path: bp_in
+          run-id: 43955351411
+          github-token: ${{ github.token }}
+      - name: 🙈 التشغيل
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TRADE_JOURNAL_KEY: ${{ secrets.TRADE_JOURNAL_KEY }}
+          BP_MODE: ${{ inputs.mode }}
+          BLIND_PICKS: ${{ inputs.picks }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          case "$BP_MODE" in cards|judge) ;; *) echo "mode غيرُ معروف: $BP_MODE"; exit 2;; esac
+          python fm_forensics/blindpick/blindpick.py "$BP_MODE" --dir bp_in
+      - name: 💾 الخزنة (مشفّرة) والنتيجة
+        env:
+          BP_MODE: ${{ inputs.mode }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f blind_pick.vault
+          if [ -f fm_forensics/blindpick/T_BLIND_PICK_RESULT.md ]; then git add -f fm_forensics/blindpick/T_BLIND_PICK_RESULT.md; fi
+          if git diff --cached --quiet; then echo "لا جديد"; exit 0; fi
+          git commit -q -m "🙈 T-BLIND-PICK: $BP_MODE"
+          ok=0
+          for i in 1 2 3 4 5; do
+            if git push; then ok=1; break; fi
+            git fetch origin "$GITHUB_REF_NAME" && git rebase "origin/$GITHUB_REF_NAME" || git rebase --abort || true
+            sleep $((2**i))
+          done
+          if [ "$ok" != 1 ]; then echo "⛔ الدفعُ فشل"; exit 1; fi

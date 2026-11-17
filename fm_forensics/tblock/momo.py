@@ -17,6 +17,9 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 ADDENDUM_2 = os.path.join(HERE, "T_BLOCK_addendum_2.md")
 ADDENDUM_2_SHA = "3d948ddc7b79c7ee6b30457913c7d90f8b3017ab7b1c561ef5a9a2397d84f163"
 CONTRACT_RC, KEY_RC, DATA_RC = 9, 3, 7
+REOPEN_ENV = "MOMO_REOPEN"
+CLOSED = True                              # 🔒 2026-11-17 أمرُ المالك «اقفل كمية التجميع» (بعد الملحق 4: 32.4%) ⟵ run/cut/set تخرج 8 بلا MOMO_REOPEN=1 · وcheck مفتوح
+CLOSED_RC = 8
 DAY = "2026-11-10"
 MOMO = {"NXXT": (548_010, 296_840, 766_420), "SMX": (1_290_000, 1_100_000, 3_690_000), "MCGA": (129_410, 910, 4_580)}
 COMP = ("buy", "sell", "neutral")
@@ -298,6 +301,12 @@ def main_set():
     return 0
 
 
+def blocked(env=None, closed=None):
+    """(نقيّة) المحورُ مُغلَقٌ وما أُقرّ `MOMO_REOPEN == "1"` حرفيًّا."""
+    closed = CLOSED if closed is None else closed
+    return bool(closed) and (os.environ if env is None else env).get(REOPEN_ENV, "") != "1"
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--mode", default="check", choices=("check", "run", "cut", "set"))
@@ -305,6 +314,9 @@ def main(argv=None):
     if not contract_ok():
         log("⛔ بصمةُ الملحق 2 تغيّرت — لا تشغيل")
         return CONTRACT_RC
+    if a.mode != "check" and blocked():
+        log(f"⛔ محورُ «كمية التجميع» (T-BLOCK ②/مومو) مُغلَقٌ مُنفَّذًا — `{REOPEN_ENV}` لم يُقَرّ بـ\"1\" — خروج 8")
+        return CLOSED_RC
     if a.mode == "set":
         return main_set()
     if a.mode == "cut" and not addendum3_ok():
