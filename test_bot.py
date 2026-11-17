@@ -102572,6 +102572,16 @@ try:
           and "schedule" not in _bsk_oon and "secrets." not in _bsk_oraw and "TELEGRAM" not in _bsk_oraw
           and not any(w in _bsk_osrc for w in ("urllib", "requests", "http.client", "socket")),
           str(_BKO.flag({"res": {"O0": {"r": 7.58}, "O30": {"r": 1.0}, "X0": {"r": -0.95}, "X30": {"r": -1.01}}})))
+    # 🧺 BSK9 (2026-11-16): بعد الحكم «مرّةٌ واحدة» نافذة · والوثيقةُ تقول ما في البيانات.
+    _bsk_res = json.load(open(_bsk_os.path.join("fm_forensics", "basket", "data", "basket_result_2026-11-16.json"), encoding="utf-8"))
+    _bsk_doc = open(_bsk_os.path.join("fm_forensics", "basket", "T_BASKET_RESULT.md"), encoding="utf-8").read()
+    _bsk_tab = _bsk_doc.split("## ② ")[1].split("## ③")[0] if "## ② " in _bsk_doc else ""
+    check("🧺 BSK9 بعد الحكم: النتيجةُ في data/ ⟵ الحارسُ الحقيقيّ بالإقرار يخرج 7 «مرّةٌ واحدة» · والحكمُ في الوثيقة = بيانات assemble "
+          "(الستّ «غيرُ مُثبَت» · بصمةُ العقد نفسُها)",
+          _BK.result_exists() and _BK.gate({"TRAIL_REOPEN": "1"}) == 7
+          and set(_bsk_res.get("verdict", {}).values()) == {"غيرُ مُثبَت"} and len(_bsk_res.get("verdict", {})) == 6
+          and _bsk_res.get("contract_sha") == _BK.CONTRACT_SHA and _bsk_tab.count("**غيرُ مُثبَت**") == 6,
+          f"{_BK.gate({'TRAIL_REOPEN': '1'})} {_bsk_res.get('verdict')}")
 except Exception as _e:                                          # noqa: BLE001
     check("🧺 أقفالُ T-BASKET انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
