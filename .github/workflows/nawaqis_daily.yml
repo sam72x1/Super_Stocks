@@ -1,0 +1,84 @@
+name: "📉📈🧬 فلاترُ الشموع اليوميّة T-FPRINT وT-DIVERGE (المعلّقات ②-4 و②-5)"
+
+# أمرُ المالك 2026-11-17 «برومبت شامل للنواقص» — 📉📈🧬 فلاترُ الشموع اليوميّة T-FPRINT وT-DIVERGE (المعلّقات ②-4 و②-5) · قراءةٌ فقط.
+# يدويٌّ بلا كرون · لا تلغرام · لا دفع · النتيجةُ artifact وسجلّ.
+permissions:
+  contents: read
+  actions: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      item:
+        description: "fprint (②-4) | diverge (②-5) — كلٌّ وحدَه وبترتيبه"
+        required: true
+        default: "fprint"
+
+concurrency:
+  group: super-stocks-nawaqis-daily
+  cancel-in-progress: false
+
+jobs:
+  shard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        k: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: 📥 شرائحُ T-BASKET
+        uses: actions/download-artifact@v4
+        with:
+          pattern: basket-shard-*
+          path: nq_in
+          run-id: 43955351411
+          github-token: ${{ github.token }}
+      - name: 🧪 الشريحة
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/nawaqis/daily_filters.py shard ${{ matrix.k }} --item ${{ inputs.item }} --dir nq_in
+      - uses: actions/upload-artifact@v4
+        with:
+          name: daily-shard-${{ matrix.k }}
+          path: fm_forensics/nawaqis/out/*_shard_*.json.gz
+          retention-days: 30
+
+  assemble:
+    needs: shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: basket-shard-*
+          path: nq_in
+          run-id: 43955351411
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: daily-shard-*
+          path: nq_in
+      - name: ⚖️ الحكم
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/nawaqis/daily_filters.py assemble --item ${{ inputs.item }} --dir nq_in
+      - uses: actions/upload-artifact@v4
+        with:
+          name: daily-result
+          path: fm_forensics/nawaqis/T_*_RESULT.md
+          retention-days: 30

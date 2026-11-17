@@ -102871,6 +102871,80 @@ try:
 except Exception as _e:                                          # noqa: BLE001
     check("📗 أقفالُ T-BOOK انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
+# 🔣🪜📉🧬⏱️ NQU1 · NQS1 · NQD1 · NQH1 — أدواتُ المعلّقات ②-2 … ②-6 (العقودُ قبل أيّ رقم · قراءةٌ فقط).
+try:
+    import importlib.util as _nq_iu
+
+    def _nq_load(name):
+        _sp = _nq_iu.spec_from_file_location(name, _os_hc.path.join("fm_forensics", "nawaqis", name + ".py"))
+        _m = _nq_iu.module_from_spec(_sp)
+        _sp.loader.exec_module(_m)
+        return _m
+    _NQU, _NQS, _NQD, _NQH = _nq_load("uniform"), _nq_load("support2"), _nq_load("daily_filters"), _nq_load("hold15")
+    _G = 10 ** 9
+    _nqu_tr = [(0, 1.77, 3), (3 * _G, 1.77, 3), (6 * _G, 1.77, 3), (9 * _G, 1.78, 3), (30 * _G, 1.7, 3), (31 * _G, 1.7, 100),
+               (32 * _G, 1.7, 5), (33 * _G, 1.7, 5), (34 * _G, 1.7, 5), (45 * _G, 1.7, 5), (46 * _G, 1.7, 2), (47 * _G, 1.7, 2),
+               (48 * _G, 1.7, 2), (49 * _G, 1.7, 2)]
+    _nqu_r = _NQU.runs(_nqu_tr)
+    check("🔣 NQU1 T-UNIFORM: السلسلةُ 4 متتاليةٍ فأكثر بحجمٍ واحدٍ ∈ {1,3,5,7,10} وفواصلُها ‏≤10 ث · حجمٌ آخر بينها يقطعها · الحجمُ 2 خارجها · "
+          "وعنقودُ TRUG ستّةٌ بحجم 2 عند 1.30 في 4 ث · والعقدان مطابقان",
+          [(r["size"], r["n"]) for r in _nqu_r] == [(3, 4)] and _NQU.SIZES == (1, 3, 5, 7, 10) and _NQU.MIN_LEN == 4
+          and _NQU.runs([(i * _G, 1.0, 5) for i in range(4)])[0]["n"] == 4 and _NQU.runs([(i * 11 * _G, 1.0, 5) for i in range(4)]) == []
+          and _NQU.trug_cluster([(i * 5 * 10 ** 8, 1.30, 2.0) for i in range(6)]) == 0
+          and _NQU.trug_cluster([(i * 10 ** 9, 1.30, 2.0) for i in range(6)]) is None and _NQU.contracts_ok(),
+          str(_nqu_r))
+    _nqs_b = [("a", 1.0, 0.9, 1.0), ("b", 1.2, 1.0, 1.15), ("c", 1.1, 1.04, 1.06)]
+    check("🪜 NQS1 T-SUPPORT2: الصعودُ ‏≥1.15L ثمّ أوّلُ جلسةٍ بعده أدناها ‏≤1.05L وإغلاقُها ‏≥0.95L ⟵ الدخول · وإغلاقٌ دونها ⟵ كسر · وبلا صعودٍ أو رجوعٍ لا دخول · "
+          "والشاهدُ CDT خارج الحكم",
+          _NQS.second_entry(_nqs_b, 1.0) == ("ok", "b", "c") and _NQS.second_entry(_nqs_b[:1], 1.0)[0] == "no_rise"
+          and _NQS.second_entry([("a", 1.2, 1, 1.1), ("b", 1.1, 0.9, 0.94)], 1.0)[0] == "broke"
+          and _NQS.second_entry([("a", 1.149, 1, 1.1), ("b", 1.1, 1.0, 1.0)], 1.0)[0] == "no_rise"
+          and _NQS.second_entry([("a", 1.2, 1, 1.1)], 1.0)[0] == "no_return" and _NQS.WIN == 20 and _NQS.contracts_ok()
+          and "if (sym, d) not in orig:" in open(_os_hc.path.join("fm_forensics", "nawaqis", "support2.py"), encoding="utf-8").read(),
+          "")
+    import math as _nq_m
+    _nqd_C = [10 * _nq_m.exp(0.02 * _nq_m.sin(i / 7)) for i in range(200)]
+    for _e in (60, 130):
+        for _j in range(_e, _e + 3):
+            _nqd_C[_j] = _nqd_C[_e - 1] * 2.2
+    _nqd_H, _nqd_L = [c * 1.02 for c in _nqd_C], [c * 0.98 for c in _nqd_C]
+    _nqd_lows = [5.0] * 60
+    _nqd_lows[35], _nqd_lows[55] = 2.0, 1.9
+    _nqd_cl = [6.0] * 60
+    check("📉🧬 NQD1 فلاترُ اليوميّ: الانفجارُ إغلاقٌ ‏≥2× أدنى عشرين بفاصل 40 · خارج المجتمع بأقلّ من انفجارين · الدايفرجنسُ يحتاج قاعًا سعريًّا أدنى في العشر الأخيرة "
+          "و60 شمعة · والعقدان مطابقان",
+          _NQD.explosions(_nqd_C, 180) == [(60, 40), (130, 121)] and _NQD.explosions([1.0] * 25 + [1.8] * 3, 27) == [] and _NQD.fprint(_nqd_H, _nqd_L, _nqd_C, [1.0] * 200, 100) == "out"
+          and isinstance(_NQD.fprint(_nqd_H, _nqd_L, _nqd_C, [1.0] * 200, 190), dict)
+          and _NQD.divergence(_nqd_H, _nqd_L, _nqd_C, 58) is None
+          and _NQD.divergence([7.0] * 60, [5.0] * 60, _nqd_cl, 59)["V"] is False
+          and abs(_NQD._corr([1, 2, 3], [2, 4, 6]) - 1.0) < 1e-12 and _NQD._corr([1, 1, 1], [1, 2, 3]) == 0.0
+          and _NQD.contract_ok("diverge") and _NQD.contract_ok("fprint"),
+          "")
+    _nqh_m = [(i * 60_000, 600 + i, 1.05, 1.06, 1.04, 1.05, 100) for i in range(40)]
+    _nqh_m[0] = (0, 600, 1.0, 1.0, 1.0, 1.0, 100)
+    _nqh_m[17] = (17 * 60_000, 617, 1.05, 1.06, 1.02, 1.04, 100)
+    _nqh_e = _NQH.h15_entry(_nqh_m, 0, 1.0)
+    _nqh_fail = list(_nqh_m)
+    _nqh_fail[5] = (5 * 60_000, 605, 1.0, 1.0, 0.98, 0.99, 100)
+    _nqh_wick = list(_nqh_m)
+    _nqh_wick[5] = (5 * 60_000, 605, 1.0, 1.02, 0.98, 1.01, 100)       # ذيلٌ تحت P وإغلاقٌ فوقه ⟵ صمود
+    _nqh_open = list(_nqh_m)
+    _nqh_open[17] = (17 * 60_000, 617, 1.01, 1.06, 1.0, 1.04, 100)     # الافتتاحُ دون 1.03P ⟵ السعرُ الافتتاح
+    _nqh_tgt = [(0, 600, 1, 1, 1, 1, 1), (60_000, 601, 1.0, 1.25, 1.0, 1.2, 1), (120_000, 602, 1.2, 1.6, 1.2, 1.5, 1)]
+    _nqh_stp = [(0, 600, 1, 1, 1, 1, 1), (60_000, 601, 1.0, 1.0, 0.9, 0.95, 1)]
+    check("⏱️ NQH1 T-HOLD15: الصمودُ 15 دقيقةً بإغلاقاتٍ ‏≥ سعر الإشعار ثمّ أوّلُ دقيقةٍ أدناها ‏≤1.03P (السعرُ أدنى الافتتاح و1.03P) · إغلاقٌ دونه ⟵ لا صمود · "
+          "نصفٌ +20% والباقي +50% بشرط التداول · الوقفُ أوّلًا · التكلفةُ 1.8% · ومُغلَقٌ بلا TRAIL_REOPEN=1",
+          _nqh_e == (17, 1.03, "ok") and _NQH.h15_entry(_nqh_fail, 0, 1.0)[2] == "no_hold"
+          and _NQH.h15_entry(_nqh_wick, 0, 1.0) == (17, 1.03, "ok") and _NQH.h15_entry(_nqh_open, 0, 1.0) == (17, 1.01, "ok")
+          and abs(_NQH.exit_sim(_nqh_tgt, 0, 1.0, 0.10, lambda ms, px: True) - (0.5 * 1.2 + 0.5 * 1.5 - 1 - 0.018)) < 1e-12
+          and abs(_NQH.exit_sim(_nqh_tgt, 0, 1.0, 0.10, lambda ms, px: False) - (1.5 - 1 - 0.018)) < 1e-12
+          and abs(_NQH.exit_sim(_nqh_stp, 0, 1.0, 0.04, lambda ms, px: True) - (0.96 - 1 - 0.018)) < 1e-12
+          and _NQH.reopened({"TRAIL_REOPEN": "1"}) and not _NQH.reopened({"TRAIL_REOPEN": "0"}) and not _NQH.reopened({})
+          and _NQH.STOPS == (0.04, 0.10, 0.20) and _NQH.contracts_ok(),
+          str(_nqh_e))
+except Exception as _e:                                          # noqa: BLE001
+    check("🔣 أقفالُ أدوات المعلّقات ②-2…②-6 انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
