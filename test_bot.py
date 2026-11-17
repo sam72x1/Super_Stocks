@@ -103090,6 +103090,51 @@ check("🙈 BPK1 T-BLIND-PICK: الجلسةُ آخرُ مُغلقةٍ قبل ا�
       and _bp_v[7] == ["2026-08-24", "2026-08-21", "2026-10-16"] and _bp_v[8] == ("✅ تعبر", 30, 30) and _bp_v[9] == "لا قياس"
       and _bp_v[10] == "❌ لا تعبر" and _bp_v[11:] == (True, (2, 11), "2026-10-16", 40, 33.0, 43955351411), str(_bp_v)[:300])
 
+# 📨 BPK2 — إعادةُ إرسال بطاقات T-BLIND-PICK (بلاغُ المالك 2026-11-17 «ما لقيت الملف»): الوجهةُ `TELEGRAM_OWNER_ID` وإلّا أوّلُ رقمٍ في
+#    TELEGRAM_CHAT_ID · دليلُ الوصول في السجلّ (رقمُ الرسالة ونوعُ المحادثة) بلا رقم المحادثة · وHTTP 200 بلا ok أو بلا رقم رسالةٍ ⟵ فشل ·
+#    و`resend` لا يُرسل ما لم تطابق البطاقاتُ الخزنةَ حرفًا ولا يكتب الخزنة (AST: الكتابةُ تحت `else` فرعِ `if resend`).
+try:
+    import ast as _bp2_ast, inspect as _bp2_in, io as _bp2_io, contextlib as _bp2_cl, tempfile as _bp2_tf, os as _bp2_os
+    _bp2_f = _bp2_os.path.join(_bp2_tf.mkdtemp(), "x.html"); open(_bp2_f, "w").write("<p>x</p>")
+
+    class _Bp2R:
+        def __init__(self, code, js): self.status_code, self._js = code, js
+        def json(self): return self._js
+    _bp2_calls = []
+    def _bp2_post(url, data=None, files=None, timeout=None, _r=None):
+        _bp2_calls.append(data["chat_id"]); return _r
+    _bp2_good = _Bp2R(200, {"ok": True, "result": {"message_id": 77, "chat": {"id": 555, "type": "private", "first_name": "N"},
+                                                    "document": {"file_name": "x.html", "file_size": 8}}})
+    _bp2_out = _bp2_io.StringIO()
+    with _bp2_cl.redirect_stdout(_bp2_out):
+        _bp2_a = _BP.send_doc(_bp2_f, "c", "T", ["111"], owner="999", post=lambda *a, **k: _bp2_post(*a, _r=_bp2_good, **k))
+        _bp2_b = _BP.send_doc(_bp2_f, "c", "T", ["111"], owner="", post=lambda *a, **k: _bp2_post(*a, _r=_bp2_good, **k))
+        _bp2_c = _BP.send_doc(_bp2_f, "c", "T", ["111"], owner="", post=lambda *a, **k: _bp2_post(*a, _r=_Bp2R(200, {"ok": False}), **k))
+        _bp2_d = _BP.send_doc(_bp2_f, "c", "T", ["111"], owner="", post=lambda *a, **k: _bp2_post(*a, _r=_Bp2R(400, {"ok": False}), **k))
+    _bp2_log = _bp2_out.getvalue()
+    _bp2_cards = {"1-1": {"sym": "A", "d": "2026-08-21", "score": 3, "flags": ["rsi", "fl"]}}
+    _bp2_vm = (_BP.vault_matches({"sessions": ["2026-08-21"], "cards": {"1-1": {"sym": "A", "d": "2026-08-21", "score": 3, "flags": ["rsi", "fl"]}}},
+                                 ["2026-08-21"], _bp2_cards),
+               _BP.vault_matches({"sessions": ["2026-08-21"], "cards": {"1-1": {"sym": "B", "d": "2026-08-21", "score": 3, "flags": ["rsi", "fl"]}}},
+                                 ["2026-08-21"], _bp2_cards),
+               _BP.vault_matches({"sessions": ["2026-08-22"], "cards": _bp2_cards}, ["2026-08-21"], _bp2_cards),
+               _BP.vault_matches(None, ["2026-08-21"], _bp2_cards))
+    _bp2_fn = next(n for n in _bp2_ast.walk(_bp2_ast.parse(_bp2_in.getsource(_BP))) if isinstance(n, _bp2_ast.FunctionDef) and n.name == "mode_cards")
+    _bp2_if = next(n for n in _bp2_ast.walk(_bp2_fn) if isinstance(n, _bp2_ast.If) and getattr(n.test, "id", None) == "resend")
+    _bp2_w = lambda nodes: any(isinstance(c, _bp2_ast.Call) and getattr(c.func, "id", None) == "open" and len(c.args) > 1
+                               and getattr(c.args[0], "id", None) == "VAULT" and getattr(c.args[1], "value", None) == "w"
+                               for x in nodes for c in _bp2_ast.walk(x))                                        # noqa: E731
+    _bp2_v = (_bp2_a, _bp2_b, _bp2_c, _bp2_d, _bp2_calls, "رقمُ الرسالة 77" in _bp2_log, "نوعُ المحادثة private" in _bp2_log,
+              "555" not in _bp2_log and "N " not in _bp2_log.split("نوعُ المحادثة")[-1][:3], _bp2_vm,
+              _bp2_w(_bp2_if.orelse), _bp2_w(_bp2_if.body), _bp2_w([n for n in _bp2_fn.body if n is not _bp2_if]))
+except Exception as _bp2_e:                                                                       # noqa: BLE001
+    _bp2_v = f"⛔ {type(_bp2_e).__name__}: {_bp2_e}"
+check("📨 BPK2 إعادةُ إرسال البطاقات: المالكُ أوّلًا وإلّا المشرف · رقمُ الرسالة ونوعُ المحادثة في السجلّ بلا رقمها · 200 بلا ok فشل · "
+      "و`resend` يطابق الخزنةَ حرفًا ولا يكتبها",
+      isinstance(_bp2_v, tuple) and _bp2_v[:4] == (True, True, False, False) and _bp2_v[4] == ["999", "111", "111", "111"]
+      and _bp2_v[5] and _bp2_v[6] and _bp2_v[7]
+      and _bp2_v[8] == ((True, 0), (False, 1), (False, 1), (False, -1)) and _bp2_v[9] and not _bp2_v[10] and not _bp2_v[11], str(_bp2_v)[:300])
+
 # 🔒 MOC1 — «اقفل كمية التجميع» (أمرُ المالك 2026-11-17): momo.py ‏run/cut/set تخرج 8 بلا MOMO_REOPEN=1 حرفيًّا · وcheck مفتوح (0).
 try:
     import importlib.util as _moc_iu, subprocess as _moc_sp, sys as _moc_sys, os as _moc_os

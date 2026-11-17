@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "cards (البناءُ والإرسال) | judge (الحكم بعد الاختيارات)"
+        description: "cards (البناءُ والإرسال) | resend (إعادةُ إرسال البطاقات نفسِها بلا مسّ الخزنة) | judge (الحكم بعد الاختيارات)"
         required: true
         default: "cards"
       picks:
@@ -50,11 +50,12 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TRADE_JOURNAL_KEY: ${{ secrets.TRADE_JOURNAL_KEY }}
+          TELEGRAM_OWNER_ID: ${{ secrets.TELEGRAM_OWNER_ID }}
           BP_MODE: ${{ inputs.mode }}
           BLIND_PICKS: ${{ inputs.picks }}
           PYTHONUNBUFFERED: "1"
         run: |
-          case "$BP_MODE" in cards|judge) ;; *) echo "mode غيرُ معروف: $BP_MODE"; exit 2;; esac
+          case "$BP_MODE" in cards|resend|judge) ;; *) echo "mode غيرُ معروف: $BP_MODE"; exit 2;; esac
           python fm_forensics/blindpick/blindpick.py "$BP_MODE" --dir bp_in
       - name: 💾 الخزنة (مشفّرة) والنتيجة
         env:

@@ -39,6 +39,7 @@ ARMS = (("O0", None), ("O50", 0.5))
 MIN_N, COV_FLOOR = 30, 0.80
 WORKERS = 8
 RC_OK, RC_KEY, RC_PICKS, RC_VAULT, RC_CONTRACT, RC_POP = 0, 2, 4, 6, 11, 5
+RC_MISMATCH = 7                                                  # resend: البناءُ لا يطابق الخزنة ⟵ لا إرسالَ ولا كتابة
 UTC = dt.timezone.utc
 
 
@@ -268,7 +269,7 @@ def behav_frame(rows):
                          "Close": [r[4] for r in rows], "Volume": [r[5] for r in rows]}, index=[n - 1 - i for i in range(n)])
 
 
-def mode_cards(key):
+def mode_cards(key, resend=False):
     import market_calendar as MC
     import journal_vault as J
     import three_cond_daily as TC
@@ -347,20 +348,78 @@ def mode_cards(key):
                                   [(c, beh.get(c)) for c in S.NW_XLSX_BEHAV_COLS]))
             cards[label] = {"sym": s, "d": d, "score": it["score"], "flags": list(it["flags"])}
         sections.append("".join(body))
-    vault = {"v": 1, "test": "T-BLIND-PICK", "contract_sha": CONTRACT_SHA, "sessions": order, "cards": cards, "picks": {},
-             "created": dt.datetime.now(UTC).isoformat(timespec="seconds")}
-    txt = J.encrypt(vault, pw)
-    if txt is None:
-        log("⛔ التشفيرُ فشل — لا إرسال — خروج 6")
-        return RC_VAULT
-    open(VAULT, "w", encoding="utf-8").write(txt)
+    if resend:                                                   # إعادةُ إرسالٍ: الخزنةُ لا تُمسّ والبطاقاتُ يجب أن تطابقها حرفًا
+        old = None
+        if os.path.exists(VAULT):
+            raw = open(VAULT, encoding="utf-8").read()
+            old = next((v for v in (J.decrypt(raw, p) for p in _vault_pw(J)) if v), None)
+        ok_m, n_diff = vault_matches(old, order, cards)
+        log(f"🔁 مطابقةُ البطاقات للخزنة: {'✅ مطابقة' if ok_m else f'❌ تختلف ({n_diff})'}")
+        if not ok_m:
+            log("⛔ لا إرسالَ ولا كتابة — خروج 7")
+            return RC_MISMATCH
+    else:
+        vault = {"v": 1, "test": "T-BLIND-PICK", "contract_sha": CONTRACT_SHA, "sessions": order, "cards": cards, "picks": {},
+                 "created": dt.datetime.now(UTC).isoformat(timespec="seconds")}
+        txt = J.encrypt(vault, pw)
+        if txt is None:
+            log("⛔ التشفيرُ فشل — لا إرسال — خروج 6")
+            return RC_VAULT
+        open(VAULT, "w", encoding="utf-8").write(txt)
     d_out = tempfile.mkdtemp()
     path = os.path.join(d_out, "blind_cards.html")
     open(path, "w", encoding="utf-8").write(page(sections))
     log(f"🃏 بطاقات {len(cards)} في {len(plan)} جلسة · توزيعُ الدرجات {dict(sorted(score_hist.items()))} · الحجم {os.path.getsize(path) // 1024}KB")
-    ok = S.send_telegram_document(path, f"🙈 T-BLIND-PICK — {len(plan)} جلسة × 5 بطاقات · ردّ برقم بطاقةٍ لكلّ جلسة (مثل 7-3) أو «أعرفه»")
+    ok = send_doc(path, f"🙈 T-BLIND-PICK — {len(plan)} جلسة × 5 بطاقات · ردّ برقم بطاقةٍ لكلّ جلسة (مثل 7-3) أو «أعرفه»",
+                  S.TELEGRAM_TOKEN, S._admin_chat())
     log(f"📨 الإرسال: {'✅' if ok else '❌'} · المفتاحُ مشفّرٌ في blind_pick.vault")
     return RC_OK if ok else RC_VAULT
+
+
+def vault_matches(vault, order, cards):
+    """(نقيّة) ⟵ (مطابقة؟، عددُ الفروق): ترتيبُ الجلسات والبطاقاتُ {رقم: رمز·يوم·درجة·وسوم} كما في الخزنة حرفًا."""
+    if not isinstance(vault, dict):
+        return False, -1
+    old = vault.get("cards") or {}
+    new = json.loads(json.dumps(cards, ensure_ascii=False))
+    n = sum(1 for k in set(old) | set(new) if old.get(k) != new.get(k)) + (0 if vault.get("sessions") == list(order) else 1)
+    return n == 0, n
+
+
+def send_doc(path, caption, token, admin, owner=None, post=None):
+    """📨 sendDocument مع دليل الوصول في السجلّ (رقمُ الرسالة · نوعُ المحادثة · اسمُ الملفّ وحجمُه) — بلا رقم المحادثة ولا اسمِ صاحبها.
+    الوجهة: `TELEGRAM_OWNER_ID` إن وُجد وإلّا أوّلُ رقمٍ في `TELEGRAM_CHAT_ID` (`_admin_chat`)."""
+    owner = str(owner if owner is not None else os.environ.get("TELEGRAM_OWNER_ID", "")).strip()
+    targets = [owner] if owner else list(admin or [])
+    where = "TELEGRAM_OWNER_ID" if owner else "أوّلُ رقمٍ في TELEGRAM_CHAT_ID"
+    if not token or not targets:
+        log(f"⛔ بلا رمز بوت أو وجهة ({where}) — لا إرسال")
+        return False
+    if post is None:
+        import requests
+        post = requests.post
+    ok = True
+    for cid in targets:
+        try:
+            with open(path, "rb") as fh:
+                r = post(f"https://api.telegram.org/bot{token}/sendDocument", data={"chat_id": cid, "caption": caption[:1000]},
+                         files={"document": fh}, timeout=120)
+            js = {}
+            try:
+                js = r.json() or {}
+            except Exception:                                    # noqa: BLE001
+                js = {}
+            res = js.get("result") or {}
+            doc = res.get("document") or {}
+            log(f"📨 sendDocument ⟵ {where}: HTTP {r.status_code} · ok={js.get('ok')} · رقمُ الرسالة {res.get('message_id')}"
+                f" · نوعُ المحادثة {(res.get('chat') or {}).get('type')} · الملفّ {doc.get('file_name')} ({doc.get('file_size')} بايت)")
+            if r.status_code != 200 or not js.get("ok") or not res.get("message_id"):
+                ok = False
+                log(f"⚠️ رفض: {str(js.get('description') or '')[:160]}")
+        except Exception as e:                                   # noqa: BLE001
+            log(f"⚠️ خطأ sendDocument: {type(e).__name__}")
+            ok = False
+    return ok
 
 
 def _getjson(url, tries=3):
@@ -538,6 +597,8 @@ def main(argv=None):
         return RC_KEY
     if mode == "cards":
         return mode_cards(key)
+    if mode == "resend":
+        return mode_cards(key, resend=True)
     if mode == "judge":
         d_in = argv[argv.index("--dir") + 1] if "--dir" in argv else "bp_in"
         return mode_judge(key, os.environ.get("BLIND_PICKS", ""), d_in)
