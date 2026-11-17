@@ -103135,6 +103135,22 @@ check("📨 BPK2 إعادةُ إرسال البطاقات: المالكُ أوّ
       and _bp2_v[5] and _bp2_v[6] and _bp2_v[7]
       and _bp2_v[8] == ((True, 0), (False, 1), (False, 1), (False, -1)) and _bp2_v[9] and not _bp2_v[10] and not _bp2_v[11], str(_bp2_v)[:300])
 
+# 📣 XMP1 — إشارةُ النسبة في رسالة «تحرّك 30%» (عيبٌ مُثبَت 2026-11-17: ختمُ LICN ‏pct −0.1519 ظهر «+-15.2%»): السالبُ «−15.2%» والموجبُ «+30.1%» بت-بت ·
+#    والرسالةُ وسطرُ سجلّ العامل يمرّان بالدالّة نفسِها (AST).
+try:
+    import ast as _xmp_ast, inspect as _xmp_in
+    _xmp_msg = S.build_xmove_alert([{"sym": "LICN", "pct": -0.1519, "px": 0.0229, "m": 600, "gold": False},
+                                    {"sym": "AKAN", "pct": 0.3009, "px": 2.875, "m": 601, "gold": False}])
+    _xmp_oe = open("operator_entry_live.py", encoding="utf-8").read()
+    _xmp_calls = lambda src: [c for c in _xmp_ast.walk(_xmp_ast.parse(src)) if isinstance(c, _xmp_ast.Call)                # noqa: E731
+                              and getattr(c.func, "attr", getattr(c.func, "id", None)) == "xm_pct_txt"]
+    _xmp_v = (S.xm_pct_txt(-0.1519), S.xm_pct_txt(0.3009), S.xm_pct_txt(None), "$LICN −15.2%" in _xmp_msg, "$AKAN +30.1%" in _xmp_msg,
+              "+-" not in _xmp_msg, len(_xmp_calls(_xmp_in.getsource(S.build_xmove_alert))), len(_xmp_calls(_xmp_oe)))
+except Exception as _xmp_e:                                                                       # noqa: BLE001
+    _xmp_v = f"⛔ {type(_xmp_e).__name__}: {_xmp_e}"
+check("📣 XMP1 «تحرّك 30%»: النسبةُ بإشارتها («−15.2%» لا «+-15.2%») والموجبُ بت-بت · الرسالةُ وسجلُّ العامل عبر xm_pct_txt",
+      _xmp_v == ("−15.2%", "+30.1%", "+0.0%", True, True, True, 1, 1), str(_xmp_v)[:240])
+
 # 🔒 MOC1 — «اقفل كمية التجميع» (أمرُ المالك 2026-11-17): momo.py ‏run/cut/set تخرج 8 بلا MOMO_REOPEN=1 حرفيًّا · وcheck مفتوح (0).
 try:
     import importlib.util as _moc_iu, subprocess as _moc_sp, sys as _moc_sys, os as _moc_os

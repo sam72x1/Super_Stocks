@@ -18215,13 +18215,22 @@ def xmove_gold_today(path, day: str, upto_ms=None):
     return out
 
 
+def xm_pct_txt(p) -> str:
+    """📣 (نقيّة) نسبةُ سعر الإشعار عن إغلاق الأمس بإشارتها: «+30.1%» · «−15.2%» (لا «+-15.2%» — عيبُ LICN ‏2026-11-17 · `XMP1`)."""
+    try:
+        v = float(p or 0) * 100.0
+    except (TypeError, ValueError):
+        v = 0.0
+    return f"{v:+.1f}%".replace("-", "−")
+
+
 def build_xmove_alert(rows) -> str:
     """📣 الرسالة: سطرٌ لكلّ سهم «$الرمز ‏+X% · $السعر · الساعة (🥇)» — `rows` = [{sym، pct، px، m، gold}] · بلا ذيلٍ عامّ (`send_telegram` يختم)."""
     head = f"📣 تحرّك {XMOVE_PCT:g}% — إشعارٌ واحدٌ للسهم اليوم"
     lines = [head]
     for r in rows or ():
         m = int(r.get("m") or 0)
-        lines.append(f"${r.get('sym')} +{float(r.get('pct') or 0) * 100:.1f}% · {_px_txt(r.get('px'))} · "
+        lines.append(f"${r.get('sym')} {xm_pct_txt(r.get('pct'))} · {_px_txt(r.get('px'))} · "
                      f"{m // 60:02d}:{m % 60:02d} نيويورك" + (" 🥇" if r.get("gold") else ""))
     lines += x30_stat_lines(rows)
     lines.append(f"ℹ️ أوّلُ بلوغٍ لـ+{XMOVE_PCT:g}% من إغلاق الأمس (مسوّى بالتقسيم) بسيولة {XMOVE_USD_MIN // 1000} ألف$ · لا تحديثَ بعده اليوم")
