@@ -1981,5 +1981,23 @@
   "usd_eff": 11810,
   "candle_class_eff": "group",
   "frames_usd": null
+ },
+ {
+  "symbol": "VBIO",
+  "date": "2026-11-17",
+  "sustain_min": 7,
+  "operator_ok": false,
+  "fired_ts_ms": 1794925950388,
+  "trigger_bar_ms": 1794925800000,
+  "fired_ts_src": "telegram_sent",
+  "fired_at": "2026-11-17T21:00:49Z",
+  "break_level": 0.54,
+  "price": 0.58,
+  "vol_x": 27.1,
+  "usd": 47218,
+  "candle_class": "group",
+  "usd_eff": 47218,
+  "candle_class_eff": "group",
+  "frames_usd": null
  }
 ]
