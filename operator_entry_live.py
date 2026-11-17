@@ -169,7 +169,7 @@ def xmove_cycle(seen, day, ny_min, snap_fn=None, bars_fn=None, prev_fn=None, gol
         push_fn([bot.OP_ENTRY_STATE_FILE])
     except Exception as e:                                       # noqa: BLE001
         _log(f"⚠️ 📣 دفعُ الختم: {e}")
-    _log(f"📣 تحرّك {bot.XMOVE_PCT:g}%: " + " · ".join(f"{r['sym']} +{r['pct'] * 100:.1f}%" + (" 🥇" if r["gold"] else "") for r in rows))
+    _log(f"📣 تحرّك {bot.XMOVE_PCT:g}%: " + " · ".join(f"{r['sym']} {bot.xm_pct_txt(r['pct'])}" + (" 🥇" if r["gold"] else "") for r in rows))
     return rows
 
 
