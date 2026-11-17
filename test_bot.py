@@ -102956,7 +102956,8 @@ try:
           and _NQB.witness_exists([], 1.68, 8113) == (False, 0, 0, None) and _NQB.witness_exists([(1.29, 16596)], 1.29, 18440)[0] is True
           and _NQB.witness_exists([(1.29, 20284)], 1.29, 18440)[0] is True
           and _NQB.blocked({}, True) and not _NQB.blocked({"TBOOK_REOPEN": "1"}, True) and _NQB.blocked({"TBOOK_REOPEN": "0"}, True)
-          and not _NQB.blocked({}, False) and _NQB.contracts_ok() and _NQB.RESULT.endswith("T_BOOK_ADDENDUM_1_RESULT.md"),
+          and not _NQB.blocked({}, False) and _NQB.contracts_ok() and _NQB.RESULT.endswith("T_BOOK_ADDENDUM_1_RESULT.md")
+          and _NQB.CLOSED is True and _NQB.main(["gate2"]) == 8 and _NQB.main(["assemble"]) == 8,
           f"{_nqb3_w} {_nqb3_out}")
     _nqh2_r = [{"sym": "A", "y": "2023", "C0_4": 0.10, "H_4": None, "C0_10": 0.20, "H_10": 0.0, "C0_20": 0.30, "H_20": 0.0},
                {"sym": "B", "y": "2023", "C0_4": -0.10, "H_4": 0.0, "C0_10": None, "H_10": None, "C0_20": 0.10, "H_20": None},
