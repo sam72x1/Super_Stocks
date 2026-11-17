@@ -103017,6 +103017,79 @@ check("🥁 RHY1 T-RHYTHM: «في موعده» ±25% شاملًا (37 لا · 38
       _rhy_v == ([False, True, True, True, False], "mismatch", 50.0, "out", 0.25, True, 2, 11, 44071032068, [False, True, True, True, False],
                  {"R": True, "s": 38, "g": 50.0, "k": 3}, {"R": False, "s": 100, "g": 50.0, "k": 2}), str(_rhy_v)[:260])
 
+# 🙈 BPK1 — T-BLIND-PICK (عقد `T_BLIND_PICK_prereg.md` · أمرُ المالك 2026-11-17): الجلسةُ = آخرُ جلسةٍ أُغلقت قبل اللقطة والأحدثُ يغلب وحتى 10-16 ·
+#    الاختيارُ بالدرجة ثمّ القرعة بلا تكرار · المجهولُ لا يُعدّ · المتاحُ في [d−7، d] · الفلوتُ المؤرَّخُ بعد اللقطة لا يُقرأ · الردُّ صارم ·
+#    وترقيمُ الجلسات بقرعةٍ لا بالزمن · والحكمُ «لا قياس» دون 30 · و«تعبر» يلزمه r موجب · والعقدُ ببصمته وإلّا 11.
+try:
+    import importlib.util as _bp_iu, sys as _bp_sys, os as _bp_os, subprocess as _bp_sp, datetime as _bp_dt
+    _bp_s = _bp_iu.spec_from_file_location("blindpick_bpk1", "fm_forensics/blindpick/blindpick.py")
+    _BP = _bp_iu.module_from_spec(_bp_s); _bp_s.loader.exec_module(_BP)
+    _bp_U = _bp_dt.timezone.utc
+    _bp_cl = lambda d: _bp_dt.datetime.fromisoformat(d + "T21:00:00+00:00")                       # noqa: E731
+    _bp_snaps = [(_bp_dt.datetime(2026, 10, 15, 6, tzinfo=_bp_U), "a"), (_bp_dt.datetime(2026, 10, 15, 22, tzinfo=_bp_U), "b"),
+                 (_bp_dt.datetime(2026, 10, 16, 20, tzinfo=_bp_U), "c"), (_bp_dt.datetime(2026, 10, 17, 1, tzinfo=_bp_U), "d"),
+                 (_bp_dt.datetime(2026, 10, 20, 6, tzinfo=_bp_U), "e")]
+    _bp_plan = [(d, h) for d, _t, h in _BP.plan_sessions(_bp_snaps, ["2026-10-14", "2026-10-15", "2026-10-16", "2026-10-19"], _bp_cl)]
+    _bp_sel = _BP.select([("2026-08-24", [("C", 5), ("A", 4), ("G", 1), ("H", 1), ("I", 1), ("J", 0)]),
+                          ("2026-08-21", [("A", 3), ("B", 3), ("C", 5), ("D", 1), ("E", 2), ("F", 2)])])
+    _bp_tie = sorted(["A", "B"], key=lambda x: _BP.lottery("2026-08-21", x))
+    _bp_idx = {"X": [("2026-10-08", 9.0), ("2026-10-09", 5.0), ("2026-10-17", 1.0)]}
+    _bp_av = (_BP.avail_asof(_bp_idx, "X", "2026-10-16"), _BP.avail_asof(_bp_idx, "X", "2026-10-15"), _BP.avail_asof(_bp_idx, "X", "2026-10-19"))
+    _bp_fl = (_BP.float_asof({"symbol": "X", "float": 1e6, "float_date": "2026-10-01"}, "2026-10-01", {}),
+              _BP.float_asof({"symbol": "X", "float": 1e6, "float_date": "2026-10-02"}, "2026-10-01", {"X": {"float": 7e6}}),
+              _BP.float_asof({"symbol": "Y"}, "2026-10-01", {}))
+    _bp_f = (_BP.flags_of(32.9, 3.9e6, 19999, {"stable": True}, {"boom": False}, 4e6, 20000)[1],
+             _BP.flags_of(33.0, 4e6, 20000, {"stable": False}, {"boom": True}, 4e6, 20000)[1],
+             _BP.flags_of(None, None, None, None, None, 4e6, 20000)[1])
+    _bp_bad = 0
+    for _x in ("41-1", "1-6", "1-2,1-3", "x", "0-1"):
+        try:
+            _BP.parse_picks(_x, 40)
+        except ValueError:
+            _bp_bad += 1
+    _bp_FC = _bp_iu.spec_from_file_location("fc_bpk1", "fm_forensics/nawaqis/filter_core.py"); _bp_fcm = _bp_iu.module_from_spec(_bp_FC)
+    _bp_FC.loader.exec_module(_bp_fcm)
+    _bp_ci = lambda pairs: [-1.0, 1.0] if pairs and min(v for _s, v in pairs) < 0 else [0.01, 1.0]                       # noqa: E731
+
+    def _bp_rec(s, d, r, c):
+        return {"sym": s, "d": d, "res": {"O0": {"r": r}, "O50": {"r": r}}, "ctrl": [{"O0": c, "O50": c}]}
+    _bp_recs = [_bp_rec(f"P{i}", f"d{i}", 0.3, 0.0) for i in range(30)] + [_bp_rec(f"Q{i}", f"d{i}", -0.2, 0.0) for i in range(120)]
+    _bp_pk = {(f"P{i}", f"d{i}") for i in range(30)}
+    _bp_old = _bp_fcm.boot_diff
+    try:
+        _bp_fcm.boot_diff = lambda a, b, *k, **kw: [0.01, 1.0]
+        _bp_e1 = _BP.judge_eval(_bp_recs, _bp_pk, _bp_fcm, _bp_ci)
+        _bp_e2 = _BP.judge_eval(_bp_recs[1:], {k for k in _bp_pk if k != ("P0", "d0")}, _bp_fcm, _bp_ci)
+        _bp_recs3 = [_bp_rec(f"P{i}", f"d{i}", -0.01, -0.5) for i in range(30)] + _bp_recs[30:]
+        _bp_e3 = _BP.judge_eval(_bp_recs3, _bp_pk, _bp_fcm, _bp_ci)
+    finally:
+        _bp_fcm.boot_diff = _bp_old
+    _bp_env = {k: v for k, v in _bp_os.environ.items() if k != "POLYGON_API_KEY"}
+    _bp_rc2 = _bp_sp.run([_bp_sys.executable, "fm_forensics/blindpick/blindpick.py", "cards"], env=_bp_env, capture_output=True, text=True,
+                         timeout=120).returncode
+    import tempfile as _bp_tf, shutil as _bp_sh
+    _bp_td = _bp_tf.mkdtemp()
+    _bp_sh.copy("fm_forensics/blindpick/blindpick.py", _bp_td)
+    open(_bp_os.path.join(_bp_td, "T_BLIND_PICK_prereg.md"), "w", encoding="utf-8").write("x")
+    _bp_rc11 = _bp_sp.run([_bp_sys.executable, _bp_os.path.join(_bp_td, "blindpick.py"), "cards"], env=_bp_env, capture_output=True,
+                          text=True, timeout=120).returncode
+    _bp_sh.rmtree(_bp_td, ignore_errors=True)
+    _bp_rc2 = (_bp_rc2, _bp_rc11)
+    _bp_v = (_bp_plan, _bp_sel, _bp_tie, _bp_av, _bp_fl, _bp_f, _bp_bad, _BP.sess_order(["2026-08-21", "2026-08-24", "2026-10-16"]),
+             (_bp_e1["verdict"], _bp_e1["best"], _bp_e1["best_n"]), _bp_e2["verdict"], _bp_e3["verdict"], _BP.contract_ok(), _bp_rc2,
+             _BP.D_MAX, _BP.N_SESS, _BP.RSI_MAX, _BP.BASKET_RUN)
+except Exception as _e:                                          # noqa: BLE001
+    _bp_v = f"⛔ {type(_e).__name__}: {_e}"
+check("🙈 BPK1 T-BLIND-PICK: الجلسةُ آخرُ مُغلقةٍ قبل اللقطة والأحدثُ يغلب وحتى 10-16 · الاختيارُ بالدرجة ثمّ القرعة بلا تكرار (من الأقدم) · "
+      "المتاحُ في [d−7، d] · الفلوتُ بعد اللقطة لا يُقرأ · المجهولُ لا يُعدّ · الردُّ صارم · وترقيمُ الجلسات بقرعة · و«لا قياس» دون 30 · و«تعبر» يلزمه r موجب",
+      isinstance(_bp_v, tuple) and _bp_v[0] == [("2026-10-14", "a"), ("2026-10-15", "c"), ("2026-10-16", "d")]
+      and _bp_v[1]["2026-08-21"][:3] == ["C"] + _bp_v[2] and set(_bp_v[1]["2026-08-21"]) == {"C", "A", "B", "E", "F"}
+      and _bp_v[1]["2026-08-21"][3:] == sorted(["E", "F"], key=lambda x: _BP.lottery("2026-08-21", x))
+      and _bp_v[1]["2026-08-24"] == sorted(["G", "H", "I"], key=lambda x: _BP.lottery("2026-08-24", x)) + ["J"]
+      and _bp_v[3] == (5.0, 5.0, 1.0) and _bp_v[4] == (1e6, 7e6, None) and _bp_v[5] == (5, 0, 0) and _bp_v[6] == 5
+      and _bp_v[7] == ["2026-08-24", "2026-08-21", "2026-10-16"] and _bp_v[8] == ("✅ تعبر", 30, 30) and _bp_v[9] == "لا قياس"
+      and _bp_v[10] == "❌ لا تعبر" and _bp_v[11:] == (True, (2, 11), "2026-10-16", 40, 33.0, 43955351411), str(_bp_v)[:300])
+
 # 🔒 MOC1 — «اقفل كمية التجميع» (أمرُ المالك 2026-11-17): momo.py ‏run/cut/set تخرج 8 بلا MOMO_REOPEN=1 حرفيًّا · وcheck مفتوح (0).
 try:
     import importlib.util as _moc_iu, subprocess as _moc_sp, sys as _moc_sys, os as _moc_os
