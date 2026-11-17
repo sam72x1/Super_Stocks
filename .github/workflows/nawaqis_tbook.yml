@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "gate | full"
+        description: "gate | full | gate2 | full2 (الملحق 1: بوّابةُ «الوجود» ثمّ الفلتر)"
         required: true
         default: "gate"
 
@@ -34,11 +34,11 @@ jobs:
         env:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           PYTHONUNBUFFERED: "1"
-        run: python fm_forensics/nawaqis/tbook.py gate
+        run: python fm_forensics/nawaqis/tbook.py ${{ (inputs.mode == 'gate2' || inputs.mode == 'full2') && 'gate2' || 'gate' }}
 
   shard:
     needs: gate
-    if: inputs.mode == 'full'
+    if: inputs.mode == 'full' || inputs.mode == 'full2'
     runs-on: ubuntu-latest
     timeout-minutes: 330
     strategy:
@@ -99,5 +99,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: tbook-result
-          path: fm_forensics/nawaqis/T_BOOK_RESULT.md
+          path: fm_forensics/nawaqis/T_BOOK_ADDENDUM_1_RESULT.md
           retention-days: 30
