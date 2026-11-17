@@ -154,3 +154,14 @@ def report_lines(ev, title):
             L.append(f"| {a} | {y} | {c['n_all']} | {cov_txt(c['coverage'])} | {c['n_true']} | {c['n_false']} | "
                      f"{pct(c['a_mean'])} | {ci_txt(c['a_ci'])} | {pct(c['b_mean'])} | {ci_txt(c['b_ci'])} | {pct(c['raw_true'])} / {pct(c['raw_false'])} |")
     return L
+
+
+def level_value(x):
+    """`Super_stock.tested_level` يُرجع {"level", "touches"} أو None ⟵ السعرُ float أو None (عطلٌ مُثبَت 2026-11-17: `float(dict)`)."""
+    if isinstance(x, dict):
+        x = x.get("level")
+    try:
+        v = float(x) if x is not None else None
+    except (TypeError, ValueError):
+        return None
+    return v if v and v > 0 else None

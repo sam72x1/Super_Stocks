@@ -158,7 +158,8 @@ def level_at(sym, d, key, S):
         L = S.tested_level(df)
     except Exception:                                            # noqa: BLE001
         return None, "مستوى"
-    return (float(L), "") if L else (None, "لا مستوى")
+    v = FC.level_value(L)
+    return (v, "") if v else (None, "لا مستوى")
 
 
 def mode_shard(key, k, d_in):

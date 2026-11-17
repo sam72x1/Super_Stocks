@@ -50,6 +50,19 @@ def second_entry(bars, L, rise=RISE, hi=BAND_HI, lo=BAND_LO):
     return "no_return", bars[up][0], None
 
 
+def level_of(hist, S):
+    """§① `L` = `Super_stock.tested_level` بالاسم على شموع التسعين يومًا حتى يوم الإدخال ⟵ السعرُ float أو None (`FC.level_value`)."""
+    import pandas as pd
+    if len(hist) < 10:
+        return None
+    df = pd.DataFrame({"Open": [x[1] for x in hist], "High": [x[2] for x in hist], "Low": [x[3] for x in hist],
+                       "Close": [x[4] for x in hist], "Volume": [x[5] for x in hist]})
+    try:
+        return FC.level_value(S.tested_level(df))
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
 def _adj_daily(sym, a, b, key):
     js = TB._get(f"https://api.polygon.io/v2/aggs/ticker/{sym}/range/1/day/{a}/{b}?adjusted=true&sort=asc&limit=5000&apiKey={key}") or {}
     return [(dt.datetime.utcfromtimestamp(x["t"] / 1000).date().isoformat(), x["o"], x["h"], x["l"], x["c"], x["v"])
@@ -61,7 +74,6 @@ def _basket_mod():
 
 
 def mode_shard(key, k, d_in):
-    import pandas as pd
     os.environ["FAISAL_ONLY"] = "0"
     import Super_stock as S
     B = _basket_mod()
@@ -91,14 +103,7 @@ def mode_shard(key, k, d_in):
             dcache[sym] = _adj_daily(sym, "2022-08-01", "2026-11-16", key)
         rows = dcache[sym]
         hist = [x for x in rows if x[0] <= d and x[0] >= (dt.date.fromisoformat(d) - dt.timedelta(90)).isoformat()]
-        L = None
-        if len(hist) >= 10:
-            df = pd.DataFrame({"Open": [x[1] for x in hist], "High": [x[2] for x in hist], "Low": [x[3] for x in hist],
-                               "Close": [x[4] for x in hist], "Volume": [x[5] for x in hist]})
-            try:
-                L = S.tested_level(df)
-            except Exception:                                    # noqa: BLE001
-                L = None
+        L = level_of(hist, S)
         if not L:
             why["لا مستوى"] = why.get("لا مستوى", 0) + 1
             out[f"{sym}|{d}"] = {"st": "no_level"}
