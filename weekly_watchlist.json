@@ -1734,7 +1734,8 @@
     "date": "2026-11-11",
     "high": 0.5357,
     "close": 0.5028
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "BNR",
@@ -2617,7 +2618,8 @@
     "date": "2026-11-16",
     "high": 2.0171,
     "close": 1.69
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "LNKS",
@@ -6052,7 +6054,8 @@
     "date": "2026-11-16",
     "high": 7.25,
     "close": 6.42
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "CURX",
@@ -7377,7 +7380,8 @@
     "date": "2026-11-16",
     "high": 4.42,
     "close": 3.81
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "PTLE",
