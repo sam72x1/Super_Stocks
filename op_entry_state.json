@@ -313,23 +313,23 @@
  },
  "LIQ:GP": {
   "anchor_ms": 1794906480000,
-  "last_ms": 1794906480000,
+  "last_ms": 1794906540000,
   "sent": [
    "M1"
   ],
-  "updates": 0,
+  "updates": 1,
   "vol_x": 22.1,
-  "peak_usd": 180635,
+  "peak_usd": 977267,
   "last_eval_ms": 1794906540000,
-  "pulse_ms": 1794906480000,
+  "pulse_ms": 1794906540000,
   "anchor_price": 1.865,
   "anchor_open": 1.6816,
   "anchor_low": 1.6816,
-  "date": "2026-11-17",
   "pre_done": true,
   "pre_hi": 1.746,
   "pre_usd": 57760,
-  "pre_n": 8
+  "pre_n": 8,
+  "date": "2026-11-17"
  },
  "LIQ:AVXL": {
   "last_eval_ms": 1794866820000,
@@ -2377,11 +2377,11 @@
   "gold": true
  },
  "XM:GP": {
-  "date": "2026-11-16",
-  "ms": 1794822720000,
-  "px": 1.5,
-  "pct": 0.2931,
-  "gold": true
+  "date": "2026-11-17",
+  "ms": 1794906480000,
+  "px": 1.865,
+  "pct": 0.3227,
+  "gold": false
  },
  "XM:IZM": {
   "date": "2026-11-16",
