@@ -102945,6 +102945,28 @@ try:
 except Exception as _e:                                          # noqa: BLE001
     check("🔣 أقفالُ أدوات المعلّقات ②-2…②-6 انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
+# 🪜 NQS2 — عطلٌ مُثبَت 2026-11-17 (`44070973064`): `tested_level` يُرجع {"level","touches"} فـ`float(L)` رمى في الشرائح الأربعين
+#    ⟵ المستوى يمرّ بـ`filter_core.level_value` في `support2.level_of` و`tbook.level_at` (سلوكيًّا بجذعٍ يُرجع القاموسَ نفسَه).
+try:
+    _nqs2_S = type("S", (), {"tested_level": staticmethod(lambda df: {"level": 1.23, "touches": 2})})
+    _nqs2_h = [("2026-01-%02d" % (i + 1), 1.3, 1.4, 1.2, 1.3, 1000) for i in range(12)]
+    _nqs2_tb0 = _NQB.daily_raw
+    try:
+        _NQB.daily_raw = lambda sym, a, b, key: [{"t": 1_700_000_000_000 + i * 86_400_000, "o": 1.3, "h": 1.4, "l": 1.2, "c": 1.3,
+                                                  "v": 1000} for i in range(12)]
+        _nqs2_tb = _NQB.level_at("X", "2030-01-01", "k", _nqs2_S)
+    finally:
+        _NQB.daily_raw = _nqs2_tb0
+    check("🪜 NQS2 المستوى المختبر قاموسٌ لا رقم: `level_value` يستخرج «level» · وsupport2.level_of وtbook.level_at يُرجعان 1.23 لا يرميان · "
+          "وNone/صفرٌ/نصٌّ ⟵ None",
+          _NQS.level_of(_nqs2_h, _nqs2_S) == 1.23 and _nqs2_tb == (1.23, "")
+          and _NQF.level_value({"level": 2.5, "touches": 3}) == 2.5 and _NQF.level_value(None) is None
+          and _NQF.level_value({"level": 0}) is None and _NQF.level_value("x") is None and _NQF.level_value(1.5) == 1.5
+          and _NQS.level_of(_nqs2_h[:9], _nqs2_S) is None,
+          f"{_NQS.level_of(_nqs2_h, _nqs2_S)} · {_nqs2_tb}")
+except Exception as _e:                                          # noqa: BLE001
+    check("🪜 NQS2 انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
 # 📱🕯️📅 DV21-DV24 — T-DATE-CANDLES v2 (المعلّقات ②-7 · `T_DATE_CANDLES_ADDENDUM_6.md`): القسمة · الحاكم · البوّابات · المطابقة.
 try:
     import importlib.util as _dv_iu
