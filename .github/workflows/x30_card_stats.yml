@@ -1,0 +1,63 @@
+name: "📊📣 «مثل هذا الإشعار» لتحرّك 30% (من بيانات T-XMOVE · عرضٌ لا قياس)"
+
+# أمرُ المالك 2026-11-17 (استثناءٌ صريح · عرضٌ لا قياس): أرقامُ سطر «📊 مثل هذا الإشعار» في رسالة «تحرّك 30%» من إطلاقات T-XMOVE ومن سعر الإشعار
+# (`fm_forensics/xmove/x30_card_stats.py`) ⟵ يكتب `x30_card_outcomes.jsonl` و`x30_card_stats.json` وحدَهما ويدفعهما · يدويٌّ بلا كرون · لا تلغرام ·
+# والعاملُ الحيّ يقرأ الأرقامَ عند بدئه (`X30_STAT_LINE` في الإعدادات · وبلا الملفّ لا سطر).
+permissions:
+  contents: write
+  actions: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "تشغيلةُ T-XMOVE (xmove.yml) التي تُقرأ أجزاؤها"
+        required: true
+        default: "43916334799"
+
+concurrency:
+  group: super-stocks-x30-card-stats
+  cancel-in-progress: false
+
+jobs:
+  stats:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 📥 أجزاءُ T-XMOVE
+        uses: actions/download-artifact@v4
+        with:
+          pattern: xmove-part-*
+          path: x30_in
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+      - name: 📊 الحساب
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/xmove/x30_card_stats.py run --dir x30_in
+      - name: 💾 دفعُ الملفّين (fetch+rebase)
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -z "$(git status --porcelain -- x30_card_outcomes.jsonl x30_card_stats.json)" ]; then
+            echo "لا جديد — لا دفع"; exit 0
+          fi
+          git add x30_card_outcomes.jsonl x30_card_stats.json
+          git commit -m "📊📣 «مثل هذا الإشعار» لتحرّك 30%: أرقامُ T-XMOVE من سعر الإشعار"
+          for i in 1 2 3 4; do
+            git fetch origin main && git rebase origin/main && \
+              git push origin HEAD:main && exit 0
+            sleep $((i * 10))
+          done
+          echo "⛔ تعذّر الدفع"; exit 1

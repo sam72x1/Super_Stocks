@@ -211,6 +211,9 @@ CONFIG = {
     # 📊 «مثل هذا الإشعار» (أمرُ المالك 2026-11-08 ② · أرقامُ `T-OPSIG` ثمّ سجلُّ الحصاد أسبوعيًّا `oe_card_stats.py`): سطرٌ على كرت مِرساة السيولة
     #    (حدثُ `M5`) للعاديّ و🥇 كلٌّ برقمه من `oe_card_stats.json` · عرضٌ لا توصية · `OE_STAT_LINE=0` ⟵ الكرتُ بت-بت · `OSL1`-`OSL4`.
     "OE_STAT_LINE": os.environ.get("OE_STAT_LINE", "1").strip() != "0",
+    # 📊📣 «مثل هذا الإشعار» في رسالة «تحرّك 30%» (أمرُ المالك 2026-11-17 · استثناءٌ صريح · عرضٌ لا قياس): السطرُ نفسُه بصيغته محسوبًا على
+    #    إطلاقات `T-XMOVE` من سعر الإشعار (`x30_card_stats.json` · `fm_forensics/xmove/x30_card_stats.py`) · `X30_STAT_LINE=0` ⟵ الرسالةُ بت-بت · `XCS1`-`XCS3`.
+    "X30_STAT_LINE": os.environ.get("X30_STAT_LINE", "1").strip() != "0",
     "FLOAT_GATE_REQUIRED": True,  # M14: رفض الفلوت الكبير (أقوى رابط في أسهم فيصل)
     "FLOAT_GATE_MAX": 50_000_000, # حد الفلوت: كل أسهم فيصل تحته (HCAI 163ألف ←
                                   # MWC 26.68م). الفلوت الصغير = ينفجر بسهولة.
@@ -14019,6 +14022,7 @@ REJECT_LOG_MAX_SYMS = 400               # سقفٌ لكل جدارٍ في الي
 NEAR_WATCH_FILE = "near_watch.json"
 FLOAT5_MAX = 5_000_000            # 🏷️ «ملايين أو أقل 5» (تطبيقُ فيصل · `faisal_app` · `FAISAL_SOURCE_LEDGER.md §B4_20261107`)
 OE_CARD_STATS_FILE = "oe_card_stats.json"
+X30_CARD_STATS_FILE = "x30_card_stats.json"   # 📊📣 أرقامُ سطر «تحرّك 30%» (XCS1-XCS3)
 
 
 def float5_tag_line(r: dict) -> str:
@@ -18054,8 +18058,34 @@ def build_xmove_alert(rows) -> str:
         m = int(r.get("m") or 0)
         lines.append(f"${r.get('sym')} +{float(r.get('pct') or 0) * 100:.1f}% · {_px_txt(r.get('px'))} · "
                      f"{m // 60:02d}:{m % 60:02d} نيويورك" + (" 🥇" if r.get("gold") else ""))
+    lines += x30_stat_lines(rows)
     lines.append(f"ℹ️ أوّلُ بلوغٍ لـ+{XMOVE_PCT:g}% من إغلاق الأمس (مسوّى بالتقسيم) بسيولة {XMOVE_USD_MIN // 1000} ألف$ · لا تحديثَ بعده اليوم")
     return _rtl_join(lines)
+
+
+def x30_stat_lines(rows, stats: dict = None) -> list:
+    """📊📣 (أمرُ المالك 2026-11-17) سطرُ «📊 مثل هذا الإشعار» **بصيغة `oe_stat_line` حرفيًّا** محسوبًا على إطلاقات `T-XMOVE` من سعر الإشعار
+    (`x30_card_stats.json`) ⟵ سطرٌ للعاديّ ‏+ سطرٌ 🥇 إن كان في الرسالة سهمٌ 🥇 · بلا أرقامٍ أو بعيّنةٍ دون 30 ⟵ لا سطر ·
+    `X30_STAT_LINE=False` ⟵ `[]` (الرسالةُ بت-بت)."""
+    if not CONFIG.get("X30_STAT_LINE") or not rows:
+        return []
+    st = stats if stats is not None else load_oe_card_stats(X30_CARD_STATS_FILE)
+    out = []
+    for gold in (False, True):
+        if gold and not any((r or {}).get("gold") for r in rows):
+            continue
+        sub = (st or {}).get("gold" if gold else "normal") or {}
+        try:
+            n, med, p20, cat, s10 = (int(sub["n"]), float(sub["maxg_med"]), float(sub["p20"]), float(sub["cat"]), float(sub["s10_med"]))
+        except (KeyError, TypeError, ValueError):
+            continue
+        if n < 30 or p20 <= 0:
+            continue
+        z = max(1, round(100.0 / p20))
+        w = f"{s10:.0f}%".replace("-", "−")
+        out.append(f"📊 مثل هذا الإشعار{' 🥇' if gold else ''}: أعلى ربح وسيطه {med:.0f}% · 1 من {z} بلغ +20% · "
+                   f"كارثي {cat:.0f}% · بوقف −10% الوسيط {w}")
+    return out
 
 
 def _px_txt(v) -> str:

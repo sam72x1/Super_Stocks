@@ -102634,6 +102634,84 @@ try:
 except Exception as _e:                                          # noqa: BLE001
     check("✂️🔎 قفلُ مِجَسّ التقسيم انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
+# 📊📣 XCS1-XCS3 (2026-11-17 · أمرُ المالك «انقل سطر «📊 مثل هذا الإشعار» إلى رسالة «تحرّك 30%»، بنفس صيغته، محسوبًا على إشعارات «تحرّك 30%»
+#    من بيانات T-XMOVE — ومن سعر الإشعار لا من إغلاق الأمس. خلف مفتاح» · عرضٌ لا قياس): الإطلاقاتُ من سجلّات T-XMOVE · النتيجةُ من سعر الإشعار
+#    على الشموع بعد دقيقته · الصيغةُ = `oe_stat_line` حرفًا · والمفتاحُ يُرجع الرسالةَ بت-بت.
+try:
+    import importlib.util as _xcs_iu
+    _xcs_spec = _xcs_iu.spec_from_file_location("x30cs_t", _os_hc.path.join("fm_forensics", "xmove", "x30_card_stats.py"))
+    _XCS = _xcs_iu.module_from_spec(_xcs_spec)
+    _xcs_spec.loader.exec_module(_XCS)
+    _xcs_recs = [
+        {"d": "2026-08-25", "sym": "aa", "split": False, "fires": {"X30": [300, 1.3], "gold": [290, 1.2]}},
+        {"d": "2026-08-25", "sym": "BB", "split": False, "fires": {"X30": [310, 2.0], "gold": [320, 2.2]}},
+        {"d": "2026-08-25", "sym": "CC", "split": True, "fires": {"X30": [300, 1.0]}},
+        {"d": "2026-08-20", "sym": "DD", "split": False, "fires": {"X30": [300, 1.0]}},
+        {"d": "2026-08-26", "sym": "EE", "split": False, "fires": {"X20": [300, 1.0]}},
+    ]
+    _xcs_f = _XCS.fires_of(_xcs_recs, "2026-08-24")
+    _xcs_ny = lambda t: ("2026-08-25", int(t) // 60_000)                       # noqa: E731 — الدقيقةُ = t/60000 للفِكستشر
+    _xcs_bars = [(300 * 60_000, 1, 9.9, 0.1, 1.30, 1), (301 * 60_000, 1, 1.50, 1.20, 1.40, 1), (302 * 60_000, 1, 1.60, 1.25, 1.55, 1)]
+    _xcs_seen = []
+
+    def _xcs_out(bars, t0, E):
+        _xcs_seen.append((t0, E))
+        return {"res": "win", "cat": False, "maxg": (max(b[2] for b in bars if b[0] >= t0) / E - 1) * 100, "stop10": 0.0}
+    _xcs_o, _xcs_c = _XCS.outcome_at(_xcs_bars, "2026-08-25", 300, 1.29, _xcs_ny, _xcs_out)
+    _xcs_none = _XCS.outcome_at(_xcs_bars, "2026-08-25", 305, 1.30, _xcs_ny, _xcs_out)
+    check("📊📣 XCS1 إطلاقاتُ X30 من سجلّات T-XMOVE (لا يومَ تقسيم · من أوّل السجلّ · 🥇 دقيقتُه لا تتأخّر عن الإطلاق) · والنتيجةُ من **سعر الإشعار** "
+          "على الشموع **بعد** دقيقته (قمّةُ دقيقة الإطلاق خارجها) · وبلا شمعة إطلاقٍ لا نتيجة",
+          [(x["sym"], x["gold"], x["m"], x["px"]) for x in _xcs_f] == [("AA", True, 300, 1.3), ("BB", False, 310, 2.0)]
+          and _xcs_seen[0] == (301 * 60_000, 1.29) and abs(_xcs_o["maxg"] - (1.60 / 1.29 - 1) * 100) < 1e-9 and _xcs_c == 1.30
+          and _xcs_none == (None, None),
+          f"{_xcs_f} {_xcs_seen[:1]} {_xcs_o}")
+    _xcs_st = {"normal": {"n": 800, "maxg_med": 31.2, "p20": 61.0, "cat": 9.4, "s10_med": -10.0},
+               "gold": {"n": 120, "maxg_med": 40.0, "p20": 70.0, "cat": 12.0, "s10_med": 3.2}}
+    _xcs_rows = [{"sym": "ABC", "pct": 0.31, "px": 0.5, "m": 400, "gold": False}, {"sym": "XYZ", "pct": 0.4, "px": 2.1, "m": 500, "gold": True}]
+    _xcs_l2 = S.x30_stat_lines(_xcs_rows, _xcs_st)
+    _xcs_l1 = S.x30_stat_lines(_xcs_rows[:1], _xcs_st)
+    _xcs_small = S.x30_stat_lines(_xcs_rows, {"normal": dict(_xcs_st["normal"], n=29), "gold": _xcs_st["gold"]})
+    _xcs_cfg0 = S.CONFIG.get("X30_STAT_LINE"), S.CONFIG.get("OE_STAT_LINE")
+    try:
+        S.CONFIG["OE_STAT_LINE"] = True
+        _xcs_oe = [S.oe_stat_line(False, _xcs_st), S.oe_stat_line(True, _xcs_st)]
+        S.CONFIG["X30_STAT_LINE"] = False
+        _xcs_off = S.x30_stat_lines(_xcs_rows, _xcs_st)
+    finally:
+        S.CONFIG["X30_STAT_LINE"], S.CONFIG["OE_STAT_LINE"] = _xcs_cfg0
+    _xcs_nofile = S.load_oe_card_stats(_os_hc.path.join("fm_forensics", "xmove", "__لا_ملفّ__.json"), fresh=True)
+    check("📊📣 XCS2 السطرُ = `oe_stat_line` حرفًا (العاديّ ‏+ 🥇 حين في الرسالة 🥇 وحدَه) · عيّنةٌ دون 30 لا سطر · بلا ملفٍّ لا سطر · "
+          "`X30_STAT_LINE=False` ⟵ لا سطر",
+          _xcs_l2 == _xcs_oe and _xcs_l1 == _xcs_oe[:1] and _xcs_small == _xcs_oe[1:] and _xcs_off == []
+          and _xcs_nofile == {} and S.x30_stat_lines(_xcs_rows, {}) == [] and S.CONFIG.get("X30_STAT_LINE") is True,
+          f"{_xcs_l2} {_xcs_small} {_xcs_off}")
+    _xcs_src = _insp.getsource(S.build_xmove_alert)
+    _xcs_cfg1 = S.CONFIG.get("X30_STAT_LINE")
+    _xcs_load0 = S.load_oe_card_stats
+    try:
+        S.load_oe_card_stats = lambda path=None, fresh=False: _xcs_st if path == S.X30_CARD_STATS_FILE else {}
+        S.CONFIG["X30_STAT_LINE"] = True
+        _xcs_on = S.build_xmove_alert(_xcs_rows)
+        S.CONFIG["X30_STAT_LINE"] = False
+        _xcs_offm = S.build_xmove_alert(_xcs_rows)
+    finally:
+        S.load_oe_card_stats, S.CONFIG["X30_STAT_LINE"] = _xcs_load0, _xcs_cfg1
+    _xcs_on_l, _xcs_off_l = _xcs_on.split("\n"), _xcs_offm.split("\n")
+    _xcs_wf = open(_os_hc.path.join(".github", "workflows", "x30_card_stats.yml"), encoding="utf-8").read()
+    _xcs_wy = _e2p_yaml.safe_load(_xcs_wf)
+    _xcs_on_key = _xcs_wy.get("on", _xcs_wy.get(True)) or {}
+    _xcs_tool = open(_os_hc.path.join("fm_forensics", "xmove", "x30_card_stats.py"), encoding="utf-8").read()
+    check("📊📣 XCS3 الوصل: الرسالةُ تحمل السطرين قبل سطر ℹ️ والمفتاحُ مطفأً يُرجعها بلا سطرٍ واحدٍ زائد (بت-بت عدا ذلك) · "
+          "والـworkflow يدويٌّ بلا كرون ولا تلغرام · والأداةُ تقيس بدالّتَي `opsig` بالاسم ولا ترسل",
+          "x30_stat_lines(rows)" in _xcs_src and len(_xcs_on_l) == len(_xcs_off_l) + 2
+          and _xcs_on_l[-1] == _xcs_off_l[-1] and _xcs_on_l[:-3] == _xcs_off_l[:-1]
+          and [x.lstrip("‏") for x in _xcs_on_l[-3:-1]] == _xcs_oe
+          and "schedule" not in _xcs_on_key and "workflow_dispatch" in _xcs_on_key and "TELEGRAM" not in _xcs_wf
+          and "OP.outcome" in _xcs_tool and "OP.card_stats" in _xcs_tool and "send_telegram" not in _xcs_tool,
+          f"{len(_xcs_on_l)} {len(_xcs_off_l)} {_xcs_on_l[-3:]}")
+except Exception as _e:                                          # noqa: BLE001
+    check("📊📣 أقفالُ سطر «تحرّك 30%» انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
