@@ -1,0 +1,33 @@
+name: "✂️🔎 Polygon والتقسيم العكسيّ — أثرُه على «تحرّك 30%» (تشخيصٌ قارئ)"
+
+# أمرُ المالك 2026-11-17 «افحص GPAK وSMFL على ياهو …» · `fm_forensics/xmove/split_gap_probe.py`:
+#    الحالاتُ الثلاث ثمّ كونُ «تحرّك 30%» الحيّ على آخر 365 يومًا · يدويٌّ بلا كرون · بلا تلغرام · `contents: read` · لا يكتب في المستودع.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "cases · impact · both"
+        required: true
+        default: "both"
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: ✂️🔎 الفحص
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SGP_MODE: ${{ inputs.mode }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/xmove/split_gap_probe.py

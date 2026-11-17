@@ -102585,6 +102585,55 @@ try:
 except Exception as _e:                                          # noqa: BLE001
     check("🧺 أقفالُ T-BASKET انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
+# ✂️🔎 SGP1 (2026-11-17 · أمرُ المالك «افحص GPAK وSMFL على ياهو»): مِجَسٌّ قارئ — العكسيُّ عند ياهو نسبتُه دون 1 · ومعرفةُ Polygon بتقسيمٍ
+#    عكسيٍّ ضمن ±3 أيّام · والإطلاقُ يُعاد بـ`xmove_fire` نفسِه · يدويٌّ بلا كرون ولا تلغرام ولا كتابة.
+try:
+    import importlib.util as _sgp_iu
+    _sgp_sp = _sgp_iu.spec_from_file_location("sgp_lock", "fm_forensics/xmove/split_gap_probe.py")
+    _SGP = _sgp_iu.module_from_spec(_sgp_sp)
+    _sgp_sp.loader.exec_module(_SGP)
+    _sgp_src = open("fm_forensics/xmove/split_gap_probe.py", encoding="utf-8").read()
+    _sgp_wf = _wfh_yaml.safe_load(open(".github/workflows/split_gap_probe.yml", encoding="utf-8"))
+    _sgp_on = _sgp_wf.get("on", _sgp_wf.get(True)) or {}
+    _sgp_raw = open(".github/workflows/split_gap_probe.yml", encoding="utf-8").read()
+    _sgp_ps = [{"execution_date": "2024-08-09", "split_from": 25, "split_to": 1},
+               {"execution_date": "2024-08-20", "split_from": 1, "split_to": 2}]
+    # سلوكيًّا: تقسيمٌ عكسيٌّ عند ياهو غائبٌ عن Polygon ⟵ الإطلاقُ يُعاد بجالبَي الإنتاج المحقونين على يوم التقسيم ثمّ الجلسة التالية.
+    _sgp_calls = []
+
+    class _SgpS:
+        @staticmethod
+        def polygon_day_minutes(sym, day):
+            _sgp_calls.append((sym, day))
+            return [{"day": day}]
+
+        @staticmethod
+        def xmove_fire(bars, day, p0):
+            return {"pct": 0.5} if day == "2024-08-09" and bars and p0 == 2.0 else None
+    _sgp_keep = (_SGP.yahoo_splits, _SGP.poly_splits, _SGP.poly_daily)
+    try:
+        _SGP.yahoo_splits = lambda s: [("2024-08-08", 0.04)]
+        _SGP.poly_splits = lambda s: [{"execution_date": "2024-08-20", "split_from": 1, "split_to": 2}]
+        _SGP.poly_daily = lambda s, a, b, adj: [("2024-08-07", 2.0, 1.0), ("2024-08-08", 2.0, 1.0), ("2024-08-09", 50.0, 1.0)]
+        _sgp_imp = _SGP._impact_one(_SgpS, "GPAK", "2024-01-01", "2024-12-31")
+    finally:
+        _SGP.yahoo_splits, _SGP.poly_splits, _SGP.poly_daily = _sgp_keep
+    check("✂️🔎 SGP1 مِجَسُّ التقسيم: ياهو العكسيُّ وحدَه داخل النافذة · Polygon «يعرفه» بعكسيٍّ ضمن ±3 أيّام (لا الأماميّ ولا الأبعد) · "
+          "والقفزةُ ×1.3 في الاتّجاهين · والإطلاقُ بـ`xmove_fire` الإنتاجيّ · يدويٌّ بلا كرون ولا تلغرام ولا دفع",
+          _SGP.yahoo_reverse([("2024-08-08", 0.04), ("2024-08-20", 2.0), ("2023-01-01", 0.1), ("bad", "x")], "2024-01-01", "2024-12-31")
+          == [("2024-08-08", 0.04)]
+          and _SGP.polygon_knows("2024-08-06", _sgp_ps) is True and _SGP.polygon_knows("2024-08-05", _sgp_ps) is False
+          and _SGP.polygon_knows("2024-08-21", _sgp_ps) is False and _SGP.polygon_knows("2024-08-12", _sgp_ps) is True
+          and _SGP.jumps([("a", 1.0), ("b", 1.3), ("c", 1.2), ("d", 0.9)]) == [("b", 1.3), ("d", 0.75)]
+          and _SGP.jumps([("a", 1.0), ("b", 0.75)]) == [("b", 0.75)] and _SGP.jumps([("a", 1.0), ("b", 0.8)]) == []
+          and _sgp_imp.get("status") == "ok" and [(e["d"], e["polygon_knows"], e["fire_day"]) for e in _sgp_imp["events"]]
+          == [("2024-08-08", False, "2024-08-09")] and _sgp_calls == [("GPAK", "2024-08-08"), ("GPAK", "2024-08-09")]
+          and "schedule" not in _sgp_on and "TELEGRAM" not in _sgp_raw and _sgp_wf.get("permissions") == {"contents": "read"}
+          and not any(w in _sgp_src for w in ("send_telegram", "git_save", "git push")),
+          str(_SGP.yahoo_reverse([("2024-08-08", 0.04), ("2024-08-20", 2.0)], "2024-01-01", "2024-12-31")))
+except Exception as _e:                                          # noqa: BLE001
+    check("✂️🔎 قفلُ مِجَسّ التقسيم انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
