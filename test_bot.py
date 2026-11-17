@@ -102945,6 +102945,67 @@ try:
 except Exception as _e:                                          # noqa: BLE001
     check("🔣 أقفالُ أدوات المعلّقات ②-2…②-6 انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
+# 📱🕯️📅 DV21-DV24 — T-DATE-CANDLES v2 (المعلّقات ②-7 · `T_DATE_CANDLES_ADDENDUM_6.md`): القسمة · الحاكم · البوّابات · المطابقة.
+try:
+    import importlib.util as _dv_iu
+    import random as _dv_rnd
+    _dv_sp = _dv_iu.spec_from_file_location("app_v2", _os_hc.path.join("fm_forensics", "date_candles", "app_v2.py"))
+    _DV = _dv_iu.module_from_spec(_dv_sp)
+    _dv_sp.loader.exec_module(_DV)
+    _dv_rows = _DV.truth_rows()
+    _dv_cal, _dv_ho = _DV.split(_dv_rows)
+    _dv_key = {r["file"]: (r["symbol"], r["date"], r["hour"]) for r in _dv_rows}
+    check("📱 DV21 v2: القسمةُ بمفتاح (الرمز · التاريخ · الساعة) وsha256 بالملح — 55 = معايرة 29 ‏+ محجوز 26 · لا مفتاحَ في النصفين · حتميّة",
+          len(_dv_rows) == 55 and (len(_dv_cal), len(_dv_ho)) == (29, 26) and not set(_dv_cal) & set(_dv_ho)
+          and not {_dv_key[f] for f in _dv_cal} & {_dv_key[f] for f in _dv_ho} and _DV.split(_dv_rows) == (_dv_cal, _dv_ho)
+          and _DV.SALT == "T-DATE-CANDLES-V2|" and "TG_77204" in _dv_cal and "TG_2016" in _dv_ho,
+          f"{len(_dv_cal)}/{len(_dv_ho)}")
+    _dv_s = lambda b, h: [{"card_ok": i < b, "hit": i < h} for i in range(100)]     # noqa: E731
+    check("📱 DV22 v2: الحاكم — البناءُ ÷ كلّ الصور ‏≥70% والإصابةُ ÷ المبنيّ ‏≥85% معًا (الحدّان يعبران · وتحتهما لا)",
+          _DV.summary(_dv_s(70, 60))["pass"] and not _DV.summary(_dv_s(69, 69))["pass"]
+          and not _DV.summary(_dv_s(70, 59))["pass"] and _DV.summary(_dv_s(70, 60))["hit_rate"] == round(60 / 70, 4)
+          and (_DV.BUILD_MIN, _DV.HIT_MIN) == (0.70, 0.85) and _DV.summary([])["pass"] is False,
+          str(_DV.summary(_dv_s(70, 60))))
+    _dv_env0 = {k: _os_hc.environ.get(k) for k in ("DATE_CANDLES_REOPEN", "DCV2_STAGE")}
+    _dv_rc, _dv_fz0 = [], _DV.FROZEN_SHA
+    try:
+        _DV.FROZEN_SHA = "0" * 64                                  # بصمةٌ لا تطابق ⟵ يجب أن يرفض (لا شبكةَ في السويّة)
+        _os_hc.environ.pop("DATE_CANDLES_REOPEN", None)
+        _dv_rc.append(_DV.main(["app_v2"]))
+        _os_hc.environ["DATE_CANDLES_REOPEN"] = "1"
+        _os_hc.environ["DCV2_STAGE"] = "holdout"
+        _dv_rc.append(_DV.main(["app_v2"]))
+        _os_hc.environ["DCV2_STAGE"] = "corpus"
+        _dv_rc.append(_DV.main(["app_v2"]))
+    finally:
+        _DV.FROZEN_SHA = _dv_fz0
+        for _k, _v in _dv_env0.items():
+            if _v is None:
+                _os_hc.environ.pop(_k, None)
+            else:
+                _os_hc.environ[_k] = _v
+    check("📱 DV23 v2: بلا DATE_CANDLES_REOPEN=1 تخرج 8 · والمحجوزُ يخرج 9 ما لم تطابق FROZEN_SHA بصمةَ app_card.py · والمدوّنةُ 9 قبل «يعبر»",
+          _dv_rc == [8, 9, 9] and _DV.PASSED is False,
+          str(_dv_rc))
+    _dv_r = _dv_rnd.Random(7)
+    _dv_p, _dv_bars = 5.0, []
+    for _i in range(200):
+        _o, _c = _dv_p, _dv_p * (1 + _dv_r.uniform(-0.12, 0.12))
+        _dv_bars.append([1_700_000_000 + _i * 86400, _o, max(_o, _c) * (1 + _dv_r.uniform(0, 0.05)),
+                         min(_o, _c) * (1 - _dv_r.uniform(0, 0.05)), _c])
+        _dv_p = _c
+    _dv_prof = [[x, b[2], b[3]] if x == 5 * j + 2 else [x, max(b[1], b[4]), min(b[1], b[4])]   # الذيلُ في عمود المركز وحدَه
+                for j, b in enumerate(_dv_bars[100:140]) for x in range(5 * j, 5 * j + 5)]
+    _dv_card = {"frame": "1D", "width": 200, "px_price": 0.0005, "profile": _dv_prof}
+    _dv_j = _DV.judge_profile(_dv_card, {"1D": _dv_bars}, [], lambda ts: str(ts))
+    _dv_j2 = _DV.judge_profile(_dv_card, {"1D": [[b[0]] + [v * 3 for v in b[1:5]] for b in _dv_bars]}, [], lambda ts: str(ts))
+    check("📱 DV24 v2: ملمحُ 40 شمعةً على 200 بكسل يُطابَق نافذتَه (آخرُ شمعةٍ = الصحيحة · n = 40 · «واثق») · ومستوًى ×3 بلا تقسيمٍ مسجَّل ⟵ لا جواب",
+          _dv_j.get("label") == "واثق" and (_dv_j.get("top1") or {}).get("end_ts") == _dv_bars[139][0]
+          and (_dv_j.get("top1") or {}).get("n") == 40 and _dv_j2.get("label") == "لا تطابق",
+          f"{_dv_j.get('label')} {_dv_j.get('top1')} · ×3 {_dv_j2.get('label')}")
+except Exception as _e:                                          # noqa: BLE001
+    check("📱 أقفالُ T-DATE-CANDLES v2 انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

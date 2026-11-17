@@ -1,0 +1,50 @@
+name: "📱🕯️📅 T-DATE-CANDLES v2 — قارئُ لقطات تطبيق فيصل (المعلّقات ②-7)"
+
+# 🔒 قراءةٌ فقط — لا كرون · لا تلغرام · لا كتابةَ حالة · لا أسرار · والصورُ لا تُدفَع.
+#    أمرُ المالك 2026-11-17 «برومبت شامل للنواقص» ②-7 · العقد fm_forensics/date_candles/T_DATE_CANDLES_ADDENDUM_6.md.
+#    cal = نصفُ المعايرة (وصف) · holdout = المحجوز مرّةً واحدة بعد التجميد (FROZEN_SHA) · split = القسمة.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: "split · cal · holdout"
+        required: true
+        default: "split"
+      reopen:
+        description: "🔒 المحورُ مُغلَق — «1» إقرارُ المالك لـv2 وحدَها (الملحق 6 §⑨) · وإلّا الأداةُ تخرج 8"
+        required: false
+        default: "0"
+
+concurrency:
+  group: date-candles-v2
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          sudo apt-get update -qq && sudo apt-get install -y -qq tesseract-ocr
+          tesseract --version | head -1
+
+      - name: 📱 القارئ ⟵ المطابقة ⟵ الإصابة
+        env:
+          PYTHONUNBUFFERED: "1"
+          DCV2_STAGE: ${{ inputs.stage }}
+          DATE_CANDLES_REOPEN: ${{ inputs.reopen }}
+        run: python fm_forensics/date_candles/app_v2.py
