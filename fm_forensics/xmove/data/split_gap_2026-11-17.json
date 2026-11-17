@@ -1,0 +1,4971 @@
+{
+"run_id": 44010930791,
+"sha": "38705e9be100268ee448da67e9ddef8ac38d50c3",
+"cases": [
+{
+"sym": "GPAK",
+"d": "2024-08-06",
+"yahoo_splits": [],
+"polygon_splits": [],
+"adj_jumps": [
+[
+"2024-08-02",
+0.5351
+],
+[
+"2024-08-05",
+0.3126
+],
+[
+"2024-08-06",
+0.5747
+],
+[
+"2024-08-08",
+0.1543
+],
+[
+"2024-08-09",
+6.0
+],
+[
+"2024-09-05",
+0.4128
+],
+[
+"2024-09-18",
+2.6316
+],
+[
+"2024-09-19",
+0.76
+],
+[
+"2024-09-20",
+0.6118
+]
+],
+"raw_jumps": [
+[
+"2024-08-02",
+0.5351
+],
+[
+"2024-08-05",
+0.3126
+],
+[
+"2024-08-06",
+0.5747
+],
+[
+"2024-08-08",
+0.1543
+],
+[
+"2024-08-09",
+6.0
+],
+[
+"2024-09-05",
+0.4128
+],
+[
+"2024-09-18",
+2.6316
+],
+[
+"2024-09-19",
+0.76
+],
+[
+"2024-09-20",
+0.6118
+]
+],
+"yahoo_reverse_in_window": [],
+"polygon_knows": []
+},
+{
+"sym": "SMFL",
+"d": "2024-09-19",
+"yahoo_splits": [
+[
+"2023-04-24",
+0.02
+],
+[
+"2023-08-02",
+0.3333333333333333
+],
+[
+"2023-10-27",
+0.3333333333333333
+],
+[
+"2024-04-22",
+0.14285714285714285
+]
+],
+"polygon_splits": [
+{
+"execution_date": "2024-04-22",
+"split_from": 7,
+"split_to": 1
+},
+{
+"execution_date": "2023-10-27",
+"split_from": 3,
+"split_to": 1
+},
+{
+"execution_date": "2023-08-02",
+"split_from": 3,
+"split_to": 1
+},
+{
+"execution_date": "2023-04-24",
+"split_from": 50,
+"split_to": 1
+}
+],
+"adj_jumps": [
+[
+"2024-08-21",
+1.6186
+],
+[
+"2024-09-12",
+1.4235
+],
+[
+"2024-09-18",
+0.75
+],
+[
+"2024-09-19",
+0.1867
+],
+[
+"2024-09-20",
+0.5495
+],
+[
+"2024-09-23",
+0.4637
+],
+[
+"2024-09-26",
+2.6254
+],
+[
+"2024-09-30",
+0.5693
+],
+[
+"2024-10-02",
+0.726
+],
+[
+"2024-10-15",
+0.7
+],
+[
+"2024-10-25",
+1.6611
+],
+[
+"2024-10-31",
+0.45
+],
+[
+"2024-11-01",
+1.3333
+]
+],
+"raw_jumps": [
+[
+"2024-08-21",
+1.6186
+],
+[
+"2024-09-12",
+1.4235
+],
+[
+"2024-09-18",
+0.75
+],
+[
+"2024-09-19",
+0.1867
+],
+[
+"2024-09-20",
+0.5495
+],
+[
+"2024-09-23",
+0.4637
+],
+[
+"2024-09-26",
+2.6254
+],
+[
+"2024-09-30",
+0.5693
+],
+[
+"2024-10-02",
+0.726
+],
+[
+"2024-10-15",
+0.7
+],
+[
+"2024-10-25",
+1.6611
+],
+[
+"2024-10-31",
+0.45
+],
+[
+"2024-11-01",
+1.3333
+]
+],
+"yahoo_reverse_in_window": [],
+"polygon_knows": []
+},
+{
+"sym": "MVLA",
+"d": "2024-04-10",
+"yahoo_splits": [],
+"polygon_splits": [],
+"adj_jumps": [
+[
+"2024-03-21",
+0.3792
+],
+[
+"2024-04-09",
+0.0019
+],
+[
+"2024-04-10",
+11.0
+],
+[
+"2024-04-11",
+27.2727
+],
+[
+"2024-04-12",
+0.3
+],
+[
+"2024-04-15",
+2.7778
+],
+[
+"2024-04-16",
+0.698
+],
+[
+"2024-04-17",
+1.3181
+],
+[
+"2024-04-18",
+0.7174
+],
+[
+"2024-04-23",
+1.3043
+],
+[
+"2024-04-24",
+0.6667
+],
+[
+"2024-05-06",
+1.505
+],
+[
+"2024-05-14",
+0.7
+],
+[
+"2024-05-16",
+1.6634
+],
+[
+"2024-05-21",
+0.6839
+],
+[
+"2024-05-24",
+1.9048
+]
+],
+"raw_jumps": [
+[
+"2024-03-21",
+0.3792
+],
+[
+"2024-04-09",
+0.0019
+],
+[
+"2024-04-10",
+11.0
+],
+[
+"2024-04-11",
+27.2727
+],
+[
+"2024-04-12",
+0.3
+],
+[
+"2024-04-15",
+2.7778
+],
+[
+"2024-04-16",
+0.698
+],
+[
+"2024-04-17",
+1.3181
+],
+[
+"2024-04-18",
+0.7174
+],
+[
+"2024-04-23",
+1.3043
+],
+[
+"2024-04-24",
+0.6667
+],
+[
+"2024-05-06",
+1.505
+],
+[
+"2024-05-14",
+0.7
+],
+[
+"2024-05-16",
+1.6634
+],
+[
+"2024-05-21",
+0.6839
+],
+[
+"2024-05-24",
+1.9048
+]
+],
+"yahoo_reverse_in_window": [],
+"polygon_knows": []
+}
+],
+"universe_line": "n=880 window=2025-11-17..2026-11-17",
+"summary": {
+"universe": 880,
+"yahoo_fail": 0,
+"reverse_events": 508,
+"polygon_known": 476,
+"polygon_missing": 32,
+"polygon_unknown": 0,
+"fires_known": 147,
+"fires_missing": 4,
+"fires_unknown": 0,
+"window_days": 365
+},
+"events": [
+{
+"d": "2026-07-06",
+"ratio": 0.06666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "ABTC"
+},
+{
+"d": "2025-12-30",
+"ratio": 0.0625,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 9,
+"sym": "ACET"
+},
+{
+"d": "2026-11-09",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "ADGM"
+},
+{
+"d": "2026-02-20",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "ADVB"
+},
+{
+"d": "2026-03-05",
+"ratio": 0.16666666666666666,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "AEHL"
+},
+{
+"d": "2026-08-10",
+"ratio": 0.0625,
+"polygon_knows": true,
+"fire_day": "2026-08-10",
+"fire_pct": 0.3146,
+"bars": 11,
+"sym": "AEHL"
+},
+{
+"d": "2026-08-04",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "AEMD"
+},
+{
+"d": "2026-09-29",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "AGRZ"
+},
+{
+"d": "2026-06-16",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "AIFU"
+},
+{
+"d": "2026-04-06",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "AIIO"
+},
+{
+"d": "2026-11-06",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "AIIO"
+},
+{
+"d": "2026-04-27",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "AIOS"
+},
+{
+"d": "2026-04-30",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "AIRE"
+},
+{
+"d": "2026-05-11",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": "2026-05-11",
+"fire_pct": 0.312,
+"bars": 11,
+"sym": "AIXI"
+},
+{
+"d": "2026-09-08",
+"ratio": 0.14285714285714285,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "AIXI"
+},
+{
+"d": "2026-01-12",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": "2026-01-12",
+"fire_pct": 0.3118,
+"bars": 11,
+"sym": "AKAN"
+},
+{
+"d": "2026-04-13",
+"ratio": 0.222,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "AKAN"
+},
+{
+"d": "2026-03-31",
+"ratio": 0.025,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "AKTX"
+},
+{
+"d": "2026-09-09",
+"ratio": 0.02,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "ALP"
+},
+{
+"d": "2026-11-09",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "ALPS"
+},
+{
+"d": "2026-06-24",
+"ratio": 0.047619047619047616,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "AMIX"
+},
+{
+"d": "2026-06-15",
+"ratio": 0.025,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "AMOD"
+},
+{
+"d": "2025-12-30",
+"ratio": 0.05555555555555555,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 9,
+"sym": "APVO"
+},
+{
+"d": "2026-11-12",
+"ratio": 0.020833333333333332,
+"polygon_knows": true,
+"fire_day": "2026-11-13",
+"fire_pct": 0.2694,
+"bars": 11,
+"sym": "ARAI"
+},
+{
+"d": "2026-11-09",
+"ratio": 0.025,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "ARAY"
+},
+{
+"d": "2025-12-12",
+"ratio": 0.004629629629629629,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "ARBK"
+},
+{
+"d": "2026-03-10",
+"ratio": 0.3333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "ARTL"
+},
+{
+"d": "2026-08-31",
+"ratio": 0.1111111111111111,
+"polygon_knows": true,
+"fire_day": "2026-08-31",
+"fire_pct": 0.2541,
+"bars": 11,
+"sym": "ARTL"
+},
+{
+"d": "2026-01-16",
+"ratio": 0.025,
+"polygon_knows": true,
+"fire_day": "2026-01-20",
+"fire_pct": 0.3756,
+"bars": 12,
+"sym": "ASBP"
+},
+{
+"d": "2026-02-02",
+"ratio": 0.06666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "ATOS"
+},
+{
+"d": "2026-02-10",
+"ratio": 0.02,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "ATPC"
+},
+{
+"d": "2026-03-30",
+"ratio": 0.06666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "ATXG"
+},
+{
+"d": "2026-10-29",
+"ratio": 0.025,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "ATYR"
+},
+{
+"d": "2026-02-19",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "AURE"
+},
+{
+"d": "2026-04-01",
+"ratio": 0.129,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "AUUD"
+},
+{
+"d": "2026-06-15",
+"ratio": 0.08333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "AVX"
+},
+{
+"d": "2026-10-29",
+"ratio": 0.005,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "AXG"
+},
+{
+"d": "2026-05-06",
+"ratio": 0.1,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "AXNX"
+},
+{
+"d": "2026-10-22",
+"ratio": 0.4,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "AXNX"
+},
+{
+"d": "2025-12-12",
+"ratio": 0.02,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "AZI"
+},
+{
+"d": "2026-03-23",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "AZI"
+},
+{
+"d": "2026-07-20",
+"ratio": 0.07692307692307693,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "BANL"
+},
+{
+"d": "2026-04-06",
+"ratio": 0.02,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "BDAI"
+},
+{
+"d": "2026-05-29",
+"ratio": 0.3333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "BDAI"
+},
+{
+"d": "2026-07-06",
+"ratio": 0.04,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "BDAI"
+},
+{
+"d": "2026-04-06",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": "2026-04-06",
+"fire_pct": 0.2962,
+"bars": 10,
+"sym": "BDRX"
+},
+{
+"d": "2026-10-26",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "BDRX"
+},
+{
+"d": "2025-12-15",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": "2025-12-15",
+"fire_pct": 0.3891,
+"bars": 11,
+"sym": "BENF"
+},
+{
+"d": "2025-11-21",
+"ratio": 0.05,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "BGDE"
+},
+{
+"d": "2026-10-01",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": "2026-10-01",
+"fire_pct": 0.4297,
+"bars": 13,
+"sym": "BGM"
+},
+{
+"d": "2026-08-24",
+"ratio": 0.06666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "BIAF"
+},
+{
+"d": "2025-12-30",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 9,
+"sym": "BIYA"
+},
+{
+"d": "2026-07-13",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "BIYA"
+},
+{
+"d": "2026-01-29",
+"ratio": 0.25,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "BJDX"
+},
+{
+"d": "2026-11-03",
+"ratio": 0.25,
+"polygon_knows": true,
+"fire_day": "2026-11-03",
+"fire_pct": 0.2733,
+"bars": 11,
+"sym": "BJDX"
+},
+{
+"d": "2026-04-30",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "BKYI"
+},
+{
+"d": "2026-06-22",
+"ratio": 0.08333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "BMGL"
+},
+{
+"d": "2025-12-12",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "BNAI"
+},
+{
+"d": "2025-12-11",
+"ratio": 0.02857142857142857,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "BNKK"
+},
+{
+"d": "2025-12-23",
+"ratio": 0.16666666666666666,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "BOXL"
+},
+{
+"d": "2026-06-22",
+"ratio": 0.16666666666666666,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "BOXL"
+},
+{
+"d": "2026-01-26",
+"ratio": 0.14285714285714285,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "BRNX"
+},
+{
+"d": "2026-04-15",
+"ratio": 0.2,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "BRNX"
+},
+{
+"d": "2026-08-13",
+"ratio": 0.16666666666666666,
+"polygon_knows": false,
+"fire_day": "2026-08-17",
+"fire_pct": 0.2817,
+"bars": 4,
+"sym": "BRNX"
+},
+{
+"d": "2026-09-08",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "BRTX"
+},
+{
+"d": "2026-10-15",
+"ratio": 0.0625,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "BTOC"
+},
+{
+"d": "2026-02-20",
+"ratio": 0.02,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "BYAH"
+},
+{
+"d": "2026-08-06",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": "2026-08-06",
+"fire_pct": 0.2875,
+"bars": 13,
+"sym": "BYAH"
+},
+{
+"d": "2026-08-14",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "BYND"
+},
+{
+"d": "2026-08-31",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "CALC"
+},
+{
+"d": "2026-10-19",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "CAPS"
+},
+{
+"d": "2026-07-13",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "CCHH"
+},
+{
+"d": "2026-01-23",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": "2026-01-26",
+"fire_pct": 0.2358,
+"bars": 12,
+"sym": "CCTG"
+},
+{
+"d": "2026-06-08",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "CDLX"
+},
+{
+"d": "2026-03-27",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "CDT"
+},
+{
+"d": "2026-07-20",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "CDT"
+},
+{
+"d": "2026-09-29",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "CDT"
+},
+{
+"d": "2026-11-06",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": "2026-11-06",
+"fire_pct": 0.4184,
+"bars": 13,
+"sym": "CDT"
+},
+{
+"d": "2026-06-01",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "CDTG"
+},
+{
+"d": "2026-04-13",
+"ratio": 0.016666666666666666,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "CENN"
+},
+{
+"d": "2026-06-05",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": "2026-06-05",
+"fire_pct": 0.1282,
+"bars": 13,
+"sym": "CETX"
+},
+{
+"d": "2026-07-07",
+"ratio": 0.06666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "CGTL"
+},
+{
+"d": "2026-08-31",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "CHGA"
+},
+{
+"d": "2025-12-23",
+"ratio": 0.02,
+"polygon_knows": true,
+"fire_day": "2025-12-23",
+"fire_pct": 0.2294,
+"bars": 10,
+"sym": "CHR"
+},
+{
+"d": "2026-04-07",
+"ratio": 0.3333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "CHR"
+},
+{
+"d": "2026-05-07",
+"ratio": 0.01,
+"polygon_knows": true,
+"fire_day": "2026-05-07",
+"fire_pct": 0.3141,
+"bars": 13,
+"sym": "CHSN"
+},
+{
+"d": "2026-03-20",
+"ratio": 0.14285714285714285,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "CIIT"
+},
+{
+"d": "2026-07-20",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "CIIT"
+},
+{
+"d": "2026-01-26",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": "2026-01-26",
+"fire_pct": 0.3008,
+"bars": 10,
+"sym": "CISS"
+},
+{
+"d": "2026-04-27",
+"ratio": 0.14285714285714285,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "CISS"
+},
+{
+"d": "2026-08-19",
+"ratio": 0.025,
+"polygon_knows": true,
+"fire_day": "2026-08-19",
+"fire_pct": 0.2226,
+"bars": 12,
+"sym": "CISS"
+},
+{
+"d": "2026-11-09",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": "2026-11-10",
+"fire_pct": 0.9659,
+"bars": 11,
+"sym": "CISS"
+},
+{
+"d": "2026-03-16",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "CLIR"
+},
+{
+"d": "2026-03-26",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "CMCT"
+},
+{
+"d": "2026-04-20",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "CMCT"
+},
+{
+"d": "2025-12-15",
+"ratio": 0.025,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "CMND"
+},
+{
+"d": "2026-05-21",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "CMND"
+},
+{
+"d": "2026-10-05",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "CMND"
+},
+{
+"d": "2026-04-02",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "CNSY"
+},
+{
+"d": "2026-01-02",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "CODX"
+},
+{
+"d": "2026-11-13",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "COSM"
+},
+{
+"d": "2026-07-13",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": "2026-07-14",
+"fire_pct": 0.3298,
+"bars": 10,
+"sym": "CPOP"
+},
+{
+"d": "2026-09-14",
+"ratio": 0.06666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "CPOP"
+},
+{
+"d": "2026-07-06",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "CRIS"
+},
+{
+"d": "2026-07-31",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "CSAI"
+},
+{
+"d": "2026-04-29",
+"ratio": 0.005,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "CTNT"
+},
+{
+"d": "2026-09-28",
+"ratio": 0.006666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "CTNT"
+},
+{
+"d": "2026-05-27",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": "2026-05-28",
+"fire_pct": 0.3002,
+"bars": 11,
+"sym": "CUPR"
+},
+{
+"d": "2026-08-20",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "CURX"
+},
+{
+"d": "2026-08-18",
+"ratio": 0.02,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "CXAI"
+},
+{
+"d": "2026-08-28",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "CYCU"
+},
+{
+"d": "2026-06-01",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": "2026-06-01",
+"fire_pct": 0.2634,
+"bars": 10,
+"sym": "DAIC"
+},
+{
+"d": "2026-07-24",
+"ratio": 0.025,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "DBGI"
+},
+{
+"d": "2026-03-09",
+"ratio": 0.08333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "DCOY"
+},
+{
+"d": "2026-01-22",
+"ratio": 0.08333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "DCX"
+},
+{
+"d": "2026-09-28",
+"ratio": 0.00625,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "DCX"
+},
+{
+"d": "2025-12-18",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "DFLI"
+},
+{
+"d": "2026-10-12",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "DFLI"
+},
+{
+"d": "2026-07-20",
+"ratio": 0.008,
+"polygon_knows": true,
+"fire_day": "2026-07-21",
+"fire_pct": 0.331,
+"bars": 11,
+"sym": "DFNS"
+},
+{
+"d": "2026-04-28",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": "2026-04-28",
+"fire_pct": 0.1787,
+"bars": 11,
+"sym": "DGNX"
+},
+{
+"d": "2026-10-22",
+"ratio": 0.02,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "DKI"
+},
+{
+"d": "2026-09-28",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": "2026-09-28",
+"fire_pct": 0.2643,
+"bars": 11,
+"sym": "DLXY"
+},
+{
+"d": "2026-02-10",
+"ratio": 0.1,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "DRK"
+},
+{
+"d": "2026-02-23",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "DSY"
+},
+{
+"d": "2026-03-16",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": "2026-03-16",
+"fire_pct": 0.3311,
+"bars": 11,
+"sym": "DXST"
+},
+{
+"d": "2026-02-03",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": "2026-02-03",
+"fire_pct": 0.6461,
+"bars": 11,
+"sym": "EDBL"
+},
+{
+"d": "2026-07-13",
+"ratio": 0.022222222222222223,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "EDBL"
+},
+{
+"d": "2026-02-17",
+"ratio": 0.0625,
+"polygon_knows": true,
+"fire_day": "2026-02-17",
+"fire_pct": 0.2576,
+"bars": 10,
+"sym": "EEIQ"
+},
+{
+"d": "2026-04-20",
+"ratio": 0.0625,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "EHGO"
+},
+{
+"d": "2026-10-21",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "EHGO"
+},
+{
+"d": "2026-03-30",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "EJH"
+},
+{
+"d": "2026-01-06",
+"ratio": 0.25,
+"polygon_knows": true,
+"fire_day": "2026-01-06",
+"fire_pct": 0.2205,
+"bars": 10,
+"sym": "ELAB"
+},
+{
+"d": "2026-03-10",
+"ratio": 0.16666666666666666,
+"polygon_knows": true,
+"fire_day": "2026-03-10",
+"fire_pct": 0.2163,
+"bars": 11,
+"sym": "ELAB"
+},
+{
+"d": "2026-08-21",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "ELAB"
+},
+{
+"d": "2025-12-26",
+"ratio": 0.0625,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "ELPW"
+},
+{
+"d": "2026-03-12",
+"ratio": 0.0125,
+"polygon_knows": true,
+"fire_day": "2026-03-13",
+"fire_pct": 0.376,
+"bars": 13,
+"sym": "ELPW"
+},
+{
+"d": "2026-08-10",
+"ratio": 0.022222222222222223,
+"polygon_knows": true,
+"fire_day": "2026-08-11",
+"fire_pct": 0.5987,
+"bars": 11,
+"sym": "ELPW"
+},
+{
+"d": "2026-07-09",
+"ratio": 0.06666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "ENLV"
+},
+{
+"d": "2026-10-27",
+"ratio": 0.0625,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "ENLV"
+},
+{
+"d": "2026-08-19",
+"ratio": 0.125,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "EOCN"
+},
+{
+"d": "2026-09-18",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "EPOW"
+},
+{
+"d": "2026-05-04",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "ERNA"
+},
+{
+"d": "2026-03-23",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": "2026-03-24",
+"fire_pct": 0.307,
+"bars": 11,
+"sym": "EUDA"
+},
+{
+"d": "2025-11-21",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "EZGO"
+},
+{
+"d": "2026-05-19",
+"ratio": 0.006666666666666667,
+"polygon_knows": true,
+"fire_day": "2026-05-19",
+"fire_pct": 0.4726,
+"bars": 10,
+"sym": "EZGO"
+},
+{
+"d": "2026-11-05",
+"ratio": 0.3333333333333333,
+"polygon_knows": true,
+"fire_day": "2026-11-05",
+"fire_pct": 0.2197,
+"bars": 13,
+"sym": "EZGO"
+},
+{
+"d": "2026-03-30",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "FBLG"
+},
+{
+"d": "2026-01-12",
+"ratio": 0.05,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "FCDH"
+},
+{
+"d": "2026-03-23",
+"ratio": 0.06666666666666667,
+"polygon_knows": true,
+"fire_day": "2026-03-24",
+"fire_pct": 0.31,
+"bars": 11,
+"sym": "FCHL"
+},
+{
+"d": "2026-05-04",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": "2026-05-04",
+"fire_pct": 0.21,
+"bars": 11,
+"sym": "FCHL"
+},
+{
+"d": "2026-02-09",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": "2026-02-09",
+"fire_pct": 0.4275,
+"bars": 11,
+"sym": "FCUV"
+},
+{
+"d": "2026-06-23",
+"ratio": 0.25,
+"polygon_knows": true,
+"fire_day": "2026-06-23",
+"fire_pct": 0.4088,
+"bars": 10,
+"sym": "FCUV"
+},
+{
+"d": "2026-06-08",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "FEMY"
+},
+{
+"d": "2026-07-24",
+"ratio": 0.006666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "FFAI"
+},
+{
+"d": "2026-08-11",
+"ratio": 0.125,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "FFTT"
+},
+{
+"d": "2026-02-10",
+"ratio": 0.01,
+"polygon_knows": true,
+"fire_day": "2026-02-10",
+"fire_pct": 0.1646,
+"bars": 10,
+"sym": "FGL"
+},
+{
+"d": "2026-09-01",
+"ratio": 0.01,
+"polygon_knows": true,
+"fire_day": "2026-09-01",
+"fire_pct": 0.3816,
+"bars": 10,
+"sym": "FGL"
+},
+{
+"d": "2026-10-13",
+"ratio": 0.025,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "FMFC"
+},
+{
+"d": "2025-12-15",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "FRGT"
+},
+{
+"d": "2026-05-18",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "FRGT"
+},
+{
+"d": "2026-10-19",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": "2026-10-19",
+"fire_pct": 0.4488,
+"bars": 11,
+"sym": "FRGT"
+},
+{
+"d": "2026-02-26",
+"ratio": 0.3333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "FRSX"
+},
+{
+"d": "2026-01-20",
+"ratio": 0.25,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "FTFT"
+},
+{
+"d": "2026-07-13",
+"ratio": 0.25,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "FTFT"
+},
+{
+"d": "2026-08-31",
+"ratio": 0.25,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "FTFT"
+},
+{
+"d": "2025-11-21",
+"ratio": 0.01,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "FXHO"
+},
+{
+"d": "2026-02-17",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "FXHO"
+},
+{
+"d": "2026-06-22",
+"ratio": 0.1,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "FXHO"
+},
+{
+"d": "2026-09-11",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "GAUZ"
+},
+{
+"d": "2026-06-29",
+"ratio": 0.004,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 9,
+"sym": "GDC"
+},
+{
+"d": "2026-07-10",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "GIPR"
+},
+{
+"d": "2026-10-08",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "GLE"
+},
+{
+"d": "2026-01-08",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "GMEX"
+},
+{
+"d": "2026-05-01",
+"ratio": 0.14285714285714285,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "GMEX"
+},
+{
+"d": "2026-07-02",
+"ratio": 0.1111111111111111,
+"polygon_knows": true,
+"fire_day": "2026-07-06",
+"fire_pct": 1.329,
+"bars": 12,
+"sym": "GMEX"
+},
+{
+"d": "2026-09-28",
+"ratio": 0.1111111111111111,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "GMEX"
+},
+{
+"d": "2026-06-11",
+"ratio": 0.02,
+"polygon_knows": true,
+"fire_day": "2026-06-12",
+"fire_pct": 0.3368,
+"bars": 13,
+"sym": "GMM"
+},
+{
+"d": "2026-04-06",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": "2026-04-07",
+"fire_pct": 0.1499,
+"bars": 10,
+"sym": "GNLN"
+},
+{
+"d": "2026-07-16",
+"ratio": 0.045454545454545456,
+"polygon_knows": true,
+"fire_day": "2026-07-17",
+"fire_pct": 0.2581,
+"bars": 13,
+"sym": "GNPX"
+},
+{
+"d": "2026-09-11",
+"ratio": 0.0125,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "GOSS"
+},
+{
+"d": "2026-01-12",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "GOVX"
+},
+{
+"d": "2026-11-11",
+"ratio": 0.041666666666666664,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "GOVX"
+},
+{
+"d": "2026-10-19",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": "2026-10-19",
+"fire_pct": 0.1304,
+"bars": 11,
+"sym": "GP"
+},
+{
+"d": "2026-01-26",
+"ratio": 0.03571428571428571,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "GRI"
+},
+{
+"d": "2026-08-24",
+"ratio": 0.02,
+"polygon_knows": true,
+"fire_day": "2026-08-25",
+"fire_pct": 0.3315,
+"bars": 11,
+"sym": "GRML"
+},
+{
+"d": "2026-08-06",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "GRNQ"
+},
+{
+"d": "2026-03-06",
+"ratio": 0.005,
+"polygon_knows": true,
+"fire_day": "2026-03-09",
+"fire_pct": 0.468,
+"bars": 13,
+"sym": "GSIW"
+},
+{
+"d": "2026-09-08",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "GTBP"
+},
+{
+"d": "2026-10-05",
+"ratio": 0.08333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "GUTS"
+},
+{
+"d": "2026-04-13",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": "2026-04-13",
+"fire_pct": 0.3257,
+"bars": 10,
+"sym": "HCAI"
+},
+{
+"d": "2026-10-23",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": "2026-10-23",
+"fire_pct": 0.4845,
+"bars": 13,
+"sym": "HCAI"
+},
+{
+"d": "2026-02-10",
+"ratio": 0.016666666666666666,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "HCTI"
+},
+{
+"d": "2026-10-26",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "HCTI"
+},
+{
+"d": "2026-06-30",
+"ratio": 0.16666666666666666,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "HCWB"
+},
+{
+"d": "2026-10-26",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "HKPD"
+},
+{
+"d": "2026-04-06",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "HTCR"
+},
+{
+"d": "2026-01-16",
+"ratio": 0.06666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "HUBC"
+},
+{
+"d": "2026-04-20",
+"ratio": 0.02,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "HUBC"
+},
+{
+"d": "2026-06-08",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "HUBC"
+},
+{
+"d": "2026-09-14",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "HUBC"
+},
+{
+"d": "2026-11-13",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": "2026-11-13",
+"fire_pct": 0.2517,
+"bars": 10,
+"sym": "HUBC"
+},
+{
+"d": "2026-01-30",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": "2026-02-02",
+"fire_pct": 0.3137,
+"bars": 13,
+"sym": "IBG"
+},
+{
+"d": "2026-06-04",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "ICCM"
+},
+{
+"d": "2026-01-08",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": "2026-01-08",
+"fire_pct": 0.3385,
+"bars": 12,
+"sym": "ICON"
+},
+{
+"d": "2026-01-05",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "ICU"
+},
+{
+"d": "2025-12-30",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 9,
+"sym": "ILAG"
+},
+{
+"d": "2026-08-27",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "IMCC"
+},
+{
+"d": "2026-09-28",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "IMMP"
+},
+{
+"d": "2025-12-16",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "INBS"
+},
+{
+"d": "2025-12-22",
+"ratio": 0.041666666666666664,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "INHD"
+},
+{
+"d": "2026-05-04",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": "2026-05-05",
+"fire_pct": 0.1589,
+"bars": 11,
+"sym": "INHD"
+},
+{
+"d": "2026-04-06",
+"ratio": 0.0625,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "INLF"
+},
+{
+"d": "2026-07-06",
+"ratio": 0.005,
+"polygon_knows": true,
+"fire_day": "2026-07-06",
+"fire_pct": 0.3565,
+"bars": 10,
+"sym": "INLF"
+},
+{
+"d": "2026-02-17",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "INTJ"
+},
+{
+"d": "2026-02-19",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "INTS"
+},
+{
+"d": "2026-09-14",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "IPDN"
+},
+{
+"d": "2026-04-23",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "IPST"
+},
+{
+"d": "2026-05-22",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "IPW"
+},
+{
+"d": "2026-08-07",
+"ratio": 0.1111111111111111,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "IPW"
+},
+{
+"d": "2026-10-26",
+"ratio": 0.08333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "IPW"
+},
+{
+"d": "2026-04-13",
+"ratio": 0.1,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "IRLA"
+},
+{
+"d": "2026-06-30",
+"ratio": 0.05,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "IRLA"
+},
+{
+"d": "2026-04-28",
+"ratio": 0.025,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "ISPC"
+},
+{
+"d": "2026-10-06",
+"ratio": 0.0625,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "ITOC"
+},
+{
+"d": "2025-11-28",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": "2025-12-01",
+"fire_pct": 0.2962,
+"bars": 12,
+"sym": "IVF"
+},
+{
+"d": "2026-03-27",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "IVF"
+},
+{
+"d": "2026-10-30",
+"ratio": 0.25,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "IVF"
+},
+{
+"d": "2026-02-27",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "IXHL"
+},
+{
+"d": "2026-09-15",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": "2026-09-15",
+"fire_pct": 0.1663,
+"bars": 10,
+"sym": "IZM"
+},
+{
+"d": "2026-04-30",
+"ratio": 0.02857142857142857,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "JAGX"
+},
+{
+"d": "2026-09-17",
+"ratio": 0.06666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "JAGX"
+},
+{
+"d": "2026-06-30",
+"ratio": 0.5,
+"polygon_knows": true,
+"fire_day": "2026-06-30",
+"fire_pct": 0.3361,
+"bars": 10,
+"sym": "JBDI"
+},
+{
+"d": "2026-04-13",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "JEM"
+},
+{
+"d": "2026-07-14",
+"ratio": 0.08333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "JEM"
+},
+{
+"d": "2026-11-06",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "JSPR"
+},
+{
+"d": "2026-04-08",
+"ratio": 0.005,
+"polygon_knows": true,
+"fire_day": "2026-04-08",
+"fire_pct": 1.0468,
+"bars": 11,
+"sym": "JTAI"
+},
+{
+"d": "2026-08-07",
+"ratio": 0.013333333333333334,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "JUNS"
+},
+{
+"d": "2026-07-06",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "JZ"
+},
+{
+"d": "2025-12-11",
+"ratio": 0.025,
+"polygon_knows": true,
+"fire_day": "2025-12-11",
+"fire_pct": 0.4686,
+"bars": 13,
+"sym": "JZXN"
+},
+{
+"d": "2026-05-11",
+"ratio": 0.02,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "KALA"
+},
+{
+"d": "2026-03-10",
+"ratio": 0.02,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "KIDZ"
+},
+{
+"d": "2026-06-08",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "KIDZ"
+},
+{
+"d": "2026-08-13",
+"ratio": 0.06666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "KIDZ"
+},
+{
+"d": "2026-04-21",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "KITT"
+},
+{
+"d": "2026-09-25",
+"ratio": 0.16666666666666666,
+"polygon_knows": true,
+"fire_day": "2026-09-25",
+"fire_pct": 0.6955,
+"bars": 13,
+"sym": "KITT"
+},
+{
+"d": "2026-01-08",
+"ratio": 0.3333333333333333,
+"polygon_knows": false,
+"fire_day": "2026-01-09",
+"fire_pct": 0.588,
+"bars": 5,
+"sym": "KUST"
+},
+{
+"d": "2026-04-22",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "KUST"
+},
+{
+"d": "2026-10-01",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "KUST"
+},
+{
+"d": "2025-12-01",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": "2025-12-01",
+"fire_pct": 0.3167,
+"bars": 10,
+"sym": "KXIN"
+},
+{
+"d": "2026-03-13",
+"ratio": 0.06666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "KXIN"
+},
+{
+"d": "2026-06-22",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "LABT"
+},
+{
+"d": "2026-03-27",
+"ratio": 0.01,
+"polygon_knows": true,
+"fire_day": "2026-03-27",
+"fire_pct": 0.1942,
+"bars": 13,
+"sym": "LBGJ"
+},
+{
+"d": "2026-08-03",
+"ratio": 0.005,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "LBGJ"
+},
+{
+"d": "2026-08-03",
+"ratio": 0.06666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "LEXX"
+},
+{
+"d": "2026-09-01",
+"ratio": 0.008,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "LGCL"
+},
+{
+"d": "2025-11-26",
+"ratio": 0.07692307692307693,
+"polygon_knows": true,
+"fire_day": "2025-11-26",
+"fire_pct": 0.2945,
+"bars": 11,
+"sym": "LGHL"
+},
+{
+"d": "2026-07-14",
+"ratio": 0.1111111111111111,
+"polygon_knows": true,
+"fire_day": "2026-07-14",
+"fire_pct": 0.2784,
+"bars": 11,
+"sym": "LGHL"
+},
+{
+"d": "2026-09-10",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "LGHL"
+},
+{
+"d": "2026-08-27",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "LGVN"
+},
+{
+"d": "2026-06-22",
+"ratio": 0.0625,
+"polygon_knows": true,
+"fire_day": "2026-06-23",
+"fire_pct": 0.3923,
+"bars": 10,
+"sym": "LHSW"
+},
+{
+"d": "2026-10-26",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "LHSW"
+},
+{
+"d": "2026-08-21",
+"ratio": 0.02,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "LIMN"
+},
+{
+"d": "2026-04-06",
+"ratio": 0.004,
+"polygon_knows": true,
+"fire_day": "2026-04-06",
+"fire_pct": 0.6353,
+"bars": 10,
+"sym": "LNKS"
+},
+{
+"d": "2026-04-20",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "LXEH"
+},
+{
+"d": "2026-05-22",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "LZMH"
+},
+{
+"d": "2026-03-16",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "MASK"
+},
+{
+"d": "2026-10-30",
+"ratio": 0.25,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "MASK"
+},
+{
+"d": "2026-08-13",
+"ratio": 0.14285714285714285,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "MBAI"
+},
+{
+"d": "2025-12-01",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "MBRX"
+},
+{
+"d": "2026-10-20",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "MBRX"
+},
+{
+"d": "2026-10-12",
+"ratio": 0.02,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "MDCX"
+},
+{
+"d": "2026-05-26",
+"ratio": 0.02,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "MEDS"
+},
+{
+"d": "2026-05-22",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "MF"
+},
+{
+"d": "2026-09-08",
+"ratio": 0.025,
+"polygon_knows": false,
+"fire_day": "2026-09-09",
+"fire_pct": 1.7918,
+"bars": 9,
+"sym": "MGN"
+},
+{
+"d": "2026-09-17",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": "2026-09-18",
+"fire_pct": 0.2769,
+"bars": 11,
+"sym": "MGN"
+},
+{
+"d": "2026-01-26",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "MKDW"
+},
+{
+"d": "2026-06-29",
+"ratio": 0.16666666666666666,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 9,
+"sym": "MNDR"
+},
+{
+"d": "2025-12-18",
+"ratio": 0.056,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "MNTS"
+},
+{
+"d": "2026-04-07",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "MOBX"
+},
+{
+"d": "2026-03-31",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": "2026-03-31",
+"fire_pct": 0.2445,
+"bars": 10,
+"sym": "MODD"
+},
+{
+"d": "2026-04-13",
+"ratio": 0.025,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "MSAI"
+},
+{
+"d": "2026-01-30",
+"ratio": 0.08333333333333333,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "MSLE"
+},
+{
+"d": "2026-04-24",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "MSS"
+},
+{
+"d": "2026-07-22",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "MSS"
+},
+{
+"d": "2026-01-26",
+"ratio": 0.005,
+"polygon_knows": true,
+"fire_day": "2026-01-27",
+"fire_pct": 0.2939,
+"bars": 10,
+"sym": "MTEN"
+},
+{
+"d": "2026-11-05",
+"ratio": 0.1,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 3,
+"sym": "MTRI"
+},
+{
+"d": "2025-12-05",
+"ratio": 0.09090909090909091,
+"polygon_knows": true,
+"fire_day": "2025-12-08",
+"fire_pct": 0.9005,
+"bars": 12,
+"sym": "MTVA"
+},
+{
+"d": "2026-08-03",
+"ratio": 0.06666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "MVIS"
+},
+{
+"d": "2026-08-13",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "MYSZ"
+},
+{
+"d": "2026-05-22",
+"ratio": 0.025,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "NAKA"
+},
+{
+"d": "2026-06-25",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "NAMI"
+},
+{
+"d": "2026-05-19",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "NCI"
+},
+{
+"d": "2026-11-10",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": "2026-11-10",
+"fire_pct": 0.3623,
+"bars": 11,
+"sym": "NCI"
+},
+{
+"d": "2026-07-07",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": "2026-07-07",
+"fire_pct": 0.2126,
+"bars": 10,
+"sym": "NCRA"
+},
+{
+"d": "2026-04-02",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": "2026-04-02",
+"fire_pct": 0.1656,
+"bars": 12,
+"sym": "NCT"
+},
+{
+"d": "2026-09-17",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "NCT"
+},
+{
+"d": "2026-02-17",
+"ratio": 0.07142857142857142,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "NEXR"
+},
+{
+"d": "2026-07-31",
+"ratio": 0.09090909090909091,
+"polygon_knows": true,
+"fire_day": "2026-08-03",
+"fire_pct": 0.3513,
+"bars": 13,
+"sym": "NEXR"
+},
+{
+"d": "2026-11-06",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "NEXR"
+},
+{
+"d": "2026-09-14",
+"ratio": 0.02,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 9,
+"sym": "NFE"
+},
+{
+"d": "2026-07-20",
+"ratio": 0.1,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 5,
+"sym": "NIKI"
+},
+{
+"d": "2026-07-06",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "NIPG"
+},
+{
+"d": "2026-04-16",
+"ratio": 0.16666666666666666,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "NMTC"
+},
+{
+"d": "2026-09-14",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "NRSN"
+},
+{
+"d": "2026-07-06",
+"ratio": 0.02,
+"polygon_knows": true,
+"fire_day": "2026-07-06",
+"fire_pct": 0.2172,
+"bars": 10,
+"sym": "NTCL"
+},
+{
+"d": "2026-06-26",
+"ratio": 0.02857142857142857,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "NUWE"
+},
+{
+"d": "2026-10-27",
+"ratio": 0.1111111111111111,
+"polygon_knows": true,
+"fire_day": "2026-10-27",
+"fire_pct": 0.3627,
+"bars": 11,
+"sym": "NUWE"
+},
+{
+"d": "2026-01-20",
+"ratio": 0.02857142857142857,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "NVNO"
+},
+{
+"d": "2026-08-27",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "NVX"
+},
+{
+"d": "2026-11-06",
+"ratio": 0.0125,
+"polygon_knows": true,
+"fire_day": "2026-11-09",
+"fire_pct": 0.4506,
+"bars": 13,
+"sym": "NWGL"
+},
+{
+"d": "2026-08-03",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "NXAT"
+},
+{
+"d": "2026-10-12",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "NXGL"
+},
+{
+"d": "2026-08-31",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "NXL"
+},
+{
+"d": "2026-04-08",
+"ratio": 0.14285714285714285,
+"polygon_knows": true,
+"fire_day": "2026-04-09",
+"fire_pct": 0.3073,
+"bars": 11,
+"sym": "NXTS"
+},
+{
+"d": "2026-11-09",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "NXTS"
+},
+{
+"d": "2026-08-10",
+"ratio": 0.01,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "NXTT"
+},
+{
+"d": "2026-10-19",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "OBAI"
+},
+{
+"d": "2026-01-16",
+"ratio": 0.004545454545454545,
+"polygon_knows": true,
+"fire_day": "2026-01-16",
+"fire_pct": 0.2512,
+"bars": 12,
+"sym": "OCG"
+},
+{
+"d": "2026-04-27",
+"ratio": 0.3333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "OCG"
+},
+{
+"d": "2026-07-31",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "OFAL"
+},
+{
+"d": "2026-11-10",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": "2026-11-10",
+"fire_pct": 0.2742,
+"bars": 11,
+"sym": "OFAL"
+},
+{
+"d": "2026-04-24",
+"ratio": 0.3333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "OIO"
+},
+{
+"d": "2026-05-08",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "OLOX"
+},
+{
+"d": "2026-10-29",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "OMEX"
+},
+{
+"d": "2026-08-31",
+"ratio": 0.02,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "OMH"
+},
+{
+"d": "2026-03-25",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "ONCO"
+},
+{
+"d": "2026-05-21",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": "2026-05-22",
+"fire_pct": 0.1314,
+"bars": 12,
+"sym": "ONCO"
+},
+{
+"d": "2026-11-06",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": "2026-11-06",
+"fire_pct": 0.3115,
+"bars": 13,
+"sym": "ONCO"
+},
+{
+"d": "2026-08-10",
+"ratio": 0.02,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "ONFO"
+},
+{
+"d": "2026-09-29",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": "2026-09-30",
+"fire_pct": 0.171,
+"bars": 11,
+"sym": "ONMD"
+},
+{
+"d": "2026-06-09",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "OPAD"
+},
+{
+"d": "2026-09-29",
+"ratio": 0.1,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 3,
+"sym": "OPNW"
+},
+{
+"d": "2026-10-23",
+"ratio": 0.025,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "PASW"
+},
+{
+"d": "2026-01-02",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "PAVM"
+},
+{
+"d": "2025-12-18",
+"ratio": 0.01,
+"polygon_knows": true,
+"fire_day": "2025-12-18",
+"fire_pct": 0.3618,
+"bars": 13,
+"sym": "PAVS"
+},
+{
+"d": "2026-03-31",
+"ratio": 0.08333333333333333,
+"polygon_knows": true,
+"fire_day": "2026-03-31",
+"fire_pct": 0.3068,
+"bars": 10,
+"sym": "PAVS"
+},
+{
+"d": "2026-06-29",
+"ratio": 0.01,
+"polygon_knows": true,
+"fire_day": "2026-06-29",
+"fire_pct": 0.2658,
+"bars": 9,
+"sym": "PAVS"
+},
+{
+"d": "2026-01-20",
+"ratio": 0.16,
+"polygon_knows": false,
+"fire_day": "2026-01-21",
+"fire_pct": 0.2742,
+"bars": 9,
+"sym": "PBM"
+},
+{
+"d": "2026-02-02",
+"ratio": 0.16,
+"polygon_knows": true,
+"fire_day": "2026-02-02",
+"fire_pct": 0.571,
+"bars": 11,
+"sym": "PBM"
+},
+{
+"d": "2025-12-17",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": "2025-12-17",
+"fire_pct": 1.3727,
+"bars": 12,
+"sym": "PCSA"
+},
+{
+"d": "2026-02-09",
+"ratio": 0.013333333333333334,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "PFSA"
+},
+{
+"d": "2026-07-07",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "PFSA"
+},
+{
+"d": "2026-08-17",
+"ratio": 0.25,
+"polygon_knows": true,
+"fire_day": "2026-08-17",
+"fire_pct": 0.3017,
+"bars": 11,
+"sym": "PFSA"
+},
+{
+"d": "2026-04-17",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": "2026-04-17",
+"fire_pct": 0.2947,
+"bars": 13,
+"sym": "PMAX"
+},
+{
+"d": "2026-11-13",
+"ratio": 0.05263157894736842,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "PMCB"
+},
+{
+"d": "2025-11-28",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "PMN"
+},
+{
+"d": "2026-04-13",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "PN"
+},
+{
+"d": "2026-06-22",
+"ratio": 0.05555555555555555,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "POM"
+},
+{
+"d": "2026-03-02",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "PPBT"
+},
+{
+"d": "2026-05-18",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": "2026-05-18",
+"fire_pct": 0.3234,
+"bars": 11,
+"sym": "PPCB"
+},
+{
+"d": "2026-10-26",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "PPCB"
+},
+{
+"d": "2026-02-06",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "PRFX"
+},
+{
+"d": "2026-06-02",
+"ratio": 0.14285714285714285,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "PRHI"
+},
+{
+"d": "2026-07-20",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "PRPL"
+},
+{
+"d": "2025-12-09",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "PSNY"
+},
+{
+"d": "2026-02-27",
+"ratio": 0.0125,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "PTLE"
+},
+{
+"d": "2026-07-13",
+"ratio": 0.04,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "PWCM"
+},
+{
+"d": "2026-04-20",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "RAYA"
+},
+{
+"d": "2026-08-18",
+"ratio": 0.005,
+"polygon_knows": true,
+"fire_day": "2026-08-18",
+"fire_pct": 0.3058,
+"bars": 11,
+"sym": "RCON"
+},
+{
+"d": "2026-04-08",
+"ratio": 0.006666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "RDGT"
+},
+{
+"d": "2026-08-25",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "REAX"
+},
+{
+"d": "2026-03-26",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "RENX"
+},
+{
+"d": "2026-05-18",
+"ratio": 0.25,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "RETO"
+},
+{
+"d": "2026-10-02",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": "2026-10-05",
+"fire_pct": 0.2839,
+"bars": 13,
+"sym": "RETO"
+},
+{
+"d": "2026-11-02",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "RETO"
+},
+{
+"d": "2026-01-28",
+"ratio": 0.25,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "REVB"
+},
+{
+"d": "2026-10-20",
+"ratio": 0.14285714285714285,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "REVB"
+},
+{
+"d": "2026-04-06",
+"ratio": 0.1,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "RNTZ"
+},
+{
+"d": "2026-01-02",
+"ratio": 0.02857142857142857,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "RTB"
+},
+{
+"d": "2025-12-02",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "RUBI"
+},
+{
+"d": "2026-02-12",
+"ratio": 0.128,
+"polygon_knows": true,
+"fire_day": "2026-02-12",
+"fire_pct": 0.2941,
+"bars": 12,
+"sym": "RUBI"
+},
+{
+"d": "2026-04-09",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "RUBI"
+},
+{
+"d": "2026-06-26",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "RUBI"
+},
+{
+"d": "2026-10-30",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "RUBI"
+},
+{
+"d": "2026-02-03",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "RVSN"
+},
+{
+"d": "2026-02-04",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": "2026-02-05",
+"fire_pct": 0.0999,
+"bars": 12,
+"sym": "RVSN"
+},
+{
+"d": "2026-06-01",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": "2026-06-02",
+"fire_pct": 0.2092,
+"bars": 10,
+"sym": "SBFM"
+},
+{
+"d": "2026-10-26",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "SBFM"
+},
+{
+"d": "2026-10-27",
+"ratio": 0.06666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "SCAG"
+},
+{
+"d": "2026-08-21",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "SCNI"
+},
+{
+"d": "2026-10-05",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "SCNX"
+},
+{
+"d": "2026-05-27",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "SDOT"
+},
+{
+"d": "2026-08-03",
+"ratio": 0.14285714285714285,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "SEGG"
+},
+{
+"d": "2026-09-08",
+"ratio": 0.06666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "SFWL"
+},
+{
+"d": "2026-07-27",
+"ratio": 0.07142857142857142,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "SGLY"
+},
+{
+"d": "2026-01-20",
+"ratio": 0.016666666666666666,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "SGRX"
+},
+{
+"d": "2026-08-21",
+"ratio": 0.2,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "SGRX"
+},
+{
+"d": "2026-09-30",
+"ratio": 0.08333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "SHFS"
+},
+{
+"d": "2026-06-11",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "SHPH"
+},
+{
+"d": "2026-06-03",
+"ratio": 0.06666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "SILO"
+},
+{
+"d": "2026-08-24",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "SKYE"
+},
+{
+"d": "2026-03-16",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": "2026-03-16",
+"fire_pct": 0.2917,
+"bars": 11,
+"sym": "SKYQ"
+},
+{
+"d": "2026-01-23",
+"ratio": 0.08333333333333333,
+"polygon_knows": true,
+"fire_day": "2026-01-23",
+"fire_pct": 0.1694,
+"bars": 12,
+"sym": "SLE"
+},
+{
+"d": "2026-05-14",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "SLMT"
+},
+{
+"d": "2026-05-29",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "SLXN"
+},
+{
+"d": "2026-11-11",
+"ratio": 0.041666666666666664,
+"polygon_knows": true,
+"fire_day": "2026-11-11",
+"fire_pct": 0.3009,
+"bars": 11,
+"sym": "SLXN"
+},
+{
+"d": "2026-08-21",
+"ratio": 0.02,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "SMTK"
+},
+{
+"d": "2026-02-17",
+"ratio": 0.204,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "SMX"
+},
+{
+"d": "2026-06-01",
+"ratio": 0.437,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "SMX"
+},
+{
+"d": "2026-11-09",
+"ratio": 0.357,
+"polygon_knows": true,
+"fire_day": "2026-11-09",
+"fire_pct": 0.1587,
+"bars": 11,
+"sym": "SMX"
+},
+{
+"d": "2026-08-13",
+"ratio": 0.08333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "SMXT"
+},
+{
+"d": "2026-07-06",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "SNAL"
+},
+{
+"d": "2026-04-24",
+"ratio": 0.06666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "SOWG"
+},
+{
+"d": "2025-12-02",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": "2025-12-03",
+"fire_pct": 0.2703,
+"bars": 10,
+"sym": "SPHL"
+},
+{
+"d": "2026-03-04",
+"ratio": 0.1111111111111111,
+"polygon_knows": true,
+"fire_day": "2026-03-04",
+"fire_pct": 0.2821,
+"bars": 12,
+"sym": "SPRC"
+},
+{
+"d": "2026-01-26",
+"ratio": 0.1,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "SRTM"
+},
+{
+"d": "2026-04-20",
+"ratio": 0.1,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "SRTM"
+},
+{
+"d": "2026-09-08",
+"ratio": 0.16666666666666666,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "SRTM"
+},
+{
+"d": "2026-03-13",
+"ratio": 0.025,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "STFS"
+},
+{
+"d": "2026-07-27",
+"ratio": 0.3333333333333333,
+"polygon_knows": true,
+"fire_day": "2026-07-28",
+"fire_pct": 0.3815,
+"bars": 11,
+"sym": "STKH"
+},
+{
+"d": "2026-11-09",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": "2026-11-09",
+"fire_pct": 0.3346,
+"bars": 11,
+"sym": "STKH"
+},
+{
+"d": "2025-12-03",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "STRO"
+},
+{
+"d": "2026-08-06",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": "2026-08-06",
+"fire_pct": 0.4036,
+"bars": 13,
+"sym": "SUGP"
+},
+{
+"d": "2026-10-07",
+"ratio": 0.16666666666666666,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "SUGP"
+},
+{
+"d": "2025-12-10",
+"ratio": 0.3333333333333333,
+"polygon_knows": true,
+"fire_day": "2025-12-10",
+"fire_pct": 0.3197,
+"bars": 12,
+"sym": "SVRE"
+},
+{
+"d": "2026-02-25",
+"ratio": 0.25,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "SVRE"
+},
+{
+"d": "2026-03-30",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": "2026-03-30",
+"fire_pct": 0.3353,
+"bars": 10,
+"sym": "SVRN"
+},
+{
+"d": "2026-02-03",
+"ratio": 0.006666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "SXTC"
+},
+{
+"d": "2026-08-10",
+"ratio": 0.0125,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "SXTC"
+},
+{
+"d": "2026-10-26",
+"ratio": 0.01,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "SXTC"
+},
+{
+"d": "2026-01-20",
+"ratio": 0.25,
+"polygon_knows": true,
+"fire_day": "2026-01-21",
+"fire_pct": 0.2338,
+"bars": 10,
+"sym": "SXTP"
+},
+{
+"d": "2026-04-20",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": "2026-04-21",
+"fire_pct": 0.3285,
+"bars": 11,
+"sym": "TDIC"
+},
+{
+"d": "2026-06-15",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": "2026-06-16",
+"fire_pct": 0.2652,
+"bars": 10,
+"sym": "TDIC"
+},
+{
+"d": "2026-04-24",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "TDTH"
+},
+{
+"d": "2025-12-05",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": "2025-12-05",
+"fire_pct": 0.3717,
+"bars": 12,
+"sym": "TGL"
+},
+{
+"d": "2026-08-10",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": "2026-08-10",
+"fire_pct": 0.471,
+"bars": 11,
+"sym": "THH"
+},
+{
+"d": "2025-12-02",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "TLRY"
+},
+{
+"d": "2025-12-23",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": "2025-12-24",
+"fire_pct": 0.2109,
+"bars": 10,
+"sym": "TNMG"
+},
+{
+"d": "2026-09-08",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "TNMG"
+},
+{
+"d": "2026-08-10",
+"ratio": 0.02857142857142857,
+"polygon_knows": true,
+"fire_day": "2026-08-10",
+"fire_pct": 0.3282,
+"bars": 11,
+"sym": "TNON"
+},
+{
+"d": "2026-07-24",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "TRIB"
+},
+{
+"d": "2026-02-24",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "TRNR"
+},
+{
+"d": "2026-06-30",
+"ratio": 0.14285714285714285,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "TRNR"
+},
+{
+"d": "2026-03-27",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": "2026-03-30",
+"fire_pct": 0.3066,
+"bars": 13,
+"sym": "TRUG"
+},
+{
+"d": "2026-09-29",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": "2026-09-29",
+"fire_pct": 0.2413,
+"bars": 11,
+"sym": "TRUG"
+},
+{
+"d": "2026-03-06",
+"ratio": 0.02,
+"polygon_knows": true,
+"fire_day": "2026-03-06",
+"fire_pct": 0.3075,
+"bars": 13,
+"sym": "TVGN"
+},
+{
+"d": "2026-10-26",
+"ratio": 0.01,
+"polygon_knows": true,
+"fire_day": "2026-10-26",
+"fire_pct": 0.3225,
+"bars": 11,
+"sym": "TWG"
+},
+{
+"d": "2026-04-01",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": "2026-04-01",
+"fire_pct": 0.5526,
+"bars": 11,
+"sym": "UCAR"
+},
+{
+"d": "2026-09-09",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "UCAR"
+},
+{
+"d": "2026-11-03",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": "2026-11-03",
+"fire_pct": 0.4342,
+"bars": 11,
+"sym": "UFG"
+},
+{
+"d": "2026-04-30",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "UK"
+},
+{
+"d": "2026-01-23",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": "2026-01-26",
+"fire_pct": 1.4161,
+"bars": 12,
+"sym": "UONE"
+},
+{
+"d": "2026-01-23",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "UONEK"
+},
+{
+"d": "2026-06-17",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "UPLD"
+},
+{
+"d": "2026-09-21",
+"ratio": 0.043478260869565216,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "UZX"
+},
+{
+"d": "2026-08-31",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "VBIO"
+},
+{
+"d": "2026-02-27",
+"ratio": 0.016666666666666666,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "VCIG"
+},
+{
+"d": "2026-08-24",
+"ratio": 0.06666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "VCIG"
+},
+{
+"d": "2026-11-02",
+"ratio": 0.05555555555555555,
+"polygon_knows": true,
+"fire_day": "2026-11-02",
+"fire_pct": 0.2993,
+"bars": 11,
+"sym": "VCIG"
+},
+{
+"d": "2026-08-31",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "VEEA"
+},
+{
+"d": "2026-05-04",
+"ratio": 0.02702702702702703,
+"polygon_knows": true,
+"fire_day": "2026-05-04",
+"fire_pct": 0.3083,
+"bars": 11,
+"sym": "VEEE"
+},
+{
+"d": "2026-03-24",
+"ratio": 0.005,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 6,
+"sym": "VIVK"
+},
+{
+"d": "2026-07-17",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "VIVK"
+},
+{
+"d": "2026-10-05",
+"ratio": 0.06666666666666667,
+"polygon_knows": true,
+"fire_day": "2026-10-06",
+"fire_pct": 0.1488,
+"bars": 11,
+"sym": "VIVK"
+},
+{
+"d": "2026-01-14",
+"ratio": 0.025,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "VMAR"
+},
+{
+"d": "2026-06-17",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": "2026-06-17",
+"fire_pct": 0.2835,
+"bars": 11,
+"sym": "VMAR"
+},
+{
+"d": "2026-08-26",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": "2026-08-26",
+"fire_pct": 0.2875,
+"bars": 12,
+"sym": "VMAR"
+},
+{
+"d": "2026-06-26",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": "2026-06-26",
+"fire_pct": 0.3333,
+"bars": 12,
+"sym": "VRAX"
+},
+{
+"d": "2025-12-22",
+"ratio": 0.02,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "VSA"
+},
+{
+"d": "2026-05-26",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": "2026-05-26",
+"fire_pct": 0.3388,
+"bars": 10,
+"sym": "VSA"
+},
+{
+"d": "2026-09-22",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "VWAV"
+},
+{
+"d": "2026-03-06",
+"ratio": 0.02,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "WCT"
+},
+{
+"d": "2026-09-08",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "WCT"
+},
+{
+"d": "2026-11-09",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": "2026-11-09",
+"fire_pct": 0.2038,
+"bars": 11,
+"sym": "WCT"
+},
+{
+"d": "2026-08-03",
+"ratio": 0.01,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "WETO"
+},
+{
+"d": "2026-04-13",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "WFF"
+},
+{
+"d": "2026-10-30",
+"ratio": 0.04,
+"polygon_knows": true,
+"fire_day": "2026-10-30",
+"fire_pct": 0.1467,
+"bars": 13,
+"sym": "WFF"
+},
+{
+"d": "2025-12-01",
+"ratio": 0.5,
+"polygon_knows": true,
+"fire_day": "2025-12-01",
+"fire_pct": 0.2637,
+"bars": 10,
+"sym": "WHLR"
+},
+{
+"d": "2026-01-20",
+"ratio": 0.3333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "WHLR"
+},
+{
+"d": "2026-04-20",
+"ratio": 0.3333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "WHLR"
+},
+{
+"d": "2026-06-18",
+"ratio": 0.25,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "WHLR"
+},
+{
+"d": "2026-07-28",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "WHLR"
+},
+{
+"d": "2026-08-27",
+"ratio": 0.25,
+"polygon_knows": true,
+"fire_day": "2026-08-28",
+"fire_pct": 0.2321,
+"bars": 13,
+"sym": "WHLR"
+},
+{
+"d": "2026-09-22",
+"ratio": 0.1111111111111111,
+"polygon_knows": true,
+"fire_day": "2026-09-23",
+"fire_pct": 1.2888,
+"bars": 11,
+"sym": "WHLR"
+},
+{
+"d": "2026-10-30",
+"ratio": 0.16666666666666666,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "WHLR"
+},
+{
+"d": "2025-12-08",
+"ratio": 0.08333333333333333,
+"polygon_knows": true,
+"fire_day": "2025-12-08",
+"fire_pct": 0.1926,
+"bars": 11,
+"sym": "WKHS"
+},
+{
+"d": "2026-03-11",
+"ratio": 0.3333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "WLDS"
+},
+{
+"d": "2026-06-22",
+"ratio": 0.3333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "WLDS"
+},
+{
+"d": "2026-04-06",
+"ratio": 0.01,
+"polygon_knows": true,
+"fire_day": "2026-04-06",
+"fire_pct": 0.1482,
+"bars": 10,
+"sym": "WNW"
+},
+{
+"d": "2025-12-29",
+"ratio": 0.01,
+"polygon_knows": true,
+"fire_day": "2025-12-29",
+"fire_pct": 0.6145,
+"bars": 9,
+"sym": "WOK"
+},
+{
+"d": "2026-06-18",
+"ratio": 0.01,
+"polygon_knows": true,
+"fire_day": "2026-06-18",
+"fire_pct": 0.2658,
+"bars": 12,
+"sym": "WOK"
+},
+{
+"d": "2026-04-10",
+"ratio": 0.06666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "WORX"
+},
+{
+"d": "2026-08-04",
+"ratio": 0.08333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 5,
+"sym": "WORX"
+},
+{
+"d": "2026-06-04",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": "2026-06-04",
+"fire_pct": 0.366,
+"bars": 12,
+"sym": "WXM"
+},
+{
+"d": "2026-06-02",
+"ratio": 0.25,
+"polygon_knows": true,
+"fire_day": "2026-06-03",
+"fire_pct": 0.433,
+"bars": 10,
+"sym": "WYHG"
+},
+{
+"d": "2026-07-13",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "XAIR"
+},
+{
+"d": "2026-08-21",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "XCH"
+},
+{
+"d": "2025-12-02",
+"ratio": 0.06666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "XHLD"
+},
+{
+"d": "2026-07-21",
+"ratio": 0.08333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "XPON"
+},
+{
+"d": "2026-01-26",
+"ratio": 0.06666666666666667,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "XXII"
+},
+{
+"d": "2026-06-12",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "XXII"
+},
+{
+"d": "2026-11-05",
+"ratio": 0.017241379310344827,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "XXII"
+},
+{
+"d": "2026-07-30",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": "2026-07-30",
+"fire_pct": 0.3593,
+"bars": 13,
+"sym": "YAAS"
+},
+{
+"d": "2026-03-23",
+"ratio": 0.02,
+"polygon_knows": false,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "YFOR"
+},
+{
+"d": "2026-06-23",
+"ratio": 0.03333333333333333,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 0,
+"sym": "YFOR"
+},
+{
+"d": "2026-07-13",
+"ratio": 0.01,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 10,
+"sym": "YHC"
+},
+{
+"d": "2026-07-10",
+"ratio": 0.2,
+"polygon_knows": true,
+"fire_day": "2026-07-10",
+"fire_pct": 0.3,
+"bars": 12,
+"sym": "YMAT"
+},
+{
+"d": "2026-07-14",
+"ratio": 0.1,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "YXT"
+},
+{
+"d": "2026-05-18",
+"ratio": 0.025,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "YYAI"
+},
+{
+"d": "2026-08-17",
+"ratio": 0.05,
+"polygon_knows": true,
+"fire_day": "2026-08-17",
+"fire_pct": 0.4156,
+"bars": 11,
+"sym": "YYAI"
+},
+{
+"d": "2026-10-12",
+"ratio": 0.02,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "ZBAO"
+},
+{
+"d": "2026-03-02",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "ZCMD"
+},
+{
+"d": "2026-06-08",
+"ratio": 0.03225806451612903,
+"polygon_knows": true,
+"fire_day": "2026-06-08",
+"fire_pct": 0.0918,
+"bars": 11,
+"sym": "ZCMD"
+},
+{
+"d": "2026-06-29",
+"ratio": 0.3333333333333333,
+"polygon_knows": true,
+"fire_day": "2026-06-29",
+"fire_pct": 0.3539,
+"bars": 9,
+"sym": "ZCMD"
+},
+{
+"d": "2026-10-02",
+"ratio": 0.5,
+"polygon_knows": true,
+"fire_day": "2026-10-02",
+"fire_pct": 0.0894,
+"bars": 13,
+"sym": "ZCMD"
+},
+{
+"d": "2026-02-19",
+"ratio": 0.0625,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 12,
+"sym": "ZDAI"
+},
+{
+"d": "2026-03-12",
+"ratio": 0.01,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 13,
+"sym": "ZNB"
+},
+{
+"d": "2026-07-27",
+"ratio": 0.125,
+"polygon_knows": true,
+"fire_day": null,
+"fire_pct": null,
+"bars": 11,
+"sym": "ZNB"
+}
+]
+}
