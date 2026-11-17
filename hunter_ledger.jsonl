@@ -7270,3 +7270,4 @@
 {"key": "envelope|2026-11-16|YXT", "hunter": "envelope", "session": "2026-11-16", "symbol": "YXT", "kind": "candidate", "ref_close": 1.0, "fwd": 40, "outcome": null, "float": 2002053.0, "src": "tradingview"}
 {"key": "envelope|2026-11-16|ZCMD", "hunter": "envelope", "session": "2026-11-16", "symbol": "ZCMD", "kind": "candidate", "ref_close": 0.8967, "fwd": 40, "outcome": null, "float": 403997.0, "src": "tradingview"}
 {"key": "envelope|2026-11-16|ZSTK", "hunter": "envelope", "session": "2026-11-16", "symbol": "ZSTK", "kind": "candidate", "ref_close": 2.8, "fwd": 40, "outcome": null, "float": 6068795.0, "src": "tradingview"}
+{"key": "split|2026-11-16|CTNT", "hunter": "split", "session": "2026-11-16", "symbol": "CTNT", "kind": "candidate", "ref_close": 1.59, "fwd": 40, "outcome": null, "price": 1.59, "float": 1318655.0, "half": 1.77, "ref": 3.55, "src": "tradingview"}
