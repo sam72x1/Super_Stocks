@@ -201,6 +201,9 @@ CONFIG = {
     #    الناقص الآن: …» من `readiness` و`outside` الموجودَين ‏+ حالةُ الحجب · مرتَّبًا بالجاهزية تنازليًّا · عرضٌ فقط بلا تغيير معيار ·
     #    `NW_APP_LINE=0` (بيئةُ التشغيل) ⟵ القسمُ بت-بت · `NWA1`-`NWA3`.
     "NW_APP_LINE": os.environ.get("NW_APP_LINE", "1").strip() != "0",
+    # 📎 «ملفُّ تحت المتابعة» اليوميّ (أمرُ المالك 2026-11-17): إكسلٌ على تلغرام ‏+ CSV مؤرشَف · عرضٌ فقط ·
+    #    `NW_XLSX=0` (بيئةُ التشغيل) ⟵ صفرُ عمل وصفرُ ملفّ (بت-بت) · `NXL1`-`NXL4`.
+    "NW_XLSX": os.environ.get("NW_XLSX", "1").strip() != "0",
     # 🏷️ «وسمُ فلوت 5 ملايين أو أقلّ» (أمرُ المالك 2026-11-08 ① بعد `T-APPDIFF` ②: «يرفع» ‏+2.8 [+0.2، +5.2]): سطرُ عرضٍ في الكرت
     #    وحدَه بالفلوت الحقيقيّ (`float` ياهو/الذاكرة · لا عدد الأسهم القائمة) — لا يُسقط سهمًا ولا يمسّ ترتيبًا · `FLOAT5_TAG=0` ⟵ بت-بت · `FT51`-`FT53`.
     "FLOAT5_TAG": os.environ.get("FLOAT5_TAG", "1").strip() != "0",
@@ -14158,6 +14161,167 @@ def save_near_watch(watch: dict, path: str = None) -> bool:
         return False
 
 
+# 📎 «ملفُّ تحت المتابعة» اليوميّ (أمرُ المالك 2026-11-17 · عرضٌ فقط — لا قياس ولا رقمَ أداء ولا «القائمة الجديدة»):
+#    إكسلٌ بكلّ صفوف آخر جلسة بأعمدتها المخزَّنة ‏+ سبعةُ أعمدة «سلوكه في الانفجارات السابقة» من `behavior_rise_profile`
+#    وتعريفاتٍ اعتمدها المالك بأرقامها (كلُّ النوافذ 20 جلسة · حدُّ الشمعة 50% · المسحُ (ب) بنافذةٍ تشمل شمعة القاع) ⟵
+#    يُرسَل ملفًّا على تلغرام ونسخةُ CSV منه تُؤرشَف في المستودع · `NW_XLSX=0` ⟵ صفرُ عمل وصفرُ ملفّ (بت-بت) · `NXL1`-`NXL4`.
+NW_XLSX_DIR = "near_watch_daily"
+NW_XLSX_WIN = 20             # كلُّ نوافذ الأعمدة الجديدة (أمرُ المالك «لتكون كل النوافذ 20») · `engineering`
+NW_XLSX_ONE_CANDLE = 0.50    # «شمعة واحدة» = نصيبُ أكبر شمعةٍ من لوغاريتم الصعود 50% فأكثر · `engineering` (اعتمده المالك)
+NW_CSV_SAVED = []            # مساراتُ CSV المكتوبة في هذه التشغيلة ⟵ يدفعها `git_save` في `run_performance_system`
+NW_XLSX_BASE_COLS = ("symbol", "first_seen", "last_seen", "price", "readiness", "score", "rsi_now",
+                     "n_out", "outside", "n_criteria", "float", "float_date", "float_src", "blocked")
+NW_XLSX_BEHAV_COLS = ("عدد الانفجارات السابقة", "أكبر صعود في 20 جلسة %", "تاريخ آخر انفجار",
+                      "هل مسح الدعم قبل الرفع", "هل أعاد الرفع", "كم نزل قبل آخر انفجار %",
+                      "آخر انفجار: شمعة واحدة أم موجات")
+
+
+def behavior_explosion_detail(df) -> dict:
+    """📎 أعمدةُ «سلوكه في الانفجارات السابقة» السبعة — نقيّة · فاشلةٌ-آمنة (ما تعذّر ⟵ None يُعرَض «—»).
+    الثلاثةُ الأولى من `behavior_rise_profile` نفسِها (عددُ الانفجارات · أكبرُ صعودٍ في 20 جلسة ولو دون حدّ الانفجار ·
+    إعادةُ الرفع) · وآخرُ انفجار `e` = بدايةُ آخر عنقودٍ بمنطقها حرفيًّا (القفل `NXL1` يطابق العدد) · وقاعُه `s` = أدنى إغلاقٍ
+    في [e−20، e] · وقمّتُه `p` = أعلى إغلاقٍ في [s، e] · والنزولُ = 1 − إغلاقِ s ÷ أعلى إغلاقٍ في الـ20 جلسة قبل s ·
+    والمسحُ (ب) = تعريفُ الدالّة نفسُه (ذيلٌ 8% تحت أدنى قاعٍ في 20 جلسة ثمّ إغلاقٌ فوقه) في [s−20، s] شاملًا القاع ·
+    والشكلُ = نصيبُ أكبر شمعةٍ يوميّة من ln(إغلاق p ÷ إغلاق s) — 50% فأكثر «شمعة واحدة» وإلّا «موجات»."""
+    out = dict.fromkeys(NW_XLSX_BEHAV_COLS)
+    try:
+        b = behavior_rise_profile(df)
+        if b.get("score") is None:
+            return out
+        out["عدد الانفجارات السابقة"] = int(b.get("n_pumps") or 0)
+        out["أكبر صعود في 20 جلسة %"] = float(b.get("best_pump") or 0.0)
+        rp = int(b.get("repumps") or 0)
+        out["هل أعاد الرفع"] = f"نعم ({rp})" if rp > 0 else "لا"
+        c = df["Close"].values.astype(float)
+        lo = df["Low"].values.astype(float)
+        n = len(c)
+        bw = int(CONFIG["BASE_WINDOW"])
+        seg = c[:n - bw] if bw > 0 else c
+        m = len(seg)
+        w_max = int(CONFIG["PRIOR_SPIKE_WINDOW"])
+        thr = CONFIG["PRIOR_SPIKE_PCT"] / 100.0
+        ends = set()
+        for w in range(1, w_max + 1):
+            if m <= w:
+                break
+            with np.errstate(divide="ignore", invalid="ignore"):
+                ratio = seg[w:] / np.where(seg[:-w] > 0, seg[:-w], np.nan) - 1.0
+            ratio = np.nan_to_num(ratio, nan=0.0)
+            ends.update((np.where(ratio >= thr)[0] + w).tolist())
+        clusters, last = [], -10_000
+        for i in sorted(ends):
+            if i - last >= 20:
+                clusters.append(int(i))
+            last = i
+        if not clusters:
+            return out
+        W = int(NW_XLSX_WIN)
+        e = clusters[-1]
+        try:
+            out["تاريخ آخر انفجار"] = df.index[e].date().isoformat()
+        except Exception:                                        # noqa: BLE001
+            out["تاريخ آخر انفجار"] = str(df.index[e])[:10]
+        a = max(0, e - W)
+        s = a + int(np.argmin(c[a:e + 1]))
+        p = s + int(np.argmax(c[s:e + 1]))
+        prev = c[max(0, s - W):s]
+        if len(prev) and float(np.max(prev)) > 0:
+            out["كم نزل قبل آخر انفجار %"] = round(float((1.0 - c[s] / float(np.max(prev))) * 100.0), 1)
+        sw = 0
+        for i in range(max(20, s - W), s + 1):
+            sup = float(np.min(lo[i - 20:i]))
+            if sup > 0 and lo[i] <= sup * 0.92 and c[i] >= sup:
+                sw += 1
+        out["هل مسح الدعم قبل الرفع"] = f"نعم ({sw})" if sw else "لا"
+        if p > s and c[s] > 0:
+            tot = float(np.log(c[p] / c[s]))
+            steps = [float(np.log(c[i] / c[i - 1])) for i in range(s + 1, p + 1)]
+            share = max(steps) / tot if tot > 0 else 0.0
+            if share >= NW_XLSX_ONE_CANDLE:
+                out["آخر انفجار: شمعة واحدة أم موجات"] = f"شمعة واحدة ({share * 100:.0f}%)"
+            else:
+                up = sum(1 for x in steps if x > 0)
+                out["آخر انفجار: شمعة واحدة أم موجات"] = f"موجات ({up} جلسة صاعدة من {p - s})"
+    except Exception:                                            # noqa: BLE001
+        pass
+    return out
+
+
+def near_watch_xlsx_rows(watch: dict, hist: dict) -> tuple:
+    """📎 صفوفُ آخر جلسة (أحدثُ `last_seen`) بأعمدتها المخزَّنة كما هي ‏+ الأعمدةُ السبعة · نقيّة ⟵ (الأعمدة، الصفوف، بلا شموع)."""
+    ents = [e for e in (watch or {}).values() if isinstance(e, dict)]
+    newest = max((str(e.get("last_seen") or "") for e in ents), default="")
+    ents = sorted((e for e in ents if str(e.get("last_seen") or "") == newest and newest),
+                  key=lambda e: str(e.get("symbol") or ""))
+    extra = sorted({k for e in ents for k in e} - set(NW_XLSX_BASE_COLS))
+    base = [k for k in NW_XLSX_BASE_COLS if any(k in e for e in ents)] + extra
+    rows, nodf = [], 0
+    for e in ents:
+        row = {}
+        for k in base:
+            v = e.get(k)
+            if isinstance(v, (list, tuple)):
+                v = " · ".join(str(x) for x in v)
+            elif isinstance(v, dict):
+                v = v.get("label") or json.dumps(v, ensure_ascii=False)
+            row[k] = v
+        df = (hist or {}).get(e.get("symbol"))
+        if df is None:
+            nodf += 1
+            row.update(dict.fromkeys(NW_XLSX_BEHAV_COLS))
+        else:
+            row.update(behavior_explosion_detail(df))
+        rows.append(row)
+    return base + list(NW_XLSX_BEHAV_COLS), rows, nodf
+
+
+def near_watch_xlsx_step(hist: dict, session: str = "", sender=None, tag: str = "") -> dict:
+    """📎 خطوةُ المسار الحيّ (اليوميّ والتجديد — بعد الرسائل وقبل `git_save`): CSV في `near_watch_daily/` يُدفَع ‏+ إكسلٌ في
+    مجلّدٍ مؤقّت يُرسَل على تلغرام. `NW_XLSX` مطفأ ⟵ صفرُ عمل (بت-بت) · وأيُّ خطأ ⟵ سطرُ سجلٍّ لا انهيار."""
+    if not CONFIG.get("NW_XLSX"):
+        return {}
+    try:
+        import csv as _csv
+        import tempfile as _tf
+        cols, rows, nodf = near_watch_xlsx_rows(load_near_watch(), hist)
+        if not rows:
+            log(f"📎 ملفُّ تحت المتابعة{tag}: لا صفوف — لا ملف")
+            return {"rows": 0}
+        day = str(session or "") or str(rows[0].get("last_seen") or dt.date.today().isoformat())
+        os.makedirs(NW_XLSX_DIR, exist_ok=True)
+        csv_path = os.path.join(NW_XLSX_DIR, f"near_watch_{day}.csv")
+        with open(csv_path, "w", encoding="utf-8-sig", newline="") as fh:
+            wr = _csv.DictWriter(fh, fieldnames=cols)
+            wr.writeheader()
+            for r in rows:
+                wr.writerow({k: ("" if r.get(k) is None else r.get(k)) for k in cols})
+        if csv_path not in NW_CSV_SAVED:
+            NW_CSV_SAVED.append(csv_path)
+        sent, xpath = False, ""
+        try:
+            from openpyxl import Workbook
+            wb = Workbook()
+            ws = wb.active
+            ws.title = "تحت المتابعة"
+            ws.sheet_view.rightToLeft = True
+            ws.append(cols)
+            for r in rows:
+                ws.append(["—" if r.get(k) is None else r.get(k) for k in cols])
+            ws.freeze_panes = "B2"
+            xpath = os.path.join(_tf.mkdtemp(prefix="nwx_"), f"near_watch_{day}.xlsx")
+            wb.save(xpath)
+            sent = bool((sender or send_telegram_document)(
+                xpath, f"📎 تحت المتابعة — جلسة {day} · {len(rows)} سهم · عرضٌ لا حكم"))
+        except Exception as _xe:                                 # noqa: BLE001
+            log(f"⚠️ إكسل تحت المتابعة{tag}: {type(_xe).__name__}: {_xe} — الـCSV كُتب")
+        log(f"📎 ملفُّ تحت المتابعة{tag}: {len(rows)} صفًّا · بلا شموع {nodf} · CSV {csv_path} · "
+            + ("أُرسل الإكسل" if sent else "لم يُرسَل الإكسل"))
+        return {"rows": len(rows), "nodf": nodf, "csv": csv_path, "xlsx": xpath, "sent": sent}
+    except Exception as e:                                       # noqa: BLE001
+        log(f"⚠️ ملفُّ تحت المتابعة{tag}: {type(e).__name__}: {e}")
+        return {}
+
+
 # 👀🏢 **مخزنُ فلوت «تحت المتابعة»** (أمرُ المالك 2026-09-26 «احفظ فلوت تحت المتابعة» — حتى لا يتكرّر «الفلوت مجهول»):
 #    تقريرُ الفترة (`watch_period_result.md §⑩`) قال عن MEDS · DLXY · SNYR · PDSB «الفلوتُ مجهولٌ عند البوت» — لأن ذاكرةَ
 #    الشركات (`company_cache.json`) لا تُثرى إلّا للمرشَّح، وكان نصفُ «تحت المتابعة» (322 من 644) بلا فلوت فيها.
@@ -23426,6 +23590,7 @@ def run_weekly_renewal(wl: dict) -> None:
         "warnings": " | ".join(r.get("warnings", [])),
     } for r in picks], "weekly_list")
     near_watch_float_step(today_iso, " (التجديد)")   # 👀🏢 قبل `git_save` في `run_performance_system` (أمرُ «احفظ فلوت تحت المتابعة»)
+    near_watch_xlsx_step(hist, last_closed_session(), tag=" (التجديد)")   # 📎 (أمرُ المالك 2026-11-17 · `NW_XLSX`)
     try:
         # التجديد الأسبوعي → أرسل التقرير الأسبوعي معه (أسبوع كامل على إغلاق الجمعة)
         run_performance_system(picks, weekly_report_now=True)
@@ -24013,6 +24178,7 @@ def run_daily_watchlist(wl: dict) -> None:
     # 👀🏢 فلوتُ «تحت المتابعة» (أمرُ المالك 2026-09-26 «احفظ فلوت تحت المتابعة»): **بعد** إرسال الرسائل فلا يؤخّر التقرير ·
     #    و**قبل** `run_performance_system` لأن `git_save` في آخرها هو الذي يدفع الملفّين.
     near_watch_float_step(today_iso)
+    near_watch_xlsx_step(hist, last_closed_session())   # 📎 بعد وسم الفلوت وقبل `git_save` (أمرُ المالك 2026-11-17 · `NW_XLSX`)
     try:
         run_performance_system(added)
     except Exception as e:
@@ -28204,7 +28370,7 @@ def run_performance_system(results, weekly_report_now=False):
     #       فلم تُسجَّل ملاحظةٌ لاحقةٌ واحدة منذ 2026-08-16 · `.jsonl` فيتّحد عند التعارض.
     git_save([TRACK_FILE, WATCH_FILE, COMPANY_FILE, REJECT_LOG_FILE,
               HUNTER_WATCH_FILE, NEAR_WATCH_FILE, NEAR_WATCH_FLOAT_FILE, FILL_POOL_FILE,
-              BORROW_WATCH_FILE])
+              BORROW_WATCH_FILE, *NW_CSV_SAVED])   # 📎 أرشيفُ CSV «تحت المتابعة» (فارغٌ بـ`NW_XLSX=0` ⟵ بت-بت)
 
 
 if __name__ == "__main__":

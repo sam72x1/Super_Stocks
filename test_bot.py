@@ -201,6 +201,9 @@ S.NEAR_WATCH_FLOAT_FILE = _os_hc.path.join(
 #    فيكتب سطرَ «لا تعبئة» ⇒ بلا تحويلٍ يُلوَّث السجلُّ الحقيقيّ الذي يُدفَع مع حالة البوت (`LEAK2` يمسكه).
 S.FILL_POOL_FILE = _os_hc.path.join(
     _rej_tf.gettempdir(), f"_suite_fill_pool_log.{_SUITE_PID}.jsonl")
+# 📎 **ومجلّدُ أرشيف CSV «تحت المتابعة» — يُحوَّل فورَ إنشائه** (أمرُ المالك 2026-11-17 · `NW_XLSX`): السويّةُ تقود
+#    `run_daily_watchlist` فيكتب `near_watch_daily/<الجلسة>.csv` ⇒ بلا تحويلٍ يظهر ملفٌّ جديدٌ في المستودع (`LEAK2` يمسكه).
+S.NW_XLSX_DIR = _os_hc.path.join(_rej_tf.gettempdir(), f"_suite_near_watch_daily.{_SUITE_PID}")
 
 # 🎯 **وسادسُ ملفِّ حالة — يُحوَّل فورَ إنشائه** (‏دِدوبُ «هنا الدخول»).
 _OE_REAL_PATH = S.OP_ENTRY_STATE_FILE
@@ -17496,9 +17499,11 @@ _c7_pins = [_l.strip() for _l in _c7_req.splitlines()
 # 🔴 **وحُدِّث عمدًا رابعةً 2026-09-29 — `websocket-client`** لمِقبس شموع TradingView (`tv_data.Chart`) بعد أمر المالك
 #    «اشتراكي مخلص ولا راح اجدده … البيانات تاخذها من ترندق فيو مب ياهو»: تُستورَد كسولةً داخل `Chart.open` فلا تحتاجها
 #    السويّة · والمجموعةُ **مطابقةٌ بالضبط** (ثامنةٌ لا «تحوي»).
-_C7_EXPECT = {"PyYAML", "yfinance", "pandas", "numpy", "requests", "lxml", "Pillow", "websocket-client"}
+# 🔴 **وحُدِّث عمدًا خامسةً 2026-11-17 — `openpyxl`** لملفّ «تحت المتابعة» اليوميّ (أمرُ المالك · `NW_XLSX` · `NXL4` يفتح الإكسل
+#    المكتوب) · تُستورَد كسولةً داخل `near_watch_xlsx_step` وتعذّرُها ⟵ الـCSV يُكتب ويُعلَن · والمجموعةُ **مطابقةٌ بالضبط** (تاسعةٌ لا «تحوي»).
+_C7_EXPECT = {"PyYAML", "yfinance", "pandas", "numpy", "requests", "lxml", "Pillow", "websocket-client", "openpyxl"}
 _c7_names = {_l.split("==")[0].strip() for _l in _c7_pins}
-check("📌 007·الاعتمادياتُ الثماني مثبَّتةٌ بـ== ومجموعتُها مطابقةٌ بالضبط "
+check("📌 007·الاعتمادياتُ التسع مثبَّتةٌ بـ== ومجموعتُها مطابقةٌ بالضبط "
       "(لا ترقيةٌ صامتة ولا إضافةٌ صامتة)",
       _c7_names == _C7_EXPECT and all("==" in _l for _l in _c7_pins)
       and len(_c7_pins) == len(_C7_EXPECT),
@@ -103054,6 +103059,141 @@ try:
           f"{_dv_j.get('label')} {_dv_j.get('top1')} · ×3 {_dv_j2.get('label')}")
 except Exception as _e:                                          # noqa: BLE001
     check("📱 أقفالُ T-DATE-CANDLES v2 انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+
+# 📎 NXL1-NXL4 — «ملفُّ تحت المتابعة» اليوميّ (أمرُ المالك 2026-11-17 · عرضٌ فقط · `NW_XLSX`).
+try:
+    import numpy as _nx_np
+    import pandas as _nx_pd
+    import ast as _nx_ast
+    import inspect as _nx_insp
+    import tempfile as _nx_tf
+    import os as _nx_os
+    _NX_KEYS = ("PRIOR_SPIKE_PCT", "PRIOR_SPIKE_WINDOW", "BASE_WINDOW", "MIN_BARS")
+    _nx_sv = {k: S.CONFIG[k] for k in _NX_KEYS}
+
+    def _nx_df(c, lo=None):
+        c = _nx_np.asarray(c, dtype=float)
+        lo = c * 0.99 if lo is None else _nx_np.asarray(lo, dtype=float)
+        return _nx_pd.DataFrame({"Open": c, "High": c * 1.01, "Low": lo, "Close": c, "Volume": 1e5},
+                                index=_nx_pd.bdate_range("2025-01-01", periods=len(c)))
+
+    try:
+        # NXL1 — العددُ والتاريخُ يطابقان `behavior_rise_profile` نفسَها على عوالمَ عشوائيّة (لا منطقَ ثانٍ يفترق)
+        _nx_rng = _nx_np.random.default_rng(11)
+        _nx_bad, _nx_pos = [], 0
+        for _k in range(60):
+            _c = _nx_np.cumprod(1 + _nx_rng.normal(0, 0.06, 300)) * 3.0
+            for _j in _nx_rng.integers(130, 280, size=int(_nx_rng.integers(0, 4))):
+                _c[_j:] *= float(_nx_rng.uniform(2.0, 4.0))
+            _d = _nx_df(_c)
+            _b = S.behavior_rise_profile(_d)
+            _x = S.behavior_explosion_detail(_d)
+            _want = (None if not _b.get("n_pumps") else
+                     _d.index[len(_c) - int(S.CONFIG["BASE_WINDOW"]) - 1 - _b["recency_bars"]].date().isoformat())
+            _nx_pos += bool(_b.get("n_pumps"))
+            if (_x["عدد الانفجارات السابقة"] != _b["n_pumps"] or _x["أكبر صعود في 20 جلسة %"] != _b["best_pump"]
+                    or _x["تاريخ آخر انفجار"] != _want
+                    or _x["هل أعاد الرفع"] != (f"نعم ({_b['repumps']})" if _b["repumps"] else "لا")):
+                _nx_bad.append(_k)
+        check("📎 NXL1: أعمدةُ العدد · أكبرُ صعودٍ في 20 جلسة · تاريخُ آخر انفجار · إعادةُ الرفع = `behavior_rise_profile` نفسُها "
+              "على 60 عالمًا عشوائيًّا (والتاريخُ = حداثةُ الدالّة) — لا منطقَ ثانٍ يفترق",
+              not _nx_bad and _nx_pos >= 20, f"مختلفة {_nx_bad[:5]} · بانفجار {_nx_pos}")
+        # NXL2 — التعريفاتُ المعتمدة بأرقامها على فِكستشرٍ معلوم
+        S.CONFIG.update({"PRIOR_SPIKE_PCT": 100.0, "PRIOR_SPIKE_WINDOW": 20, "BASE_WINDOW": 15, "MIN_BARS": 120})
+        _c = [2.0] * 140 + [2.0 - 0.09 * k for k in range(10)] + [1.0, 1.9, 2.05] + [2.05] * 47
+        _lo = [v * 0.99 for v in _c]
+        _lo[149], _lo[150] = 0.95, 0.85                     # مسحٌ على شمعة القاع نفسِها (150) لا قبلها
+        _a = S.behavior_explosion_detail(_nx_df(_c, _lo))
+        _cw = [2.0] * 140 + [2.0 - 0.09 * k for k in range(10)] + [1.0, 1.3, 1.6, 2.05] + [2.05] * 46
+        _w = S.behavior_explosion_detail(_nx_df(_cw))
+        _L = _nx_np.log(2.05)                               # حدُّ الشمعة: نصيبٌ 52% ⟵ شمعة · 48% ⟵ موجات
+        _c52 = [2.0] * 140 + [2.0 - 0.09 * k for k in range(10)] + [1.0, float(_nx_np.exp(0.52 * _L)), float(_nx_np.exp(0.76 * _L)), 2.05] + [2.05] * 46
+        _c48 = [2.0] * 140 + [2.0 - 0.09 * k for k in range(10)] + [1.0, float(_nx_np.exp(0.48 * _L)), float(_nx_np.exp(0.74 * _L)), 2.05] + [2.05] * 46
+        _s52 = S.behavior_explosion_detail(_nx_df(_c52))["آخر انفجار: شمعة واحدة أم موجات"]
+        _s48 = S.behavior_explosion_detail(_nx_df(_c48))["آخر انفجار: شمعة واحدة أم موجات"]
+        _cd = list(_c)
+        _cd[129] = 4.0                                      # أعلى إغلاقٍ قبل القاع بـ21 جلسة ⟵ خارج النافذة (20)
+        _ld = list(_lo)
+        _ld[129] = 3.96
+        _d21 = S.behavior_explosion_detail(_nx_df(_cd, _ld))["كم نزل قبل آخر انفجار %"]
+        _cd2 = list(_c)
+        _cd2[130] = 4.0                                     # قبله بـ20 جلسة ⟵ داخلها
+        _ld2 = list(_lo)
+        _ld2[130] = 3.96
+        _d20 = S.behavior_explosion_detail(_nx_df(_cd2, _ld2))["كم نزل قبل آخر انفجار %"]
+        check("📎 NXL2: آخرُ انفجار = يوم عبور 100% (شمعة 152) · النزولُ 50.0% من أعلى إغلاقٍ في الـ20 جلسة قبل القاع (75.0 حين القمّةُ قبله "
+              "بـ20 · و50.0 حين بـ21) · المسحُ (ب) يشمل شمعة القاع «نعم (1)» وبلا ذيلٍ «لا» · شمعةٌ واحدة 89% · موجاتٌ 3 من 3 · "
+              "والحدّ 50%: 52% شمعة و48% موجات",
+              _a["تاريخ آخر انفجار"] == _nx_df(_c).index[152].date().isoformat()
+              and _a["كم نزل قبل آخر انفجار %"] == 50.0 and _a["هل مسح الدعم قبل الرفع"] == "نعم (1)"
+              and _a["آخر انفجار: شمعة واحدة أم موجات"] == "شمعة واحدة (89%)"
+              and _w["هل مسح الدعم قبل الرفع"] == "لا" and _w["آخر انفجار: شمعة واحدة أم موجات"] == "موجات (3 جلسة صاعدة من 3)"
+              and _s52.startswith("شمعة واحدة") and _s48.startswith("موجات") and _d20 == 75.0 and _d21 == 50.0
+              and _a["عدد الانفجارات السابقة"] == 1 and _a["هل أعاد الرفع"] == "لا",
+              f"{_a} · {_w} · 52={_s52} · 48={_s48} · d20={_d20} · d21={_d21}")
+    finally:
+        S.CONFIG.update(_nx_sv)
+    # NXL3 — صفوفُ آخر جلسة وحدَها · بأعمدتها المخزَّنة كما هي ‏+ السبعة لا غير · وبلا شموع ⟵ «—»
+    _nx_w = {"AAA": {"symbol": "AAA", "first_seen": "2026-11-01", "last_seen": "2026-11-17", "n_out": 1, "outside": ["x", "y"],
+                     "price": 1.5, "rsi_now": 30.0, "readiness": 40, "score": 50, "n_criteria": 15,
+                     "blocked": {"why": "B", "label": "المتاح فوق الحدّ"}},
+             "BBB": {"symbol": "BBB", "first_seen": "2026-11-02", "last_seen": "2026-11-17", "n_out": 0, "outside": [],
+                     "price": 2.0, "rsi_now": 40.0, "readiness": 20, "score": 30, "n_criteria": 15, "float": 1e6},
+             "OLD": {"symbol": "OLD", "first_seen": "2026-11-01", "last_seen": "2026-11-14", "n_out": 0, "outside": [],
+                     "price": 3.0, "rsi_now": 50.0, "readiness": 10, "score": 10, "n_criteria": 15}}
+    _nx_cols, _nx_rows, _nx_nodf = S.near_watch_xlsx_rows(_nx_w, {"AAA": _nx_df([2.0] * 200)})
+    check("📎 NXL3: صفوفُ آخر جلسة وحدَها (OLD خارجٌ) · الأعمدةُ = المخزَّنةُ الحاضرةُ بترتيبها ‏+ السبعةُ بأسماء المالك لا غير · "
+          "`outside` مضموم · `blocked` بنصّه · وبلا شموعٍ ⟵ الأعمدةُ السبعة فارغة",
+          [r["symbol"] for r in _nx_rows] == ["AAA", "BBB"] and _nx_nodf == 1
+          and _nx_cols == ["symbol", "first_seen", "last_seen", "price", "readiness", "score", "rsi_now", "n_out", "outside",
+                           "n_criteria", "float", "blocked"] + list(S.NW_XLSX_BEHAV_COLS)
+          and S.NW_XLSX_BEHAV_COLS == ("عدد الانفجارات السابقة", "أكبر صعود في 20 جلسة %", "تاريخ آخر انفجار",
+                                       "هل مسح الدعم قبل الرفع", "هل أعاد الرفع", "كم نزل قبل آخر انفجار %",
+                                       "آخر انفجار: شمعة واحدة أم موجات")
+          and _nx_rows[0]["outside"] == "x · y" and _nx_rows[0]["blocked"] == "المتاح فوق الحدّ"
+          and all(_nx_rows[1][k] is None for k in S.NW_XLSX_BEHAV_COLS)
+          and _nx_rows[0]["عدد الانفجارات السابقة"] == 0,
+          f"{[r['symbol'] for r in _nx_rows]} · {_nx_cols} · nodf={_nx_nodf}")
+    # NXL4 — المفتاحُ بت-بت · والكتابةُ والإرسال · والوصلُ من نقطتي النداء الحيّتين وقائمةِ الدفع
+    _nx_sv2 = (S.CONFIG.get("NW_XLSX"), S.NW_XLSX_DIR, S.NEAR_WATCH_FILE, list(S.NW_CSV_SAVED))
+    _nx_dir = _nx_tf.mkdtemp(prefix="nxl4_")
+    _nx_sent = []
+    try:
+        S.NW_XLSX_DIR = _nx_os.path.join(_nx_dir, "arch")
+        S.NEAR_WATCH_FILE = _nx_os.path.join(_nx_dir, "nw.json")
+        S.save_near_watch(_nx_w)
+        del S.NW_CSV_SAVED[:]
+        S.CONFIG["NW_XLSX"] = False
+        _r_off = S.near_watch_xlsx_step({}, "2026-11-16", sender=lambda p, c: _nx_sent.append(p) or True)
+        _off_ok = _r_off == {} and not _nx_sent and not _nx_os.path.exists(S.NW_XLSX_DIR) and S.NW_CSV_SAVED == []
+        S.CONFIG["NW_XLSX"] = True
+        _r_on = S.near_watch_xlsx_step({}, "2026-11-16", sender=lambda p, c: _nx_sent.append(p) or True)
+        _csv = _nx_os.path.join(S.NW_XLSX_DIR, "near_watch_2026-11-16.csv")
+        _csv_txt = open(_csv, encoding="utf-8-sig").read() if _nx_os.path.exists(_csv) else ""
+        from openpyxl import load_workbook as _nx_lw
+        _ws = _nx_lw(_nx_sent[0]).active if _nx_sent else None
+        _on_ok = (_r_on.get("rows") == 2 and _r_on.get("sent") is True and len(_nx_sent) == 1 and _nx_sent[0].endswith(".xlsx")
+                  and S.NW_CSV_SAVED == [_csv] and _csv_txt.count("\n") == 3 and "هل مسح الدعم قبل الرفع" in _csv_txt
+                  and _ws is not None and _ws.max_row == 3 and _ws.sheet_view.rightToLeft
+                  and not _nx_sent[0].startswith(_nx_os.getcwd()))
+    finally:
+        S.CONFIG["NW_XLSX"], S.NW_XLSX_DIR, S.NEAR_WATCH_FILE = _nx_sv2[0], _nx_sv2[1], _nx_sv2[2]
+        S.NW_CSV_SAVED[:] = _nx_sv2[3]
+
+    def _nx_calls(fn, name):
+        return any(isinstance(n, _nx_ast.Call) and getattr(n.func, "id", None) == name
+                   for n in _nx_ast.walk(_nx_ast.parse(_nx_insp.getsource(fn))))
+    _nx_ps = _nx_insp.getsource(S.run_performance_system)
+    _nx_gs = _nx_ps[_nx_ps.find("git_save(["):]
+    check("📎 NXL4: `NW_XLSX` مطفأ ⟵ صفرُ عمل (لا ملفّ · لا إرسال · لا مسار دفع) · ومُفعَّل ⟵ CSV في أرشيفه (صفّان) يُضاف لقائمة الدفع "
+          "وإكسلٌ (يمين-يسار) خارج المستودع يُرسَل مرّةً · وموصولٌ من اليوميّ والتجديد (AST) و`git_save` يحمل `NW_CSV_SAVED`",
+          _off_ok and _on_ok and _nx_calls(S.run_daily_watchlist, "near_watch_xlsx_step")
+          and _nx_calls(S.run_weekly_renewal, "near_watch_xlsx_step") and "*NW_CSV_SAVED]" in _nx_gs.split(")")[0]
+          and S.CONFIG.get("NW_XLSX") is True,
+          f"off={_off_ok} on={_on_ok} sent={_nx_sent}")
+except Exception as _e:                                          # noqa: BLE001
+    check("📎 أقفالُ «ملفّ تحت المتابعة» انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
