@@ -14023,6 +14023,7 @@ NEAR_WATCH_FILE = "near_watch.json"
 FLOAT5_MAX = 5_000_000            # 🏷️ «ملايين أو أقل 5» (تطبيقُ فيصل · `faisal_app` · `FAISAL_SOURCE_LEDGER.md §B4_20261107`)
 OE_CARD_STATS_FILE = "oe_card_stats.json"
 X30_CARD_STATS_FILE = "x30_card_stats.json"   # 📊📣 أرقامُ سطر «تحرّك 30%» (XCS1-XCS3)
+X30_SMALL_N = 100          # 🔢 حدُّ «عيّنة صغيرة» في سطر «📊 مثل هذا الإشعار» لتحرّك 30% — نصُّ أمر المالك 2026-11-17
 
 
 def float5_tag_line(r: dict) -> str:
@@ -18083,8 +18084,9 @@ def x30_stat_lines(rows, stats: dict = None) -> list:
             continue
         z = max(1, round(100.0 / p20))
         w = f"{s10:.0f}%".replace("-", "−")
+        # 🔢 (أمرُ المالك 2026-11-17 ①-1) حجمُ العيّنة آخرَ السطر · ودون `X30_SMALL_N` ⟵ «عيّنة صغيرة» بعده
         out.append(f"📊 مثل هذا الإشعار{' 🥇' if gold else ''}: أعلى ربح وسيطه {med:.0f}% · 1 من {z} بلغ +20% · "
-                   f"كارثي {cat:.0f}% · بوقف −10% الوسيط {w}")
+                   f"كارثي {cat:.0f}% · بوقف −10% الوسيط {w} ({n:,})" + (" عيّنة صغيرة" if n < X30_SMALL_N else ""))
     return out
 
 

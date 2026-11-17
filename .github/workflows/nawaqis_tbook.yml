@@ -1,0 +1,103 @@
+name: "📗 T-BOOK طلبُ المضارب عند الدعم (المعلّقات ②-1 · قراءةٌ فقط)"
+
+# أمرُ المالك 2026-11-17 «برومبت شامل للنواقص» ②-1 · العقد `fm_forensics/nawaqis/T_BOOK_prereg.md` · القاعدة `FILTER_PROTOCOL.md`.
+# gate = بوّابةُ وحدات الحجم على شاهدَي فيصل وحدَها · full = البوّابة ⟵ 40 شريحة ⟵ التجميع (لا يبدأ الفلترُ إن سقطت البوّابة).
+# يدويٌّ بلا كرون · لا تلغرام · لا دفع · النتيجةُ artifact وسجلّ.
+permissions:
+  contents: read
+  actions: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "gate | full"
+        required: true
+        default: "gate"
+
+concurrency:
+  group: super-stocks-nawaqis-tbook
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: 🚪 بوّابةُ الشاهدَين
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/nawaqis/tbook.py gate
+
+  shard:
+    needs: gate
+    if: inputs.mode == 'full'
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        k: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: 📥 شرائحُ T-BASKET
+        uses: actions/download-artifact@v4
+        with:
+          pattern: basket-shard-*
+          path: nq_in
+          run-id: 43955351411
+          github-token: ${{ github.token }}
+      - name: 📗 الشريحة
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/nawaqis/tbook.py shard ${{ matrix.k }} --dir nq_in
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tbook-shard-${{ matrix.k }}
+          path: fm_forensics/nawaqis/out/tbook_shard_*.json.gz
+          retention-days: 30
+
+  assemble:
+    needs: shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: basket-shard-*
+          path: nq_in
+          run-id: 43955351411
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: tbook-shard-*
+          path: nq_in
+      - name: ⚖️ الحكم
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/nawaqis/tbook.py assemble --dir nq_in
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tbook-result
+          path: fm_forensics/nawaqis/T_BOOK_RESULT.md
+          retention-days: 30

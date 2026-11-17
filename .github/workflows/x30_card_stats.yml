@@ -3,13 +3,21 @@ name: "📊📣 «مثل هذا الإشعار» لتحرّك 30% (من بيان
 # أمرُ المالك 2026-11-17 (استثناءٌ صريح · عرضٌ لا قياس): أرقامُ سطر «📊 مثل هذا الإشعار» في رسالة «تحرّك 30%» من إطلاقات T-XMOVE ومن سعر الإشعار
 # (`fm_forensics/xmove/x30_card_stats.py`) ⟵ يكتب `x30_card_outcomes.jsonl` و`x30_card_stats.json` وحدَهما ويدفعهما · يدويٌّ بلا كرون · لا تلغرام ·
 # والعاملُ الحيّ يقرأ الأرقامَ عند بدئه (`X30_STAT_LINE` في الإعدادات · وبلا الملفّ لا سطر).
+# 🔁 (أمرُ المالك 2026-11-17 ①-1 · استثناءٌ لهذا السطر وحدَه) كرونُ السبت = وضعُ `live`: الإشعاراتُ المُرسَلة فعلًا من تاريخ git للحالة تُلحَق
+#    والأرقامُ تُعاد على الاتّحاد · والرجوعُ إلى أرقام T-XMOVE وحدَها حذفُ كتلة `schedule` (والملفّان يبقيان كما دُفعا آخرَ مرّة).
 permissions:
   contents: write
   actions: read
 
 on:
+  schedule:
+    - cron: "43 15 * * 6"     # السبت · كلُّ جلسات الأسبوع مكتملة
   workflow_dispatch:
     inputs:
+      mode:
+        description: "base = أجزاءُ T-XMOVE · live = إلحاقُ الإشعارات الحيّة المُرسَلة"
+        required: true
+        default: "live"
       run_id:
         description: "تشغيلةُ T-XMOVE (xmove.yml) التي تُقرأ أجزاؤها"
         required: true
@@ -34,6 +42,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: 📥 أجزاءُ T-XMOVE
+        if: github.event_name == 'workflow_dispatch' && inputs.mode == 'base'
         uses: actions/download-artifact@v4
         with:
           pattern: xmove-part-*
@@ -44,7 +53,13 @@ jobs:
         env:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           PYTHONUNBUFFERED: "1"
-        run: python fm_forensics/xmove/x30_card_stats.py run --dir x30_in
+          MODE: ${{ github.event_name == 'schedule' && 'live' || inputs.mode }}
+        run: |
+          if [ "$MODE" = "base" ]; then
+            python fm_forensics/xmove/x30_card_stats.py run --dir x30_in
+          else
+            python fm_forensics/xmove/x30_card_stats.py live
+          fi
       - name: 💾 دفعُ الملفّين (fetch+rebase)
         run: |
           set -e

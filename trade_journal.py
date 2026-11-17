@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """📒 دفترُ صفقات المالك (أمرُه 2026-11-16 · التعريفاتُ في `trade_journal_prereg.md` قبل أيّ صفقة).
 
-يقرأ رسائلَ المشرف التي حفظها جامعُ التلغرام (`telegram_collect_meta.jsonl`) ⟵ أمرا «صفقة:»/«خروج:» ⟵ صفٌّ إلحاقيّ في
-`trade_journal.jsonl` مع حالة السهم عند البوت **لحظةَ الرسالة** (نسخُ الملفّات عند آخر التزامٍ قبلها) ⟵ تقريرٌ على تلغرام بعد كلّ عشر
-صفقاتٍ مغلقة. 🔒 لا يسحب من تلغرام ولا يمسّ إزاحةَ الجامع ولا أيَّ حالة إنتاج.
+يقرأ أوامرَ «صفقة:»/«خروج:» من **الخزنة المشفّرة** (`journal_vault.py` · صندوقُ الوارد الذي ملأه جامعُ التلغرام) ⟵ صفٌّ في الخزنة
+نفسِها مع حالة السهم عند البوت **لحظةَ الرسالة** (نسخُ الملفّات عند آخر التزامٍ قبلها) ⟵ تقريرٌ **للمالك وحدَه** على تلغرام بعد كلّ
+عشر صفقاتٍ مغلقة. 🔐 (أمرُ المالك 2026-11-17 ①-2) لا سعرَ ولا نصَّ ولا رمزَ في أيّ ملفٍّ عامّ ولا في سجلّ Actions · `TRADE_JOURNAL=0` ⟵
+مطفأ. 🔒 لا يسحب من تلغرام ولا يمسّ إزاحةَ الجامع ولا أيَّ حالة إنتاج.
 """
 import datetime as dt
 import json
@@ -13,9 +14,6 @@ import subprocess
 import sys
 from zoneinfo import ZoneInfo
 
-META = "telegram_collect_meta.jsonl"
-LEDGER = "trade_journal.jsonl"
-STATE = "trade_journal_state.json"
 REPORT_EVERY = 10
 NY = ZoneInfo("America/New_York")
 _DIG = str.maketrans("٠١٢٣٤٥٦٧٨٩٫۰۱۲۳۴۵۶۷۸۹", "0123456789.0123456789")
@@ -60,20 +58,16 @@ def iso_ms(iso):
     return int(dt.datetime.fromisoformat(str(iso).replace("Z", "+00:00")).timestamp() * 1000)
 
 
-def new_commands(meta_rows, have):
-    """صفوفُ الجامع ⟵ أوامرُ المالك الجديدة (مفتاحُها `message_id`) بترتيب الوقت: نصُّ المشرف (`from_admin`) أو أمرُ الدفتر من حساب
-    المالك (`from_owner` · `journal_cmd` — السرُّ `TELEGRAM_OWNER_ID`) · وما سواهما لا يُقرأ."""
+def new_commands(inbox, have):
+    """صندوقُ وارد الخزنة [{message_id، date، text}] ⟵ أوامرُ جديدة (مفتاحُها `message_id`) بترتيب الوقت · وغيرُ الأمر لا يُقرأ."""
     out = []
-    for r in meta_rows:
-        if not isinstance(r, dict):
-            continue
-        txt = r.get("text") if r.get("from_admin") is True else (r.get("journal_cmd") if r.get("from_owner") is True else None)
-        if not txt:
+    for r in inbox or ():
+        if not isinstance(r, dict) or not r.get("text"):
             continue
         mid = r.get("message_id")
         if mid is None or int(mid) in have:
             continue
-        c = parse_cmd(txt)
+        c = parse_cmd(r["text"])
         if c is None:
             continue
         out.append({"id": int(mid), "date": r.get("date"), **c})
@@ -215,16 +209,36 @@ def files_at(iso):
     return out, exact
 
 
-def main():
+def send_owner(text, owner=None, token=None):
+    """🔐 التقريرُ **للمالك وحدَه** (`TELEGRAM_OWNER_ID`) لا لمستلمي التقرير اليوميّ · بلا السرّ ⟵ False (يبقى معلَّقًا)."""
+    owner = str(owner if owner is not None else os.environ.get("TELEGRAM_OWNER_ID", "")).strip()
+    token = str(token if token is not None else os.environ.get("TELEGRAM_BOT_TOKEN", "")).strip()
+    if not owner or not token:
+        return False
     try:
-        rows = [json.loads(ln) for ln in open(META, encoding="utf-8") if ln.strip()]
-    except OSError:
-        rows = []
-    led = []
-    if os.path.exists(LEDGER):
-        led = [json.loads(ln) for ln in open(LEDGER, encoding="utf-8") if ln.strip()]
+        import requests
+        r = requests.post(f"https://api.telegram.org/bot{token}/sendMessage",
+                          data={"chat_id": owner, "text": text, "disable_web_page_preview": "true"}, timeout=30)
+        return r.status_code == 200 and bool((r.json() or {}).get("ok"))
+    except Exception:                                            # noqa: BLE001
+        return False
+
+
+def main(vault_mod=None, send=None):
+    JV = vault_mod
+    if JV is None:
+        import journal_vault as JV
+    send = send or send_owner
+    if not JV.enabled():
+        log("📒 الدفتر مطفأ (`TRADE_JOURNAL=0` أو بلا مفتاح) — لا شيء")
+        return 0
+    v = JV.load()
+    if v is None:
+        log("⛔ 📒 الخزنةُ لم تُفكّ (المفتاحُ تغيّر؟) — لا كتابةَ فوقها")
+        return 1
+    led = v["ledger"]
     have = {int(r["id"]) for r in led if r.get("id") is not None}
-    new = new_commands(rows, have)
+    new = new_commands(v["inbox"], have)
     try:
         import Super_stock as bot
         es = bot.entry_status
@@ -236,32 +250,21 @@ def main():
             c["state"] = bot_state(c["sym"], ny_day(c["date"]), iso_ms(c["date"]), fl, es)
             c["state"]["exact"] = exact
         led.append(c)
-        with open(LEDGER, "a", encoding="utf-8") as fh:
-            fh.write(json.dumps(c, ensure_ascii=False) + "\n")
-    bad = [c for c in new if c["kind"] == "bad"]
-    log(f"📒 الدفتر: أوامرُ جديدة {len(new)} (غيرُ مقروءة {len(bad)}) · المجموع {len(led)}")
-    st = {}
-    if os.path.exists(STATE):
-        st = json.load(open(STATE, encoding="utf-8")) or {}
+    st = v["state"]
     closed = pair([r for r in led if r.get("kind") in ("entry", "exit")])
     done = int(st.get("reported") or 0)
     sent = 0
     while len(closed) >= done + REPORT_EVERY:
-        txt = report(closed, done + REPORT_EVERY)
-        log(txt)
-        ok = True
-        if (os.environ.get("TELEGRAM_BOT_TOKEN") or "").strip():
-            import Super_stock as bot
-            ok = bool(bot.send_telegram(txt))
-        if not ok:
-            log("⚠️ تيليجرام رفض التقرير — يُعاد في التشغيل التالي")
+        if not send(report(closed, done + REPORT_EVERY)):        # 🔐 لا يُطبَع نصُّ التقرير في السجلّ العامّ
+            log("⚠️ 📒 التقريرُ لم يُرسَل للمالك (بلا `TELEGRAM_OWNER_ID` أو رفضٌ) — يُعاد في التشغيل التالي")
             break
         done += REPORT_EVERY
         sent += 1
     st.update(reported=done, closed=len(closed), entries=sum(1 for r in led if r.get("kind") == "entry"))
-    with open(STATE, "w", encoding="utf-8") as fh:
-        json.dump(st, fh, ensure_ascii=False, indent=1)
-    log(f"📒 صفقاتٌ مغلقة {len(closed)} · تقاريرُ أُرسلت الآن {sent} · آخرُ ما غُطّي {done}")
+    if not JV.save(v):
+        log("⛔ 📒 حفظُ الخزنة تعذّر")
+        return 1
+    log(f"📒 الدفتر: أوامرُ جديدة {len(new)} · تقاريرُ أُرسلت الآن {sent}")   # أعدادٌ فقط — لا رمزَ ولا سعر
     return 0
 
 

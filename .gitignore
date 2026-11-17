@@ -104,3 +104,8 @@ fm_forensics/inst/out_bt/
 
 # 🧺 (2026-11-16) T-BASKET: مخرجاتُ الشرائح على الرنر وحدَه (تُقرأ من السجلّ)
 fm_forensics/basket/out/
+
+# 🔐 دفترُ صفقات المالك: النصُّ لا يُدفَع أبدًا — الخزنةُ المشفّرة `trade_journal.vault` وحدَها (أمرُه 2026-11-17)
+trade_journal.jsonl
+trade_journal_state.json
+trade_journal.vault.tmp

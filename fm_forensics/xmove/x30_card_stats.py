@@ -8,7 +8,10 @@
 **بعد** دقيقة الإطلاق ⟵ الأرقامُ الأربعة بدالّة `opsig.card_stats` بالاسم (وسيطُ أعلى ربح · ‏+20% · الكارثيّ · الوسيطُ بوقف −10%).
 🥇 = للسهم صفٌّ قويٌّ في السجلّ (قاعدةُ `xmove.gold_map` بالاسم) **دقيقتُه لا تتأخّر عن دقيقة الإطلاق** (كما يَسِمه العاملُ الحيّ `upto_ms`).
 الأوضاع: `run --dir <مجلّدُ الأجزاء>` (يلزم POLYGON_API_KEY) ⟵ `x30_card_outcomes.jsonl` و`x30_card_stats.json` · و`stats` بلا شبكة يعيد الأرقام
-من الملفّ الأوّل. لا تلغرام · لا حالةَ إنتاج · لا حكمَ ولا عتبة.
+من الملفّ الأوّل · و`live` (🔁 أمرُ المالك 2026-11-17 ①-1: «وحدّث الأرقام أسبوعيًا من إشعارات «تحرّك 30%» الحية» · استثناءٌ لهذا السطر وحدَه):
+إشعاراتُ «تحرّك 30%» **المُرسَلة فعلًا** من ختم `XM:<رمز>` في تاريخ git لـ`op_entry_state.json` (الحالةُ تُقلَّم بعد 3 أيّام ⟵ آخرُ التزامٍ في كلّ
+يوم) ⟵ النتيجةُ نفسُها من سعر الإشعار لكلّ جلسةٍ مكتملة لم تُحسب ⟵ تُلحَق بالملفّ موسومةً `src: live` وتُعاد الأرقامُ على الاتّحاد (العيّنةُ تكبر).
+لا تلغرام · لا حالةَ إنتاج · لا حكمَ ولا عتبة.
 """
 import glob
 import importlib.util
@@ -76,9 +79,39 @@ def outcome_at(bars, day, m, px, ny_parts, outcome):
     return outcome(bars, int(fb[0]) + MIN_MS, float(px)), float(fb[4])
 
 
-def publish(st, n_fires, asof, src_run=SRC_RUN):
+def live_fires(states, before_day):
+    """(نقيّة) لقطاتُ `op_entry_state` ⟵ إشعاراتُ «تحرّك 30%» المُرسَلة [{d، sym، ms، px، gold، src}] لأيّامٍ قبل `before_day` (جلساتٌ مكتملة) ·
+    الأبكرُ لكلّ (يوم، رمز) · صفٌّ ناقصٌ لا يُخترَع."""
+    best = {}
+    for st in states or ():
+        for k, v in (st or {}).items():
+            if not str(k).startswith("XM:") or not isinstance(v, dict):
+                continue
+            d = str(v.get("date") or "")
+            try:
+                ms, px = int(v["ms"]), float(v["px"])
+            except (KeyError, TypeError, ValueError):
+                continue
+            if not d or d >= before_day or px <= 0:
+                continue
+            key = (d, str(k)[3:].upper())
+            if key not in best or ms < best[key]["ms"]:
+                best[key] = {"d": d, "sym": key[1], "ms": ms, "px": px, "gold": bool(v.get("gold")), "src": "live"}
+    return sorted(best.values(), key=lambda x: (x["d"], x["sym"]))
+
+
+def live_outcome(bars, ms, px, outcome):
+    """(نقيّة) ⟵ (النتيجة، إغلاقُ شمعة الإشعار) من **سعر الإشعار** على الشموع بعد دقيقته · None إن غابت شمعتُه."""
+    fb = next((b for b in bars or () if int(b[0]) == int(ms)), None)
+    if fb is None or not px or px <= 0:
+        return None, None
+    return outcome(bars, int(ms) + MIN_MS, float(px)), float(fb[4])
+
+
+def publish(st, n_fires, asof, src_run=SRC_RUN, n_live=0):
     keep = ("n", "maxg_med", "p20", "cat", "s10_med")
-    return {"asof": asof, "source": f"T-XMOVE (التشغيلة {src_run}) · إطلاقاتُ «تحرّك 30%» {n_fires} · من سعر الإشعار",
+    return {"asof": asof, "source": f"T-XMOVE (التشغيلة {src_run}) · إطلاقاتُ «تحرّك 30%» {n_fires} · من سعر الإشعار"
+                                    + (f" · منها حيّةٌ مُرسَلة {n_live}" if n_live else ""),
             "normal": {k: (st.get("normal") or {}).get(k) for k in keep},
             "gold": {k: (st.get("gold") or {}).get(k) for k in keep}, "defs": DEFS}
 
@@ -91,7 +124,7 @@ def stats_of(rows, card_stats):
 def _write_stats(rows, asof):
     OP = _op()
     st = stats_of(rows, OP.card_stats)
-    pub = publish(st, sum(1 for r in rows if r.get("out")), asof)
+    pub = publish(st, sum(1 for r in rows if r.get("out")), asof, n_live=sum(1 for r in rows if r.get("out") and r.get("src") == "live"))
     with open(STATS, "w", encoding="utf-8") as fh:
         json.dump(pub, fh, ensure_ascii=False, indent=1)
         fh.write("\n")
@@ -137,6 +170,59 @@ def mode_run(d_in, key):
     return 0 if _write_stats(rows, days[-1] if days else "") else 1
 
 
+def _states_from_git(since):
+    """آخرُ نسخةٍ من `op_entry_state.json` في كلّ يومٍ (UTC) منذ `since` ‏+ الحاليّة."""
+    import subprocess
+    out = subprocess.run(["git", "log", f"--since={since}", "--format=%H %cI", "--", "op_entry_state.json"],
+                         cwd=ROOT, capture_output=True, text=True).stdout.split("\n")
+    last = {}
+    for ln in out:
+        if ln.strip():
+            h, iso = ln.split()[:2]
+            last.setdefault(iso[:10], h)                          # git log الأحدثُ أوّلًا ⟵ أوّلُ ظهورٍ = آخرُ التزامٍ في اليوم
+    states = []
+    for h in last.values():
+        try:
+            states.append(json.loads(subprocess.run(["git", "show", f"{h}:op_entry_state.json"], cwd=ROOT,
+                                                    capture_output=True, text=True).stdout or "{}"))
+        except ValueError:
+            continue
+    try:
+        states.append(json.load(open(os.path.join(ROOT, "op_entry_state.json"), encoding="utf-8")))
+    except (OSError, ValueError):
+        pass
+    return states, len(last)
+
+
+def mode_live(key, today):
+    from concurrent.futures import ThreadPoolExecutor
+    from tier_fwd_report import fetch_day
+    XM, OP = _xm(), _op()
+    rows = [json.loads(ln) for ln in open(OUTCOMES, encoding="utf-8") if ln.strip()]
+    have = {(r["d"], r["sym"]) for r in rows if r.get("src") == "live"}
+    states, n_days = _states_from_git("2026-11-15")
+    fires = [f for f in live_fires(states, today) if (f["d"], f["sym"]) not in have]
+    log(f"🔁 الحيّ: أيّامُ تاريخ الحالة {n_days} · إشعاراتٌ مُرسَلةٌ جديدة (جلساتٌ مكتملة قبل {today}) {len(fires)} · محسوبةٌ سابقًا {len(have)}")
+
+    def _one(f):
+        try:
+            res, c = live_outcome(fetch_day(f["sym"], f["d"], key), f["ms"], f["px"], OP.outcome)
+        except Exception as e:                                   # noqa: BLE001
+            return dict(f, err=type(e).__name__)
+        return dict(f, skip="nobar") if res is None else dict(f, out=res, c_fire=c)
+    with ThreadPoolExecutor(XM.WORKERS) as pool:
+        new = list(pool.map(_one, fires))
+    log(f"📥 بنتيجة {sum(1 for r in new if r.get('out'))} · بلا شمعة {sum(1 for r in new if r.get('skip'))} · خطأ {sum(1 for r in new if r.get('err'))}")
+    keep = [r for r in new if r.get("out")]                   # المتعذّرُ لا يُكتب ⟵ يُعاد في التشغيل التالي
+    if keep:
+        with open(OUTCOMES, "a", encoding="utf-8") as fh:
+            for r in keep:
+                fh.write(json.dumps(r, ensure_ascii=False, sort_keys=True) + "\n")
+    rows += keep
+    _write_stats(rows, max((r["d"] for r in rows), default=""))
+    return 0
+
+
 def mode_stats():
     rows = []
     with open(OUTCOMES, encoding="utf-8") as fh:
@@ -156,6 +242,14 @@ def main(argv=None):
             log("⛔ بلا مفتاح Polygon — لا حساب")
             return 3
         return mode_run(argv[argv.index("--dir") + 1] if "--dir" in argv else "x30_in", key)
+    if mode == "live":
+        key = (os.environ.get("POLYGON_API_KEY") or "").strip()
+        if not key:
+            log("⛔ بلا مفتاح Polygon — لا حساب")
+            return 3
+        import datetime as _dt
+        from zoneinfo import ZoneInfo
+        return mode_live(key, _dt.datetime.now(ZoneInfo("America/New_York")).date().isoformat())
     return mode_stats()
 
 

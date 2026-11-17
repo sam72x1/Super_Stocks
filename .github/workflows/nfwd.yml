@@ -17,6 +17,10 @@ on:
         description: "1 = أعدادٌ فقط (المجتمع · d* · الأزواج) بلا R ولا تكلفة"
         required: false
         default: ""
+      worst:
+        description: "N = أسوأ N صفقةً تحت HN جدولًا وصفيًّا (أمرُ المالك 2026-11-17 ①-4) بلا إعادة التقرير"
+        required: false
+        default: ""
 
 concurrency:
   group: super-stocks-nfwd
@@ -47,4 +51,5 @@ jobs:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           TRAIL_REOPEN: ${{ inputs.trail_reopen }}
           NFWD_DRY: ${{ inputs.dry }}
+          NFWD_WORST: ${{ inputs.worst }}
         run: python nfwd_read.py
