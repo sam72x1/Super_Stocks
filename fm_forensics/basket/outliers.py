@@ -31,8 +31,8 @@ def flag(rec, hi=HI, lo=LO):
 
 
 def window_splits(splits, d, last):
-    """تقسيماتُ الرمز من يوم القرار حتى آخر النافذة (نقيّة)."""
-    return [s for s in (splits or []) if d <= str(s.get("execution_date") or "") <= (last or d)]
+    """تقسيماتُ الرمز [تاريخ، نسبة to/from] (صيغةُ `prep` من `rebuild.py`) من يوم القرار حتى آخر النافذة (نقيّة)."""
+    return [[str(e), r] for e, r in (splits or []) if d <= str(e) <= (last or d)]
 
 
 def main():
