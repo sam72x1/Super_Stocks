@@ -21,7 +21,7 @@ from ophold2_arms import (GOV, attach_hold2, pair_counts, pair_rows, paired_plac
                           relabel_halves, v_n2, v_n3)              # بالاسم
 from optrade_arms import (FLOOR_ARM, FLOOR_PAIR, MIN_COVER, RC_COVER, RC_GUARD,
                           RC_NOANCHOR, RC_NOKEY, RC_NOVERDICT, RC_OK, RC_POP,
-                          attach_trades, build_rows, crit_halves,
+                          attach_trades, build_rows, crit_halves, resolve_anchor,
                           no_config_assign, read_costs, read_hstar,
                           selfcheck_readonly)                     # بالاسم
 from ophold_arms import (arm_R, arm_stats, arm_subset, exit_mix, floors_of,
@@ -41,6 +41,8 @@ TAIL_FRAC = 0.05                                    # §④ أعلى 5%
 REOPEN_ENV = "TRAIL_REOPEN"
 RC_CLOSED, RC_CONTRACT = 8, 11
 DRY = os.environ.get("NFWD_DRY", "").strip() == "1"
+# 📋 (أمرُ المالك 2026-11-17 ①-4 «قراءة وصفية: اعرض أسوأ 20 صفقة في N-FWD») — وصفٌ بلا حكم: يُطبع الجدولُ ولا يُعاد التقرير
+WORST = int(os.environ.get("NFWD_WORST", "0").strip() or 0)
 
 
 def _log(msg: str = "") -> None:
@@ -162,7 +164,46 @@ def main() -> int:                                               # noqa: PLR0911
     if DRY:
         _log("🧪 NFWD_DRY — أعدادٌ فقط · صفرُ R وصفرُ تكلفةٍ وصفرُ فاصل")
         return RC_OK
+    if WORST > 0:
+        aps = {}
+        for r in rows:
+            try:
+                aps[(r["date"], r["sym"])] = resolve_anchor(anchors[(r["date"], r["sym"])], ledger.get((r["date"], r["sym"])), r["bars"])["ap"]
+            except Exception:                                    # noqa: BLE001
+                aps[(r["date"], r["sym"])] = None
+        for ln in worst_table(rows, aps, C, S, WORST):
+            _log(ln)
+        return RC_OK
     return report(rows, per_half_n, costs, C, S)
+
+
+def apparent_reason(r, hn) -> str:
+    """السببُ الظاهر (وصفٌ من حقول الصفّ وحدَها · لا تفسير): نوعُ الخروج ‏+ مِرساةُ الأفتر ‏+ وقفٌ ضيّق ‏+ دخولٌ بعيدٌ عن سعر الإشعار."""
+    why = []
+    if hn.get("out") == "loss":
+        why.append(f"كُسر قاعُ المِرساة بعد {hn['t_exit']:.0f} د")
+    else:
+        why.append("لم يُكسر القاع وأُغلق بخسارةٍ عند إغلاق الجلسة" if hn.get("r0", 0) < 0 else "أُغلق عند إغلاق الجلسة")
+    if r.get("tod") == "after":
+        why.append("مِرساةُ أفتر ⟵ الحملُ إلى إغلاق اليوم التالي")
+    if (hn.get("risk_pct") or 99) < 3:
+        why.append(f"وقفٌ ضيّق {hn['risk_pct']:.1f}% يضخّم R")
+    return " · ".join(why)
+
+
+def worst_table(rows, aps, C, S, n=20):
+    """(نقيّة) أسوأ `n` صفقةٍ تحت `HN` بـR بعد التكلفة ⟵ أسطرُ جدول: الرمز · اليوم · سعرُ الإشعار · الدخول · الوقف · النتيجة % وR · السبب."""
+    tr = [(arm_R(r, "HN", C, S), r) for r in rows if r.get("HN")]
+    tr = sorted([x for x in tr if x[0] is not None], key=lambda x: x[0])[:n]
+    out = [f"📋 أسوأ {len(tr)} صفقةً تحت HN (الحملُ إلى الإغلاق · بعد التكلفة) — وصفٌ لا حكم",
+           "| # | الرمز | اليوم | الجلسة | سعرُ الإشعار | الدخول (+5 د) | الوقف (قاعُ المِرساة) | النتيجة % (قبل التكلفة) | R بعد التكلفة | السببُ الظاهر |",
+           "|---|---|---|---|---|---|---|---|---|---|"]
+    for i, (R, r) in enumerate(tr, 1):
+        hn = r["HN"]
+        ap = aps.get((r["date"], r["sym"]))
+        out.append(f"| {i} | {r['sym']} | {r['date']} | {r.get('tod')} | {ap if ap is not None else '—'} | {r['e5']:.4g} | {r['alow']:.4g} | "
+                   f"{hn['r0']:+.1f}% | {R:+.2f} | {apparent_reason(r, hn)} |")
+    return out
 
 
 def _j1_block(rows, C, S):

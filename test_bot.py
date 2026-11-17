@@ -102808,6 +102808,67 @@ try:
 except Exception as _e:                                          # noqa: BLE001
     check("📊📣 أقفالُ سطر «تحرّك 30%» انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
+# 📋 NFW5 — أسوأ 20 صفقة في N-FWD (أمرُ المالك 2026-11-17 ①-4 · وصفٌ بلا حكم): مرتّبةٌ بـR بعد التكلفة تصاعديًّا · مقصوصةٌ بـN · والوضعُ يعود قبل التقرير.
+try:
+    import nfwd_read as _NFW
+    _nfw_rows = [{"sym": f"S{i}", "date": "2026-10-01", "tod": "regular", "e5": 1.0, "alow": 0.9,
+                  "HN": {"out": "loss" if i % 2 else "window", "r0": -float(i), "t_exit": 5.0, "risk_pct": 10.0}} for i in range(1, 6)]
+    _nfw_rows.append({"sym": "NOHN", "date": "2026-10-01", "tod": "regular", "e5": 1.0, "alow": 0.9, "HN": None})
+    _nfw_t = _NFW.worst_table(_nfw_rows, {}, 0.0, 0.0, 3)
+    _nfw_src = open("nfwd_read.py", encoding="utf-8").read()
+    _nfw_i, _nfw_j = _nfw_src.find("if WORST > 0:"), _nfw_src.find("return report(rows, per_half_n, costs, C, S)")
+    check("📋 NFW5 أسوأ صفقات N-FWD: الأسوأُ R أوّلًا · مقصوصةٌ بـN · بلا HN لا صفّ · السببُ من نوع الخروج · والوضعُ يخرج قبل التقرير المنشور",
+          len(_nfw_t) == 6 and [ln.split(" | ")[1] for ln in _nfw_t[3:]] == ["S5", "S4", "S3"]
+          and "كُسر قاعُ المِرساة" in _nfw_t[3] and "إغلاق الجلسة" in _nfw_t[4]
+          and 0 < _nfw_i < _nfw_j and "return RC_OK" in _nfw_src[_nfw_i:_nfw_j],
+          str(_nfw_t[3:]))
+except Exception as _e:                                          # noqa: BLE001
+    check("📋 قفلُ أسوأ صفقات N-FWD انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+# 📗 NQB1-NQB2 — `T-BOOK` وبروتوكولُ الفلتر المشترك (المعلّقات ②-1 · العقدان قبل أيّ رقم).
+try:
+    _sys.path.insert(0, _os_hc.path.join("fm_forensics", "nawaqis"))
+    import tbook as _NQB
+    import filter_core as _NQF
+    _nqb_m = _NQB.book_metrics([(1.0, 1000), (1.04, 12_000), (1.2, 99_999), (0.96, 500), (0.94, 50_000)], 1.0, 1_000_000)
+    _nqb_lo = _NQB.book_metrics([(1.0, 12_000)], 1.0)
+    _nqb_none = _NQB.book_metrics([(2.0, 50_000)], 1.0)
+    check("📗 NQB1 T-BOOK: النطاقُ ±5% من المستوى (حدّاه داخله) · أكبرُ/وسيطُ الحجم وأكبرُ قيمة · B عند 13,000$ فأكثر · خارجَ النطاق لا يُحسب · "
+          "صفرُ اقتباسٍ في النطاق ⟵ False لا None · والشاهدُ عند السعر بالضبط ±10% · والعقدان مطابقان لبصمتهما",
+          _nqb_m["n"] == 3 and _nqb_m["max_sh"] == 12_000 and _nqb_m["med_sh"] == 1000.0 and abs(_nqb_m["max_usd"] - 12_480) < 1e-6
+          and _nqb_m["B"] is False and _nqb_m["max_float"] == 0.012 and _nqb_lo["B"] is False and _NQB.book_metrics([(1.05, 12_400)], 1.0)["B"] is True
+          and _nqb_none["B"] is False and _nqb_none["n"] == 0 and _NQB.USD_MIN == 13_000.0 and _NQB.BAND == 0.05
+          and _NQB.witness_hit([(1.29, 17_000), (1.3, 90_000)], 1.29, 18_440) == (True, 17_000)
+          and _NQB.witness_hit([(1.29, 16_000)], 1.29, 18_440)[0] is False and _NQB.contracts_ok(),
+          str(_nqb_m))
+    _nqf_r = []
+    for _y in ("2023", "2024", "2025"):
+        for _i in range(80):
+            _nqf_r.append({"sym": f"S{_i % 40}", "d": f"{_y}-03-{10 + _i % 9}", "y": _y, "lists": ["CURRENT"],
+                           "res": {"O0": {"r": 0.1 if _i % 2 else -0.1}, "O50": {"r": 0.1 if _i % 2 else -0.1}}, "ctrl": [{"O0": 0.0, "O50": 0.0}]})
+    _nqf_sig = {(_r["sym"], _r["d"]): (_r["res"]["O0"]["r"] > 0) for _r in _nqf_r}
+    _nqf_ok = _NQF.evaluate(_nqf_r, _nqf_sig)["verdict"]
+    _nqf_inv = _NQF.evaluate(_nqf_r, {k: (not v) for k, v in _nqf_sig.items()})["verdict"]
+    _nqf_few = _NQF.evaluate(_nqf_r, {k: (v if k[1] < "2025" else None) for k, v in _nqf_sig.items()})["verdict"]
+    _nqf_n25 = [_r for _r in _nqf_r if _r["y"] == "2025"]
+    _nqf_cov = dict(_nqf_sig)
+    for _r in _nqf_n25[:20]:                                     # تغطيةُ 2025 = 75% ومع/بدون 30/30 ⟵ «لا قياس» بالتغطية وحدَها
+        _nqf_cov[(_r["sym"], _r["d"])] = None
+    _nqf_covv = _NQF.evaluate(_nqf_r, _nqf_cov)
+    _nqf_flat = [dict(_r, res={"O0": {"r": 0.1}, "O50": {"r": 0.1}}) for _r in _nqf_r]
+    _nqf_flatv = _NQF.evaluate(_nqf_flat, _nqf_sig)                # (أ) فوق الصفر و(ب) صفر ⟵ «لا تعبر»
+    check("📗 NQB2 بروتوكولُ الفلتر: الفائضُ على متوسّط الضوابط · (أ) و(ب) فوق الصفر في الخليّتين والسنوات الثلاث ⟵ «تعبر» · عكسُ الإشارة ⟵ «لا تعبر» · "
+          "تغطيةٌ دون 80% في سنةٍ ⟵ «لا قياس» · وبلا ضابطٍ لا فائض",
+          _nqf_ok == "✅ تعبر" and _nqf_inv == "❌ لا تعبر" and _nqf_few == "لا قياس"
+          and _nqf_covv["verdict"] == "لا قياس" and _nqf_covv["cells"]["O0"]["2025"]["n_true"] >= 30
+          and _nqf_covv["cells"]["O0"]["2025"]["n_false"] >= 30 and _nqf_flatv["verdict"] == "❌ لا تعبر"
+          and _nqf_flatv["cells"]["O0"]["2023"]["a_ci"][0] > 0
+          and _NQF.excess({"res": {"O0": {"r": 0.3}}, "ctrl": [{"O0": 0.1}, {"O0": None}, None]}, "O0") == 0.3 - 0.1
+          and _NQF.excess({"res": {"O0": {"r": 0.3}}, "ctrl": []}, "O0") is None and _NQF.ARMS == ("O0", "O50"),
+          f"{_nqf_ok} {_nqf_inv} {_nqf_few}")
+except Exception as _e:                                          # noqa: BLE001
+    check("📗 أقفالُ T-BOOK انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
