@@ -7381,7 +7381,9 @@
     "high": 4.42,
     "close": 3.81
    },
-   "live_alert": {}
+   "live_alert": {
+    "premarket": "2026-11-17"
+   }
   },
   {
    "symbol": "PTLE",
