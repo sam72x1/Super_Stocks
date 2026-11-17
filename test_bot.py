@@ -102977,6 +102977,46 @@ try:
 except Exception as _e:                                          # noqa: BLE001
     check("📗⏱️ أقفالُ الاستثناءين الأخيرين انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
+# 🥁 RHY1 — T-RHYTHM (عقد `T_RHYTHM_prereg.md` · أمرُ المالك 2026-11-17): «في موعده» = |s − ḡ| ضمن 25% من ḡ شاملًا الحدّين · الانفجاراتُ
+#    من `daily_filters.explosions` بالاسم · اختلافُ عدد الانفجارات عن المسجَّل ⟵ mismatch · وأقلّ من اثنين ⟵ out · والعقدُ ببصمته وإلّا 11.
+try:
+    import importlib.util as _rhy_iu, sys as _rhy_sys, os as _rhy_os, subprocess as _rhy_sp, shutil as _rhy_sh, tempfile as _rhy_tf
+    _rhy_sys.path.insert(0, _rhy_os.path.abspath("fm_forensics/nawaqis"))
+    _rhy_s = _rhy_iu.spec_from_file_location("rhythm_rhy1", "fm_forensics/nawaqis/rhythm.py")
+    _RHY = _rhy_iu.module_from_spec(_rhy_s); _rhy_s.loader.exec_module(_RHY)
+    _rhy_c = [1.0] * 260
+    for _e in (30, 80, 130):
+        _rhy_c[_e] = 2.5
+    _rhy_r = [(_RHY.rhythm(_rhy_c, i) or {}).get("R") for i in (167, 168, 180, 192, 193)]
+    _rhy_c1 = [1.0] * 260; _rhy_c1[30] = 2.5
+
+    def _rhy_fx(es):
+        c = [1.0] * 260
+        for e in es:
+            c[e] = 2.5
+        return c
+    _rhy_b = [(_RHY.rhythm(_rhy_fx((30, 70, 110)), i) or {}).get("R") for i in (139, 140, 159, 160, 161)]   # ḡ=40 ⟵ الحدُّ 10 بالضبط
+    _rhy_cc = _RHY.rhythm(_rhy_fx((30, 70, 130)), 168)                                                     # فواصلُ 40 و60 ⟵ المتوسّط 50 لا الأكبر
+    _rhy_dd = _RHY.rhythm(_rhy_fx((30, 80, 175)), 180)                                                     # انفجارٌ داخل العشرين الأخيرة لا يُعَدّ
+    _rhy_env = {k: v for k, v in _rhy_os.environ.items() if k != "POLYGON_API_KEY"}
+    _rhy_rc2 = _rhy_sp.run([_rhy_sys.executable, "fm_forensics/nawaqis/rhythm.py", "shard", "0"], env=_rhy_env, capture_output=True, text=True,
+                           timeout=120).returncode
+    _rhy_td = _rhy_tf.mkdtemp()
+    for _f in ("rhythm.py", "daily_filters.py", "filter_core.py", "tbook.py", "FILTER_PROTOCOL.md"):
+        _rhy_sh.copy(_rhy_os.path.join("fm_forensics/nawaqis", _f), _rhy_td)
+    open(_rhy_os.path.join(_rhy_td, "T_RHYTHM_prereg.md"), "w", encoding="utf-8").write("x")
+    _rhy_rc11 = _rhy_sp.run([_rhy_sys.executable, _rhy_os.path.join(_rhy_td, "rhythm.py"), "assemble"], env=_rhy_env, capture_output=True,
+                            text=True, timeout=120).returncode
+    _rhy_sh.rmtree(_rhy_td, ignore_errors=True)
+    _rhy_v = (_rhy_r, _RHY.rhythm(_rhy_c, 180, 2), _RHY.rhythm(_rhy_c, 180, 3)["g"], _RHY.rhythm(_rhy_c1, 180), _RHY.TOL,
+              _RHY.contract_ok(), _rhy_rc2, _rhy_rc11, _RHY.FPRINT_RUN, _rhy_b, _rhy_cc, _rhy_dd)
+except Exception as _e:                                          # noqa: BLE001
+    _rhy_v = f"⛔ {type(_e).__name__}: {_e}"
+check("🥁 RHY1 T-RHYTHM: «في موعده» ±25% شاملًا (37 لا · 38 نعم · 50 · 62 نعم · 63 لا على ḡ=50) · العددُ المخالف للمسجَّل ⟵ mismatch · "
+      "انفجارٌ واحد ⟵ out · العقدُ يطابق بصمتَه (وإلّا 11) · وبلا مفتاح ⟵ 2 · ومجتمعُ fprint من 44071032068",
+      _rhy_v == ([False, True, True, True, False], "mismatch", 50.0, "out", 0.25, True, 2, 11, 44071032068, [False, True, True, True, False],
+                 {"R": True, "s": 38, "g": 50.0, "k": 3}, {"R": False, "s": 100, "g": 50.0, "k": 2}), str(_rhy_v)[:260])
+
 # 🔒 MOC1 — «اقفل كمية التجميع» (أمرُ المالك 2026-11-17): momo.py ‏run/cut/set تخرج 8 بلا MOMO_REOPEN=1 حرفيًّا · وcheck مفتوح (0).
 try:
     import importlib.util as _moc_iu, subprocess as _moc_sp, sys as _moc_sys, os as _moc_os
