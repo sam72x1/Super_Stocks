@@ -104340,6 +104340,75 @@ try:
 except Exception as _e:                                          # noqa: BLE001
     check("📏 قفلُ ملحق الجاهزيّة `T-GATECAL` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
+# 📏 GTC14 — الملحق 3-ب: اختيارُ الجاهزيّة على فترة البوت وحدَها وتأكيدُها على [2024-01-02، 2025-12-31] وحدَها · وما قبل فترة البوت مغلقٌ قبل التثبيت
+try:
+    import gzip as _g14_gz
+    import json as _g14_js
+    import os as _g14_os
+    import tempfile as _g14_tmp
+    _g14_T = _GT.TOOLS["ready"]
+
+    def _g14_dir(day):
+        d = _g14_tmp.mkdtemp(prefix="gc14_")
+        row = {"sym": "TST", "d": day, "x": 0, "mx": 0.1, "r": 0.0, "ret5": 0.0,
+               "v": {"p": {c: [1] * len(L) for c, L in _g14_T["ladders"].items()}, "all": 1, "why": None, "exch": "XNAS", "nw": None, "vals": {}}}
+        for k in range(_GT.NSHARDS):
+            with _g14_gz.open(_g14_os.path.join(d, f"gatecal_feat_ready_{k:02d}.json.gz"), "wt", encoding="utf-8") as f:
+                _g14_js.dump({"tool": "ready", "shard": k, "from": day, "to": day, "rows": [row] if k == 0 else []}, f)
+        with _g14_gz.open(_g14_os.path.join(d, "gatecal_prep_ready.json.gz"), "wt", encoding="utf-8") as f:
+            _g14_js.dump({"sessions": [day], "members": {}}, f)
+        return d
+    _g14_log0 = _GT.log
+    _g14_fz0 = dict(_GT.FREEZE_SHA)
+    _g14_sha0 = _g14_T["addendum2_sha"]
+    try:
+        _g14_T["addendum2_sha"] = "0" * 64
+        _g14_badsha = _GT.contract_ok("ready")
+    finally:
+        _g14_T["addendum2_sha"] = _g14_sha0
+    try:
+        _GT.log = lambda *a, **k: None
+        _rc_sel_old = _GT.main(["select", "--tool", "ready", "--dir", _g14_dir("2026-08-14")])
+        _rc_sel_ok = _GT.main(["select", "--tool", "ready", "--dir", _g14_dir("2026-08-17")])
+        _GT.FREEZE_SHA.pop("ready", None)
+        _g14_key0 = _g14_os.environ.get("POLYGON_API_KEY")
+        _g14_os.environ["POLYGON_API_KEY"] = "k"
+        try:
+            _rc_feat_blind = _GT.main(["feat", "0", "--tool", "ready", "--from", "2022-06-01", "--to", "2022-12-30", "--dir", "/nonexistent_gc14"])
+        finally:
+            if _g14_key0 is None:
+                _g14_os.environ.pop("POLYGON_API_KEY", None)
+            else:
+                _g14_os.environ["POLYGON_API_KEY"] = _g14_key0
+        _g14_orig_fo = _GT.freeze_ok
+        try:
+            _GT.freeze_ok = lambda tool: True
+            _g14_fzp = _GT.freeze_path("ready")
+            _g14_made = not _g14_os.path.exists(_g14_fzp)
+            if _g14_made:
+                _g14_os.makedirs(_g14_os.path.dirname(_g14_fzp), exist_ok=True)
+                open(_g14_fzp, "w", encoding="utf-8").write('{"proposals": {}}')
+            try:
+                _rc_conf_out = _GT.main(["confirm", "--tool", "ready", "--dir", _g14_dir("2026-08-17")]) if not _g14_os.path.exists(_GT.result_path("ready")) else _GT.RC_BLIND
+                _rc_conf_in = _GT.main(["confirm", "--tool", "ready", "--dir", _g14_dir("2024-06-03")]) if not _g14_os.path.exists(_GT.result_path("ready")) else _GT.RC_OK
+            finally:
+                if _g14_made:
+                    _g14_os.remove(_g14_fzp)
+        finally:
+            _GT.freeze_ok = _g14_orig_fo
+    finally:
+        _GT.log = _g14_log0
+        _GT.FREEZE_SHA.clear()
+        _GT.FREEZE_SHA.update(_g14_fz0)
+    check("📏 GTC14: الملحق 3-ب ببصمته · اختيارُ الجاهزيّة يرفض جلسةً قبل 2026-08-16 (8) ويقبل فترةَ البوت · وإعادةُ ما قبلها مغلقةٌ قبل التثبيت (8) · "
+          "والتأكيدُ يرفض مادّةً خارج [2024-01-02، 2025-12-31] (8) ويقبل ما داخلها",
+          _GT.contract_ok("ready") and (not _g14_badsha) and _g14_T["era"] == {"sel_from": "2026-08-16", "conf": ("2024-01-02", "2025-12-31")}
+          and _rc_sel_old == _GT.RC_BLIND and _rc_sel_ok == _GT.RC_OK and _rc_feat_blind == _GT.RC_BLIND
+          and _rc_conf_out == _GT.RC_BLIND and _rc_conf_in == _GT.RC_OK,
+          f"sel={_rc_sel_old}/{_rc_sel_ok} feat={_rc_feat_blind} conf={_rc_conf_out}/{_rc_conf_in}")
+except Exception as _e:                                          # noqa: BLE001
+    check("📏 قفلُ الملحق 3-ب `T-GATECAL` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

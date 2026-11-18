@@ -75,6 +75,8 @@ _RD = {"price": 0.4000000059604645, "floor": 71.72029570041596, "ceil": 99.94998
 TOOLS["ready"] = {
     "addendum": "T_GATECAL_A3_ready.md", "addendum_sha": "8d89e67f520fb7943f0108cc5badb34028f9d9fa8bfc8088d899b1bac7711248",
     "built": "2026-08-16", "ledger_hunter": (), "bars_from": "2020-10-01",
+    "addendum2": "T_GATECAL_A3b_ready_split.md", "addendum2_sha": "065d5924a8a608441016c69f69f06e8139df55851dbb4d32513e6be11e0659aa",
+    "era": {"sel_from": "2026-08-16", "conf": ("2024-01-02", "2025-12-31")},     # الملحق 3-ب: الاختيارُ على فترة البوت والتأكيدُ على سنتين لم تُرَيا
     "current": {"base": 120.0, "rr": 0.5, "price": _RD["price"], "spike": _RD["spike"], "ceil": _RD["ceil"], "floor": _RD["floor"],
                 "dvol": _RD["dvol"], "chase": 35.0, "gapdist": _RD["gapdist"]},
     "ladders": {"base": [80.0, 100.0, 120.0, 150.0, 200.0, 300.0, 475.0], "rr": [0.75, 0.5, 0.4, 0.3, 0.2, 0.0],
@@ -107,7 +109,8 @@ def sha_of(path):
 def contract_ok(tool):
     try:
         t = TOOLS[tool]
-        return sha_of(CONTRACT) == CONTRACT_SHA and sha_of(os.path.join(HERE, t["addendum"])) == t["addendum_sha"]
+        return (sha_of(CONTRACT) == CONTRACT_SHA and sha_of(os.path.join(HERE, t["addendum"])) == t["addendum_sha"]
+                and ("addendum2" not in t or sha_of(os.path.join(HERE, t["addendum2"])) == t["addendum2_sha"]))
     except (OSError, KeyError):
         return False
 
@@ -1101,10 +1104,15 @@ def mode_select(tool, d_in):
     if n != NSHARDS or not preps:
         log(f"⛔ الشرائح {n} لا {NSHARDS} أو غاب التحضير — خروج {RC_POP}")
         return RC_POP
-    if any(r["d"][:4] not in HIST_SEL for r in rows):
+    t = TOOLS[tool]
+    era = t.get("era")
+    if era:
+        if any(r["d"] < era["sel_from"] for r in rows):
+            log(f"⛔ في المادّة جلسةٌ قبل جزء الاختيار {era['sel_from']} — خروج {RC_BLIND}")
+            return RC_BLIND
+    elif any(r["d"][:4] not in HIST_SEL for r in rows):
         log(f"⛔ في المادّة جلسةٌ خارج جزء الاختيار {HIST_SEL} — خروج {RC_BLIND}")
         return RC_BLIND
-    t = TOOLS[tool]
     by_sym, ix, pool = build(rows, preps[0]["sessions"])
     log(f"# 📏 T-GATECAL — الاختيار · {tool} · [{a}، {b}]")
     res, tried = print_curves(tool, by_sym, ix, pool, _months(a, b))
@@ -1113,7 +1121,7 @@ def mode_select(tool, d_in):
     log(f"- **عددُ كلّ ما جُرِّب: {tried}** (شرط × قيمة)")
     for c, v in props.items():
         log(f"- {t['label'][c]}: {'يبقى الرقم' if v is None else f'مرشَّح ⟵ {_fmt(v)}'}")
-    fz = {"tool": tool, "contract_sha": CONTRACT_SHA, "addendum_sha": t["addendum_sha"], "part": list(HIST_SEL), "tried": tried,
+    fz = {"tool": tool, "contract_sha": CONTRACT_SHA, "addendum_sha": t["addendum_sha"], "part": ([era["sel_from"], b] if era else list(HIST_SEL)), "tried": tried,
           "proposals": {c: v for c, v in props.items() if v is not None},
           "stats": {c: {str(v): {k: (round(q, 6) if isinstance(q, float) else q) for k, q in p.items() if k != "ent"}
                         for v, p in res[c]["points"].items()} for c in t["ladders"]}}
@@ -1134,9 +1142,15 @@ def mode_confirm(tool, d_in):
         return RC_POP
     t = TOOLS[tool]
     fz = json.load(open(freeze_path(tool), encoding="utf-8"))
-    rows = _part(rows, years=HIST_CONF)
+    era = t.get("era")
+    if era:
+        if any(not (era["conf"][0] <= r["d"] <= era["conf"][1]) for r in rows):
+            log(f"⛔ في المادّة جلسةٌ خارج جزء التأكيد {era['conf']} — خروج {RC_BLIND}")
+            return RC_BLIND
+    else:
+        rows = _part(rows, years=HIST_CONF)
     by_sym, ix, pool = build(rows, preps[0]["sessions"])
-    log(f"# 📏 T-GATECAL — التأكيد (مرّةً واحدة) · {tool} · {HIST_CONF}")
+    log(f"# 📏 T-GATECAL — التأكيد (مرّةً واحدة) · {tool} · {era['conf'] if era else HIST_CONF}")
     res, _tried = print_curves(tool, by_sym, ix, pool, _months(a, b), conds=sorted(fz["proposals"]) or None)
     out = []
     for c, v in sorted(fz["proposals"].items()):
@@ -1178,6 +1192,10 @@ def main(argv=None):
         return mode_diag(key, tool)
     if mode == "feat":
         d_from, d_to = argv[argv.index("--from") + 1], argv[argv.index("--to") + 1]
+        _era = TOOLS[tool].get("era")
+        if _era and d_from < _era["sel_from"] and not freeze_ok(tool):
+            log(f"⛔ ما قبل {_era['sel_from']} (جزءُ التأكيد) مغلقٌ قبل ملفّ التثبيت ببصمته — خروج {RC_BLIND}")
+            return RC_BLIND
         if d_to[:4] in HIST_CONF and d_from < TOOLS[tool]["built"] and not freeze_ok(tool):
             log(f"⛔ جزءُ التأكيد التاريخيّ {HIST_CONF} مغلقٌ قبل ملفّ التثبيت ببصمته — خروج {RC_BLIND}")
             return RC_BLIND
