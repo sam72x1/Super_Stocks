@@ -285,8 +285,36 @@
    "max_high": 1.2799,
    "max_move_pct": -5.9,
    "stopped_at": "2026-11-10"
+  },
+  {
+   "symbol": "SLXN",
+   "added": "2026-11-17",
+   "ref_price": 1.65,
+   "half": 1.62,
+   "ref": 3.24,
+   "event_kind": "split",
+   "split_date": "2026-11-11",
+   "float": 231463,
+   "avail": 6000,
+   "borrow_fee": 116.12,
+   "stop": 1.61,
+   "hold_above": 1.86,
+   "targets": [
+    {
+     "price": 1.98,
+     "src": "رأس شمعة حمراء"
+    },
+    {
+     "price": 2.62,
+     "src": "رأس شمعة حمراء"
+    }
+   ],
+   "status": "active",
+   "last_price": 1.65
   }
  ],
- "added_last": [],
+ "added_last": [
+  "SLXN"
+ ],
  "pruned": []
 }
