@@ -103749,6 +103749,26 @@ except Exception as _e:                                          # noqa: BLE001
     check("⛏️ قفلُ تثبيت `T-MINE` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
 
+# 🔒 MIN8 — «بعده يُقفل البحث نهائيًا» (أمرُ المالك 2026-11-18): بوجود ملفّ النتيجة كلُّ وضعٍ في `mine.py` يخرج 7 قبل أيّ جلب
+try:
+    import os as _m8_os
+    _m8_rcs = [_MN.main([m, "--dir", "/nonexistent_mine"]) for m in ("discover", "confirm")] + [_MN.main(["feat", "0", "--years", "2023", "--dir", "/nonexistent_mine"])]
+    _m8_sv = _MN.RESULT
+    try:
+        _MN.RESULT = "/nonexistent_mine/none.md"
+        _m8_open = _MN.main(["zzz"])
+    finally:
+        _MN.RESULT = _m8_sv
+    _m8_doc = open(_MN.RESULT, encoding="utf-8").read() if _m8_os.path.exists(_MN.RESULT) else ""
+    check("🔒 MIN8: `T-MINE` صدر وأُقفل — بوجود `T_MINE_RESULT.md` كلُّ وضعٍ (discover · confirm · feat) يخرج 7 قبل أيّ جلب · وبدونه يمضي إلى "
+          "الوضع · والنتيجةُ تحمل الحكمَ الثلاثيّ ورقمَ تشغيلة التأكيد والتنبّؤاتِ الكاذبة",
+          _m8_rcs == [7, 7, 7] and _m8_open == 1 and "44320418000" in _m8_doc and _m8_doc.count("❌ لا تعبر") == 2 and "لا قياس" in _m8_doc
+          and _m8_doc.count("كُذِّب") >= 3 and "يُقفل البحثُ نهائيًّا" in _m8_doc,
+          f"rc={_m8_rcs} open={_m8_open}")
+except Exception as _e:                                          # noqa: BLE001
+    check("🔒 قفلُ إغلاق `T-MINE` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
