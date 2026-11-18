@@ -201,6 +201,8 @@ S.NEAR_WATCH_FLOAT_FILE = _os_hc.path.join(
 #    فيكتب سطرَ «لا تعبئة» ⇒ بلا تحويلٍ يُلوَّث السجلُّ الحقيقيّ الذي يُدفَع مع حالة البوت (`LEAK2` يمسكه).
 S.FILL_POOL_FILE = _os_hc.path.join(
     _rej_tf.gettempdir(), f"_suite_fill_pool_log.{_SUITE_PID}.jsonl")
+# 🗂️ **وسجلُّ المرفوضين بشرطٍ واحد — يُحوَّل فورَ إنشائه** (`T-GATECAL` ⑦ · 2026-11-18): الفرزُ في السويّة يُلحق فيه ⟵ بلا تحويلٍ `LEAK2` يمسكه.
+S.GATECAL_FWD_FILE = _os_hc.path.join(_rej_tf.gettempdir(), f"_suite_gatecal_fwd.{_SUITE_PID}.jsonl")
 # 📎 **ومجلّدُ أرشيف CSV «تحت المتابعة» — يُحوَّل فورَ إنشائه** (أمرُ المالك 2026-11-17 · `NW_XLSX`): السويّةُ تقود
 #    `run_daily_watchlist` فيكتب `near_watch_daily/<الجلسة>.csv` ⇒ بلا تحويلٍ يظهر ملفٌّ جديدٌ في المستودع (`LEAK2` يمسكه).
 S.NW_XLSX_DIR = _os_hc.path.join(_rej_tf.gettempdir(), f"_suite_near_watch_daily.{_SUITE_PID}")
@@ -103767,6 +103769,123 @@ try:
           f"rc={_m8_rcs} open={_m8_open}")
 except Exception as _e:                                          # noqa: BLE001
     check("🔒 قفلُ إغلاق `T-MINE` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+
+# 📏🗂️ NMG1-NMG4 · GCF1-GCF3 — `T-GATECAL` ⑥ و⑦ (أمرُ المالك 2026-11-18): الهامشُ بجانب كلّ ناقص (عرضٌ لا قياس) وسجلُّ المرفوضين بشرطٍ واحد.
+try:
+    import ast as _ng_ast
+    import inspect as _ng_insp
+    import json as _ng_js
+    import os as _ng_os
+    import tempfile as _ng_tmp
+    from catalog_envelope import CRITERIA as _ng_CR
+    _ng_edges = {"price": 0.4, "drop_pct": (70.0, 99.95), "rr": 0.5, "base_range": 120.0, "rsi_now": 71.0}
+    _ng_vals = {"price": 1.39, "drop_pct": 99.97, "rr": 0.33, "base_range": 300.0, "rsi_now": None, "readiness": 60}
+    _ng_det = S.near_watch_out_detail(_ng_vals, _ng_edges)
+    _ng_out = S.near_watch_outside(_ng_vals, _ng_edges)
+    _ng_by = {d["name"]: d for d in _ng_det}
+    check("📏 NMG1: تفصيلُ النواقص = `outside` حرفًا (العددُ والترتيبُ والاسم) · والهامشُ = بُعدُ القيمة عن الحدّ ÷ الحدّ % (العائد/المخاطرة 0.33 "
+          "والحدّ 0.5 ⟵ 34% · السقف 99.97/99.95 ⟵ 0.02% · القاعدة 300/120 ⟵ 150%) · والمجهولُ لا يُعَدّ ناقصًا",
+          [d["label"] for d in _ng_det] == _ng_out and len(_ng_det) == 3 and _ng_by["rr"]["margin"] == 34.0 and _ng_by["drop_pct"]["margin"] == 0.02
+          and _ng_by["drop_pct"]["edge"] == 99.95 and _ng_by["base_range"]["margin"] == 150.0 and "rsi_now" not in _ng_by
+          and S.near_watch_out_detail({"drop_pct": 50.0}, _ng_edges)[0]["edge"] == 70.0,
+          f"det={_ng_det}")
+
+    _ng_sv = S.CONFIG.get("NW_MARGIN")
+    try:
+        S.CONFIG["NW_MARGIN"] = True
+        _e_on = S.near_watch_entry("GMM", _ng_vals, _ng_out, "2026-11-18", detail=_ng_det)
+        _ln_on = S.near_watch_app_line(_e_on)
+        _eA = S.near_watch_entry("AAA", {"readiness": 90}, ["x (دون الحدّ)"], "2026-11-18", detail=[{"name": "rr", "label": "x (دون الحدّ)", "v": 0.3, "edge": 0.5, "margin": 40.0}])
+        _eB = S.near_watch_entry("BBB", {"readiness": 10}, ["y (دون الحدّ)"], "2026-11-18", detail=[{"name": "price", "label": "y (دون الحدّ)", "v": 0.39, "edge": 0.4, "margin": 2.5}])
+        _eC = S.near_watch_entry("CCC", {"readiness": 50}, [], "2026-11-18", detail=[])
+        _eD = dict(S.near_watch_entry("DDD", {"readiness": 99}, ["z (دون الحدّ)"], "2026-11-18"))          # صفٌّ قديمٌ بلا تفصيل
+        _ord_on = [e["symbol"] for e in S.near_watch_app_rows({e["symbol"]: e for e in (_eA, _eB, _eC, _eD)})]
+        S.CONFIG["NW_MARGIN"] = False
+        _e_off = S.near_watch_entry("GMM", _ng_vals, _ng_out, "2026-11-18", detail=_ng_det)
+        _ln_off = S.near_watch_app_line(_e_on)
+        _ord_off = [e["symbol"] for e in S.near_watch_app_rows({e["symbol"]: e for e in (_eA, _eB, _eC, _eD)})]
+    finally:
+        S.CONFIG["NW_MARGIN"] = _ng_sv
+    _e_plain = S.near_watch_entry("GMM", _ng_vals, _ng_out, "2026-11-18")
+    check("📏 NMG2: رسالةُ «تحت المتابعة» تطبع لكلّ ناقصٍ قيمتَه وحدَّه وهامشَه والأصغرُ هامشًا أوّلًا (السقف 0.02% ثمّ العائد/المخاطرة 34% ثمّ القاعدة 150% — لا بترتيب المعايير) · "
+          "وكتلةُ 📱 بالهامش الأصغر أوّلًا (بلا ناقص · 2.5% · 40% · ثمّ بلا تفصيل) · و`NW_MARGIN=0` ⟵ الصفُّ والسطرُ والترتيبُ بت-بت (بالجاهزية)",
+          "هامش 0.02%" in _ln_on and "هامش 34.0%" in _ln_on and "القيمة 0.33 والحدّ 0.5" in _ln_on
+          and _ln_on.index("هامش 0.02%") < _ln_on.index("هامش 34.0%") < _ln_on.index("هامش 150.0%")
+          and _ord_on == ["CCC", "BBB", "AAA", "DDD"] and _ord_off == ["DDD", "AAA", "CCC", "BBB"]
+          and "out_detail" not in _e_off and _e_off == _e_plain and "هامش" not in _ln_off
+          and _ln_off.endswith(" · ".join(_ng_out)) and S.CONFIG.get("NW_MARGIN") is True,
+          f"on={_ord_on} off={_ord_off} ln={_ln_on[-120:]}")
+
+    _ng_sv3 = S.CONFIG.get("NW_MARGIN")
+    try:
+        S.CONFIG["NW_MARGIN"] = True
+        _cols_on, _rows_on, _ = S.near_watch_xlsx_rows({"GMM": _e_on, "CCC": _eC}, {})
+        S.CONFIG["NW_MARGIN"] = False
+        _cols_off, _rows_off, _ = S.near_watch_xlsx_rows({"GMM": _e_on, "CCC": _eC}, {})
+        _cols_old, _, _ = S.near_watch_xlsx_rows({"GMM": _e_plain}, {})
+    finally:
+        S.CONFIG["NW_MARGIN"] = _ng_sv3
+    _g = next(r for r in _rows_on if r["symbol"] == "GMM")
+    check("📏 NMG3: الإكسلُ اليوميّ يحمل «الشرط الناقص: قيمته والحد» و«الهامش %» (الأصغر) قبل أعمدة السلوك · والتفصيلُ الخامّ ليس عمودًا · "
+          "وسهمٌ بلا ناقص خانتاه فارغتان · و`NW_MARGIN=0` أو صفوفٌ قديمة ⟵ الأعمدةُ كما كانت",
+          list(S.NW_XLSX_MARGIN_COLS) == ["الشرط الناقص: قيمته والحد", "الهامش %"]
+          and _cols_on[-len(S.NW_XLSX_BEHAV_COLS) - 2:-len(S.NW_XLSX_BEHAV_COLS)] == list(S.NW_XLSX_MARGIN_COLS)
+          and "out_detail" not in _cols_on and _g["الهامش %"] == 0.02 and "0.33 والحدّ 0.5" in _g["الشرط الناقص: قيمته والحد"]
+          and next(r for r in _rows_on if r["symbol"] == "CCC")["الهامش %"] is None
+          and not (set(S.NW_XLSX_MARGIN_COLS) & set(_cols_off)) and "out_detail" not in _cols_off
+          and not (set(S.NW_XLSX_MARGIN_COLS) & set(_cols_old)),
+          f"cols={_cols_on[-10:]} g={_g.get('الهامش %')}")
+
+    def _ng_kw(fn, callee, kw):
+        return any(isinstance(n, _ng_ast.Call) and getattr(n.func, "id", None) == callee and any(k.arg == kw for k in n.keywords)
+                   for n in _ng_ast.walk(_ng_ast.parse(_ng_insp.getsource(fn))))
+    _ng_roots = "".join(_ng_insp.getsource(f) for f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker, S.entry_status))
+    check("📏 NMG4: التفصيلُ موصولٌ من نقطتَي النداء الحيّتين (`scan_market` و`near_watch_keep_blocked` يمرّران `detail=` · AST) · "
+          "ولا يدخل الجذور (لا `out_detail` ولا `NW_MARGIN` في الترتيب والاختيار والحالة)",
+          _ng_kw(S.scan_market, "near_watch_entry", "detail") and _ng_kw(S.near_watch_keep_blocked, "near_watch_entry", "detail")
+          and "out_detail" not in _ng_roots and "NW_MARGIN" not in _ng_roots and "gatecal" not in _ng_roots,
+          "")
+
+    # GCF — سجلُّ المرفوضين بشرطٍ واحد
+    _gc_sv = (S.CONFIG.get("GATECAL_FWD"), S.GATECAL_FWD_FILE)
+    with _ng_tmp.TemporaryDirectory() as _gc_d:
+        _gp = _ng_os.path.join(_gc_d, "g.jsonl")
+        try:
+            S.CONFIG["GATECAL_FWD"] = True
+            _items = [("GMM", 1.39, _ng_by["rr"]), ("BAD", 1.0, None), ("ZZZ", 2.0, _ng_by["price"] if "price" in _ng_by else {"name": "price", "label": "p", "v": 0.39, "edge": 0.4, "margin": 2.5})]
+            _n1 = S.gatecal_fwd_append("near_watch", "2026-11-18", _items, path=_gp)
+            _n2 = S.gatecal_fwd_append("near_watch", "2026-11-18", _items, path=_gp)
+            _n3 = S.gatecal_fwd_append("near_watch", "2026-11-19", _items[:1], path=_gp)
+            _gl = [_ng_js.loads(x) for x in open(_gp, encoding="utf-8").read().splitlines()]
+            S.CONFIG["GATECAL_FWD"] = False
+            _gp2 = _ng_os.path.join(_gc_d, "off.jsonl")
+            _n4 = S.gatecal_fwd_append("near_watch", "2026-11-18", _items, path=_gp2)
+            _off_file = _ng_os.path.exists(_gp2)
+        finally:
+            S.CONFIG["GATECAL_FWD"] = _gc_sv[0]
+    check("🗂️ GCF1: السجلُّ يُلحق صفًّا لكلّ مرفوضٍ بشرطٍ واحد (اليوم · الأداة · الرمز · السعر · الشرط · القيمة · الحدّ · الهامش) · بلا تكرارٍ لليوم "
+          "نفسِه · واليومُ التالي يُلحَق · وعنصرٌ بلا تفصيل يُتخطّى · و`GATECAL_FWD=0` ⟵ صفرُ عمل وصفرُ ملفّ",
+          (_n1, _n2, _n3, _n4) == (2, 0, 1, 0) and len(_gl) == 3 and not _off_file
+          and _gl[0] == {"cond": "rr", "day": "2026-11-18", "edge": 0.5, "label": _ng_by["rr"]["label"], "margin": 34.0, "price": 1.39,
+                         "sym": "GMM", "tool": "near_watch", "v": 0.33} and S.CONFIG.get("GATECAL_FWD") is True,
+          f"n={(_n1, _n2, _n3, _n4)} rows={len(_gl)}")
+    _gc_sm = _ng_insp.getsource(S.scan_market)
+    _gc_i = _gc_sm.find("gatecal_fwd_append(")
+    _gc_seg = _gc_sm[_gc_i:_gc_i + 420] if _gc_i >= 0 else ""
+    _gc_ps = _ng_insp.getsource(S.run_performance_system)
+    _gc_gs = _gc_ps[_gc_ps.find("git_save(["):]
+    check("🗂️ GCF2: الفرزُ يُلحق مرفوضي «تحت المتابعة» بمعيارٍ واحد وحدَهم (`n_out == 1`) بعد حفظ القائمة · و`git_save` يدفع السجلّ · "
+          "وملفُّه محوَّلٌ في رأس السويّة (لا يُكتب في المستودع)",
+          _gc_i > _gc_sm.find("save_near_watch(_nw_all)") > 0 and '"near_watch"' in _gc_seg and 'get("n_out") == 1' in _gc_seg
+          and "GATECAL_FWD_FILE" in _gc_gs.split(")")[0] and "_suite_gatecal_fwd" in S.GATECAL_FWD_FILE,
+          f"i={_gc_i} file={S.GATECAL_FWD_FILE[-30:]}")
+    _gc_bad = S.gatecal_fwd_append("near_watch", "2026-11-18", [("GMM", 1.39, _ng_by["rr"])], path="/nonexistent_dir_gc/x.jsonl")
+    check("🗂️ GCF3: تعذّرُ الكتابة لا يُسقط الفرز (صفرٌ وسطرُ سجلّ) · والصفوفُ نقيّةٌ بمفاتيحها التسعة",
+          _gc_bad == 0 and set(S.gatecal_fwd_rows("t", "d", [("a", 1, _ng_by["rr"])])[0]) == {"day", "tool", "sym", "price", "cond", "label", "v", "edge", "margin"},
+          f"bad={_gc_bad}")
+except Exception as _e:                                          # noqa: BLE001
+    check("📏 أقفالُ الهامش وسجلّ المرفوضين انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
