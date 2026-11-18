@@ -43,9 +43,9 @@ RC_OK, RC_KEY, RC_PICKS, RC_VAULT, RC_CONTRACT, RC_POP = 0, 2, 4, 6, 11, 5
 RC_MISMATCH = 7                                                  # resend: البناءُ لا يطابق الخزنة ⟵ لا إرسالَ ولا كتابة
 # 📎 الملحق 1 (2026-11-18 · أمرُ المالك): البطاقاتُ الـ200 ملغاة ⟵ إعادةُ السحب من الصفوف الكاملة (الفلوت والشورت والمتاح معلومة يومَ القرار)
 ADDENDUM = os.path.join(HERE, "T_BLIND_PICK_addendum_1.md")
-ADDENDUM_SHA = "67af7f454cac2291be836164fa191b2edaf2369e1d0f6706a84f68292bf53aed"
+ADDENDUM_SHA = "b8bb293e0941cf292edf78e78d564f8cc78289d4058a8ffc5078b23095065e3d"
 VAULT_A1 = os.path.join(ROOT, "blind_pick_a1.vault")
-A1_MIN_SESS, A1_GAP = 30, 10                                     # §④ الملحق: أرضيّةُ الجلسات · والفاصلُ لتكرار الرمز مرّةً ثانية
+A1_MIN_SESS, A1_GAP, A1_BARS = 30, 10, 10                                     # §④ الملحق: أرضيّةُ الجلسات · والفاصلُ لتكرار الرمز مرّةً ثانية
 RC_NOMEASURE = 3                                                 # §④ الملحق: دون 30 جلسة ⟵ «لا قياس» بلا بطاقات
 UTC = dt.timezone.utc
 
@@ -215,6 +215,51 @@ def svg_chart(rows, w=900, h=330):
     return "".join(out)
 
 
+def svg_chart10(rows, rsis, w=480):
+    """(نقيّة) §⑤ الملحق: آخرُ الشموع (10) تملأ العرض ⟵ لوحةُ السعر (محورُ سعرٍ يمين · بلا تواريخ) ⟵ أعمدةُ الحجم ⟵ خطُّ RSI(14) بمرجعَي 30/70 ·
+    rows = [(o، h، l، c، v)] · rsis = [RSI أو None] بطولها · بلا ماكد ولا خطوط دعمٍ ومقاومة."""
+    if not rows:
+        return "<p>—</p>"
+    ph, vh, rh, gap, pad, rx = 300, 70, 100, 14, 8, 58
+    h = ph + vh + rh + 2 * gap
+    hi = max(r[1] for r in rows)
+    lo = min(r[2] for r in rows)
+    span = (hi - lo) or (hi or 1.0)
+    hi, lo = hi + span * 0.04, lo - span * 0.04
+    span = hi - lo
+    vmax = max(r[4] for r in rows) or 1.0
+    n = len(rows)
+    cw = (w - rx - pad) / n
+    y = lambda p: pad + (hi - p) / span * (ph - 2 * pad)                             # noqa: E731
+    out = [f'<svg viewBox="0 0 {w} {h}" width="100%" xmlns="http://www.w3.org/2000/svg" style="background:#fff;direction:ltr" direction="ltr">']
+    for k in range(5):
+        p = lo + span * k / 4
+        yy = y(p)
+        out.append(f'<line x1="0" x2="{w - rx}" y1="{yy:.1f}" y2="{yy:.1f}" stroke="#eee"/>'
+                   f'<text x="{w - rx + 6}" y="{yy + 5:.1f}" font-size="15" fill="#222">{p:.4g}</text>')
+    vy0 = ph + gap
+    ry0 = ph + vh + 2 * gap
+    ry = lambda v: ry0 + (100 - v) / 100 * rh                                        # noqa: E731
+    for i, (o, hh, l, c, v) in enumerate(rows):
+        x = pad + i * cw + cw / 2
+        col = "#1a9850" if c >= o else "#d73027"
+        out.append(f'<line x1="{x:.1f}" x2="{x:.1f}" y1="{y(hh):.1f}" y2="{y(l):.1f}" stroke="{col}" stroke-width="1.6"/>')
+        top, bot = y(max(o, c)), y(min(o, c))
+        out.append(f'<rect x="{x - cw * 0.32:.1f}" y="{top:.1f}" width="{cw * 0.64:.1f}" height="{max(bot - top, 1.5):.1f}" fill="{col}"/>')
+        vb = v / vmax * (vh - 4)
+        out.append(f'<rect x="{x - cw * 0.32:.1f}" y="{vy0 + vh - vb:.1f}" width="{cw * 0.64:.1f}" height="{vb:.1f}" fill="{col}" opacity="0.55"/>')
+    out.append(f'<text x="{w - rx + 6}" y="{vy0 + 14}" font-size="13" fill="#666">الحجم</text>')
+    for lv in (30, 70):
+        out.append(f'<line x1="0" x2="{w - rx}" y1="{ry(lv):.1f}" y2="{ry(lv):.1f}" stroke="#bbb" stroke-dasharray="4,4"/>'
+                   f'<text x="{w - rx + 6}" y="{ry(lv) + 5:.1f}" font-size="14" fill="#666">{lv}</text>')
+    pts = [(pad + i * cw + cw / 2, ry(float(v))) for i, v in enumerate(rsis or []) if v is not None and i < n]
+    if len(pts) >= 2:
+        out.append('<polyline fill="none" stroke="#7b3fa0" stroke-width="2.5" points="' + " ".join(f"{a:.1f},{b:.1f}" for a, b in pts) + '"/>')
+    out.append(f'<text x="{w - rx + 6}" y="{ry0 + 14}" font-size="13" fill="#666">RSI 14</text>')
+    out.append("</svg>")
+    return "".join(out)
+
+
 def _num(x, dec=0):
     if x is None:
         return "—"
@@ -235,10 +280,10 @@ def stab_text(st, f=1.0):
     return f"لم يثبت: مضى {st.get('bars_after')} من {st.get('need')} جلسات فوق القاع الدقيق ${pv:.4g}"
 
 
-def card_html(label, rows, fields, behav):
+def card_html(label, rows, fields, behav, chart=None):
     tr = "".join(f"<tr><th>{html.escape(k)}</th><td>{v}</td></tr>" for k, v in fields)
     tb = "".join(f"<tr><th>{html.escape(k)}</th><td>{html.escape('—' if v is None else str(v))}</td></tr>" for k, v in behav)
-    return (f'<div class="card"><h3>البطاقة {label}</h3>{svg_chart(rows)}'
+    return (f'<div class="card"><h3>البطاقة {label}</h3>{chart if chart is not None else svg_chart(rows)}'
             f'<table>{tr}</table><h4>سلوكه في الانفجارات السابقة (حتى يوم القرار)</h4><table>{tb}</table></div>')
 
 
@@ -563,8 +608,11 @@ def mode_a1(key, build):
             fields = [("RSI", _num(it["rsi"], 1)), ("ثبات آخر 5 جلسات", html.escape(stab_text(it["st"], f))),
                       ("الفلوت", _num(it["fl"])), ("الشورت (حجم FINRA اليوميّ)", _num(it["sh"])),
                       ("الأسهم المعروضة (المتاح)", _num(it["av"]))]
-            body.append(card_html(label, [(x[1], x[2], x[3], x[4], x[5]) for x in rows[-N_BARS:]], fields,
-                                  [(cn, beh.get(cn)) for cn in S.NW_XLSX_BEHAV_COLS]))
+            closes = S.pd.Series([x[4] for x in rows], dtype=float)
+            rs = S.rsi(closes, 14).tolist() if len(rows) >= 15 else [None] * len(rows)
+            r10 = [None if (v is None or v != v) else float(v) for v in rs[-A1_BARS:]]
+            body.append(card_html(label, [], fields, [(cn, beh.get(cn)) for cn in S.NW_XLSX_BEHAV_COLS],
+                                  chart=svg_chart10([(x[1], x[2], x[3], x[4], x[5]) for x in rows[-A1_BARS:]], r10)))
             cards[label] = {"sym": s, "d": d, "score": it["score"], "flags": list(it["flags"])}
         sections.append("".join(body))
     vault = {"v": 1, "test": "T-BLIND-PICK", "addendum": 1, "contract_sha": CONTRACT_SHA, "addendum_sha": ADDENDUM_SHA, "arm": arm,

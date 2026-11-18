@@ -103184,17 +103184,25 @@ try:
         else:
             _bp3_os.environ["POLYGON_API_KEY"] = _bp3_env
     _bp3_jn = {n.id for n in _bp3_ast.walk(_bp3_ast.parse(_bp3_in.getsource(_BP.mode_judge))) if isinstance(n, _bp3_ast.Name)}
+    _bp3_rows = [(1.0 + i * 0.01, 1.05 + i * 0.01, 0.95 + i * 0.01, 1.02 + i * 0.01, 1000.0 * (i + 1)) for i in range(10)]
+    _bp3_svg = _BP.svg_chart10(_bp3_rows, [40.0 + i for i in range(10)])
+    _bp3_svg0 = _BP.svg_chart10(_bp3_rows, [None] * 10)
+    _bp3_an = _bp3_ast.parse(_bp3_in.getsource(_BP.mode_a1))
+    _bp3_ch = (_bp3_svg.count("<rect") == 20 and "<polyline" in _bp3_svg and ">70<" in _bp3_svg and ">30<" in _bp3_svg
+               and "<polyline" not in _bp3_svg0 and 'direction="ltr"' in _bp3_svg and not _BP.re.search(r"20\d\d-\d\d", _bp3_svg)
+               and _BP.A1_BARS == 10
+               and any(isinstance(c, _bp3_ast.Call) and getattr(c.func, "id", None) == "svg_chart10" for c in _bp3_ast.walk(_bp3_an)))
     _bp3_v = (_bp3_cr, _bp3_ct, _bp3_sa, _bp3_sb, _bp3_sd, _BP.addendum_ok(), _bp3_rc, "VAULT_A1" in _bp3_jn and "VAULT" not in _bp3_jn,
-              "— 33 جلسة ×" in _BP.page([], 33), "— 40 جلسة ×" in _BP.page([]))
+              "— 33 جلسة ×" in _BP.page([], 33), "— 40 جلسة ×" in _BP.page([]), _bp3_ch)
 except Exception as _bp3_e:                                                                       # noqa: BLE001
     _bp3_v = f"⛔ {type(_bp3_e).__name__}: {_bp3_e}"
 check("🙈 BPK3 T-BLIND-PICK الملحق 1: الصفُّ الكامل (فلوت·شورت·متاح معلومة وليس من الملغاة) · العدّ · (أ) بلا تكرار والناقصةُ تسقط ولا تُعلِّم · "
-      "(ب) مرّةً ثانيةً فقط بفاصل 10 · الملحقُ ببصمته وإلّا 11 · والحكمُ على خزنة الملحق · وعنوانُ الملفّ بعدد جلساته",
+      "(ب) مرّةً ثانيةً فقط بفاصل 10 · الملحقُ ببصمته وإلّا 11 · والحكمُ على خزنة الملحق · وعنوانُ الملفّ بعدد جلساته · وشارتُ 10 شموعٍ بالحجم وRSI بلا تواريخ",
       isinstance(_bp3_v, tuple) and _bp3_v[0] == (True, False, False, False, False, True)
       and _bp3_v[1] == {"sessions": 3, "min": 2, "median": 5, "max": 7, "ge5": 2, "symbols": 7}
       and sorted(_bp3_v[2]) == ["d1", "d3"] and sorted(_bp3_v[2]["d1"]) == list("ABCDE") and sorted(_bp3_v[2]["d3"]) == list("PQRST")
       and sorted(_bp3_v[3]) == ["d1", "d3"] and sorted(_bp3_v[4]) == ["d1"] and "X" in _bp3_v[4]["d1"]
-      and _bp3_v[5] is True and _bp3_v[6] == (False, 11, 11, 11) and _bp3_v[7] and _bp3_v[8] and _bp3_v[9], str(_bp3_v)[:400])
+      and _bp3_v[5] is True and _bp3_v[6] == (False, 11, 11, 11) and _bp3_v[7] and _bp3_v[8] and _bp3_v[9] and _bp3_v[10], str(_bp3_v)[:400])
 
 # 🔒 MOC1 — «اقفل كمية التجميع» (أمرُ المالك 2026-11-17): momo.py ‏run/cut/set تخرج 8 بلا MOMO_REOPEN=1 حرفيًّا · وcheck مفتوح (0).
 try:
