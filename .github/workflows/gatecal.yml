@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       tool:
-        description: "الأداة: split_hunter | split_filter | ready"
+        description: "الأداة: split_hunter | split_filter | ready | press"
         required: true
         default: "split_hunter"
       stage:
@@ -51,6 +51,8 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0              # بِركةُ رادار الضغط من ذاكرته بتاريخها
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"      # 🔒 PYV1

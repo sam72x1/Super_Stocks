@@ -104409,6 +104409,77 @@ try:
 except Exception as _e:                                          # noqa: BLE001
     check("📏 قفلُ الملحق 3-ب `T-GATECAL` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
+# 📏 GTC15-GTC16 — `T-GATECAL` الملحق 4 «رادار الضغط»: الملحقُ ببصمته وأرقامُه = أرقامُ الرادار النافذة · `press_read` بالاسم على بِركة يومها ·
+# العتباتُ على القيم المحفوظة = حكمُ `press_read` نفسِه · ومطابقةُ سجلّ الرادار بـ«حافظ» صفر
+try:
+    import datetime as _g15_dt
+    import press_radar as _g15_PR
+    import pandas as _g15_pd
+    _g15_T = _GT.TOOLS["press"]
+    _g15_c = dict(_g15_T["current"])
+    check("📏 GTC15: ملحقُ رادار الضغط يطابق بصمتَه · وحاليُّه = أرقامُ الرادار بالاسم (العمق `SPLIT_CLIFF_PCT` · الجلوس `SPLIT_SWEEP_MAX_PCT` · "
+          "الجاهز `READY_HOLD` · النافذة `ALERT_W`) · والحاليُّ في كلّ سلّم · 18 قيمة · وسجلُّه `press_radar_ledger.jsonl`",
+          _GT.contract_ok("press") and _g15_c["drop"] == float(S.CONFIG["SPLIT_CLIFF_PCT"]) and _g15_c["band"] == float(S.CONFIG["SPLIT_SWEEP_MAX_PCT"])
+          and _g15_c["hold"] == _g15_PR.READY_HOLD and _g15_c["window"] == _g15_PR.ALERT_W
+          and all(_g15_c[c] in L for c, L in _g15_T["ladders"].items()) and sum(len(L) for L in _g15_T["ladders"].values()) == 18
+          and _g15_T["ledger_file"] == _g15_PR.LEDGER_FILE,
+          f"cur={_g15_c}")
+
+    # سهمٌ اصطناعيّ: قمّةٌ ثمّ هبوطٌ 40% ثمّ جلوسٌ فوق القاع — الإعادةُ تحفظ القيمَ التي يحكم بها `press_read` بالأرقام الحاليّة
+    _d, _days = _g15_dt.date(2026, 3, 2), []
+    while len(_days) < 140:
+        if _d.weekday() < 5:
+            _days.append(_d.isoformat())
+        _d += _g15_dt.timedelta(days=1)
+    _px = [5.0] * 100 + [10.0] + [10.0 - 0.45 * k for k in range(1, 9)] + [6.3, 6.1, 6.0, 6.2, 6.3, 6.25, 6.3]
+    _px += [6.3] * (140 - len(_px))
+    _rows = [(_days[k], _px[k], _px[k] * 1.01, _px[k] * 0.99, _px[k], 500000) for k in range(140)]
+    _ctx = {"pools": {d: {"TST"} for d in _days}}
+    _la = {c: _GT.loosest("press", c) for c in _g15_c}
+    _sv = S.CONFIG.get("SPLIT_CLIFF_PCT")
+    try:
+        S.CONFIG.update(_GT.RELAX["press"](_la))
+        _out = _GT._feat_press(S, "k", "TST", _rows, [], _days[112], _days[126], float(S.EXPLODED_PCT), _la, _ctx)
+        _px2 = [5.0] * 100 + [10.0] + [10.0 - 0.33 * k for k in range(1, 9)] + [7.3, 7.2, 7.25, 7.3] + [7.3] * 27
+        _rows2 = [(_days[k], _px2[k], _px2[k] * 1.01, _px2[k] * 0.99, _px2[k], 500000) for k in range(140)]
+        _out2 = _GT._feat_press(S, "k", "TST", _rows2, [], _days[112], _days[116], float(S.EXPLODED_PCT), _la, _ctx)
+        _out_np = _GT._feat_press(S, "k", "ZZZ", _rows, [], _days[112], _days[118], float(S.EXPLODED_PCT), _la, _ctx)
+    finally:
+        S.CONFIG["SPLIT_CLIFF_PCT"] = _sv
+    _agree, _n = 0, 0
+    for _r in _out:
+        _i = _days.index(_r["d"])
+        _df = _g15_pd.DataFrame({"Open": _px[_i - 130 if _i >= 130 else 0:_i + 1], "High": [x * 1.01 for x in _px[_i - 130 if _i >= 130 else 0:_i + 1]],
+                                 "Low": [x * 0.99 for x in _px[_i - 130 if _i >= 130 else 0:_i + 1]], "Close": _px[_i - 130 if _i >= 130 else 0:_i + 1],
+                                 "Volume": [500000] * len(_px[_i - 130 if _i >= 130 else 0:_i + 1])},
+                                index=_g15_pd.to_datetime(_days[_i - 130 if _i >= 130 else 0:_i + 1]))
+        _live = _g15_PR.press_read(_df, w=_g15_PR.ALERT_W)
+        _n += 1
+        _sit_ok = (not _live) or abs(_r["v"]["w"]["40"]["sit"] - (_live["close"] / _live["press_low"] - 1.0) * 100.0) < 0.02
+        _agree += int(bool(_live) == _GT.passes(_r["v"], dict(_g15_c, hold=0)) and _sit_ok)
+    _v = {"w": {"40": {"drop": 35.0, "sit": 8.0, "hold": 3}, "20": {"drop": 22.0, "sit": 8.0, "hold": 3}}, "exch": "XNAS"}
+    _g15_sem = (_GT.passes(_v, _g15_c) and not _GT.passes(_v, dict(_g15_c, drop=40.0)) and not _GT.passes(_v, dict(_g15_c, band=7.0))
+                and not _GT.passes(_v, dict(_g15_c, hold=4)) and not _GT.passes(_v, dict(_g15_c, window=20)) and _GT.passes(_v, dict(_g15_c, window=20, drop=20.0))
+                and not _GT.passes(_v, dict(_g15_c, window=60)) and _GT.why_fails(_v, dict(_g15_c, hold=5, drop=40.0)) == ["drop", "hold"]
+                and _GT.fails_only(dict(_v, w={"40": {"drop": 35.0, "sit": 8.0, "hold": 1}}), _g15_c, "hold")
+                and _GT.cond_value(_v, "band", _g15_c) == 8.0 and _GT.passes({"w": {"40": {"drop": 30.0, "sit": 13.0, "hold": 3}}}, _g15_c))
+    _g15_pools = _GT.press_pools([{"last_session": "2026-11-17", "symbols": {"B": {}, "A": {}}}, {"last_session": "2026-11-17", "symbols": {"OLD": {}}},
+                                  {"last_session": "2026-11-14", "symbols": {"C": {}}}, {"symbols": {"X": {}}}])
+    _g15_fn = next(n for n in _gt_ast.walk(_gt_tree) if isinstance(n, _gt_ast.FunctionDef) and n.name == "_feat_press")
+    _g15_calls = {c.func.attr for c in _gt_ast.walk(_g15_fn) if isinstance(c, _gt_ast.Call) and isinstance(c.func, _gt_ast.Attribute)
+                  and getattr(c.func.value, "id", None) == "PR"}
+    check("📏 GTC16: إعادةُ الرادار = `press_read` بالاسم على بِركة يومها (غيرُ العضو بلا صفوف) · وعبورُ القيم المحفوظة بالحاليّ و«حافظ» صفر = حكمُ "
+          "`press_read` الحيّ جلسةً جلسة · والعتباتُ شاملةُ الحدّ (30 و13 و3 تعبر) والنافذةُ تقرأ خانتَها · والبِركةُ من أحدث لقطةٍ لليوم",
+          "press_read" in _g15_calls and len(_out) >= 3 and _out_np == [] and _n == _agree and any(_GT.passes(r["v"], dict(_g15_c, hold=0)) for r in _out)
+          and any(r["v"]["w"].get("20") != r["v"]["w"].get("40") for r in _out)                                    # كلُّ نافذةٍ تُقرأ بنفسها
+          and bool(_out2) and all(20.0 <= r["v"]["w"]["40"]["drop"] < 30.0 for r in _out2)                         # عمقٌ بين 20 و30 يُحفظ بالإرخاء
+          and not any(_GT.passes(r["v"], dict(_g15_c, hold=0)) for r in _out2)
+          and all(_GT.passes(r["v"], dict(_g15_c, hold=0, drop=25.0)) for r in _out2)
+          and _g15_sem and _g15_pools == {"2026-11-17": ["A", "B"], "2026-11-14": ["C"]},
+          f"n={len(_out)} agree={_agree}/{_n} sem={_g15_sem} pools={_g15_pools} first={[(r['d'], r['v']['w'].get('40')) for r in _out[:2]]}")
+except Exception as _e:                                          # noqa: BLE001
+    check("📏 قفلُ ملحق رادار الضغط `T-GATECAL` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

@@ -89,6 +89,16 @@ TOOLS["ready"] = {
               "spike": "M3 الانفجارُ السابق % (ظرف)", "ceil": "M2 سقفُ الهبوط من القمّة % (ظرف)", "floor": "M2 أرضيّةُ الهبوط % (ظرف)",
               "dvol": "M5 السيولةُ الدولاريّة $ (ظرف)", "chase": "M4ب صعودُ 5 جلسات % (قرارُ المالك 35)", "gapdist": "M9 بُعدُ الفجوة % (ظرف)"},
 }
+# الأداة 4 «رادار الضغط» (الملحق 4): `press_radar.press_read` بالاسم — القيمُ تُقرأ مرّةً بأرخى السلّم والعتباتُ تُطبَّق عليها (شروطُه عتباتٌ بسيطة)
+TOOLS["press"] = {
+    "addendum": "T_GATECAL_A4_press.md", "addendum_sha": "a1df751c8d53bca68dd53b35dc50a8fb59d55b8210a990f9fa9fcb6e541e0f6e",
+    "built": "2026-08-14", "ledger_hunter": (), "ledger_file": "press_radar_ledger.jsonl",
+    "current": {"drop": 30.0, "band": 13.0, "hold": 3, "window": 40},
+    "ladders": {"drop": [40.0, 30.0, 25.0, 20.0], "band": [7.0, 10.0, 13.0, 20.0, 25.0], "hold": [5, 4, 3, 2, 1, 0], "window": [20, 40, 60]},
+    "loose_dir": {"drop": -1, "band": 1, "hold": -1, "window": 1},
+    "label": {"drop": "عمقُ الهبوط من قمّة النافذة % (هندسيّ · معادٌ من كليف المقسّم)", "band": "الجلوسُ فوق قاع الضغط % (فيصل 7-13 للمقسّم)",
+              "hold": "«حافظ» جلساتٍ منذ آخر قاع (الجاهز 3)", "window": "نافذةُ القمّة جلسات (التنبيه 40)"},
+}
 RD_KEY = {"base": "BASE_RANGE_MAX_PCT", "rr": "MIN_RR_T1", "price": "MIN_PRICE", "spike": "PRIOR_SPIKE_FLOOR", "ceil": "MAX_DROP_PCT",
           "floor": "MIN_DROP_FLOOR", "dvol": "MIN_DOLLAR_VOL", "chase": "RECENT_RISE_BLOCK_PCT", "gapdist": "GAP_ABOVE_MAX_DIST_PCT"}
 RD_VAL = {"base": "base_range", "rr": "rr", "price": "price", "spike": "best_spike", "ceil": "drop_pct", "floor": "drop_pct",
@@ -208,6 +218,21 @@ def sf_why(v, P):
     return out
 
 
+def pr_why(v, P):
+    """رادار الضغط: الشروطُ الساقطة بترتيب `press_read` (قراءةُ النافذة · العمق · الجلوس عند القاع) ثمّ «حافظ» — نقيّة."""
+    r = (v.get("w") or {}).get(str(int(P["window"])))
+    if not r:
+        return ["window"]
+    out = []
+    if r["drop"] < P["drop"]:
+        out.append("drop")
+    if r["sit"] > P["band"]:
+        out.append("band")
+    if r["hold"] < P["hold"]:
+        out.append("hold")
+    return out
+
+
 def rd_passes(v, P):
     """الجاهزيّة: صفُّها يحمل نتيجةَ `analyze_ticker` الإنتاجيّ لكلّ قيمةِ سلّمٍ بشرطٍ واحد (`p`) وبإرخاء الكلّ (`all`) ⟵ P = الحاليُّ · أو يختلف
     عنه في شرطٍ واحد · أو أرخى السلّم في الكلّ — وغيرُ ذلك لم يُحسب فيُرفع (لا تخمين)."""
@@ -228,6 +253,8 @@ def passes(v, P):
         return not sf_why(v, P)
     if "p" in v:
         return rd_passes(v, P)
+    if "w" in v:
+        return not pr_why(v, P)
     if v["age"] > P["lookback"] or not (1.0 <= v["price"] <= P["price_max"]):
         return False
     cl = v["cliff"].get(str(int(P["lookback"])))
@@ -250,6 +277,9 @@ def fails_only(v, P, cond):
     if passes(v, P):
         return False
     Q = dict(P)
+    if "w" in v:                                    # رادار الضغط: «وحدَه» = يعبر بأرخى سلّم هذا الشرط
+        Q[cond] = loosest("press", cond)
+        return passes(v, Q)
     if "p" in v:                                    # الجاهزيّة: «وحدَه» = يعبر بأرخى سلّم هذا الشرط والبقيّةُ عند الحاليّ
         Q[cond] = loosest("ready", cond)
         return passes(v, Q)
@@ -267,6 +297,9 @@ def cond_value(v, cond, P):
     """قيمةُ الشرط في الصفّ (لتوزيعه وهامشه)."""
     if "p" in v:
         return (v.get("vals") or {}).get(RD_VAL[cond])
+    if "w" in v:
+        r = (v.get("w") or {}).get(str(int(P["window"]))) or {}
+        return r.get({"drop": "drop", "band": "sit", "hold": "hold"}.get(cond))
     if cond == "rose":
         return v["rose"]
     if "seqs" in v:
@@ -531,7 +564,15 @@ def mode_prep(key, tool):
             members[m] = sorted(r["ticker"] for r in PU.fetch_universe(first, key) if r.get("type") in ("CS", "ADRC"))
             log(f"prep ready {first}: {len(members[m])}")
         rev = sorted({x for v in members.values() for x in v})
-    _jdump({"tool": tool, "splits": splits, "sessions": sess, "rev_syms": rev, "members": members, "pages": pages, "asof": today}, os.path.join(OUT, f"gatecal_prep_{tool}.json.gz"))
+    pools = {}
+    if tool == "press":                             # بِركةُ الرادار يومًا بيوم من ذاكرته المحفوظة في git
+        pools = press_pools(_git_snaps("press_radar_state.json"))
+        rev = sorted({x for v in pools.values() for x in v})
+        log(f"prep press: لقطاتُ البِركة {len(pools)} جلسة · رموز {len(rev)}")
+        if not pools:
+            log("⛔ لا لقطاتِ بِركة (تاريخُ git غائب؟)")
+            return RC_POP
+    _jdump({"tool": tool, "splits": splits, "sessions": sess, "rev_syms": rev, "members": members, "pools": pools, "pages": pages, "asof": today}, os.path.join(OUT, f"gatecal_prep_{tool}.json.gz"))
     log(f"📦 prep {tool}: صفحات {pages} · رموزٌ بتقسيم {len(splits)} · بتقسيمٍ عكسيّ {len(rev)} · جلسات {len(sess)}")
     return RC_OK
 
@@ -745,6 +786,63 @@ def _feat_ready(S, key, sym, rows, sp, d_from, d_to, pct, loose, ctx=None):
     return out
 
 
+def _feat_press(S, key, sym, rows, sp, d_from, d_to, pct, loose, ctx=None):
+    """رادار الضغط: لكلّ جلسة D والرمزُ في بِركة يومها (ذاكرةُ الرادار من تاريخ git) — `press_read` بالاسم لكلّ نافذةٍ في السلّم بأرخى العمق
+    والجلوس ⟵ العمقُ والجلوسُ فوق القاع % و«حافظ» · على شموعٍ بمقياس D الخامّ (أرضيّةُ السعر 1$ ثابتة)."""
+    import pandas as pd
+    import press_radar as PR
+    t = TOOLS["press"]
+    days = [x[0] for x in rows]
+    O, H, Lw, C, V = ([float(x[q]) for x in rows] for q in (1, 2, 3, 4, 5))
+    split_days = {x for x, _r in sp}
+    idx = pd.to_datetime(days)
+    out = []
+    for i, d in enumerate(days):
+        if d < d_from or d > d_to or i < 70 or sym not in ctx["pools"].get(d, ()):
+            continue
+        f = fwd_factor(sp, d)
+        lo = max(0, i - 130)
+        df = pd.DataFrame({"Open": [x * f for x in O[lo:i + 1]], "High": [x * f for x in H[lo:i + 1]], "Low": [x * f for x in Lw[lo:i + 1]],
+                           "Close": [x * f for x in C[lo:i + 1]], "Volume": V[lo:i + 1]}, index=idx[lo:i + 1])
+        ws = {}
+        for w in t["ladders"]["window"]:
+            r = PR.press_read(df, w=int(w), band_pct=float(loose["band"]))
+            if r and r.get("press_low"):
+                ws[str(int(w))] = {"drop": float(r["drop_pct"]), "sit": round((float(r["close"]) / float(r["press_low"]) - 1.0) * 100.0, 3),
+                                   "hold": int(r["hold_sessions"])}
+        if not ws:
+            continue
+        x, mx = exploded_label(days, H, C, i, pct, split_days)
+        out.append({"sym": sym, "d": d, "x": x, "mx": mx, "r": trade_return(O, H, C, i),
+                    "ret5": (C[i] / C[i - 5] - 1.0) if C[i - 5] > 0 else None, "v": {"w": ws, "exch": "XNAS"}})
+    return out
+
+
+def press_pools(snaps):
+    """ذاكرةُ الرادار بلقطاتها ⟵ {جلسة: [رموز البِركة]} — snaps = [حالةُ `press_radar_state.json`] · الجلسةُ `last_session` · واللقطةُ الأحدثُ لليوم تغلب · نقيّة."""
+    out = {}
+    for st in snaps:
+        d = str((st or {}).get("last_session") or "")[:10]
+        if len(d) == 10 and d not in out:
+            out[d] = sorted((st.get("symbols") or {}).keys())
+    return out
+
+
+def _git_snaps(path):
+    import subprocess
+    snaps = []
+    try:
+        cs = subprocess.run(["git", "log", "--format=%H", "--", path], cwd=ROOT, capture_output=True, text=True, timeout=120).stdout.split()
+    except Exception:                                            # noqa: BLE001
+        cs = []
+    for c in cs:                                                 # الأحدثُ أوّلًا
+        try:
+            snaps.append(json.loads(subprocess.run(["git", "show", f"{c}:{path}"], cwd=ROOT, capture_output=True, text=True, timeout=60).stdout))
+        except Exception:                                        # noqa: BLE001
+            continue
+    return snaps
+
+
 def rd_context(S, prep):
     """إعدادُ الإنتاج الحيّ (`apply_faisal_only` بالمفتاح 1 على نسخة) وعضويّةُ الكون الشهريّة — وصمتُ السجلّ."""
     cur = dict(S.CONFIG)
@@ -755,10 +853,12 @@ def rd_context(S, prep):
     return {"cfg": cur, "member": {m: set(v) for m, v in (prep.get("members") or {}).items()}, "edges": EV.load_edges() or {}}
 
 
-FEAT_FN = {"split_hunter": _feat_split_hunter, "split_filter": _feat_split_filter, "ready": _feat_ready}
-RELAX = {"split_hunter": lambda loose: {"SPLIT_LOOKBACK_DAYS": int(loose["lookback"])}, "split_filter": lambda loose: {}, "ready": lambda loose: {}}
+FEAT_FN = {"split_hunter": _feat_split_hunter, "split_filter": _feat_split_filter, "ready": _feat_ready, "press": _feat_press}
+CTX_FN = {"ready": rd_context, "press": lambda S, prep: {"pools": {d: set(v) for d, v in (prep.get("pools") or {}).items()}}}
+RELAX = {"split_hunter": lambda loose: {"SPLIT_LOOKBACK_DAYS": int(loose["lookback"])}, "split_filter": lambda loose: {}, "ready": lambda loose: {},
+         "press": lambda loose: {"SPLIT_CLIFF_PCT": float(loose["drop"])}}
 DIAG_WIDE = {"split_hunter": {"rose": 1e9, "band_low": 0.0, "band_hi": 1e9, "hold": 1, "shares": 1e18, "cliff": -1e9, "lookback": 250, "price_max": 1e9},
-             "split_filter": {"rose": 1e9, "band_low": 0.0, "band_hi": 1e9, "bounce": 5.0, "tol": 0.04, "zone": 1e9}, "ready": {}}
+             "split_filter": {"rose": 1e9, "band_low": 0.0, "band_hi": 1e9, "bounce": 5.0, "tol": 0.04, "zone": 1e9}, "ready": {}, "press": {}}
 
 
 def mode_feat(key, tool, k, d_from, d_to, d_in):
@@ -778,7 +878,7 @@ def mode_feat(key, tool, k, d_from, d_to, d_in):
     sv = {kk: S.CONFIG.get(kk) for kk in relax}
     out, nobars, t0 = [], 0, time.time()
     bars_from = t.get("bars_from", BARS_FROM)
-    ctx = rd_context(S, prep) if tool == "ready" else None
+    ctx = CTX_FN[tool](S, prep) if tool in CTX_FN else None
     try:
         S.CONFIG.update(relax)                                      # إرخاءُ نافذة الحدث لقراءة القيم — يُستعاد
         for j, sym in enumerate(syms):
@@ -789,7 +889,7 @@ def mode_feat(key, tool, k, d_from, d_to, d_in):
                 nobars += 1
                 continue
             if ctx is not None:
-                out.extend(_feat_ready(S, key, sym, rows, prep["splits"].get(sym) or [], d_from, d_to, pct, loose, ctx))
+                out.extend(FEAT_FN[tool](S, key, sym, rows, prep["splits"].get(sym) or [], d_from, d_to, pct, loose, ctx))
                 continue
             out.extend(FEAT_FN[tool](S, key, sym, rows, prep["splits"].get(sym) or [], d_from, d_to, pct, loose))
             if j % 25 == 0:
@@ -916,6 +1016,24 @@ def wall_table(rows_by_sym, ix, win=WIN):
 def ledger_match(tool, rows_by_sym):
     """§② مطابقةُ السجلّ: عابرو `hunter_ledger.jsonl` (مرشَّحين) — كم منهم يعبر في الإعادة بالأرقام الحاليّة في جلسته؟"""
     t = TOOLS[tool]
+    if t.get("ledger_file"):                        # سجلٌّ بصيغة الرادار (session/symbol · كلُّ مطابقٍ ولو لم يحفظ) ⟵ يُطابَق بالحاليّ و«حافظ» صفر
+        P0 = dict(t["current"], hold=0)
+        led = set()
+        fp = os.path.join(ROOT, t["ledger_file"])
+        for ln in (open(fp, encoding="utf-8") if os.path.exists(fp) else ()):
+            try:
+                j = json.loads(ln)
+                led.add((j["symbol"], j["session"]))
+            except (ValueError, KeyError):
+                continue
+        hit, miss = 0, []
+        for sym, d in sorted(led):
+            r = next((z for z in rows_by_sym.get(sym, []) if z["d"] == d), None)
+            if r is not None and passes(r["v"], P0):
+                hit += 1
+            else:
+                miss.append((sym, d, "لا صفّ" if r is None else "صفٌّ لا يعبر"))
+        return len(led), hit, miss
     path = os.path.join(ROOT, "hunter_ledger.jsonl")
     led = []
     if os.path.exists(path):
@@ -942,6 +1060,8 @@ def why_fails(v, P):
         return sf_why(v, P)
     if "p" in v:
         return [] if passes(v, P) else [str(v.get("why") or "؟")]
+    if "w" in v:
+        return pr_why(v, P)
     out = []
     if v["age"] > P["lookback"]:
         out.append("lookback")
