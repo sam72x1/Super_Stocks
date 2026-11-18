@@ -204,6 +204,13 @@ CONFIG = {
     # 📎 «ملفُّ تحت المتابعة» اليوميّ (أمرُ المالك 2026-11-17): إكسلٌ على تلغرام ‏+ CSV مؤرشَف · عرضٌ فقط ·
     #    `NW_XLSX=0` (بيئةُ التشغيل) ⟵ صفرُ عمل وصفرُ ملفّ (بت-بت) · `NXL1`-`NXL4`.
     "NW_XLSX": os.environ.get("NW_XLSX", "1").strip() != "0",
+    # 📏 «الهامش بجانب كلّ ناقص» (أمرُ المالك 2026-11-18 · `T-GATECAL` ⑥ · عرضٌ لا قياس): كلُّ معيارٍ خارجٍ يُحفظ بقيمته وحدّه وهامشه % في
+    #    `out_detail` ⟵ رسالةُ «تحت المتابعة» تطبع الهامش وترتّب كتلةَ 📱 بالهامش الأصغر أوّلًا · والإكسلُ يحمل «الشرط الناقص: قيمته والحد»
+    #    و«الهامش %» · بلا عتبةٍ جديدة وبلا تغيير اختيار · `NW_MARGIN=0` (بيئةُ التشغيل) ⟵ بت-بت · `NMG1`-`NMG4`.
+    "NW_MARGIN": os.environ.get("NW_MARGIN", "1").strip() != "0",
+    # 🗂️ «سجلُّ المرفوضين بشرطٍ واحد» (أمرُ المالك 2026-11-18 · `T-GATECAL` ⑦): كلَّ فرزٍ يُلحَق لكلّ أداةٍ سطرٌ لكلّ سهمٍ رفضه شرطٌ واحد
+    #    بقيمته وحدّه وهامشه في `gatecal_fwd.jsonl` (إلحاقٌ فقط · يُدفَع) · رصدٌ لا قرار · `GATECAL_FWD=0` ⟵ صفرُ عمل · `GCF1`-`GCF3`.
+    "GATECAL_FWD": os.environ.get("GATECAL_FWD", "1").strip() != "0",
     # 🏷️ «وسمُ فلوت 5 ملايين أو أقلّ» (أمرُ المالك 2026-11-08 ① بعد `T-APPDIFF` ②: «يرفع» ‏+2.8 [+0.2، +5.2]): سطرُ عرضٍ في الكرت
     #    وحدَه بالفلوت الحقيقيّ (`float` ياهو/الذاكرة · لا عدد الأسهم القائمة) — لا يُسقط سهمًا ولا يمسّ ترتيبًا · `FLOAT5_TAG=0` ⟵ بت-بت · `FT51`-`FT53`.
     "FLOAT5_TAG": os.environ.get("FLOAT5_TAG", "1").strip() != "0",
@@ -14171,6 +14178,51 @@ NW_XLSX_ONE_CANDLE = 0.50    # «شمعة واحدة» = نصيبُ أكبر ش�
 NW_CSV_SAVED = []            # مساراتُ CSV المكتوبة في هذه التشغيلة ⟵ يدفعها `git_save` في `run_performance_system`
 NW_XLSX_BASE_COLS = ("symbol", "first_seen", "last_seen", "price", "readiness", "score", "rsi_now",
                      "n_out", "outside", "n_criteria", "float", "float_date", "float_src", "blocked")
+NW_XLSX_MARGIN_COLS = ("الشرط الناقص: قيمته والحد", "الهامش %")     # 📏 `NW_MARGIN` · أمرُ المالك 2026-11-18 ⑥
+GATECAL_FWD_FILE = "gatecal_fwd.jsonl"      # 🗂️ `T-GATECAL` ⑦ — المرفوضون بشرطٍ واحد بهامشهم · إلحاقٌ فقط · يُدفَع مع حالة البوت
+
+
+def gatecal_fwd_rows(tool: str, day: str, items) -> list:
+    """🗂️ صفوفُ السجلّ الأماميّ لأداة: items = [(رمز، سعر، تفصيلُ الشرط الوحيد {name،label،v،edge،margin})] — نقيّة."""
+    out = []
+    for sym, price, d in items or []:
+        if not isinstance(d, dict):
+            continue
+        out.append({"day": str(day), "tool": str(tool), "sym": str(sym or "").upper(), "price": price, "cond": d.get("name"),
+                    "label": d.get("label"), "v": d.get("v"), "edge": d.get("edge"), "margin": d.get("margin")})
+    return out
+
+
+def gatecal_fwd_append(tool: str, day: str, items, path: str = None) -> int:
+    """🗂️ يُلحق صفوفَ اليوم (بلا تكرارِ (يوم، أداة، رمز، شرط)) · `GATECAL_FWD` مطفأ ⟵ صفرُ عمل · وأيُّ خطأ ⟵ سطرُ سجلٍّ لا انهيار."""
+    if not CONFIG.get("GATECAL_FWD"):
+        return 0
+    try:
+        rows = gatecal_fwd_rows(tool, day, items)
+        if not rows:
+            return 0
+        path = path or GATECAL_FWD_FILE
+        seen = set()
+        if os.path.exists(path):
+            with open(path, encoding="utf-8") as fh:
+                for ln in fh:
+                    try:
+                        j = json.loads(ln)
+                        seen.add((j.get("day"), j.get("tool"), j.get("sym"), j.get("cond")))
+                    except ValueError:
+                        continue
+        new = [r for r in rows if (r["day"], r["tool"], r["sym"], r["cond"]) not in seen]
+        if new:
+            with open(path, "a", encoding="utf-8") as fh:
+                for r in new:
+                    fh.write(json.dumps(r, ensure_ascii=False, sort_keys=True) + "\n")
+        log(f"🗂️ سجلُّ المرفوضين بشرطٍ واحد ({tool}): أُلحق {len(new)} من {len(rows)}")
+        return len(new)
+    except Exception as _e:                                      # noqa: BLE001
+        log(f"⚠️ سجلُّ المرفوضين بشرطٍ واحد ({tool}): تعذّر ({type(_e).__name__})")
+        return 0
+
+
 NW_XLSX_BEHAV_COLS = ("عدد الانفجارات السابقة", "أكبر صعود في 20 جلسة %", "تاريخ آخر انفجار",
                       "هل مسح الدعم قبل الرفع", "هل أعاد الرفع", "كم نزل قبل آخر انفجار %",
                       "آخر انفجار: شمعة واحدة أم موجات")
@@ -14253,7 +14305,8 @@ def near_watch_xlsx_rows(watch: dict, hist: dict) -> tuple:
     newest = max((str(e.get("last_seen") or "") for e in ents), default="")
     ents = sorted((e for e in ents if str(e.get("last_seen") or "") == newest and newest),
                   key=lambda e: str(e.get("symbol") or ""))
-    extra = sorted({k for e in ents for k in e} - set(NW_XLSX_BASE_COLS))
+    extra = sorted({k for e in ents for k in e} - set(NW_XLSX_BASE_COLS) - {"out_detail"})
+    _mg = bool(CONFIG.get("NW_MARGIN")) and any(e.get("out_detail") is not None for e in ents)
     base = [k for k in NW_XLSX_BASE_COLS if any(k in e for e in ents)] + extra
     rows, nodf = [], 0
     for e in ents:
@@ -14265,6 +14318,11 @@ def near_watch_xlsx_rows(watch: dict, hist: dict) -> tuple:
             elif isinstance(v, dict):
                 v = v.get("label") or json.dumps(v, ensure_ascii=False)
             row[k] = v
+        if _mg:                                    # 📏 الشرطُ الناقص بقيمته وحدّه · والهامشُ الأصغر
+            _d = sorted((d for d in (e.get("out_detail") or []) if isinstance(d, dict)),
+                        key=lambda d: (d.get("margin") is None, d.get("margin") or 0))
+            row[NW_XLSX_MARGIN_COLS[0]] = " · ".join(f"{d.get('label')}: {_nw_num(d.get('v'))} والحدّ {_nw_num(d.get('edge'))}" for d in _d) or None
+            row[NW_XLSX_MARGIN_COLS[1]] = (_d[0].get("margin") if _d else None)
         df = (hist or {}).get(e.get("symbol"))
         if df is None:
             nodf += 1
@@ -14272,7 +14330,7 @@ def near_watch_xlsx_rows(watch: dict, hist: dict) -> tuple:
         else:
             row.update(behavior_explosion_detail(df))
         rows.append(row)
-    return base + list(NW_XLSX_BEHAV_COLS), rows, nodf
+    return base + (list(NW_XLSX_MARGIN_COLS) if _mg else []) + list(NW_XLSX_BEHAV_COLS), rows, nodf
 
 
 def near_watch_xlsx_step(hist: dict, session: str = "", sender=None, tag: str = "") -> dict:
@@ -14559,6 +14617,71 @@ def near_watch_outside(vals: dict, edges: dict) -> list:
     return out
 
 
+def near_watch_out_detail(vals: dict, edges: dict) -> list:
+    """📏 تفصيلُ كلّ معيارٍ خارج الظرف: الاسمُ والقيمةُ والحدُّ و**الهامشُ %** (بُعدُ القيمة عن الحدّ ÷ الحدّ) — نقيّة.
+    يمشي `catalog_envelope.CRITERIA` نفسَها بقاعدة `near_watch_outside` نفسِها (المجهولُ يمرّ) ⟵ عددُه وترتيبُه = `outside` حرفيًّا."""
+    try:
+        from catalog_envelope import CRITERIA as _CR
+    except Exception:                                            # noqa: BLE001
+        return []
+    out = []
+    for name, side, desc, _k in _CR:
+        v = (vals or {}).get(name)
+        edge = (edges or {}).get(name)
+        if v is None or edge is None:
+            continue
+        try:
+            v = float(v)
+            lim, where = None, ""
+            if side == "lo" and v < float(edge):
+                lim, where = float(edge), "دون الحدّ"
+            elif side == "hi" and v > float(edge):
+                lim, where = float(edge), "فوق الحدّ"
+            elif side == "both" and isinstance(edge, (list, tuple)) and len(edge) == 2:
+                if v < float(edge[0]):
+                    lim, where = float(edge[0]), "دون الأرضية"
+                elif v > float(edge[1]):
+                    lim, where = float(edge[1]), "فوق السقف"
+            if lim is None:
+                continue
+            out.append({"name": name, "label": f"{desc} ({where})", "v": round(v, 6), "edge": round(lim, 6),
+                        "margin": (round(abs(v - lim) / abs(lim) * 100.0, 2) if lim else None)})
+        except (TypeError, ValueError):
+            continue
+    return out
+
+
+def near_watch_min_margin(e: dict):
+    """📏 أصغرُ هامشٍ بين نواقص الصفّ · صفرٌ لمن لا ناقصَ له · None إن غاب التفصيل (صفٌّ قديم) — نقيّة."""
+    if not (e or {}).get("outside"):
+        return 0.0
+    ms = [d.get("margin") for d in (e.get("out_detail") or []) if isinstance(d, dict) and d.get("margin") is not None]
+    return min(ms) if ms else None
+
+
+def _nw_num(x) -> str:
+    try:
+        x = float(x)
+    except (TypeError, ValueError):
+        return "؟"
+    return f"{x:,.0f}" if abs(x) >= 1000 else (f"{x:.2f}".rstrip("0").rstrip(".") if x == x else "؟")
+
+
+def _nw_pct(m) -> str:
+    """هامشٌ دون 1% بخانتين (0.02 لا 0.0) وما فوقه بخانة."""
+    return f"{float(m):.2f}" if float(m) < 1 else f"{float(m):.1f}"
+
+
+def near_watch_missing_text(e: dict, empty: str) -> str:
+    """📏 نصُّ النواقص: مع `NW_MARGIN` وتفصيلٍ محفوظ ⟵ «الاسم (هامش N%)» لكلّ ناقص بالهامش الأصغر أوّلًا · وإلّا `outside` كما كان بت-بت."""
+    det = [d for d in ((e or {}).get("out_detail") or []) if isinstance(d, dict)]
+    if not (CONFIG.get("NW_MARGIN") and det and len(det) == len(e.get("outside") or [])):
+        return " · ".join((e or {}).get("outside") or []) or empty
+    det = sorted(det, key=lambda d: (d.get("margin") is None, d.get("margin") or 0))
+    return " · ".join(f"{d.get('label')} — القيمة {_nw_num(d.get('v'))} والحدّ {_nw_num(d.get('edge'))}"
+                      + (f" · هامش {_nw_pct(d['margin'])}%" if d.get("margin") is not None else "") for d in det)
+
+
 # 🧱 **الحدثُ المؤسِّس** — بلا انهيارٍ لا ارتكازَ أصلًا (هويّةُ الفئة في نصّ
 #    فيصل: «انفجر ثم **انهار**»). يُقاس على `drop_pct` وحدَه.
 NEAR_WATCH_FOUNDING = ("drop_pct",)
@@ -14601,10 +14724,12 @@ def near_watch_founded(vals: dict, edges: dict, keys=None) -> bool:
 
 
 def near_watch_entry(sym: str, vals: dict, outside: list, today_iso: str,
-                     prev: dict = None) -> dict:
+                     prev: dict = None, detail: list = None) -> dict:
     """صفُّ سهمٍ تحت المتابعة — نقيّة. يحفظ **أوّلَ رصدٍ** فيُقرأ «منذ كم يوم»."""
     prev = prev or {}
+    _det = ({"out_detail": list(detail)} if (CONFIG.get("NW_MARGIN") and detail is not None) else {})   # 📏 `NW_MARGIN=0` ⟵ الصفُّ بت-بت
     return {
+        **_det,
         "symbol": str(sym or "").upper(),
         "first_seen": prev.get("first_seen") or today_iso,
         "last_seen": today_iso,
@@ -14668,13 +14793,18 @@ def near_watch_app_rows(watch) -> list:
     newest = max((str(e.get("last_seen") or "") for e in rows), default="")
     sel = [e for e in rows if isinstance(e.get("n_out"), int) and not isinstance(e.get("n_out"), bool)
            and e["n_out"] <= 1 and str(e.get("last_seen") or "") == newest]
+    if CONFIG.get("NW_MARGIN") and any(e.get("out_detail") is not None for e in sel):   # 📏 الهامشُ الأصغر أوّلًا (بلا تفصيلٍ ⟵ آخرًا)
+        def _mk(e):
+            m = near_watch_min_margin(e)
+            return (m is None, m if m is not None else 0.0, -(e.get("readiness") or 0), str(e.get("symbol") or ""))
+        return sorted(sel, key=_mk)
     return sorted(sel, key=lambda e: (-(e.get("readiness") or 0), str(e.get("symbol") or "")))
 
 
 def near_watch_app_line(e: dict, newest: str = "", show_block: bool = True) -> str:
     """📱 سطرٌ بصيغة التطبيق: «• الرمز — قريب من الجاهزية N/100 · الناقص الآن: … [· 🔒 حُجب: السبب]» · نقيّة.
     المحجوبُ بسلامة البيانات (`DQ_HELD`) بلا رقم جاهزيّة (قاعدةُ السلّة الثالثة: لا أرقامَ على بياناتٍ محجوزة)."""
-    miss = " · ".join(e.get("outside") or []) or "لا شيء خارج ظرف فيصل (جدارُه من عندنا)"
+    miss = near_watch_missing_text(e, "لا شيء خارج ظرف فيصل (جدارُه من عندنا)")
     rd = e.get("readiness")
     b = e.get("blocked") if show_block else None
     b = b if isinstance(b, dict) and (not newest or str(b.get("date") or "") == newest) else None
@@ -14757,7 +14887,7 @@ def build_near_watch_section(watch: dict, cap: int = None, dq_fn=None) -> str:
                 _bits.append(f"RSI {float(e['rsi_now']):.0f}")
             if e.get("readiness") is not None:
                 _bits.append(f"جاهزية {e['readiness']}")
-            _o = " · ".join(e.get("outside") or []) or "لا شيء خارج الظرف"
+            _o = near_watch_missing_text(e, "لا شيء خارج الظرف")
             _d = _iso_days_between(e.get("first_seen") or "",
                                    e.get("last_seen") or "")
             out.append(f"   • {esc(e.get('symbol'))} — {' · '.join(_bits)} "
@@ -14882,7 +15012,7 @@ def near_watch_keep_blocked(watch, before, results, blocked, today_iso, edges, v
         if _ncr is not None:
             vals["_n_criteria"] = _ncr
         e = near_watch_entry(sym, vals, near_watch_outside(vals, edges), today_iso,
-                             prev=(before or {}).get(sym) or out.get(sym))
+                             prev=(before or {}).get(sym) or out.get(sym), detail=near_watch_out_detail(vals, edges))
         e["blocked"] = dict(b, date=today_iso)
         out[sym] = e
         n += 1
@@ -15302,7 +15432,7 @@ def scan_market():
                             _nw_unf += 1   # لم ينهَر أصلًا ⇒ ليس من عائلتنا
                         elif len(_m[1]) <= NEAR_WATCH_MAX_OUT:
                             _nw_new[sym] = near_watch_entry(
-                                sym, _m[0], _m[1], _nw_today)
+                                sym, _m[0], _m[1], _nw_today, detail=near_watch_out_detail(_m[0], _nw_edges))
             except Exception:                                    # noqa: BLE001
                 _nw_err += 1
         if r:
@@ -15432,6 +15562,9 @@ def scan_market():
                     _nw_out += 1
             _nw_all = near_watch_prune(_nw_all, _nw_today)
             save_near_watch(_nw_all)
+            gatecal_fwd_append("near_watch", _nw_today,                                   # 🗂️ ⑦ المرفوضون بمعيارٍ واحد اليوم بهامشه
+                               [(_s, _e.get("price"), (_e.get("out_detail") or [None])[0]) for _s, _e in sorted(_nw_new.items())
+                                if _e.get("n_out") == 1 and len(_e.get("out_detail") or []) == 1])
             log(f"👀 تحت المتابعة: {len(_nw_all)} سهم "
                 f"(جديدُ اليوم {len(_nw_new)} · بحدّ {NEAR_WATCH_MAX_OUT} "
                 "معيارًا خارج ظرف فيصل)"
@@ -28379,7 +28512,7 @@ def run_performance_system(results, weekly_report_now=False):
     #       فلم تُسجَّل ملاحظةٌ لاحقةٌ واحدة منذ 2026-08-16 · `.jsonl` فيتّحد عند التعارض.
     git_save([TRACK_FILE, WATCH_FILE, COMPANY_FILE, REJECT_LOG_FILE,
               HUNTER_WATCH_FILE, NEAR_WATCH_FILE, NEAR_WATCH_FLOAT_FILE, FILL_POOL_FILE,
-              BORROW_WATCH_FILE, *NW_CSV_SAVED])   # 📎 أرشيفُ CSV «تحت المتابعة» (فارغٌ بـ`NW_XLSX=0` ⟵ بت-بت)
+              BORROW_WATCH_FILE, GATECAL_FWD_FILE, *NW_CSV_SAVED])   # 📎 أرشيفُ CSV «تحت المتابعة» (فارغٌ بـ`NW_XLSX=0` ⟵ بت-بت)
 
 
 if __name__ == "__main__":
