@@ -103227,6 +103227,19 @@ check("🔧 BPK4 T-BLIND-PICK: ميزانيةُ FINRA وقاطعُه يُهيَ�
       isinstance(_bp4_v, tuple) and {"_FINRA_BUDGET", "_FINRA_FAILS", "call"} <= set(_bp4_v[0])
       and _bp4_v[0]["_FINRA_BUDGET"] < _bp4_v[0]["call"] and _bp4_v[0]["_FINRA_FAILS"] < _bp4_v[0]["call"] and _bp4_v[1], str(_bp4_v)[:200])
 
+# 🔧 NXL5 — عطلٌ مُثبَت (2026-11-18 · أوّلُ تشغيلةٍ حيّة `44274187793`): الإكسل أُرسل و`git add` رفض `near_watch_daily/near_watch_<الجلسة>.csv`
+#    لأن `*.csv` في `.gitignore` يتجاهله ⟵ استثناءٌ صريح · والقفلُ سلوكيّ: `git check-ignore` على مسار الملفّ الذي تكتبه الخطوةُ نفسُها (`NW_XLSX_DIR`).
+try:
+    import subprocess as _nx5_sp, os as _nx5_os
+    _nx5_p = _nx5_os.path.join(S.NW_XLSX_DIR, "near_watch_2026-11-17.csv")
+    _nx5_rc = _nx5_sp.run(["git", "check-ignore", "-q", "--no-index", _nx5_p], capture_output=True).returncode
+    _nx5_ctl = _nx5_sp.run(["git", "check-ignore", "-q", "--no-index", "some_dir/x.csv"], capture_output=True).returncode
+    _nx5_v = (_nx5_rc, _nx5_ctl)
+except Exception as _nx5_e:                                                                       # noqa: BLE001
+    _nx5_v = f"⛔ {type(_nx5_e).__name__}: {_nx5_e}"
+check("🔧 NXL5: نسخةُ CSV من «ملفّ تحت المتابعة» غيرُ مُتجاهَلة فيدفعها `git_save` (وشاهدُ الضبط: CSV خارجها مُتجاهَل)",
+      _nx5_v == (1, 0), str(_nx5_v))
+
 # 🎯 TGV1-TGV5 (‏2026-11-18 · أداةُ حكم `T-SHADOW-TGT` §①-§⑤ قبل أوانه · تذكيرُ التفويض): الوقفُ أوّلًا داخل الشمعة · الافتتاحُ تحت الوقف ⟵ الافتتاح · الهدفُ بسعره ·
 #    النتيجةُ متوسّطُ النصفين · أهليّةُ الذراع ② بأسبابها · المجموعتان من 11-09 والمرساةُ عند 09:25 أو بعدها تُستبعَد · قبل الأوان خروج 7 بلا عائد ·
 #    صدر ⟵ 6 · العقدُ ⟵ 9 · الأرضيّةُ 20 ⟵ «لا قياس» · والـworkflow قارئٌ يدويٌّ بلا تلغرام.
