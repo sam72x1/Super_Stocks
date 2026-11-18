@@ -842,6 +842,32 @@ def bars_src_summary(hist: dict, session_iso: str) -> dict:
 
 # ─────────────────────────── المسار الرئيسي ───────────────────────────
 
+FWD_BAND_PCT = 25.0            # 🗂️ `T-GATECAL` ⑦ — أرخى سلّم الجلوس (الملحق 4): رصدُ من أسقطه الجلوسُ وحدَه · لا قرار
+
+
+def fwd_band_items(syms, hist, read=None) -> list:
+    """🗂️ `T-GATECAL` ⑦ — من أسقطه شرطُ «الجلوس فوق قاع الضغط» وحدَه: لا يطابق بالحدّ النافذ ويطابق عند `FWD_BAND_PCT`.
+
+    يُرجع `[(رمز، إغلاق، {name، label، v، edge، margin})]` — رصدٌ لا قرار ولا يمسّ المطابقين · وأيُّ تعذّرٍ لرمزٍ يُسقطه وحدَه."""
+    import Super_stock as S                                      # noqa: PLC0415
+    read = read or press_read
+    edge = float(S.CONFIG.get("SPLIT_SWEEP_MAX_PCT", 13.0))
+    out = []
+    for sym in syms or []:
+        try:
+            r = read(hist.get(sym), w=ALERT_W, band_pct=FWD_BAND_PCT)
+            if not r or not r.get("press_low"):
+                continue
+            v = (float(r["close"]) / float(r["press_low"]) - 1.0) * 100.0
+            if v <= edge:
+                continue                      # داخلَ الحدّ النافذ ⟵ ليس الجلوسُ ما أسقطه
+            out.append((sym, r["close"], {"name": "band", "label": "الجلوس فوق قاع الضغط %", "v": round(v, 1), "edge": edge,
+                                          "margin": round((v - edge) / edge * 100.0, 1)}))
+        except Exception:                                        # noqa: BLE001
+            continue
+    return out
+
+
 def run(now_utc=None, fetch_hist=None, sender=None, state_path=STATE_FILE,
         ledger_path=LEDGER_FILE, saver=None) -> int:
     import Super_stock as S                                      # noqa: PLC0415
@@ -888,6 +914,7 @@ def run(now_utc=None, fetch_hist=None, sender=None, state_path=STATE_FILE,
     except Exception as e:                                       # noqa: BLE001
         _log(f"⚠️ سطرُ مصدر الشموع تعذّر ({type(e).__name__}) — لا يمسّ المسح.")
     rows, failed = [], 0
+    _fwd_syms, _fwd_n = [], 0
     grid = {"V0": 0, "VA1": 0, "VA2": 0, "VA3": 0}
     for sym in pool:
         df = hist.get(sym)
@@ -902,6 +929,7 @@ def run(now_utc=None, fetch_hist=None, sender=None, state_path=STATE_FILE,
         grid["VA2"] += 1 if press_read(df, band_pct=20.0) else 0
         grid["VA3"] += 1 if press_read(df, w=40, band_pct=20.0) else 0
         if not r:
+            _fwd_syms.append(sym)             # 🗂️ ⑦ غيرُ المطابق — يُفحص بعد الحلقة هل أسقطه الجلوسُ وحدَه
             continue
         mem = state.get("symbols", {}).get(sym, {})
         # 🔓 التشغيلُ اليدويُّ يتخطّى **دِدوب السهم أيضًا** (2026-08-15، أمرُ
@@ -916,6 +944,11 @@ def run(now_utc=None, fetch_hist=None, sender=None, state_path=STATE_FILE,
         rows.append({"symbol": sym, "read": r,
                      "plan": mem.get("plan"), "src": mem.get("src", "؟"),
                      "bars_src": _bars_src_of(df)})
+    try:                                                         # 🗂️ `T-GATECAL` ⑦ — سجلٌّ أماميّ · `GATECAL_FWD=0` ⟵ صفرُ عمل
+        if S.CONFIG.get("GATECAL_FWD"):
+            _fwd_n = S.gatecal_fwd_append("press", session_iso, fwd_band_items(_fwd_syms, hist))
+    except Exception as e:                                       # noqa: BLE001
+        _log(f"⚠️ سجلُّ المرفوضين بشرطٍ واحد (رادار الضغط) تعذّر ({type(e).__name__}) — لا يمسّ المسح.")
     # 🛡️ سلامةُ البيانات (2026-10-01 · أمرُ المالك «CRITICAL MISSION» · `data_integrity_result.md`): كلُّ مطابقٍ يمرّ على
     #    `S.dq_filter` **قبل** الرسالة والسجلّ — إطارٌ آخرُ شمعته أقدمُ من الجلسة (كان يُعلَن في السجلّ ثمّ يُقرأ «اليوم») · وتقسيمٌ
     #    عكسيّ حديث لم تكتمل بعده وصفةُ فيصل (DLXY: قمّةُ $22.25 مسوّاةٌ لم تُتداوَل وهبوطُ 90% هو هبوطُ ما قبل التقسيم) · وتعارضُ
@@ -1035,7 +1068,7 @@ def run(now_utc=None, fetch_hist=None, sender=None, state_path=STATE_FILE,
     if not save_state(state, state_path):
         _log("⚠️ حالة الرادار لم تُحفظ — الكرون الثاني قد يكرّر (تحذير لا صمت).")
     try:
-        (saver or S.git_save)([state_path, ledger_path])
+        (saver or S.git_save)([state_path, ledger_path] + ([S.GATECAL_FWD_FILE] if _fwd_n else []))
     except Exception as e:                                       # noqa: BLE001
         _log(f"⚠️ دفع حالة الرادار: {e}")
     return 0

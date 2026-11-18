@@ -104567,6 +104567,54 @@ except Exception as _e:                                          # noqa: BLE001
     check("📏 قفلُ الملحقين 5 و6 `T-GATECAL` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
 
+# 🗂️ GCF4-GCF5 — `T-GATECAL` ⑦ لبقيّة الأدوات: رادارُ الضغط يسجّل من أسقطه الجلوسُ وحدَه · وفلترُ التقسيم يسجّل «القريبين» بشرطهم وهامشهم ·
+# خلف `GATECAL_FWD` نفسِه (مطفأ ⟵ صفرُ عمل) · رصدٌ لا يمسّ مطابقًا
+try:
+    import press_radar as _gcf4_PR
+    import split_filter_hunter as _gcf4_SF
+    _gcf4_reads = {"IN": {"close": 1.10, "press_low": 1.00}, "OUT": {"close": 1.20, "press_low": 1.00}, "EDGE": {"close": 1.13, "press_low": 1.00},
+                   "NONE": None, "BAD": {"close": "x", "press_low": 1.0}}
+    _gcf4_args = []
+
+    def _gcf4_read(df, w=None, band_pct=None):
+        _gcf4_args.append((w, band_pct))
+        return _gcf4_reads.get(df)
+    _gcf4_items = _gcf4_PR.fwd_band_items(["IN", "OUT", "EDGE", "NONE", "BAD", "MISSING"], {k: k for k in _gcf4_reads}, read=_gcf4_read)
+    _gcf4_run = _ast0.parse(_insp0.getsource(_gcf4_PR.run))
+    _gcf4_calls = [c for c in _ast0.walk(_gcf4_run) if isinstance(c, _ast0.Call) and getattr(c.func, "attr", None) == "gatecal_fwd_append"]
+    _gcf4_src = _insp0.getsource(_gcf4_PR.run)
+    check("🗂️ GCF4: رادارُ الضغط ⑦ — من أسقطه الجلوسُ وحدَه (فوق الحدّ النافذ ويطابق عند أرخى السلّم 25 بنافذة التنبيه) بقيمته وحدّه وهامشه · داخلَ الحدّ "
+          "وعلى الحدّ وغيرُ المطابق خارجًا · وتعذّرُ رمزٍ يُسقطه وحدَه · والنداءُ من `run` باسم الأداة خلف `GATECAL_FWD` · والملفُّ يُدفَع حين أُلحق صفٌّ وحدَه",
+          [(i[0], i[1], i[2]["name"], i[2]["v"], i[2]["edge"], i[2]["margin"]) for i in _gcf4_items] == [("OUT", 1.20, "band", 20.0, 13.0, 53.8)]
+          and set(_gcf4_args) == {(_gcf4_PR.ALERT_W, 25.0)} and _gcf4_PR.FWD_BAND_PCT == 25.0
+          and len(_gcf4_calls) == 1 and getattr(_gcf4_calls[0].args[0], "value", None) == "press"
+          and getattr(_gcf4_calls[0].args[2].func, "id", None) == "fwd_band_items"
+          and 'if S.CONFIG.get("GATECAL_FWD"):' in _gcf4_src and "([S.GATECAL_FWD_FILE] if _fwd_n else [])" in _gcf4_src,
+          f"items={_gcf4_items} args={set(_gcf4_args)} calls={len(_gcf4_calls)}")
+    _gcf5_near = [{"symbol": "AAA", "price": 2.0, "why": "صعد 35% أوّل التقسيم (الحدّ 20%)"},
+                  {"symbol": "BBB", "price": 3.0, "why": "لم يكتمل ثبات الدعم الثاني (ارتداد 10% ثم رجوعٌ يثبت)"},
+                  {"symbol": "CCC", "price": 4.0, "why": "المتاح للاقتراض 30,000 — الحدّ أقلّ من 20,000"},
+                  {"symbol": "DDD", "price": 5.0, "why": "تجاوز منطقة الطلبات ($5.10)"},
+                  {"symbol": "EEE", "price": 6.0, "why": "شيءٌ آخر"}]
+    _gcf5_it = _gcf4_SF.fwd_items(_gcf5_near, borrow_edge=20000)
+    _gcf5_run = _ast0.parse(_insp0.getsource(_gcf4_SF.run))
+    _gcf5_calls = [c for c in _ast0.walk(_gcf5_run) if isinstance(c, _ast0.Call) and getattr(c.func, "attr", None) == "gatecal_fwd_append"]
+    _gcf5_st = _ast0.parse(_insp0.getsource(_gcf4_SF._write_stamp))
+    _gcf5_gs = [c for c in _ast0.walk(_gcf5_st) if isinstance(c, _ast0.Call) and getattr(c.func, "attr", None) == "git_save"]
+    check("🗂️ GCF5: فلترُ التقسيم ⑦ — «القريبون» صفوفًا: الشرطُ من مطلع السبب (صعود · ثبات · متاح · طلبات · وغيرُها «other») · والهامشُ حيث للسبب رقم "
+          "(35 مقابل 20 ⟵ 75% · 30,000 مقابل 20,000 ⟵ 50%) وإلّا بلا هامش · والنداءُ من `run` باسم الأداة · والسجلُّ يُدفَع مع الختم",
+          [(i[0], i[2]["name"], i[2]["v"], i[2]["edge"], i[2]["margin"]) for i in _gcf5_it]
+          == [("AAA", "rose", 35.0, 20.0, 75.0), ("BBB", "seq", None, None, None), ("CCC", "borrow", 30000.0, 20000.0, 50.0),
+              ("DDD", "entry_zone", None, None, None), ("EEE", "other", None, None, None)]
+          and all(i[2]["label"] == n["why"] and i[1] == n["price"] for i, n in zip(_gcf5_it, _gcf5_near))
+          and _gcf4_SF.fwd_items(None) == []
+          and len(_gcf5_calls) == 1 and getattr(_gcf5_calls[0].args[0], "value", None) == "split_filter"
+          and len(_gcf5_gs) == 1 and any(getattr(e, "attr", None) == "GATECAL_FWD_FILE" for e in _gcf5_gs[0].args[0].elts),
+          f"it={[(i[0], i[2]['name'], i[2]['margin']) for i in _gcf5_it]} calls={len(_gcf5_calls)} gs={len(_gcf5_gs)}")
+except Exception as _e:                                          # noqa: BLE001
+    check("🗂️ قفلُ ⑦ لبقيّة الأدوات `T-GATECAL` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
