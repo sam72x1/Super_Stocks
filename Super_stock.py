@@ -208,6 +208,11 @@ CONFIG = {
     #    `out_detail` ⟵ رسالةُ «تحت المتابعة» تطبع الهامش وترتّب كتلةَ 📱 بالهامش الأصغر أوّلًا · والإكسلُ يحمل «الشرط الناقص: قيمته والحد»
     #    و«الهامش %» · بلا عتبةٍ جديدة وبلا تغيير اختيار · `NW_MARGIN=0` (بيئةُ التشغيل) ⟵ بت-بت · `NMG1`-`NMG4`.
     "NW_MARGIN": os.environ.get("NW_MARGIN", "1").strip() != "0",
+    # 🧱 «الجدارُ الفعليّ» (2026-11-18 · `T-GATECAL` ⑥ · عرضٌ لا قياس · عطلُ عرضٍ مُثبَت من سجلّ اليوم: GMM يُعرَض «الناقص: العائد/المخاطرة»
+    #    وسجلُّ الرفض يقول `M4_base_واسعة` — 113 من 123 «ناقصُه العائد وحدَه» رفضهم الفرزُ بجدارٍ لا يظهر في ظرف الكاتالوج): يُحفظ مع كلّ صفٍّ
+    #    سببُ رفض الفرز الفعليّ (`wall`) ويُطبع حين لا يراه الظرف (عرضُ القاعدة بحدّ المالك · صعودُ 5 جلسات · لا مستوى مختبَر) بقيمته وحدّه
+    #    وهامشه · والترتيبُ بالهامش الأكبر بين الناقص والجدار · `NW_WALL=0` (بيئةُ التشغيل) ⟵ بت-بت · `NWW1`-`NWW4`.
+    "NW_WALL": os.environ.get("NW_WALL", "1").strip() != "0",
     # 🗂️ «سجلُّ المرفوضين بشرطٍ واحد» (أمرُ المالك 2026-11-18 · `T-GATECAL` ⑦): كلَّ فرزٍ يُلحَق لكلّ أداةٍ سطرٌ لكلّ سهمٍ رفضه شرطٌ واحد
     #    بقيمته وحدّه وهامشه في `gatecal_fwd.jsonl` (إلحاقٌ فقط · يُدفَع) · رصدٌ لا قرار · `GATECAL_FWD=0` ⟵ صفرُ عمل · `GCF1`-`GCF3`.
     "GATECAL_FWD": os.environ.get("GATECAL_FWD", "1").strip() != "0",
@@ -14178,6 +14183,7 @@ NW_XLSX_ONE_CANDLE = 0.50    # «شمعة واحدة» = نصيبُ أكبر ش�
 NW_CSV_SAVED = []            # مساراتُ CSV المكتوبة في هذه التشغيلة ⟵ يدفعها `git_save` في `run_performance_system`
 NW_XLSX_BASE_COLS = ("symbol", "first_seen", "last_seen", "price", "readiness", "score", "rsi_now",
                      "n_out", "outside", "n_criteria", "float", "float_date", "float_src", "blocked")
+NW_XLSX_WALL_COLS = ("سبب رفض الفرز الفعلي", "هامش الجدار %")              # 🧱 `NW_WALL` · 2026-11-18
 NW_XLSX_MARGIN_COLS = ("الشرط الناقص: قيمته والحد", "الهامش %")     # 📏 `NW_MARGIN` · أمرُ المالك 2026-11-18 ⑥
 GATECAL_FWD_FILE = "gatecal_fwd.jsonl"      # 🗂️ `T-GATECAL` ⑦ — المرفوضون بشرطٍ واحد بهامشهم · إلحاقٌ فقط · يُدفَع مع حالة البوت
 
@@ -14185,11 +14191,14 @@ GATECAL_FWD_FILE = "gatecal_fwd.jsonl"      # 🗂️ `T-GATECAL` ⑦ — الم
 def gatecal_fwd_rows(tool: str, day: str, items) -> list:
     """🗂️ صفوفُ السجلّ الأماميّ لأداة: items = [(رمز، سعر، تفصيلُ الشرط الوحيد {name،label،v،edge،margin})] — نقيّة."""
     out = []
-    for sym, price, d in items or []:
+    for it in items or []:
+        sym, price, d = it[0], it[1], it[2]
         if not isinstance(d, dict):
             continue
         out.append({"day": str(day), "tool": str(tool), "sym": str(sym or "").upper(), "price": price, "cond": d.get("name"),
                     "label": d.get("label"), "v": d.get("v"), "edge": d.get("edge"), "margin": d.get("margin")})
+        if len(it) > 3 and isinstance(it[3], dict):          # 🧱 سببُ رفض الفرز الفعليّ (`NW_WALL`) — بلا عنصرٍ رابع ⟵ الصفُّ بت-بت
+            out[-1].update(wall=it[3].get("code"), wall_margin=it[3].get("margin"))
     return out
 
 
@@ -14305,8 +14314,9 @@ def near_watch_xlsx_rows(watch: dict, hist: dict) -> tuple:
     newest = max((str(e.get("last_seen") or "") for e in ents), default="")
     ents = sorted((e for e in ents if str(e.get("last_seen") or "") == newest and newest),
                   key=lambda e: str(e.get("symbol") or ""))
-    extra = sorted({k for e in ents for k in e} - set(NW_XLSX_BASE_COLS) - {"out_detail"})
+    extra = sorted({k for e in ents for k in e} - set(NW_XLSX_BASE_COLS) - {"out_detail", "wall"})
     _mg = bool(CONFIG.get("NW_MARGIN")) and any(e.get("out_detail") is not None for e in ents)
+    _wc = bool(CONFIG.get("NW_WALL")) and any(isinstance(e.get("wall"), dict) for e in ents)
     base = [k for k in NW_XLSX_BASE_COLS if any(k in e for e in ents)] + extra
     rows, nodf = [], 0
     for e in ents:
@@ -14323,6 +14333,12 @@ def near_watch_xlsx_rows(watch: dict, hist: dict) -> tuple:
                         key=lambda d: (d.get("margin") is None, d.get("margin") or 0))
             row[NW_XLSX_MARGIN_COLS[0]] = " · ".join(f"{d.get('label')}: {_nw_num(d.get('v'))} والحدّ {_nw_num(d.get('edge'))}" for d in _d) or None
             row[NW_XLSX_MARGIN_COLS[1]] = (_d[0].get("margin") if _d else None)
+        if _wc:                                    # 🧱 سببُ رفض الفرز الفعليّ (كلُّ جدار · والمخفيُّ بقيمته وحدّه)
+            _w = e.get("wall") if isinstance(e.get("wall"), dict) else {}
+            _t = _w.get("label")
+            if _t and _w.get("v") is not None and _w.get("edge") is not None:
+                _t += f": {_nw_num(_w['v'])} والحدّ {_nw_num(_w['edge'])}"
+            row[NW_XLSX_WALL_COLS[0]], row[NW_XLSX_WALL_COLS[1]] = _t, _w.get("margin")
         df = (hist or {}).get(e.get("symbol"))
         if df is None:
             nodf += 1
@@ -14330,7 +14346,7 @@ def near_watch_xlsx_rows(watch: dict, hist: dict) -> tuple:
         else:
             row.update(behavior_explosion_detail(df))
         rows.append(row)
-    return base + (list(NW_XLSX_MARGIN_COLS) if _mg else []) + list(NW_XLSX_BEHAV_COLS), rows, nodf
+    return base + (list(NW_XLSX_MARGIN_COLS) if _mg else []) + (list(NW_XLSX_WALL_COLS) if _wc else []) + list(NW_XLSX_BEHAV_COLS), rows, nodf
 
 
 def near_watch_xlsx_step(hist: dict, session: str = "", sender=None, tag: str = "") -> dict:
@@ -14651,6 +14667,41 @@ def near_watch_out_detail(vals: dict, edges: dict) -> list:
     return out
 
 
+NW_HIDDEN_WALLS = (("M4_base_واسعة", "M4 عرض القاعدة فوق حدّ الفرز", "base_range", "BASE_RANGE_MAX_PCT"),
+                   ("M4_انفجر", "M4ب صعود 5 جلسات فوق حدّ الفرز", "gain5", "RECENT_RISE_BLOCK_PCT"),
+                   ("M_لا_مستوى_مختبر", "لا مستوى مختبَر بلمستين (مرساةُ الفرز)", None, None))
+
+
+def near_watch_wall(code, vals: dict):
+    """🧱 سببُ رفض الفرز الفعليّ لصفّ «تحت المتابعة» — نقيّة · None بلا سبب. الجدرانُ التي لا يراها ظرفُ الكاتالوج (`NW_HIDDEN_WALLS`:
+    حدُّها من قرار المالك أو من المرساة) تُسمّى بالعربيّ وتحمل القيمةَ والحدَّ النافذ والهامش % حيث للجدار رقم · وغيرُها يُحفظ برمزه (`hidden` False)."""
+    code = str(code or "").strip()
+    if not code:
+        return None
+    for pfx, label, vk, ck in NW_HIDDEN_WALLS:
+        if code.startswith(pfx):
+            w = {"code": code, "label": label, "hidden": True, "v": None, "edge": None, "margin": None}
+            try:
+                v, lim = float((vals or {}).get(vk)), float(CONFIG.get(ck))
+                if v == v and lim:
+                    w.update(v=round(v, 6), edge=round(lim, 6), margin=round(abs(v - lim) / abs(lim) * 100.0, 2))
+            except (TypeError, ValueError):
+                pass
+            return w
+    return {"code": code, "label": code.replace("_", " "), "hidden": False, "v": None, "edge": None, "margin": None}
+
+
+def near_watch_wall_text(e: dict) -> str:
+    """🧱 «رفضه الفرزُ فعلًا: …» للجدار المخفيّ عن الظرف · فارغٌ بلا جدارٍ مخفيّ أو والمفتاحُ مطفأ — نقيّة."""
+    w = (e or {}).get("wall")
+    if not (CONFIG.get("NW_WALL") and isinstance(w, dict) and w.get("hidden")):
+        return ""
+    t = f"🧱 رفضه الفرزُ فعلًا: {w.get('label')}"
+    if w.get("v") is not None and w.get("edge") is not None:
+        t += f" — القيمة {_nw_num(w['v'])} والحدّ {_nw_num(w['edge'])}" + (f" · هامش {_nw_pct(w['margin'])}%" if w.get("margin") is not None else "")
+    return t
+
+
 def near_watch_min_margin(e: dict):
     """📏 أصغرُ هامشٍ بين نواقص الصفّ · صفرٌ لمن لا ناقصَ له · None إن غاب التفصيل (صفٌّ قديم) — نقيّة."""
     if not (e or {}).get("outside"):
@@ -14724,12 +14775,14 @@ def near_watch_founded(vals: dict, edges: dict, keys=None) -> bool:
 
 
 def near_watch_entry(sym: str, vals: dict, outside: list, today_iso: str,
-                     prev: dict = None, detail: list = None) -> dict:
+                     prev: dict = None, detail: list = None, wall: dict = None) -> dict:
     """صفُّ سهمٍ تحت المتابعة — نقيّة. يحفظ **أوّلَ رصدٍ** فيُقرأ «منذ كم يوم»."""
     prev = prev or {}
+    _wl = ({"wall": dict(wall)} if (CONFIG.get("NW_WALL") and isinstance(wall, dict)) else {})           # 🧱 `NW_WALL=0` ⟵ الصفُّ بت-بت
     _det = ({"out_detail": list(detail)} if (CONFIG.get("NW_MARGIN") and detail is not None) else {})   # 📏 `NW_MARGIN=0` ⟵ الصفُّ بت-بت
     return {
         **_det,
+        **_wl,
         "symbol": str(sym or "").upper(),
         "first_seen": prev.get("first_seen") or today_iso,
         "last_seen": today_iso,
@@ -14796,6 +14849,9 @@ def near_watch_app_rows(watch) -> list:
     if CONFIG.get("NW_MARGIN") and any(e.get("out_detail") is not None for e in sel):   # 📏 الهامشُ الأصغر أوّلًا (بلا تفصيلٍ ⟵ آخرًا)
         def _mk(e):
             m = near_watch_min_margin(e)
+            w = e.get("wall") if CONFIG.get("NW_WALL") else None
+            if isinstance(w, dict) and w.get("hidden") and m is not None:      # 🧱 البُعدُ الحقيقيّ = الأكبرُ بين الناقص والجدار · وجدارٌ بلا رقم آخرًا
+                m = None if w.get("margin") is None else max(m, float(w["margin"]))
             return (m is None, m if m is not None else 0.0, -(e.get("readiness") or 0), str(e.get("symbol") or ""))
         return sorted(sel, key=_mk)
     return sorted(sel, key=lambda e: (-(e.get("readiness") or 0), str(e.get("symbol") or "")))
@@ -14815,6 +14871,9 @@ def near_watch_app_line(e: dict, newest: str = "", show_block: bool = True) -> s
     s = f"   • {esc(e.get('symbol'))} — {head} · الناقص الآن: {esc(miss)}"
     if b:
         s += f" · 🔒 حُجب: {esc(b.get('label') or b.get('why') or '؟')}"
+    _wt = near_watch_wall_text(e)
+    if _wt:
+        s += f" · {esc(_wt)}"
     return s
 
 
@@ -15413,6 +15472,7 @@ def scan_market():
 
     for sym, df in history.items():
         r = analyze_ticker(sym, df)
+        _nw_code = None if r else _REJECT_REASONS.get(sym)       # 🧱 سببُ الرفض الفعليّ قبل أن يعيد القياسُ المُرخى الكتابةَ عليه
         if not r and _nw_edges:
             # 🔒 حارسٌ مطلق: قائمةُ متابعةٍ عرضيّة **لا تُسقط الفرز** بحالٍ.
             try:
@@ -15432,7 +15492,8 @@ def scan_market():
                             _nw_unf += 1   # لم ينهَر أصلًا ⇒ ليس من عائلتنا
                         elif len(_m[1]) <= NEAR_WATCH_MAX_OUT:
                             _nw_new[sym] = near_watch_entry(
-                                sym, _m[0], _m[1], _nw_today, detail=near_watch_out_detail(_m[0], _nw_edges))
+                                sym, _m[0], _m[1], _nw_today, detail=near_watch_out_detail(_m[0], _nw_edges),
+                                wall=near_watch_wall(_nw_code, _m[0]))
             except Exception:                                    # noqa: BLE001
                 _nw_err += 1
         if r:
@@ -15563,7 +15624,8 @@ def scan_market():
             _nw_all = near_watch_prune(_nw_all, _nw_today)
             save_near_watch(_nw_all)
             gatecal_fwd_append("near_watch", _nw_today,                                   # 🗂️ ⑦ المرفوضون بمعيارٍ واحد اليوم بهامشه
-                               [(_s, _e.get("price"), (_e.get("out_detail") or [None])[0]) for _s, _e in sorted(_nw_new.items())
+                               [(_s, _e.get("price"), (_e.get("out_detail") or [None])[0]) + ((_e["wall"],) if isinstance(_e.get("wall"), dict) else ())
+                                for _s, _e in sorted(_nw_new.items())
                                 if _e.get("n_out") == 1 and len(_e.get("out_detail") or []) == 1])
             log(f"👀 تحت المتابعة: {len(_nw_all)} سهم "
                 f"(جديدُ اليوم {len(_nw_new)} · بحدّ {NEAR_WATCH_MAX_OUT} "

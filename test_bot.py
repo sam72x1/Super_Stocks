@@ -103872,7 +103872,7 @@ try:
           f"n={(_n1, _n2, _n3, _n4)} rows={len(_gl)}")
     _gc_sm = _ng_insp.getsource(S.scan_market)
     _gc_i = _gc_sm.find("gatecal_fwd_append(")
-    _gc_seg = _gc_sm[_gc_i:_gc_i + 420] if _gc_i >= 0 else ""
+    _gc_seg = _gc_sm[_gc_i:_gc_i + 560] if _gc_i >= 0 else ""
     _gc_ps = _ng_insp.getsource(S.run_performance_system)
     _gc_gs = _gc_ps[_gc_ps.find("git_save(["):]
     check("🗂️ GCF2: الفرزُ يُلحق مرفوضي «تحت المتابعة» بمعيارٍ واحد وحدَهم (`n_out == 1`) بعد حفظ القائمة · و`git_save` يدفع السجلّ · "
@@ -103886,6 +103886,70 @@ try:
           f"bad={_gc_bad}")
 except Exception as _e:                                          # noqa: BLE001
     check("📏 أقفالُ الهامش وسجلّ المرفوضين انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+# 🧱 NWW1-NWW4 — «الجدارُ الفعليّ» في «تحت المتابعة» (2026-11-18 · `T-GATECAL` ⑥ · عطلُ عرضٍ مُثبَت: GMM «الناقص: العائد/المخاطرة» ورفضُ الفرز
+# `M4_base_واسعة`): سببُ رفض الفرز الفعليّ يُحفظ ويُطبع بقيمته وحدّه وهامشه حين لا يراه الظرف · والترتيبُ بالأكبر بين الناقص والجدار · والمفتاحُ بت-بت
+try:
+    import ast as _nw_ast
+    import inspect as _nw_insp
+    _ww_sv = {k: S.CONFIG.get(k) for k in ("NW_WALL", "NW_MARGIN", "BASE_RANGE_MAX_PCT", "RECENT_RISE_BLOCK_PCT")}
+    try:
+        S.CONFIG.update(NW_WALL=True, NW_MARGIN=True, BASE_RANGE_MAX_PCT=120.0, RECENT_RISE_BLOCK_PCT=35.0)
+        _wB = S.near_watch_wall("M4_base_واسعة", {"base_range": 180.0})
+        _wC = S.near_watch_wall("M4_انفجر_فعلاً", {"gain5": 42.0})
+        _wA = S.near_watch_wall("M_لا_مستوى_مختبر", {"base_range": 50.0})
+        _wP = S.near_watch_wall("M1_سعر", {"price": 0.2})
+        check("🧱 NWW1: الجدارُ المخفيّ عن الظرف يُسمّى بقيمته وحدّه النافذ وهامشه (القاعدة 180/120 ⟵ 50% · صعودُ 5 جلسات 42/35 ⟵ 20%) · والمرساةُ بلا رقم · "
+              "وجدارٌ يراه الظرفُ يُحفظ برمزه غيرَ مخفيّ · وبلا سببٍ None",
+              _wB["hidden"] and _wB["v"] == 180.0 and _wB["edge"] == 120.0 and _wB["margin"] == 50.0 and _wC["edge"] == 35.0 and _wC["margin"] == 20.0
+              and _wA["hidden"] and _wA["margin"] is None and _wA["v"] is None and (not _wP["hidden"]) and _wP["code"] == "M1_سعر"
+              and S.near_watch_wall(None, {}) is None and S.near_watch_wall("", {}) is None
+              and S.near_watch_wall("M4_base_واسعة", {})["margin"] is None,
+              f"B={_wB} C={_wC} A={_wA}")
+
+        _rr = [{"name": "rr", "label": "العائد/المخاطرة (دون الحدّ)", "v": 0.33, "edge": 0.5, "margin": 34.0}]
+        _eG = S.near_watch_entry("GMM", {"readiness": 80}, ["العائد/المخاطرة (دون الحدّ)"], "2026-11-18", detail=_rr, wall=_wB)
+        _eN = S.near_watch_entry("NOW", {"readiness": 10}, ["العائد/المخاطرة (دون الحدّ)"], "2026-11-18",
+                                 detail=[dict(_rr[0], margin=40.0)])
+        _eA = S.near_watch_entry("ANC", {"readiness": 99}, ["العائد/المخاطرة (دون الحدّ)"], "2026-11-18", detail=[dict(_rr[0], margin=1.0)], wall=_wA)
+        _eP = S.near_watch_entry("PRC", {"readiness": 5}, ["العائد/المخاطرة (دون الحدّ)"], "2026-11-18", detail=[dict(_rr[0], margin=45.0)], wall=_wP)
+        _lnG = S.near_watch_app_line(_eG)
+        _ordW = [e["symbol"] for e in S.near_watch_app_rows({e["symbol"]: e for e in (_eG, _eN, _eA, _eP)})]
+        _cW, _rW, _ = S.near_watch_xlsx_rows({e["symbol"]: e for e in (_eG, _eN)}, {})
+        _gW = next(r for r in _rW if r["symbol"] == "GMM")
+        _fw = S.gatecal_fwd_rows("near_watch", "2026-11-18", [("GMM", 1.39, _rr[0], _wB), ("NOW", 2.0, _rr[0])])
+        S.CONFIG["NW_WALL"] = False
+        _eG0 = S.near_watch_entry("GMM", {"readiness": 80}, ["العائد/المخاطرة (دون الحدّ)"], "2026-11-18", detail=_rr, wall=_wB)
+        _lnG0 = S.near_watch_app_line(_eG)
+        _ord0 = [e["symbol"] for e in S.near_watch_app_rows({e["symbol"]: e for e in (_eG, _eN, _eA, _eP)})]
+        _c0, _r0, _ = S.near_watch_xlsx_rows({e["symbol"]: e for e in (_eG, _eN)}, {})
+    finally:
+        S.CONFIG.update(_ww_sv)
+    check("🧱 NWW2: سطرُ GMM يطبع «رفضه الفرزُ فعلًا: M4 عرض القاعدة … القيمة 180 والحدّ 120 · هامش 50%» بجانب ناقصه · والترتيبُ بالأكبر بين الناقص والجدار "
+          "(NOW 40 قبل PRC 45 قبل GMM 50 · والمرساةُ بلا رقم آخرًا ولو هامشُ ناقصها 1%) · والجدارُ الظاهرُ في الظرف لا يُطبع مرّتين",
+          "رفضه الفرزُ فعلًا: M4 عرض القاعدة" in _lnG and "القيمة 180" in _lnG and "الحدّ 120" in _lnG and "هامش 50" in _lnG and "هامش 34" in _lnG
+          and _ordW == ["NOW", "PRC", "GMM", "ANC"] and "رفضه الفرزُ" not in S.near_watch_app_line(_eP) and "رفضه الفرزُ" not in S.near_watch_app_line(_eN),
+          f"ln={_lnG[-140:]} ord={_ordW}")
+    check("🧱 NWW3: الإكسلُ يحمل «سبب رفض الفرز الفعلي» و«هامش الجدار %» (GMM: القاعدة 180 والحدّ 120 · 50) ولا عمودَ `wall` خامًّا · وسجلُّ المرفوضين "
+          "يحمل رمزَ الجدار · والمفتاحُ المطفأ ⟵ الصفُّ والسطرُ والترتيبُ والأعمدة بت-بت",
+          list(S.NW_XLSX_WALL_COLS) == [c for c in _cW if c in S.NW_XLSX_WALL_COLS] and "wall" not in _cW
+          and "180" in str(_gW[S.NW_XLSX_WALL_COLS[0]]) and "120" in str(_gW[S.NW_XLSX_WALL_COLS[0]]) and _gW[S.NW_XLSX_WALL_COLS[1]] == 50.0
+          and _fw[0].get("wall") == "M4_base_واسعة" and _fw[0].get("wall_margin") == 50.0 and "wall" not in _fw[1]
+          and "wall" not in _eG0 and "رفضه الفرزُ" not in _lnG0 and _ord0 == ["ANC", "GMM", "NOW", "PRC"]
+          and not (set(S.NW_XLSX_WALL_COLS) & set(_c0)) and "wall" not in _c0,
+          f"cols={_cW[-12:]} g={_gW.get(S.NW_XLSX_WALL_COLS[0])} fw={_fw[0]} ord0={_ord0} c0={[c for c in _c0 if 'wall' in c]}")
+
+    _nw_sm = _nw_ast.parse(_nw_insp.getsource(S.scan_market))
+    _nw_kw = any(isinstance(n, _nw_ast.Call) and getattr(n.func, "id", None) == "near_watch_entry" and any(k.arg == "wall" for k in n.keywords)
+                 for n in _nw_ast.walk(_nw_sm))
+    _nw_cap = [n.lineno for n in _nw_ast.walk(_nw_sm) if isinstance(n, _nw_ast.Assign) and getattr(n.targets[0], "id", None) == "_nw_code"]
+    _nw_meas = [n.lineno for n in _nw_ast.walk(_nw_sm) if isinstance(n, _nw_ast.Call) and getattr(n.func, "id", None) == "near_watch_measure"]
+    _nw_roots = "".join(_nw_insp.getsource(f) for f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker, S.entry_status))
+    check("🧱 NWW4: الجدارُ موصولٌ من `scan_market` (`wall=` · AST) وسببُ الرفض يُلتقط قبل القياس المُرخى الذي قد يكتب فوقه · ولا يدخل الجذور",
+          _nw_kw and len(_nw_cap) == 1 and _nw_meas and _nw_cap[0] < min(_nw_meas) and "NW_WALL" not in _nw_roots and "near_watch_wall" not in _nw_roots,
+          f"kw={_nw_kw} cap={_nw_cap} meas={_nw_meas}")
+except Exception as _e:                                          # noqa: BLE001
+    check("🧱 أقفالُ «الجدار الفعليّ» انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
 
 # 📏 GTC1-GTC6 — `T-GATECAL` (أمرُ المالك 2026-11-18): العقدُ والملحقُ ببصمتَيهما · إعادةُ الصيّاد بدوالّه بالاسم وبلا نظرٍ للأمام · الوسمُ يستبعد قفزةَ
@@ -104167,6 +104231,114 @@ try:
           f"calls={sorted(_g8_calls)} bad={_g8_bad} seen={sorted(_g8_seen)}")
 except Exception as _e:                                          # noqa: BLE001
     check("📏 قفلُ ملحق فلتر التقسيم `T-GATECAL` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+# 📏 GTC11-GTC13 — `T-GATECAL` الملحق 3 «الجاهزية وتحت المتابعة»: الملحقُ ببصمته والحاليُّ = الإعدادُ الحيّ بدقّته · الحكمُ حكمُ `analyze_ticker`
+# الإنتاجيّ بتغيير مفتاحٍ واحد (لا تقريبٌ على القيم) · مطابقةُ سجلّ الرفض بجلسة الشموع · وجدولُ الجدار الفعليّ
+try:
+    import datetime as _g11_dt
+    import random as _g11_rnd
+    _g11_T = _GT.TOOLS["ready"]
+    _g11_live = dict(S.CONFIG)
+    _g11_live["FAISAL_ONLY"] = 1
+    S.apply_faisal_only(_g11_live, log_fn=lambda *a: None)
+    check("📏 GTC11: ملحقُ الجاهزيّة يطابق بصمتَه · وحاليُّ كلّ شرطٍ = قيمةُ مفتاحه في الإعداد الحيّ بدقّته (القاعدة 120 · العائد 0.5 · الصعود 35 · والظرف) · "
+          "والحاليُّ في كلّ سلّم · 44 قيمة · والأرخى في اتّجاه الإرخاء",
+          _GT.contract_ok("ready") and all(float(_g11_live[_GT.RD_KEY[c]]) == v for c, v in _g11_T["current"].items())
+          and all(_g11_T["current"][c] in L for c, L in _g11_T["ladders"].items()) and sum(len(L) for L in _g11_T["ladders"].values()) == 44
+          and _GT.loosest("ready", "base") == 475.0 and _GT.loosest("ready", "rr") == 0.0 and _GT.loosest("ready", "ceil") == 100.0
+          and _GT.loosest("ready", "price") == 0.2 and set(_GT.RD_KEY) == set(_GT.RD_VAL) == set(_g11_T["current"]),
+          f"live={[(c, _g11_live.get(_GT.RD_KEY[c])) for c in _g11_T['current']]}")
+
+    def _g11_v(**kw):
+        v = {"p": {c: [0] * len(L) for c, L in _g11_T["ladders"].items()}, "all": 1, "why": "M4_base_واسعة", "exch": "XNAS", "nw": [],
+             "vals": {"base_range": 180.0, "rr": 0.3}}
+        v["p"]["base"] = [0, 0, 0, 0, 1, 1, 1]                   # يعبر عند 200 فأكثر
+        v.update(kw)
+        return v
+    _g11_c = dict(_g11_T["current"])
+    _g11_la = {c: _GT.loosest("ready", c) for c in _g11_c}
+    try:
+        _GT.passes(_g11_v(), dict(_g11_c, base=200.0, rr=0.0))
+        _g11_raise = False
+    except ValueError:
+        _g11_raise = True
+    check("📏 GTC12: حكمُ صفّ الجاهزيّة من نتائج الفرز المحفوظة — الحاليُّ لا يعبر · 150 لا · 200 يعبر · إرخاءُ العائد لا يُدخله · أرخى الكلّ من `all` · "
+          "وتوليفةٌ لم تُحسب تُرفع لا تُخمَّن · و«رفضه وحدَه» = يعبر بأرخى سلّمه · والقيمةُ من القيم المقيسة · والتشخيصُ يسمّي جدارَ الفرز",
+          (not _GT.passes(_g11_v(), _g11_c)) and (not _GT.passes(_g11_v(), dict(_g11_c, base=150.0))) and _GT.passes(_g11_v(), dict(_g11_c, base=200.0))
+          and (not _GT.passes(_g11_v(), dict(_g11_c, rr=0.0))) and _GT.passes(_g11_v(), _g11_la) and (not _GT.passes(_g11_v(all=0), _g11_la))
+          and _g11_raise and _GT.fails_only(_g11_v(), _g11_c, "base") and (not _GT.fails_only(_g11_v(), _g11_c, "rr"))
+          and _GT.cond_value(_g11_v(), "base", _g11_c) == 180.0 and _GT.cond_value(_g11_v(), "rr", _g11_c) == 0.3
+          and _GT.why_fails(_g11_v(), _g11_c) == ["M4_base_واسعة"] and _GT.why_fails(_g11_v(), dict(_g11_c, base=200.0)) == []
+          and _GT.passes(_g11_v(p=dict(_g11_v()["p"], base=[0, 0, 1, 1, 1, 1, 1])), _g11_c),                    # الحاليُّ يُقرأ من خانته هو (120) لا من أوّل السلّم
+          f"raise={_g11_raise}")
+
+    # سلوكيّ: سهمٌ اصطناعيّ تحت أدنى سعر ⟵ الفرزُ يرفضه بـM1 ويعبر بإرخاء السعر وحدَه · والإعدادُ يُستعاد
+    _g11_rnd.seed(5)
+    _d, _days = _g11_dt.date(2021, 1, 4), []
+    while len(_days) < 900:
+        if _d.weekday() < 5:
+            _days.append(_d.isoformat())
+        _d += _g11_dt.timedelta(days=1)
+    _rows, _px = [], 3.0
+    for _i, _dd in enumerate(_days):
+        if _i == 300:
+            _px *= 3.2
+        elif 300 < _i < 420:
+            _px *= 0.975
+        else:
+            _px *= 1 + _g11_rnd.uniform(-0.03, 0.03)
+        _rows.append((_dd, _px, _px * 1.04, _px * 0.96, _px, 800000))
+    _g11_cfg0, _g11_log0 = dict(S.CONFIG), S.log
+    try:
+        _ctx = _GT.rd_context(S, {"members": {_dd[:7]: ["TST"] for _dd in _days}})
+        _out = _GT._feat_ready(S, "k", "TST", _rows, [], _days[723], _days[727], float(S.EXPLODED_PCT), _g11_la, _ctx)
+        _g11_after = dict(S.CONFIG)
+        _g11_seen, _g11_rd0 = [], _GT.rd_reason
+
+        def _g11_stub(S_, sym_, df_):              # يعبر متى نزل أدنى السعر إلى 0.2 — ويسجّل كم مفتاحًا تغيّر عن الإعداد الحيّ في كلّ نداء
+            _g11_seen.append(sum(1 for c in _GT.RD_KEY if S_.CONFIG[_GT.RD_KEY[c]] != _ctx["cfg"][_GT.RD_KEY[c]]))
+            ok = S_.CONFIG["MIN_PRICE"] <= 0.2
+            return ok, (None if ok else "M1_سعر"), None
+        try:
+            _GT.rd_reason = _g11_stub
+            _out_st = _GT._feat_ready(S, "k", "TST", _rows, [], _days[723], _days[723], float(S.EXPLODED_PCT), _g11_la, _ctx)
+        finally:
+            _GT.rd_reason = _g11_rd0
+        _out_non = _GT._feat_ready(S, "k", "ZZZ", _rows, [], _days[723], _days[727], float(S.EXPLODED_PCT), _g11_la, _ctx)
+    finally:
+        S.CONFIG.clear()
+        S.CONFIG.update(_g11_cfg0)
+        S.log = _g11_log0
+    _r0 = _out[0] if _out else {"v": {"p": {"price": [], "base": []}, "why": None, "all": None, "vals": {}}}
+    _g11_fn = next(n for n in _gt_ast.walk(_gt_tree) if isinstance(n, _gt_ast.FunctionDef) and n.name == "_feat_ready")
+    _g11_calls = {c.func.attr for c in _gt_ast.walk(_g11_fn) if isinstance(c, _gt_ast.Call) and isinstance(c.func, _gt_ast.Attribute)
+                  and getattr(c.func.value, "id", None) == "S"}
+    _g11_rr = next(n for n in _gt_ast.walk(_gt_tree) if isinstance(n, _gt_ast.FunctionDef) and n.name == "rd_reason")
+    _g11_at = any(isinstance(c, _gt_ast.Call) and getattr(c.func, "attr", None) == "analyze_ticker" for c in _gt_ast.walk(_g11_rr))
+    _snaps = [{"date": "2026-11-18", "sampled": ["M2_هبوط_تحت_40"], "walls": {"M2_هبوط_تحت_40": ["AAA"], "M4_base_واسعة": ["GMM"], "M1_سعر": ["PPP"]}}]
+    _sess = ["2026-11-16", "2026-11-17", "2026-11-18"]
+    _prs = _GT.rd_ledger_pairs(_snaps, _sess)
+    _lrows = {"GMM": [{"d": "2026-11-17", "x": 1, "v": _g11_v()}], "PPP": [{"d": "2026-11-17", "x": 0, "v": _g11_v(why="M_لا_مستوى_مختبر", nw=["x"])}]}
+    _lt = _GT.rd_ledger(_lrows, _sess, snaps=_snaps)
+    _wt = _GT.wall_table({"GMM": [{"d": "2026-11-17", "x": 1, "v": _g11_v(nw=["العائد/المخاطرة (دون الحدّ)"])},
+                                  {"d": "2026-11-18", "x": 1, "v": _g11_v(nw=["العائد/المخاطرة (دون الحدّ)"])}],
+                          "TWO": [{"d": "2026-11-17", "x": 0, "v": _g11_v(nw=["a", "b"])}],
+                          "NON": [{"d": "2026-11-17", "x": 0, "v": _g11_v(nw=None)}]}, {d: i for i, d in enumerate(_sess)})
+    check("📏 GTC13: إعادةُ الجاهزيّة = `analyze_ticker` الإنتاجيّ بالاسم بتغيير مفتاحٍ واحد (سهمٌ تحت أدنى سعر: الجدار `M1_سعر` · يعبر عند 0.2 وحدَه · "
+          "ولا يعبر بإرخاء القاعدة) · وغيرُ العضو بلا صفوف · والإعدادُ يُستعاد · ومطابقةُ سجلّ الرفض بجلسة الشموع السابقة وبلا الجدار المقصوص · "
+          "وجدولُ الجدار يعدّ الرمزَ مرّةً كلَّ 20 جلسة",
+          bool(_out) and _r0["v"]["why"] == "M1_سعر" and _r0["v"]["all"] == 1 and not any(_r0["v"]["p"]["base"])
+          and _r0["v"]["vals"].get("price") is not None and _out_non == []
+          and len(_out_st) == 1 and _out_st[0]["v"]["p"]["price"] == [0, 0, 0, 1] and not any(_out_st[0]["v"]["p"]["base"]) and _out_st[0]["v"]["all"] == 1
+          and _GT.fails_only(_out_st[0]["v"], _g11_c, "price") and sorted(set(_g11_seen)) == [0, 1, 9] and _g11_seen.count(9) == 1
+          and _g11_seen.count(1) == 44 - 9
+          and _g11_after == _ctx["cfg"] and _g11_at
+          and any(isinstance(n, _gt_ast.Try) and n.finalbody and "cur_cfg" in _gt_ast.dump(n.finalbody[-1]) for n in _gt_ast.walk(_g11_fn)) and {"near_watch_measure", "near_watch_founded"} <= _g11_calls
+          and _prs == {("GMM", "2026-11-17"): "M4_base_واسعة", ("PPP", "2026-11-17"): "M1_سعر"} and (_lt[0], _lt[1]) == (2, 1) and "PPP" in str(_lt[2])
+          and _wt == {("العائد/المخاطرة (دون الحدّ)", "M4_base_واسعة"): [1, 1, 1]},
+          f"n={len(_out)} why={_r0['v']['why']} st={[(z['v']['p']['price'], z['v']['all']) for z in _out_st]} seen={sorted(set(_g11_seen))}/{_g11_seen.count(1)} prs={_prs} lt={_lt[:2]} wt={_wt} calls={sorted(_g11_calls)}")
+except Exception as _e:                                          # noqa: BLE001
+    check("📏 قفلُ ملحق الجاهزيّة `T-GATECAL` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
