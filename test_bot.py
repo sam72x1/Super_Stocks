@@ -104409,6 +104409,211 @@ try:
 except Exception as _e:                                          # noqa: BLE001
     check("📏 قفلُ الملحق 3-ب `T-GATECAL` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
+# 📏 GTC15-GTC16 — `T-GATECAL` الملحق 4 «رادار الضغط»: الملحقُ ببصمته وأرقامُه = أرقامُ الرادار النافذة · `press_read` بالاسم على بِركة يومها ·
+# العتباتُ على القيم المحفوظة = حكمُ `press_read` نفسِه · ومطابقةُ سجلّ الرادار بـ«حافظ» صفر
+try:
+    import datetime as _g15_dt
+    import press_radar as _g15_PR
+    import pandas as _g15_pd
+    _g15_T = _GT.TOOLS["press"]
+    _g15_c = dict(_g15_T["current"])
+    check("📏 GTC15: ملحقُ رادار الضغط يطابق بصمتَه · وحاليُّه = أرقامُ الرادار بالاسم (العمق `SPLIT_CLIFF_PCT` · الجلوس `SPLIT_SWEEP_MAX_PCT` · "
+          "الجاهز `READY_HOLD` · النافذة `ALERT_W`) · والحاليُّ في كلّ سلّم · 18 قيمة · وسجلُّه `press_radar_ledger.jsonl`",
+          _GT.contract_ok("press") and _g15_c["drop"] == float(S.CONFIG["SPLIT_CLIFF_PCT"]) and _g15_c["band"] == float(S.CONFIG["SPLIT_SWEEP_MAX_PCT"])
+          and _g15_c["hold"] == _g15_PR.READY_HOLD and _g15_c["window"] == _g15_PR.ALERT_W
+          and all(_g15_c[c] in L for c, L in _g15_T["ladders"].items()) and sum(len(L) for L in _g15_T["ladders"].values()) == 18
+          and _g15_T["ledger_file"] == _g15_PR.LEDGER_FILE,
+          f"cur={_g15_c}")
+
+    # سهمٌ اصطناعيّ: قمّةٌ ثمّ هبوطٌ 40% ثمّ جلوسٌ فوق القاع — الإعادةُ تحفظ القيمَ التي يحكم بها `press_read` بالأرقام الحاليّة
+    _d, _days = _g15_dt.date(2026, 3, 2), []
+    while len(_days) < 140:
+        if _d.weekday() < 5:
+            _days.append(_d.isoformat())
+        _d += _g15_dt.timedelta(days=1)
+    _px = [5.0] * 100 + [10.0] + [10.0 - 0.45 * k for k in range(1, 9)] + [6.3, 6.1, 6.0, 6.2, 6.3, 6.25, 6.3]
+    _px += [6.3] * (140 - len(_px))
+    _rows = [(_days[k], _px[k], _px[k] * 1.01, _px[k] * 0.99, _px[k], 500000) for k in range(140)]
+    _ctx = {"pools": {d: {"TST"} for d in _days}}
+    _la = {c: _GT.loosest("press", c) for c in _g15_c}
+    _sv = S.CONFIG.get("SPLIT_CLIFF_PCT")
+    try:
+        S.CONFIG.update(_GT.RELAX["press"](_la))
+        _out = _GT._feat_press(S, "k", "TST", _rows, [], _days[112], _days[126], float(S.EXPLODED_PCT), _la, _ctx)
+        _px2 = [5.0] * 100 + [10.0] + [10.0 - 0.33 * k for k in range(1, 9)] + [7.3, 7.2, 7.25, 7.3] + [7.3] * 27
+        _rows2 = [(_days[k], _px2[k], _px2[k] * 1.01, _px2[k] * 0.99, _px2[k], 500000) for k in range(140)]
+        _out2 = _GT._feat_press(S, "k", "TST", _rows2, [], _days[112], _days[116], float(S.EXPLODED_PCT), _la, _ctx)
+        _out_np = _GT._feat_press(S, "k", "ZZZ", _rows, [], _days[112], _days[118], float(S.EXPLODED_PCT), _la, _ctx)
+    finally:
+        S.CONFIG["SPLIT_CLIFF_PCT"] = _sv
+    _agree, _n = 0, 0
+    for _r in _out:
+        _i = _days.index(_r["d"])
+        _df = _g15_pd.DataFrame({"Open": _px[_i - 130 if _i >= 130 else 0:_i + 1], "High": [x * 1.01 for x in _px[_i - 130 if _i >= 130 else 0:_i + 1]],
+                                 "Low": [x * 0.99 for x in _px[_i - 130 if _i >= 130 else 0:_i + 1]], "Close": _px[_i - 130 if _i >= 130 else 0:_i + 1],
+                                 "Volume": [500000] * len(_px[_i - 130 if _i >= 130 else 0:_i + 1])},
+                                index=_g15_pd.to_datetime(_days[_i - 130 if _i >= 130 else 0:_i + 1]))
+        _live = _g15_PR.press_read(_df, w=_g15_PR.ALERT_W)
+        _n += 1
+        _sit_ok = (not _live) or abs(_r["v"]["w"]["40"]["sit"] - (_live["close"] / _live["press_low"] - 1.0) * 100.0) < 0.02
+        _agree += int(bool(_live) == _GT.passes(_r["v"], dict(_g15_c, hold=0)) and _sit_ok)
+    _v = {"w": {"40": {"drop": 35.0, "sit": 8.0, "hold": 3}, "20": {"drop": 22.0, "sit": 8.0, "hold": 3}}, "exch": "XNAS"}
+    _g15_sem = (_GT.passes(_v, _g15_c) and not _GT.passes(_v, dict(_g15_c, drop=40.0)) and not _GT.passes(_v, dict(_g15_c, band=7.0))
+                and not _GT.passes(_v, dict(_g15_c, hold=4)) and not _GT.passes(_v, dict(_g15_c, window=20)) and _GT.passes(_v, dict(_g15_c, window=20, drop=20.0))
+                and not _GT.passes(_v, dict(_g15_c, window=60)) and _GT.why_fails(_v, dict(_g15_c, hold=5, drop=40.0)) == ["drop", "hold"]
+                and _GT.fails_only(dict(_v, w={"40": {"drop": 35.0, "sit": 8.0, "hold": 1}}), _g15_c, "hold")
+                and _GT.cond_value(_v, "band", _g15_c) == 8.0 and _GT.passes({"w": {"40": {"drop": 30.0, "sit": 13.0, "hold": 3}}}, _g15_c))
+    _g15_pools = _GT.press_pools([{"last_session": "2026-11-17", "symbols": {"B": {}, "A": {}}}, {"last_session": "2026-11-17", "symbols": {"OLD": {}}},
+                                  {"last_session": "2026-11-14", "symbols": {"C": {}}}, {"symbols": {"X": {}}}])
+    _g15_fn = next(n for n in _gt_ast.walk(_gt_tree) if isinstance(n, _gt_ast.FunctionDef) and n.name == "_feat_press")
+    _g15_calls = {c.func.attr for c in _gt_ast.walk(_g15_fn) if isinstance(c, _gt_ast.Call) and isinstance(c.func, _gt_ast.Attribute)
+                  and getattr(c.func.value, "id", None) == "PR"}
+    check("📏 GTC16: إعادةُ الرادار = `press_read` بالاسم على بِركة يومها (غيرُ العضو بلا صفوف) · وعبورُ القيم المحفوظة بالحاليّ و«حافظ» صفر = حكمُ "
+          "`press_read` الحيّ جلسةً جلسة · والعتباتُ شاملةُ الحدّ (30 و13 و3 تعبر) والنافذةُ تقرأ خانتَها · والبِركةُ من أحدث لقطةٍ لليوم",
+          "press_read" in _g15_calls and len(_out) >= 3 and _out_np == [] and _n == _agree and any(_GT.passes(r["v"], dict(_g15_c, hold=0)) for r in _out)
+          and any(r["v"]["w"].get("20") != r["v"]["w"].get("40") for r in _out)                                    # كلُّ نافذةٍ تُقرأ بنفسها
+          and bool(_out2) and all(20.0 <= r["v"]["w"]["40"]["drop"] < 30.0 for r in _out2)                         # عمقٌ بين 20 و30 يُحفظ بالإرخاء
+          and not any(_GT.passes(r["v"], dict(_g15_c, hold=0)) for r in _out2)
+          and all(_GT.passes(r["v"], dict(_g15_c, hold=0, drop=25.0)) for r in _out2)
+          and _g15_sem and _g15_pools == {"2026-11-17": ["A", "B"], "2026-11-14": ["C"]},
+          f"n={len(_out)} agree={_agree}/{_n} sem={_g15_sem} pools={_g15_pools} first={[(r['d'], r['v']['w'].get('40')) for r in _out[:2]]}")
+except Exception as _e:                                          # noqa: BLE001
+    check("📏 قفلُ ملحق رادار الضغط `T-GATECAL` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+
+# 📏 GTC17-GTC19 — `T-GATECAL` الملحقان 5 و6 (سجلّاتُ البوت · بلا شبكة): البصمتان · الحاليُّ من الأداة الحيّة وفي السلّم · الغلافُ وصفٌ على الجلسات
+# المشتركة بـ`hunter_ledger.summary` بالاسم · وأرضيّةُ ما قبل الجلسة: المعدومُ يسقط · الحدُّ شامل · التشديدُ بالقيمة · والكفايةُ بعتباتها الثلاث
+try:
+    import importlib.util as _g17_iu
+    import presession_feats as _g17_PF
+    import presession_radar as _g17_PRR
+    _g17_sp = _g17_iu.spec_from_file_location("gatecal_ledger_t", _gt_os.path.join(_gt_os.path.dirname(_gt_p), "gatecal_ledger.py"))
+    _GL = _g17_iu.module_from_spec(_g17_sp)
+    _g17_sp.loader.exec_module(_GL)
+    _g17_cur = _GL.ps_current()
+    _g17_keep = _g17_PF.FLOOR_BY_SLOT.get("PM")
+    try:
+        _g17_PF.FLOOR_BY_SLOT["PM"] = 0.5
+        _g17_live = _GL.ps_current()["floor"]
+    finally:
+        _g17_PF.FLOOR_BY_SLOT["PM"] = _g17_keep
+    _g17_real = _GL.ADDENDA["envelope"]
+    try:
+        _GL.ADDENDA["envelope"] = (_g17_real[0], "0" * 64)
+        _g17_bad = _GL.contract_ok("envelope")
+        _g17_rc_bad = _GL.main(["count", "--tool", "envelope"])
+    finally:
+        _GL.ADDENDA["envelope"] = _g17_real
+    check("📏 GTC17: الملحقان 5 و6 يطابقان بصمتَيهما (وبصمةٌ خاطئة ⟵ خروج 11 قبل أيّ قراءة) · وحاليُّ الأداة 6 يُقرأ من الأداة الحيّة وهو في السلّم",
+          _GL.contract_ok("envelope") and _GL.contract_ok("presession") and (not _g17_bad) and _g17_rc_bad == _GL.RC_CONTRACT
+          and _g17_cur == {"floor": _g17_PF.FLOOR_BY_SLOT["PM"], "usd": float(_g17_PRR.MIN_DAY_USD), "cap": _g17_PRR.PREFILTER_CAP, "topk": _g17_PF.TOPK}
+          and _g17_live == 0.5 and _g17_cur["floor"] in _GL.PS_FLOOR_LADDER and _g17_cur["usd"] in _GL.PS_USD_LADDER and _GL.PS_USD_LADDER[0] == _g17_cur["usd"]
+          and _GL.PS_SUFF == {"loose_names": 100, "loose_hits": 30, "cur_hits": 20}
+          and "ledger" in str((_g7_jobs.get("ledger") or {}).get("if")) and "ledger" in str((_g7_jobs.get("prep") or {}).get("if")),
+          f"cur={_g17_cur} bad={_g17_bad}/{_g17_rc_bad}")
+    # الغلاف: جلسةٌ بلا شاهدٍ محسوم تخرج · وغيرُ المحسوم لا يُعَدّ · والفرقُ على المشتركة وحدَها
+    _g18_o = lambda h100, h50=True: {"resolved": True, "hit100": h100, "hit50": h50, "max_gain": 10.0}   # noqa: E731
+    _g18_rows = ([{"hunter": "envelope", "session": "2026-09-01", "outcome": _g18_o(True)}] * 2
+                 + [{"hunter": "envelope", "session": "2026-09-01", "outcome": _g18_o(False)}] * 2
+                 + [{"hunter": "control", "session": "2026-09-01", "outcome": _g18_o(False, False)}] * 4
+                 + [{"hunter": "envelope", "session": "2026-09-02", "outcome": _g18_o(True)}] * 3      # بلا شاهد ⟵ خارج
+                 + [{"hunter": "envelope", "session": "2026-09-01", "outcome": None}]
+                 + [{"hunter": "split", "session": "2026-09-01", "outcome": _g18_o(True)}])
+    _g18_c = _GL.env_rows(_g18_rows)
+    _g18_d = _GL.env_diff(_g18_c, "hit100", B=200)
+    _g18_d50 = _GL.env_diff(_g18_c, "hit50", B=200)
+    _g18_src = _insp0.getsource(_GL.mode_envelope)
+    _g18_tree = _ast0.parse(_g18_src)
+    _g18_calls = {c.func.attr for c in _ast0.walk(_g18_tree) if isinstance(c, _ast0.Call) and isinstance(c.func, _ast0.Attribute)
+                  and getattr(c.func.value, "id", None) == "LEDGER"}
+    check("📏 GTC18: الغلافُ وصفٌ — المحسومُ على الجلسات المشتركة وحدَها (جلسةٌ بلا شاهد وصفٌّ بلا حسم وصيّادٌ آخر خارجًا) · الفرقُ = معدّلُ الصيّاد − "
+          "الشاهد لكلّ مفتاح · و`hunter_ledger.summary` بالاسم · ولا سلّمَ عتبةٍ في الأداة 5",
+          sorted(_g18_c) == ["2026-09-01"] and len(_g18_c["2026-09-01"]["e"]) == 4 and len(_g18_c["2026-09-01"]["c"]) == 4
+          and abs(_g18_d[0] - 0.5) < 1e-9 and abs(_g18_d50[0] - 1.0) < 1e-9 and _g18_d[1] <= _g18_d[0] <= _g18_d[2]
+          and "summary" in _g18_calls and _GL.env_diff({}, "hit100") is None and not hasattr(_GL, "ENV_LADDER"),
+          f"common={sorted(_g18_c)} d={_g18_d} d50={_g18_d50} calls={_g18_calls}")
+    # ما قبل الجلسة: فِكستشر
+    _g19_led = [{"day": "D1", "sess": "PM", "sym": "a", "usd_day": 150_000.0}, {"day": "D1", "sess": "PM", "sym": "B", "usd_day": 600_000.0},
+                {"day": "D1", "sess": "PM", "sym": "C", "usd_day": 300_000.0}, {"day": "D2", "sess": "AH", "sym": "E", "usd_day": 120_000.0}]
+    _g19_out = [{"key": "D1|PM|A", "day": "D1", "sess": "PM", "sym": "A", "rank": 1, "in_top": True, "rank_val": 0.69903, "hit": 1, "full_hit": 1},
+                {"key": "D1|PM|B", "day": "D1", "sess": "PM", "sym": "B", "rank": 2, "in_top": True, "rank_val": 0.60, "hit": 0, "full_hit": 1},
+                {"key": "D1|PM|C", "day": "D1", "sess": "PM", "sym": "C", "rank": 7, "in_top": True, "rank_val": None, "hit": 1, "full_hit": 0},
+                {"key": "D1|PM|D", "day": "D1", "sess": "PM", "sym": "D", "rank": 40, "in_top": False, "rank_val": 2.0, "hit": 1, "full_hit": 0},
+                {"key": "D1|PM|F", "day": "D1", "sess": "PM", "sym": "F", "rank": 4, "in_top": True, "rank_val": 0.65, "hit": 0, "full_hit": 0},
+                {"key": "D2|AH|E", "day": "D2", "sess": "AH", "sym": "E", "rank": 1, "in_top": True, "rank_val": 5.0, "hit": 0, "full_hit": 0},
+                {"key": "D2|PM|X", "day": "D2", "sess": "PM", "sym": "X", "rank": 1, "in_top": True, "rank_val": 9.0, "hit": 1, "drop": 1},
+                {"key": "D2|XX|Y", "day": "D2", "sess": "XX", "sym": "Y", "in_top": True, "hit": 1}]
+    _g19_rows = _GL.ps_join(_g19_led, _g19_out, drop=lambda o: bool(o.get("drop")))
+    _g19_pm = [r for r in _g19_rows if r["sess"] == "PM"]
+    _g19_p = lambda f, u=None: _GL.ps_point(_g19_pm, f, u)                                                # noqa: E731
+    _g19_S = _GL.ps_sufficient
+    _g19_mk = lambda n, h: {"names": n, "hits": h}                                                        # noqa: E731
+    check("📏 GTC19: أرضيّةُ ما قبل الجلسة — الضمُّ بالمفتاح (حالةُ الرمز لا تفرّق · المستبعَدُ عند الحصّاد وجلسةٌ غريبة خارجًا) · «المُرسَل» = "
+          "`in_top` والقيمةُ ≥ الأرضيّة شاملةَ الحدّ والمعدومُ يسقط (وبلا أرضيّةٍ يمرّ) · أرضيّةُ القيمة تشدّد والمجهولُ يسقط · والأرضيّةُ لـPM وحدَه · "
+          "والكفايةُ بعتباتها الثلاث · وتوزيعُ الترتيب",
+          len(_g19_rows) == 6 and {r["sym"]: r["usd_day"] for r in _g19_pm} == {"A": 150_000.0, "B": 600_000.0, "C": 300_000.0, "D": None, "F": None}
+          and (_g19_p(None)["names"], _g19_p(None)["hits"], _g19_p(None)["full_hits"]) == (4, 2, 2)
+          and (_g19_p(0.69903)["names"], _g19_p(0.69903)["hits"]) == (1, 1) and _g19_p(0.70)["names"] == 0
+          and (_g19_p(0.60)["names"], _g19_p(0.60)["hits"]) == (3, 1)
+          and _g19_p(None, 250_000.0)["names"] == 2 and _g19_p(None, 150_000.0)["names"] == 3 and _g19_p(None, 700_000.0)["names"] == 0
+          and _g19_p(None)["days"] == 1 and abs(_g19_p(None)["per_day"] - 4.0) < 1e-9
+          and _GL.ps_sent({"sess": "AH", "in_top": True, "rank_val": 0.1}, 0.69903, None)
+          and not _GL.ps_sent({"sess": "PM", "in_top": False, "rank_val": 9.0}, None, None)
+          and _g19_S(_g19_mk(100, 30), _g19_mk(50, 20)) and not _g19_S(_g19_mk(99, 30), _g19_mk(50, 20))
+          and not _g19_S(_g19_mk(100, 29), _g19_mk(50, 20)) and not _g19_S(_g19_mk(100, 30), _g19_mk(50, 19))
+          and _GL.ps_rank_buckets(_g19_pm, 10) == {"top": 2, "mid": 0, "tail": 1},
+          f"rows={len(_g19_rows)} p0={_g19_p(None)} pcur={_g19_p(0.69903)} b={_GL.ps_rank_buckets(_g19_pm, 10)}")
+except Exception as _e:                                          # noqa: BLE001
+    check("📏 قفلُ الملحقين 5 و6 `T-GATECAL` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+
+# 🗂️ GCF4-GCF5 — `T-GATECAL` ⑦ لبقيّة الأدوات: رادارُ الضغط يسجّل من أسقطه الجلوسُ وحدَه · وفلترُ التقسيم يسجّل «القريبين» بشرطهم وهامشهم ·
+# خلف `GATECAL_FWD` نفسِه (مطفأ ⟵ صفرُ عمل) · رصدٌ لا يمسّ مطابقًا
+try:
+    import press_radar as _gcf4_PR
+    import split_filter_hunter as _gcf4_SF
+    _gcf4_reads = {"IN": {"close": 1.10, "press_low": 1.00}, "OUT": {"close": 1.20, "press_low": 1.00}, "EDGE": {"close": 1.13, "press_low": 1.00},
+                   "NONE": None, "BAD": {"close": "x", "press_low": 1.0}}
+    _gcf4_args = []
+
+    def _gcf4_read(df, w=None, band_pct=None):
+        _gcf4_args.append((w, band_pct))
+        return _gcf4_reads.get(df)
+    _gcf4_items = _gcf4_PR.fwd_band_items(["IN", "OUT", "EDGE", "NONE", "BAD", "MISSING"], {k: k for k in _gcf4_reads}, read=_gcf4_read)
+    _gcf4_run = _ast0.parse(_insp0.getsource(_gcf4_PR.run))
+    _gcf4_calls = [c for c in _ast0.walk(_gcf4_run) if isinstance(c, _ast0.Call) and getattr(c.func, "attr", None) == "gatecal_fwd_append"]
+    _gcf4_src = _insp0.getsource(_gcf4_PR.run)
+    check("🗂️ GCF4: رادارُ الضغط ⑦ — من أسقطه الجلوسُ وحدَه (فوق الحدّ النافذ ويطابق عند أرخى السلّم 25 بنافذة التنبيه) بقيمته وحدّه وهامشه · داخلَ الحدّ "
+          "وعلى الحدّ وغيرُ المطابق خارجًا · وتعذّرُ رمزٍ يُسقطه وحدَه · والنداءُ من `run` باسم الأداة خلف `GATECAL_FWD` · والملفُّ يُدفَع حين أُلحق صفٌّ وحدَه",
+          [(i[0], i[1], i[2]["name"], i[2]["v"], i[2]["edge"], i[2]["margin"]) for i in _gcf4_items] == [("OUT", 1.20, "band", 20.0, 13.0, 53.8)]
+          and set(_gcf4_args) == {(_gcf4_PR.ALERT_W, 25.0)} and _gcf4_PR.FWD_BAND_PCT == 25.0
+          and len(_gcf4_calls) == 1 and getattr(_gcf4_calls[0].args[0], "value", None) == "press"
+          and getattr(_gcf4_calls[0].args[2].func, "id", None) == "fwd_band_items"
+          and 'if S.CONFIG.get("GATECAL_FWD"):' in _gcf4_src and "([S.GATECAL_FWD_FILE] if _fwd_n else [])" in _gcf4_src,
+          f"items={_gcf4_items} args={set(_gcf4_args)} calls={len(_gcf4_calls)}")
+    _gcf5_near = [{"symbol": "AAA", "price": 2.0, "why": "صعد 35% أوّل التقسيم (الحدّ 20%)"},
+                  {"symbol": "BBB", "price": 3.0, "why": "لم يكتمل ثبات الدعم الثاني (ارتداد 10% ثم رجوعٌ يثبت)"},
+                  {"symbol": "CCC", "price": 4.0, "why": "المتاح للاقتراض 30,000 — الحدّ أقلّ من 20,000"},
+                  {"symbol": "DDD", "price": 5.0, "why": "تجاوز منطقة الطلبات ($5.10)"},
+                  {"symbol": "EEE", "price": 6.0, "why": "شيءٌ آخر"}]
+    _gcf5_it = _gcf4_SF.fwd_items(_gcf5_near, borrow_edge=20000)
+    _gcf5_run = _ast0.parse(_insp0.getsource(_gcf4_SF.run))
+    _gcf5_calls = [c for c in _ast0.walk(_gcf5_run) if isinstance(c, _ast0.Call) and getattr(c.func, "attr", None) == "gatecal_fwd_append"]
+    _gcf5_st = _ast0.parse(_insp0.getsource(_gcf4_SF._write_stamp))
+    _gcf5_gs = [c for c in _ast0.walk(_gcf5_st) if isinstance(c, _ast0.Call) and getattr(c.func, "attr", None) == "git_save"]
+    check("🗂️ GCF5: فلترُ التقسيم ⑦ — «القريبون» صفوفًا: الشرطُ من مطلع السبب (صعود · ثبات · متاح · طلبات · وغيرُها «other») · والهامشُ حيث للسبب رقم "
+          "(35 مقابل 20 ⟵ 75% · 30,000 مقابل 20,000 ⟵ 50%) وإلّا بلا هامش · والنداءُ من `run` باسم الأداة · والسجلُّ يُدفَع مع الختم",
+          [(i[0], i[2]["name"], i[2]["v"], i[2]["edge"], i[2]["margin"]) for i in _gcf5_it]
+          == [("AAA", "rose", 35.0, 20.0, 75.0), ("BBB", "seq", None, None, None), ("CCC", "borrow", 30000.0, 20000.0, 50.0),
+              ("DDD", "entry_zone", None, None, None), ("EEE", "other", None, None, None)]
+          and all(i[2]["label"] == n["why"] and i[1] == n["price"] for i, n in zip(_gcf5_it, _gcf5_near))
+          and _gcf4_SF.fwd_items(None) == []
+          and len(_gcf5_calls) == 1 and getattr(_gcf5_calls[0].args[0], "value", None) == "split_filter"
+          and len(_gcf5_gs) == 1 and any(getattr(e, "attr", None) == "GATECAL_FWD_FILE" for e in _gcf5_gs[0].args[0].elts),
+          f"it={[(i[0], i[2]['name'], i[2]['margin']) for i in _gcf5_it]} calls={len(_gcf5_calls)} gs={len(_gcf5_gs)}")
+except Exception as _e:                                          # noqa: BLE001
+    check("🗂️ قفلُ ⑦ لبقيّة الأدوات `T-GATECAL` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

@@ -100,9 +100,34 @@ def _write_stamp(S, sess):
         #    callable`** ⇒ **الختمُ لا يُحفَظ ⇒ الدِدوب بلا ذاكرة ⇒ رسالةٌ
         #    مكرّرة على الكرون الثاني**. والاختبارات لا تراه (تحقن حول الدفع).
         #    🧭 والدرس: **وسيطٌ ثانٍ لم أقرأ توقيعَه = خطأٌ ينتظر التشغيل.**
-        S.git_save([STAMP_FILE, LEDGER.LEDGER_FILE])
+        S.git_save([STAMP_FILE, LEDGER.LEDGER_FILE, S.GATECAL_FWD_FILE])   # 🗂️ ⑦ السجلُّ الأماميّ يُدفَع مع الختم
     except Exception as e:                                       # noqa: BLE001
         S.log(f"⚠️ فلترة التقسيم: تعذّر ختمُ الجلسة ({e}).")
+
+
+_FWD_COND = (("صعد", "rose"), ("لم يكتمل ثبات", "seq"), ("تجاوز منطقة", "entry_zone"), ("دخلته قروبات", "pump"),
+             ("أخبار سلبية", "news"), ("المتاح للاقتراض", "borrow"))
+
+
+def fwd_items(near, rose_edge=20.0, borrow_edge=None) -> list:
+    """🗂️ `T-GATECAL` ⑦ — «القريبون من الشرط» صفوفًا للسجلّ الأماميّ: الشرطُ = أوّلُ ما أسقطه بعد عبور ما قبله · والهامشُ حيث للسبب رقم
+    (الصعودُ أوّل التقسيم · المتاح) وإلّا بلا هامش. نقيّة: `[(رمز، سعر، {name، label، v، edge، margin})]`."""
+    import re
+    out = []
+    for n in near or []:
+        why = str(n.get("why") or "")
+        name = next((c for k, c in _FWD_COND if why.startswith(k)), "other")
+        v = edge = margin = None
+        m = re.match(r"صعد (\d+(?:\.\d+)?)%", why) if name == "rose" else None
+        if m:
+            v, edge = float(m.group(1)), float(rose_edge)
+        m = re.match(r"المتاح للاقتراض ([\d,]+)", why) if name == "borrow" else None
+        if m and borrow_edge:
+            v, edge = float(m.group(1).replace(",", "")), float(borrow_edge)
+        if v is not None and edge:
+            margin = round((v - edge) / edge * 100.0, 1)
+        out.append((n.get("symbol"), n.get("price"), {"name": name, "label": why, "v": v, "edge": edge, "margin": margin}))
+    return out
 
 
 def run(now_utc=None) -> int:
@@ -168,6 +193,12 @@ def run(now_utc=None) -> int:
     if not S.split_g2_hard():
         S.log(f"🔸 G2 لين: أضافت الليونةُ {len(soft)} سهمًا لرسالة فلتر المقسّم"
               + (": " + " · ".join(f"{r.get('symbol')} ({r.get('g2_line', '')[2:]})" for r in soft) if soft else " (لا أحد)"))
+    try:                                                         # 🗂️ `T-GATECAL` ⑦ — سجلٌّ أماميّ · `GATECAL_FWD=0` ⟵ صفرُ عمل
+        if sess is not None:
+            S.gatecal_fwd_append("split_filter", str(sess), fwd_items(getattr(S, "_SPLIT_FILTER_NEAR", []) or [],
+                                                                 borrow_edge=S.CONFIG.get("METHOD_SHORT_MAX")))
+    except Exception:                                            # noqa: BLE001
+        pass
     for _n in (getattr(S, "_SPLIT_FILTER_NEAR", []) or []):
         S.log(f"   🔭 {_n.get('symbol')} ${float(_n.get('price') or 0):.2f} — "
               f"{_n.get('why')}")

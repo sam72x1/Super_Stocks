@@ -9,11 +9,11 @@ on:
   workflow_dispatch:
     inputs:
       tool:
-        description: "الأداة: split_hunter | split_filter | ready"
+        description: "الأداة: split_hunter | split_filter | ready | press · ومع stage=ledger: envelope | presession"
         required: true
         default: "split_hunter"
       stage:
-        description: "count | select | confirm | diag (تشخيصُ مطابقة السجلّ — جوبٌ واحد)"
+        description: "count | select | confirm | diag (تشخيصُ مطابقة السجلّ — جوبٌ واحد) | ledger (الأداتان 5 و6 من سجلّ البوت — جوبٌ واحد بلا شبكة)"
         required: true
         default: "count"
       from:
@@ -45,12 +45,32 @@ jobs:
           PYTHONUNBUFFERED: "1"
         run: python fm_forensics/gatecal/gatecal.py diag --tool ${{ inputs.tool }}
 
+  ledger:
+    if: inputs.stage == 'ledger'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: 📒 العدُّ ثمّ المنحنى من سجلّ البوت
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python fm_forensics/gatecal/gatecal_ledger.py count --tool ${{ inputs.tool }}
+          python fm_forensics/gatecal/gatecal_ledger.py curve --tool ${{ inputs.tool }}
+
   prep:
-    if: inputs.stage != 'diag'
+    if: inputs.stage != 'diag' && inputs.stage != 'ledger'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0              # بِركةُ رادار الضغط من ذاكرته بتاريخها
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"      # 🔒 PYV1
