@@ -532,11 +532,11 @@
   "anchor_price": 0.212,
   "anchor_open": 0.1945,
   "anchor_low": 0.1889,
-  "date": "2026-11-18",
   "pre_done": true,
   "pre_hi": 0.19,
   "pre_usd": 10269,
-  "pre_n": 18
+  "pre_n": 18,
+  "date": "2026-11-18"
  },
  "LIQ:APVO": {
   "last_eval_ms": 1794994980000,
@@ -2464,10 +2464,10 @@
   "gold": false
  },
  "XM:GMM": {
-  "date": "2026-11-16",
-  "ms": 1794835800000,
-  "px": 1.5,
-  "pct": 0.4706,
+  "date": "2026-11-18",
+  "ms": 1794996240000,
+  "px": 1.8,
+  "pct": 0.295,
   "gold": false
  },
  "XM:GOVX": {
