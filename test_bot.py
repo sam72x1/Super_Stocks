@@ -103956,7 +103956,9 @@ try:
     _gt_feat = next(n for n in _gt_tree.body if isinstance(n, _gt_ast.FunctionDef) and n.name == "_feat_split_hunter")
     _gt_attrs = {n.attr for n in _gt_ast.walk(_gt_feat) if isinstance(n, _gt_ast.Attribute)}
     _gt_mf = next(n for n in _gt_tree.body if isinstance(n, _gt_ast.FunctionDef) and n.name == "mode_feat")
-    _gt_fin = any(isinstance(n, _gt_ast.Try) and n.finalbody and "SPLIT_LOOKBACK_DAYS" in _gt_ast.dump(n.finalbody[0]) for n in _gt_ast.walk(_gt_mf))
+    _gt_fin = any(isinstance(n, _gt_ast.Try) and n.finalbody and "update" in _gt_ast.dump(n.finalbody[0]) and "'sv'" in _gt_ast.dump(n.finalbody[0])
+                  for n in _gt_ast.walk(_gt_mf)) and _GT.RELAX["split_hunter"]({"lookback": 250}) == {"SPLIT_LOOKBACK_DAYS": 250} \
+        and _GT.RELAX["split_filter"]({}) == {}                  # الإرخاءُ يُستعاد في finally (بعد توزيع الأدوات 2026-11-18)
     check("📏 GTC2: إعادةُ صيّاد التقسيم بدوالّه بالاسم (`_split_setup_probe` · `_post_split_high` · `_event_day_open` · `group_pump_scar` · AST) · "
           "وقيمُ شروط الجلسة لا تتغيّر بحذف وتشويه كلّ ما بعدها ولا بتقسيمٍ لاحق (السعرُ الخامّ يومَها يُعاد) · وإرخاءُ `CONFIG` يُستعاد في `finally`",
           len(_go) >= 20 and _v1 and set(_v1) == set(_v2) and all(_v1[d] == _v2[d] for d in _v1)
@@ -104096,6 +104098,75 @@ try:
           f"bad={_g7_bad} seen={sorted(_g7_seen)}")
 except Exception as _e:                                          # noqa: BLE001
     check("🩺 قفلُ تشخيص `T-GATECAL` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+# 📏 GTC8-GTC10 — `T-GATECAL` الملحق 2 «فلتر التقسيم»: الملحقُ ببصمته والسلّمُ حول أرقام الفلتر النافذة · `passes` بترتيب `scan_split_filter`
+# (نطاق · «ما صعد» · التسلسلُ أو اللينُ بالارتداد · منطقةُ الطلبات · القروب) · والإعادةُ بدوالّ الفلتر بالاسم · والتشخيصُ عكسُ العبور
+try:
+    import random as _g8_rnd
+    _g8_T = _GT.TOOLS["split_filter"]
+    _g8_cur = _g8_T["current"]
+    check("📏 GTC8: ملحقُ فلتر التقسيم يطابق بصمتَه · وأرقامُه الحاليّة = أرقامُ الفلتر النافذة بالاسم (20 · 0.70 · 10 · 0.015) · والحاليُّ في كلّ سلّم · "
+          "27 قيمة · وسجلُّه الصلبُ واللين معًا",
+          _GT.contract_ok("split_filter") and _g8_cur["rose"] == float(S.CONFIG["SPLIT_ROSE_MAX_PCT"])
+          and _g8_cur["band_low"] == float(S.CONFIG["SPLIT_RADAR_BAND_LOW"]) and _g8_cur["bounce"] == float(S.CONFIG["METHOD_BOUNCE_MIN_PCT"])
+          and _g8_cur["tol"] == float(S.CONFIG["METHOD_HOLD_TOL"]) and _g8_cur["zone"] == 0.0
+          and all(_g8_cur[c] in L for c, L in _g8_T["ladders"].items()) and sum(len(L) for L in _g8_T["ladders"].values()) == 27
+          and _GT.SF_LOOKBACK == int(S.CONFIG["SPLIT_LOOKBACK_DAYS"])
+          and _GT.SF_PRICE == (float(S.CONFIG["SPLIT_RADAR_PRICE_MIN"]), float(S.CONFIG["SPLIT_RADAR_PRICE_MAX"]))
+          and set(_g8_T["ledger_hunter"]) == {"split_filter", "split_filter_g2soft"},
+          f"cur={_g8_cur}")
+
+    def _g8_v(**kw):
+        v = {"age": 40, "price": 2.10, "tail": [1.0], "rose": 10.0, "step": 0.05, "nlad": 3, "pump": False, "exch": "XNAS",
+             "seqs": {"10|0.015": {"ok": True, "bottom": 2.0}, "5|0.015": {"ok": True, "bottom": 2.0}, "15|0.015": {"ok": False},
+                      "10|0.04": {"ok": True, "bottom": 2.0}, "10|0.01": {"ok": False}},
+             "g2": {"low": 1.9, "bounce": 12.0}}
+        v.update(kw)
+        return v
+    _g8_P = dict(_g8_cur)
+    _g8_ok = _GT.passes(_g8_v(), _g8_P)                                                         # تسلسلٌ مكتمل · 2.10 ≤ 2.15
+    _g8_zone = (not _GT.passes(_g8_v(price=2.16), _g8_P)) and _GT.passes(_g8_v(price=2.16), dict(_g8_P, zone=0.03)) \
+        and _GT.why_fails(_g8_v(price=2.16), _g8_P) == ["zone"]                                  # فوق أعلى الطلبات (2.15) يُرفض · ويعبر بـ3%
+    _g8_rose = (not _GT.passes(_g8_v(rose=23.0), _g8_P)) and _GT.passes(_g8_v(rose=23.0), dict(_g8_P, rose=23.0)) \
+        and _GT.passes(_g8_v(rose=None), _g8_P) and _GT.passes(_g8_v(rose=20.0), _g8_P)          # 23 يُرفض عند 20 · والمجهولُ يعبر (فاشلٌ-آمن كالفلتر)
+    _g8_soft_v = _g8_v(seqs={"10|0.015": {"ok": False}, "15|0.015": {"ok": False}, "5|0.015": {"ok": False}}, price=2.00)
+    _g8_soft = _GT.passes(_g8_soft_v, _g8_P) and _GT.sf_bottom(_g8_soft_v, _g8_P) == 1.9 \
+        and (not _GT.passes(_g8_soft_v, dict(_g8_P, bounce=15.0))) \
+        and (not _GT.passes(dict(_g8_soft_v, price=2.06), _g8_P))                                # اللين: قاعُ النافذة 1.9 ⟵ أعلى الطلبات 2.05
+    _g8_tol = (not _GT.passes(_g8_v(g2={"low": None, "bounce": None}), dict(_g8_P, tol=0.01))) \
+        and _GT.passes(_g8_v(g2={"low": None, "bounce": None}), dict(_g8_P, tol=0.04))
+    _g8_fixed = (not _GT.passes(_g8_v(age=121), _g8_P)) and (not _GT.passes(_g8_v(price=10.5, tail=[1.0]), _g8_P)) \
+        and (not _GT.passes(_g8_v(pump=True), _g8_P)) and (not _GT.passes(_g8_v(tail=[0.69]), _g8_P)) \
+        and _GT.passes(_g8_v(tail=[0.69]), dict(_g8_P, band_low=0.65)) and (not _GT.passes(_g8_v(tail=[1.26]), _g8_P))
+    _g8_only = _GT.fails_only(_g8_v(rose=23.0), _g8_P, "rose") and (not _GT.fails_only(_g8_v(rose=23.0, pump=True), _g8_P, "rose")) \
+        and _GT.fails_only(_g8_v(price=2.16), _g8_P, "zone")
+    check("📏 GTC9: `passes` لفلتر التقسيم بترتيب فلتره — التسلسلُ المكتمل يعبر · فوق أعلى الطلبات يُرفض ويعبر بهامش 3% · 23% يُرفض عند 20 والمجهولُ يعبر · "
+          "اللينُ بقاع النافذة لمن ارتدّ الحدَّ ويسقط عند 15 · التسامحُ يبدّل التسلسل · والثابتُ (120 يومًا · 1-10 · القروب · النطاق) يرفض · و«رفضه وحدَه» صادق",
+          _g8_ok and _g8_zone and _g8_rose and _g8_soft and _g8_tol and _g8_fixed and _g8_only,
+          f"ok={_g8_ok} zone={_g8_zone} rose={_g8_rose} soft={_g8_soft} tol={_g8_tol} fixed={_g8_fixed} only={_g8_only}")
+
+    _g8_fn = next(n for n in _gt_ast.walk(_gt_tree) if isinstance(n, _gt_ast.FunctionDef) and n.name == "_feat_split_filter")
+    _g8_calls = {c.func.attr for c in _gt_ast.walk(_g8_fn) if isinstance(c, _gt_ast.Call) and isinstance(c.func, _gt_ast.Attribute)
+                 and getattr(c.func.value, "id", None) == "S"}
+    _g8_rnd.seed(88)
+    _g8_bad, _g8_seen = 0, set()
+    for _ in range(400):
+        _v = _g8_v(age=_g8_rnd.choice([40, 130]), price=_g8_rnd.choice([0.9, 2.0, 2.10, 2.2, 11.0]),
+                   tail=[_g8_rnd.choice([0.6, 0.72, 1.0, 1.3])], rose=_g8_rnd.choice([None, 5.0, 20.01]), pump=_g8_rnd.random() < 0.2,
+                   seqs={"10|0.015": _g8_rnd.choice([{"ok": True, "bottom": 2.0}, {"ok": False}])},
+                   g2=_g8_rnd.choice([{"low": 1.9, "bounce": 12.0}, {"low": 1.9, "bounce": 4.0}, {"low": None, "bounce": None}]))
+        _w = _GT.why_fails(_v, _g8_P)
+        _g8_seen.update(_w)
+        if _GT.passes(_v, _g8_P) != (not _w):
+            _g8_bad += 1
+    check("📏 GTC10: إعادةُ فلتر التقسيم بدوالّه بالاسم (`_split_setup_probe` · `_post_split_high` · `_event_day_open` · `method_sequence` · `g2_soft_facts` · "
+          "`group_pump_scar`) · والتشخيصُ = عكسُ `passes` على 400 صفٍّ ويسمّي شروطَه الستّة · وأداةُ الصيّاد ما زالت بأرقامها الثمانية",
+          {"_split_setup_probe", "_post_split_high", "_event_day_open", "method_sequence", "g2_soft_facts", "group_pump_scar"} <= _g8_calls
+          and _g8_bad == 0 and _g8_seen == {"event_price", "band", "rose", "seq", "zone", "pump"}
+          and set(_GT.FEAT_FN) == set(_GT.TOOLS) == set(_GT.RELAX) == set(_GT.DIAG_WIDE) and len(_gt_T["current"]) == 8,
+          f"calls={sorted(_g8_calls)} bad={_g8_bad} seen={sorted(_g8_seen)}")
+except Exception as _e:                                          # noqa: BLE001
+    check("📏 قفلُ ملحق فلتر التقسيم `T-GATECAL` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في

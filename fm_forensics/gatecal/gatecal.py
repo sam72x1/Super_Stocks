@@ -47,7 +47,7 @@ RC_OK, RC_KEY, RC_POP, RC_ONCE, RC_BLIND, RC_FREEZE, RC_CONTRACT = 0, 2, 5, 7, 8
 TOOLS = {
     "split_hunter": {
         "addendum": "T_GATECAL_A1_split_hunter.md", "addendum_sha": "3962194d1c3ed8fef53c6ac9979addd77f1d53cb0e42814c52f1fe32589eedf3",
-        "built": "2026-07-24", "ledger_hunter": "split",
+        "built": "2026-07-24", "ledger_hunter": ("split",),
         "current": {"rose": 20.0, "band_low": 0.70, "band_hi": 0.25, "hold": 3, "shares": 2_000_000, "cliff": 30.0, "lookback": 120, "price_max": 10.0},
         "ladders": {"rose": [15.0, 20.0, 23.0, 25.0, 30.0, 40.0], "band_low": [0.80, 0.75, 0.70, 0.65, 0.60], "band_hi": [0.15, 0.25, 0.35, 0.50],
                     "hold": [5, 4, 3, 2], "shares": [1e6, 2e6, 3e6, 5e6, 10e6], "cliff": [50.0, 40.0, 30.0, 25.0, 20.0],
@@ -59,6 +59,17 @@ TOOLS = {
                   "lookback": "عمرُ الحدث بالأيّام", "price_max": "سقفُ السعر $"},
     },
 }
+TOOLS["split_filter"] = {
+    "addendum": "T_GATECAL_A2_split_filter.md", "addendum_sha": "b918d13bf4001246c9959afc2ae3107f8a48658dd61cbe83f31f5e4721fe6187",
+    "built": "2026-08-21", "ledger_hunter": ("split_filter", "split_filter_g2soft"),
+    "current": {"rose": 20.0, "band_low": 0.70, "band_hi": 0.25, "bounce": 10.0, "tol": 0.015, "zone": 0.0},
+    "ladders": {"rose": [15.0, 20.0, 23.0, 25.0, 30.0, 40.0], "band_low": [0.80, 0.75, 0.70, 0.65, 0.60], "band_hi": [0.15, 0.25, 0.35, 0.50],
+                "bounce": [15.0, 10.0, 7.5, 5.0], "tol": [0.01, 0.015, 0.025, 0.04], "zone": [0.0, 0.03, 0.05, 0.10]},
+    "loose_dir": {"rose": 1, "band_low": -1, "band_hi": 1, "bounce": -1, "tol": 1, "zone": 1},
+    "label": {"rose": "G1 «ما صعد أوّل التقسيم» % (فيصل: 20)", "band_low": "أدنى النطاق حول القمّة÷2 (×)", "band_hi": "أعلى النطاق فوق القمّة÷2 (+)",
+              "bounce": "الارتدادُ من القاع % (فيصل: 10)", "tol": "تسامحُ ثبات الدعم الثاني (هندسيّ)", "zone": "فوق أعلى الطلبات % (منطقةُ الدخول)"},
+}
+SF_LOOKBACK, SF_PRICE = 120, (1.0, 10.0)        # نافذةُ الحدث وحدودُ السعر في فلتر التقسيم — ثابتةٌ عند النافذ (الملحق 2)
 
 
 def log(m=""):
@@ -140,8 +151,40 @@ def trade_return(O, H, C, i, win=WIN, cost=COST):
     return round(r - cost, 6)
 
 
+def sf_bottom(v, P):
+    """فلترُ التقسيم: قاعُ الطلبات عند P — قاعُ التسلسل المكتمل · وإلّا (نقصٌ لين) قاعُ النافذة لمن ارتدّ `bounce`% فأكثر · وإلّا None."""
+    sq = (v.get("seqs") or {}).get(f"{P['bounce']:g}|{P['tol']:g}")
+    if sq and sq.get("ok"):
+        return float(sq["bottom"])
+    g = v.get("g2") or {}
+    if g.get("low") and g.get("bounce") is not None and float(g["bounce"]) >= P["bounce"]:
+        return float(g["low"])
+    return None
+
+
+def sf_why(v, P):
+    """فلترُ التقسيم: الشروطُ الساقطة بترتيب `scan_split_filter` (حدث/سعر ثابتان · نطاق · G1 · التسلسل · منطقةُ الطلبات · القروب)."""
+    out = []
+    if v["age"] > SF_LOOKBACK or not (SF_PRICE[0] <= v["price"] <= SF_PRICE[1]):
+        out.append("event_price")
+    if not (P["band_low"] <= v["tail"][-1] <= 1.0 + P["band_hi"]):
+        out.append("band")
+    if v["rose"] is not None and v["rose"] > P["rose"]:
+        out.append("rose")
+    bot = sf_bottom(v, P)
+    if bot is None:
+        out.append("seq")
+    elif v["price"] > (bot + v["step"] * v["nlad"]) * (1.0 + P["zone"]):
+        out.append("zone")
+    if v.get("pump"):
+        out.append("pump")
+    return out
+
+
 def passes(v, P):
-    """صيّادُ التقسيم: هل يعبر الصفُّ بالأرقام P؟ (ترتيبُ الصيّاد نفسُه: حدث · سعر · كليف · قرب القمّة÷2 · حافظ · لم يصعد · فلوت · قروب)."""
+    """هل يعبر الصفُّ بالأرقام P؟ — صفُّ فلتر التقسيم (يحمل `seqs`) بترتيب فلتره · وصفُّ الصيّاد بترتيب الصيّاد: (ترتيبُ الصيّاد نفسُه: حدث · سعر · كليف · قرب القمّة÷2 · حافظ · لم يصعد · فلوت · قروب)."""
+    if "seqs" in v:
+        return not sf_why(v, P)
     if v["age"] > P["lookback"] or not (1.0 <= v["price"] <= P["price_max"]):
         return False
     cl = v["cliff"].get(str(int(P["lookback"])))
@@ -164,6 +207,10 @@ def fails_only(v, P, cond):
     if passes(v, P):
         return False
     Q = dict(P)
+    if "seqs" in v:                                 # فلترُ التقسيم: الارتدادُ والتسامحُ يُرخيان إلى أرخى سلّمهما (مفاتيحُ التسلسل المحسوبة)
+        Q[cond] = {"rose": 1e9, "band_low": 0.0, "band_hi": 1e9, "bounce": loosest("split_filter", "bounce"),
+                   "tol": loosest("split_filter", "tol"), "zone": 1e9}[cond]
+        return passes(v, Q)
     Q[cond] = {"rose": 1e9, "band_low": 0.0, "band_hi": 1e9, "hold": 1, "shares": 1e18, "cliff": -1e9, "lookback": 10**6, "price_max": 1e9}[cond]
     if cond == "lookback":
         return False                                # العمرُ يغيّر نافذةَ الكليف ⟵ لا يُحسب «وحدَه» خارج سلّمه
@@ -174,6 +221,17 @@ def cond_value(v, cond, P):
     """قيمةُ الشرط في الصفّ (لتوزيعه وهامشه)."""
     if cond == "rose":
         return v["rose"]
+    if "seqs" in v:
+        if cond == "band_low":
+            return v["tail"][-1]
+        if cond == "band_hi":
+            return v["tail"][-1] - 1.0
+        if cond == "bounce":
+            return (v.get("g2") or {}).get("bounce")
+        if cond == "zone":
+            bot = sf_bottom(v, P)
+            return None if bot is None else v["price"] / (bot + v["step"] * v["nlad"]) - 1.0
+        return None
     if cond == "band_low":
         return min(v["tail"][-int(P["hold"]):]) if len(v["tail"]) >= int(P["hold"]) else None
     if cond == "band_hi":
@@ -483,6 +541,77 @@ def _feat_split_hunter(S, key, sym, rows, sp, d_from, d_to, pct, loose):
     return out
 
 
+def _feat_split_filter(S, key, sym, rows, sp, d_from, d_to, pct, loose):
+    """فلترُ التقسيم: لكلّ جلسةٍ D — الحدثُ والقمّةُ÷2 و«ما صعد» بدوالّ الصيّاد · والتسلسلُ `method_sequence` لكلّ قيمةٍ في سلّمَي الارتداد والتسامح ·
+    وقاعُ النافذة `g2_soft_facts` · والقروب — **كلُّها بالاسم** على شموعٍ بمقياس يوم D الخامّ (سلّمُ الطلبات بالسنتات)."""
+    import pandas as pd
+    t = TOOLS["split_filter"]
+    days = [x[0] for x in rows]
+    O, H, Lw, C, V = ([float(x[q]) for x in rows] for q in (1, 2, 3, 4, 5))
+    rev_days = sorted(x for x, r in sp if r < 1)
+    split_days = {x for x, _r in sp}
+    idx = pd.to_datetime(days)
+    win = int(S.CONFIG["FAISAL_BOTTOM_LOOKBACK"])
+    step, nlad = float(S.CONFIG["FAISAL_LADDER_STEP"]), int(S.CONFIG["ENTRY_TRANCHES"])
+    cb, ct = t["current"]["bounce"], t["current"]["tol"]
+    grid = sorted({(b, ct) for b in t["ladders"]["bounce"]} | {(cb, x) for x in t["ladders"]["tol"]}
+                  | {(loosest("split_filter", "bounce"), loosest("split_filter", "tol"))})      # ومعها أرخى الاثنين معًا (عدُّ «إرخاء الكلّ»)
+    out, exch_memo = [], {}
+    for i, d in enumerate(days):
+        if d < d_from or d > d_to or i < 40:
+            continue
+        k = bisect.bisect_right(rev_days, d) - 1
+        if k < 0 or (dt.date.fromisoformat(d) - dt.date.fromisoformat(rev_days[k])).days > SF_LOOKBACK:
+            continue
+        f = fwd_factor(sp, d)
+        price = C[i] * f
+        if not (SF_PRICE[0] <= price <= SF_PRICE[1]):
+            continue
+        df = pd.DataFrame({"Open": [x * f for x in O[:i + 1]], "High": [x * f for x in H[:i + 1]], "Low": [x * f for x in Lw[:i + 1]],
+                           "Close": [x * f for x in C[:i + 1]], "Volume": V[:i + 1]}, index=idx[:i + 1])
+        sp_asof = pd.Series({pd.Timestamp(x): r for x, r in sp if x <= d})
+        today = dt.date.fromisoformat(d)
+        pr = S._split_setup_probe(df, sp_asof, today)
+        if not pr or pr.get("event_kind") != "split":
+            continue
+        ref = S._post_split_high(df["High"], sp_asof, df.index[-1])
+        if not ref or ref <= 0:
+            continue
+        half = ref / 2.0
+        tail = [round(float(x) * f / half, 5) for x in C[max(0, i - 4):i + 1]]
+        if not (loose["band_low"] <= tail[-1] <= 1.0 + loose["band_hi"]):
+            continue
+        fv = S._event_day_open(df.get("Open"), dt.date.fromisoformat(pr["event_date"]))
+        if fv is None or fv != fv:
+            fv = S._split_day_value(df["Close"], sp_asof, df.index[-1])
+        rose = ((ref / fv - 1.0) * 100.0) if (fv and fv == fv and fv > 0) else None
+        if rose is not None and rose > loose["rose"]:
+            continue
+        seqs = {}
+        for b, tl in grid:
+            sq = S.method_sequence(df, win=win, bounce_min=b, tol=tl)
+            seqs[f"{b:g}|{tl:g}"] = ({"ok": True, "bottom": round(float(sq["bottom"]), 5)} if (sq and sq.get("ok")) else {"ok": False})
+        g = S.g2_soft_facts(df, win) or {}
+        mon = d[:7]
+        if mon not in exch_memo:
+            js = _getjson(f"https://api.polygon.io/v3/reference/tickers/{sym}?date={d}&apiKey={key}") or {}
+            exch_memo[mon] = (js.get("results") or {}).get("primary_exchange")
+        x, mx = exploded_label(days, H, C, i, pct, split_days)
+        out.append({"sym": sym, "d": d, "x": x, "mx": mx, "r": trade_return(O, H, C, i),
+                    "ret5": (C[i] / C[i - 5] - 1.0) if C[i - 5] > 0 else None,
+                    "v": {"age": (today - dt.date.fromisoformat(rev_days[k])).days, "price": round(price, 4), "tail": tail,
+                          "rose": (round(rose, 3) if rose is not None else None), "seqs": seqs,
+                          "g2": {"low": g.get("low"), "bounce": g.get("bounce_pct")}, "step": step, "nlad": nlad,
+                          "pump": bool(S.group_pump_scar(df)), "exch": exch_memo[mon]}})
+    return out
+
+
+FEAT_FN = {"split_hunter": _feat_split_hunter, "split_filter": _feat_split_filter}
+RELAX = {"split_hunter": lambda loose: {"SPLIT_LOOKBACK_DAYS": int(loose["lookback"])}, "split_filter": lambda loose: {}}
+DIAG_WIDE = {"split_hunter": {"rose": 1e9, "band_low": 0.0, "band_hi": 1e9, "hold": 1, "shares": 1e18, "cliff": -1e9, "lookback": 250, "price_max": 1e9},
+             "split_filter": {"rose": 1e9, "band_low": 0.0, "band_hi": 1e9, "bounce": 5.0, "tol": 0.04, "zone": 1e9}}
+
+
 def mode_feat(key, tool, k, d_from, d_to, d_in):
     if tool not in TOOLS:
         return 1
@@ -496,10 +625,11 @@ def mode_feat(key, tool, k, d_from, d_to, d_in):
     t = TOOLS[tool]
     loose = {c: loosest(tool, c) for c in t["ladders"]}
     syms = prep["rev_syms"][k::NSHARDS]
-    sv = S.CONFIG.get("SPLIT_LOOKBACK_DAYS")
+    relax = RELAX[tool](loose)
+    sv = {kk: S.CONFIG.get(kk) for kk in relax}
     out, nobars, t0 = [], 0, time.time()
     try:
-        S.CONFIG["SPLIT_LOOKBACK_DAYS"] = int(loose["lookback"])    # إرخاءُ نافذة الحدث لقراءة القيم — يُستعاد
+        S.CONFIG.update(relax)                                      # إرخاءُ نافذة الحدث لقراءة القيم — يُستعاد
         for j, sym in enumerate(syms):
             js = _getjson(f"https://api.polygon.io/v2/aggs/ticker/{sym}/range/1/day/{BARS_FROM}/{prep['asof']}?adjusted=true&sort=asc&limit=50000&apiKey={key}") or {}
             rows = [(dt.datetime.utcfromtimestamp(x["t"] / 1000).date().isoformat(), x["o"], x["h"], x["l"], x["c"], x.get("v") or 0.0)
@@ -507,11 +637,11 @@ def mode_feat(key, tool, k, d_from, d_to, d_in):
             if len(rows) < 30:
                 nobars += 1
                 continue
-            out.extend(_feat_split_hunter(S, key, sym, rows, prep["splits"].get(sym) or [], d_from, d_to, pct, loose))
+            out.extend(FEAT_FN[tool](S, key, sym, rows, prep["splits"].get(sym) or [], d_from, d_to, pct, loose))
             if j % 25 == 0:
                 log(f"gatecal feat {tool} {k}: {j + 1}/{len(syms)} · صفوف {len(out)} · {round(time.time() - t0)}s")
     finally:
-        S.CONFIG["SPLIT_LOOKBACK_DAYS"] = sv
+        S.CONFIG.update(sv)
     _jdump({"tool": tool, "shard": k, "from": d_from, "to": d_to, "syms": len(syms), "nobars": nobars, "rows": out},
            os.path.join(OUT, f"gatecal_feat_{tool}_{k:02d}.json.gz"))
     log(f"📦 gatecal feat {tool} {k}: رموز {len(syms)} · بلا شموع {nobars} · صفوف {len(out)}")
@@ -559,7 +689,7 @@ def ledger_match(tool, rows_by_sym):
                 j = json.loads(ln)
             except ValueError:
                 continue
-            if j.get("hunter") == t["ledger_hunter"] and j.get("kind") == "candidate":
+            if j.get("hunter") in t["ledger_hunter"] and j.get("kind") == "candidate":
                 led.append((j["symbol"], j["session"]))
     hit, miss = 0, []
     for sym, d in sorted(set(led)):
@@ -573,6 +703,8 @@ def ledger_match(tool, rows_by_sym):
 
 def why_fails(v, P):
     """أسماءُ الشروط التي يسقط عليها الصفُّ بالأرقام P (بترتيب الصيّاد) — نقيّة · للتشخيص."""
+    if "seqs" in v:
+        return sf_why(v, P)
     out = []
     if v["age"] > P["lookback"]:
         out.append("lookback")
@@ -605,15 +737,16 @@ def mode_diag(key, tool):
             j = json.loads(ln)
         except ValueError:
             continue
-        if j.get("hunter") == t["ledger_hunter"] and j.get("kind") == "candidate":
+        if j.get("hunter") in t["ledger_hunter"] and j.get("kind") == "candidate":
             led.setdefault(j["symbol"], {})[j["session"]] = j
-    wide = {"rose": 1e9, "band_low": 0.0, "band_hi": 1e9, "hold": 1, "shares": 1e18, "cliff": -1e9, "lookback": 250, "price_max": 1e9}
+    wide = DIAG_WIDE[tool]
+    relax = RELAX[tool]({"lookback": 250})
     today = dt.date.today().isoformat()
     log(f"# 📏 T-GATECAL — تشخيصُ مطابقة السجلّ · {tool} · {sum(len(v) for v in led.values())} (رمز·جلسة) في {len(led)} رمزًا")
     tally = {}
-    sv = S.CONFIG.get("SPLIT_LOOKBACK_DAYS")
+    sv = {kk: S.CONFIG.get(kk) for kk in relax}
     try:
-        S.CONFIG["SPLIT_LOOKBACK_DAYS"] = 250
+        S.CONFIG.update(relax)
         for sym in sorted(led):
             js = _getjson(f"https://api.polygon.io/v2/aggs/ticker/{sym}/range/1/day/{BARS_FROM}/{today}?adjusted=true&sort=asc&limit=50000&apiKey={key}") or {}
             rows = [(dt.datetime.utcfromtimestamp(x["t"] / 1000).date().isoformat(), x["o"], x["h"], x["l"], x["c"], x.get("v") or 0.0)
@@ -621,7 +754,7 @@ def mode_diag(key, tool):
             sj = _getjson(f"https://api.polygon.io/v3/reference/splits?ticker={sym}&limit=1000&apiKey={key}") or {}
             sp = sorted([r["execution_date"], float(r["split_to"]) / float(r["split_from"])] for r in sj.get("results") or [] if float(r.get("split_from") or 0) > 0)
             d0, d1 = min(led[sym]), max(led[sym])
-            got = {r["d"]: r for r in (_feat_split_hunter(S, key, sym, rows, sp, d0, d1, float(S.EXPLODED_PCT), wide) if len(rows) >= 30 else [])}
+            got = {r["d"]: r for r in (FEAT_FN[tool](S, key, sym, rows, sp, d0, d1, float(S.EXPLODED_PCT), wide) if len(rows) >= 30 else [])}
             log(f"## {sym} — شموع {len(rows)} · تقسيماتُ Polygon {sp[-4:]}")
             for d in sorted(led[sym]):
                 lj, r = led[sym][d], got.get(d)
@@ -635,10 +768,11 @@ def mode_diag(key, tool):
                 f = why_fails(v, t["current"]) + ([] if v.get("exch") == "XNAS" else [f"exch={v.get('exch')}"])
                 kk = "يعبر" if not f else "يسقط على: " + "+".join(f)
                 tally[kk] = tally.get(kk, 0) + 1
-                log(f"- {d}: {kk} · عمر {v['age']} · سعر {v['price']} · كليف120 {v['cliff'].get('120')} · ذيل {v['tail']} · صعد {v['rose']} · "
-                    f"أسهم {v.get('shares')} · قروب {v.get('pump')} ‖ السجلّ: فلوت {lj.get('float')} · سعر {lj.get('price')} · ÷2 {lj.get('half')} · مرجع {lj.get('ref')}")
+                _x = (f"تسلسل {v['seqs'].get('10|0.015')} · قاعُ النافذة {v['g2']}" if "seqs" in v
+                      else f"كليف120 {v['cliff'].get('120')} · أسهم {v.get('shares')}")
+                log(f"- {d}: {kk} · عمر {v['age']} · سعر {v['price']} · ذيل {v['tail']} · صعد {v['rose']} · {_x} · قروب {v.get('pump')} ‖ السجلّ: فلوت {lj.get('float')} · سعر {lj.get('price')} · ÷2 {lj.get('half')} · مرجع {lj.get('ref')}")
     finally:
-        S.CONFIG["SPLIT_LOOKBACK_DAYS"] = sv
+        S.CONFIG.update(sv)
     log("")
     log("## الحصيلة")
     for kk, n in sorted(tally.items(), key=lambda z: -z[1]):

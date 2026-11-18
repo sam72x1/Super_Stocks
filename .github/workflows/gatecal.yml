@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       tool:
-        description: "الأداة: split_hunter"
+        description: "الأداة: split_hunter | split_filter"
         required: true
         default: "split_hunter"
       stage:
