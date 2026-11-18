@@ -103565,6 +103565,174 @@ except Exception as _e:                                          # noqa: BLE001
     check("📎 أقفالُ «ملفّ تحت المتابعة» انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
 
+# ⛏️🔗 MIN1-MIN6 — `T-MINE` «الرابط المشترك للمنفجرين» (أمرُ المالك 2026-11-18 · آخرُ استثناء): العقدُ ببصمته · لا نظرَ للأمام ·
+# سنتا التأكيد مغلقتان قبل التثبيت · الاكتشافُ يجد المزروع ويحترم 30/3/3 · التأكيدُ مرّةً واحدة · ولا إرسالَ ولا كتابةَ حالة.
+try:
+    import ast as _mn_ast
+    import gzip as _mn_gz
+    import importlib.util as _mn_il
+    import json as _mn_js
+    import os as _mn_os
+    import random as _mn_rnd
+    import tempfile as _mn_tmp
+    _mn_p = _mn_os.path.join(_mn_os.path.dirname(_mn_os.path.abspath(__file__)), "fm_forensics", "mine", "mine.py")
+    _mn_sp = _mn_il.spec_from_file_location("mine_lock", _mn_p)
+    _MN = _mn_il.module_from_spec(_mn_sp)
+    _mn_sp.loader.exec_module(_MN)
+    _mn_src = open(_mn_p, encoding="utf-8").read()
+    _mn_tree = _mn_ast.parse(_mn_src)
+
+    # MIN1 — العقدُ ببصمته · وتغيّرُه ⟵ 11 قبل أيّ وضع · والجردُ والعقدُ يسمّيان كلَّ سمة
+    _mn_doc = open(_MN.CONTRACT, encoding="utf-8").read()
+    _mn_sv = _MN.CONTRACT_SHA
+    try:
+        _MN.CONTRACT_SHA = "0" * 64
+        _mn_rc_bad = _MN.main(["discover", "--dir", "/nonexistent_mine"])
+    finally:
+        _MN.CONTRACT_SHA = _mn_sv
+    _mn_named = [n for n in _MN.NAMES if ("`" + n + "`") not in _mn_doc]
+    check("⛏️ MIN1: عقدُ `T-MINE` يطابق بصمتَه · وبصمةٌ مغايرة ⟵ خروج 11 قبل أيّ وضع · وكلُّ شرطٍ في الأداة (65) مسمًّى في العقد باسمه · "
+          "والمقفلةُ منفردةً ثمانٍ · والجردُ موجود",
+          _MN.contract_ok() and _mn_rc_bad == _MN.RC_CONTRACT == 11 and not _mn_named and len(_MN.NAMES) == 65 == len(set(_MN.NAMES))
+          and len(_MN.COMBO_ONLY) == 8 and _mn_os.path.exists(_mn_os.path.join(_mn_os.path.dirname(_mn_p), "T_MINE_INVENTORY.md")),
+          f"rc={_mn_rc_bad} غيرُ مسمّى={_mn_named[:3]} n={len(_MN.NAMES)} K={len(_MN.COMBO_ONLY)}")
+
+    # MIN2 — لا نظرَ للأمام: السماتُ عند i لا تتغيّر بتغيير ما بعده · والوسمُ بـEXPLODED_PCT بالاسم حصرًا ونافذةٍ كاملة
+    _mn_rnd.seed(7)
+    _c = [5.0]
+    for _ in range(399):
+        _c.append(max(0.2, _c[-1] * (1 + _mn_rnd.gauss(0, 0.06))))
+    _o = [x * (1 + _mn_rnd.gauss(0, 0.02)) for x in _c]
+    _h = [max(a, b) * (1 + abs(_mn_rnd.gauss(0, 0.03))) for a, b in zip(_o, _c)]
+    _l = [min(a, b) * (1 - abs(_mn_rnd.gauss(0, 0.03))) for a, b in zip(_o, _c)]
+    _v = [abs(_mn_rnd.gauss(1e5, 5e4)) + 1 for _ in _c]
+    _f1 = _MN.features(_o, _h, _l, _c, _v, 300)
+    _f2 = _MN.features(_o[:301] + [9e9] * 99, _h[:301] + [9e9] * 99, _l[:301] + [1e-9] * 99, _c[:301] + [7e7] * 99, _v[:301] + [1e12] * 99, 300)
+    _f3 = _MN.features(_o[:301], _h[:301], _l[:301], _c[:301], _v[:301], 300)
+    _hh = [1.0] * 30
+    _cc = [1.0] * 30
+    _hh[15] = 2.0                                                  # ‏+100% بالضبط ⟵ ليس منفجرًا (حصرًا)
+    _x_eq = _MN.exploded_label(_hh, _cc, 5, 100.0)
+    _hh[15] = 2.0001
+    _x_gt = _MN.exploded_label(_hh, _cc, 5, 100.0)
+    _hh2 = [1.0] * 30
+    _hh2[26] = 5.0                                                 # خارج النافذة (D+21)
+    _x_out = _MN.exploded_label(_hh2, _cc, 5, 100.0)
+    _x_short = _MN.exploded_label([1.0] * 20, [1.0] * 20, 5, 100.0)
+    _mn_feat_fn = next(n for n in _mn_tree.body if isinstance(n, _mn_ast.FunctionDef) and n.name == "mode_feat")
+    _mn_uses_pct = any(isinstance(n, _mn_ast.Attribute) and n.attr == "EXPLODED_PCT" for n in _mn_ast.walk(_mn_feat_fn))
+    check("⛏️ MIN2: سماتُ يوم القرار لا تتغيّر بتغيير أو حذف كلّ ما بعده (لا نظرَ للأمام) · و«المنفجر» أكبرُ من الحدّ حصرًا في [D+1، D+20] "
+          "وحدَها (‏+100% بالضبط ليس منفجرًا · D+21 خارج · نافذةٌ ناقصة ⟵ بلا وسم) · والحدُّ `Super_stock.EXPLODED_PCT` بالاسم (AST)",
+          _f1 is not None and _f1 == _f2 == _f3 and _x_eq[0] is False and _x_gt[0] is True and _x_out[0] is False
+          and _x_short == (None, None) and _mn_uses_pct and _MN.WIN == 20,
+          f"eq={_f1 == _f2} cut={_f1 == _f3} x={_x_eq[0]},{_x_gt[0]},{_x_out[0]},{_x_short} pct={_mn_uses_pct}")
+
+    # MIN3 — سنتا التأكيد مغلقتان قبل التثبيت (8) · الاكتشافُ يرفض صفًّا من غير سنتَيه (8) · التأكيدُ بلا تثبيتٍ ببصمته (9) · وحكمٌ صادر (7)
+    _mn_sv3 = (_MN.FREEZE_SHA, _MN.FREEZE, _MN.RESULT)
+    with _mn_tmp.TemporaryDirectory() as _mn_d:
+        for _k in range(40):
+            with _mn_gz.open(_mn_os.path.join(_mn_d, f"mine_feat_{_k:02d}.json.gz"), "wt", encoding="utf-8") as _fh:
+                _mn_js.dump({"shard": _k, "years": ["2023"], "why": {},
+                             "rows": [{"sym": "A", "d": "2025-01-02", "y": "2025" if _k == 3 else "2023", "x": None, "v": None,
+                                       "dec": 1, "e0": None, "e50": None, "r0": None, "r50": None}]}, _fh)
+        try:
+            _MN.FREEZE_SHA, _MN.FREEZE, _MN.RESULT = "", _mn_os.path.join(_mn_d, "nofreeze.json"), _mn_os.path.join(_mn_d, "noresult.md")
+            _rc_feat = _MN.mode_feat("k", 0, ("2023", "2025"), _mn_d)
+            _rc_disc = _MN.mode_discover(_mn_d)
+            _rc_conf = _MN.mode_confirm(_mn_d)
+            open(_MN.FREEZE, "w").write("{}")
+            _MN.FREEZE_SHA = "f" * 64                              # ملفٌّ لا يطابق بصمتَه
+            _rc_conf2 = _MN.mode_confirm(_mn_d)
+            open(_MN.RESULT, "w").write("x")
+            _rc_once = _MN.mode_confirm(_mn_d)
+        finally:
+            _MN.FREEZE_SHA, _MN.FREEZE, _MN.RESULT = _mn_sv3
+    check("⛏️ MIN3: سماتُ 2025/2026 قبل ملفّ التثبيت ⟵ خروج 8 قبل أيّ جلب · والاكتشافُ يرفض صفًّا من غير 2023/2024 (8) · والتأكيدُ بلا تثبيتٍ "
+          "أو بتثبيتٍ لا يطابق بصمتَه ⟵ 9 · وبعد صدور الحكم ⟵ 7 (مرّةً واحدة) · والبصمةُ المشحونة فارغةٌ أو تطابق ملفَّها",
+          (_rc_feat, _rc_disc, _rc_conf, _rc_conf2, _rc_once) == (8, 8, 9, 9, 7)
+          and (_MN.FREEZE_SHA == "" or _MN.freeze_ok()) and _MN.DISC_YEARS == ("2023", "2024") and _MN.CONF_YEARS == ("2025", "2026"),
+          f"rc={(_rc_feat, _rc_disc, _rc_conf, _rc_conf2, _rc_once)}")
+
+    # MIN4 — الاكتشاف: المزروعُ يُلتقَط أوّلًا · 30 في كلّ سنة · المقفلةُ منفردةً لا تُرشَّح وحدَها · والعددُ المجرَّب محسوب
+    _mn_rnd.seed(11)
+    _nm = ["A1", "A2", "K9", "A4", "A5", "A6"]
+    _by, _cols = {}, {}
+    for _y in _MN.DISC_YEARS:
+        _rows, _mat = [], []
+        for _j in range(900):
+            _a, _b = _mn_rnd.random() < 0.35, _mn_rnd.random() < 0.4
+            _k9 = _mn_rnd.random() < 0.3
+            _hit = (_a and _b) or _k9
+            _x = int(_mn_rnd.random() < (0.45 if _hit else 0.05))
+            _e = 0.20 if _hit else -0.05
+            _rows.append({"sym": f"S{_j % 200}", "d": "", "x": _x, "band": _j % 3, "e0": _e, "e50": _e, "r0": _e, "r50": _e})
+            _rare = _j < (40 if _y == "2023" else 20)               # A6: 40 في سنة و20 في الأخرى ⟵ دون 30
+            _mat.append([_a, _b, _k9, _mn_rnd.random() < 0.5, (None if _j % 3 == 0 else True), _rare])
+        _by[_y] = _rows
+        _cols[_y] = [[m[k] for m in _mat] for k in range(6)]
+    _sv_k = set(_MN.COMBO_ONLY)
+    try:
+        _MN.COMBO_ONLY.add("K9")
+        _sg, _cands, _tried, _low, _top = _MN.discover(_by, _cols, names=_nm)
+    finally:
+        _MN.COMBO_ONLY.clear()
+        _MN.COMBO_ONLY.update(_sv_k)
+    _cset = [tuple(c["conds"]) for c in _cands]
+    _mn_el = {"n_with": 30, "n_without": 30, "z": 1.0, "adj": 0.01, "e0": 0.01, "e50": 0.01, "r0": 0.01, "r50": 0.01}
+    _mn_pk = [c["conds"] for c in _MN.pick_top([{"conds": x} for x in (["a", "b", "c"], ["a", "b"], ["a", "b", "d"], ["a", "b", "c", "e"],
+                                                                      ["a", "x", "y"], ["m"], ["n"])])]
+    check("⛏️ MIN4: الاكتشافُ يلتقط التوليفةَ المزروعة · المقفلةُ منفردةً لا تُرشَّح وحدَها وتدخل التوليفات · سمةٌ دون 80% تغطيةً تُستبعَد "
+          "وتُسمّى · ما دون 30 في إحدى السنتين لا يتأهّل · والمجرَّبُ معدودٌ (5 مغطّاة: 4 منفردة + 10 أزواج + 10 ثلاثيّات) · والمثبَّتُ 3 فأقلّ بلا تشاركِ شرطين",
+          ("A1", "A2") in _cset and ("K9",) not in _cset and any("K9" in c and len(c) > 1 for c in _cset) and "A5" in _low
+          and not any("A5" in c or "A6" in c for c in _cset) and _tried == 24 and 1 <= len(_top) <= 3 == _MN.TOP_N
+          and all(len(set(a["conds"]) & set(b["conds"])) < 2 for a in _top for b in _top if a is not b)
+          and _MN.MIN_N == 30 and _MN.MAX_K == 3
+          and _MN.eligible(dict(_mn_el)) and not _MN.eligible(dict(_mn_el, n_with=29)) and not _MN.eligible(dict(_mn_el, n_without=29))
+          and not _MN.eligible(dict(_mn_el, adj=0.0)) and not _MN.eligible(dict(_mn_el, e50=-0.01)) and not _MN.eligible(dict(_mn_el, r0=0.0))
+          and _mn_pk == [["a", "b", "c"], ["a", "x", "y"], ["m"]],
+          f"tried={_tried} cands={len(_cands)} top={[c['conds'] for c in _top]} low={_low}")
+
+    # MIN5 — حكمُ التأكيد بالأضعف · و`and_mask` · وسعرُ يوم القرار الخامّ
+    def _mn_cell(n, lo, raw):
+        return {"n": n, "a_mean": 0.1, "a_ci": [lo, 0.5], "raw": raw}
+    _good = {y: {a: _mn_cell(40, 0.01, 0.05) for a in ("O0", "O50")} for y in _MN.CONF_YEARS}
+    _bad_ci = _mn_js.loads(_mn_js.dumps(_good))
+    _bad_ci["2026"]["O50"]["a_ci"] = [-0.001, 0.5]
+    _bad_raw = _mn_js.loads(_mn_js.dumps(_good))
+    _bad_raw["2025"]["O0"]["raw"] = -0.01
+    _small = _mn_js.loads(_mn_js.dumps(_good))
+    _small["2026"]["O0"]["n"] = 29
+    _vd = [_MN.confirm_verdict(z) for z in (_good, _bad_ci, _bad_raw, _small)]
+    _cc_ = _MN.confirm_cell([{"sym": "A", "e0": 0.2, "e50": None, "r0": 0.1, "r50": 0.3}, {"sym": "B", "e0": 9.0, "e50": 9.0, "r0": 9.0, "r50": 9.0}],
+                            [True, False], lambda t: [0.0, 1.0])
+    check("⛏️ MIN5: «تعبر» فقط إن كان أدنى فاصل الفائض فوق الصفر والعائدُ بعد الكلفة موجبًا في الذراعين والسنتين كلٍّ وحدَها · فاصلٌ يلمس "
+          "الصفر أو عائدٌ سالب في خليّةٍ واحدة ⟵ «لا تعبر» · دون 30 ⟵ «لا قياس» · والخليّةُ تعدّ «مع» وحدَه · و`and_mask` (خطأٌ يغلب المجهول) · "
+          "والسعرُ الخامّ يومَ القرار يُعاد بتقسيمٍ لاحقٍ وحدَه",
+          _vd == ["✅ تعبر", "❌ لا تعبر", "❌ لا تعبر", "لا قياس"] and _cc_["O0"]["n"] == 1 and _cc_["O50"]["n"] == 0
+          and abs(_cc_["O0"]["a_mean"] - 0.2) < 1e-12 and abs(_cc_["O50"]["raw"] - 0.3) < 1e-12
+          and _MN.and_mask([[True, True, None, False], [True, None, False, None]]) == [True, None, False, False]
+          and abs(_MN.fwd_factor([["2024-01-10", 0.1], ["2024-06-01", 0.5]], "2024-01-10") - 0.5) < 1e-12
+          and _MN.fwd_factor([["2024-01-10", 0.1]], "2024-01-09") == 0.1
+          and _MN.split_feats([["2024-01-10", 0.1], ["2024-03-01", 2.0], ["2025-01-01", 0.1]], "2024-02-09") == (30, 1),
+          f"vd={_vd} cell={_cc_}")
+
+    # MIN6 — قراءةٌ فقط: لا إرسالَ ولا كتابةَ حالة ولا CONFIG يُسنَد في الأداة · والـworkflow يدويٌّ قارئٌ بلا أسرار تلغرام
+    _mn_names = {getattr(n.func, "attr", None) or getattr(n.func, "id", None) for n in _mn_ast.walk(_mn_tree) if isinstance(n, _mn_ast.Call)}
+    _mn_cfg = any(isinstance(n, (_mn_ast.Assign, _mn_ast.AugAssign)) and "CONFIG" in _mn_ast.dump(n) for n in _mn_ast.walk(_mn_tree))
+    import yaml as _mn_yaml
+    _mn_wf = _mn_yaml.safe_load(open(".github/workflows/mine.yml", encoding="utf-8"))
+    _mn_on = _mn_wf.get(True) or _mn_wf.get("on") or {}
+    _mn_wtxt = "\n".join(ln for ln in open(".github/workflows/mine.yml", encoding="utf-8").read().splitlines() if not ln.strip().startswith("#"))
+    check("⛏️ MIN6: `mine.py` بلا إرسالٍ ولا حفظِ حالة ولا إسنادِ CONFIG (AST) · و`mine.yml` يدويٌّ بلا كرون · صلاحيّةُ المحتوى قراءة · "
+          "بلا أسرار تلغرام · ومادّتُه تشغيلةُ `T-BASKET` ‏43955351411",
+          not ({"send_telegram", "git_save", "save_watchlist", "send_document"} & _mn_names) and not _mn_cfg
+          and set(_mn_on) == {"workflow_dispatch"} and (_mn_wf.get("permissions") or {}).get("contents") == "read"
+          and "TELEGRAM" not in _mn_wtxt and _mn_wtxt.count("run-id: 43955351411") == 2,
+          f"calls={sorted({'send_telegram', 'git_save'} & _mn_names)} on={sorted(map(str, _mn_on))}")
+except Exception as _e:                                          # noqa: BLE001
+    check("⛏️ أقفالُ `T-MINE` انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
