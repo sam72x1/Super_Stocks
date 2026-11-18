@@ -1150,11 +1150,11 @@
   "anchor_price": 0.6185,
   "anchor_open": 0.4968,
   "anchor_low": 0.4968,
-  "date": "2026-11-18",
   "pre_done": true,
   "pre_hi": 0.4968,
   "pre_usd": 11089,
-  "pre_n": 8
+  "pre_n": 8,
+  "date": "2026-11-18"
  },
  "LIQ:WHLR": {
   "last_eval_ms": 1794996780000,
@@ -3718,6 +3718,13 @@
   "ms": 1794996900000,
   "px": 0.1478,
   "pct": 0.2075,
+  "gold": false
+ },
+ "XM:CHSN": {
+  "date": "2026-11-18",
+  "ms": 1794997080000,
+  "px": 0.6185,
+  "pct": 0.316,
   "gold": false
  }
 }
