@@ -571,6 +571,81 @@ def ledger_match(tool, rows_by_sym):
     return len(set(led)), hit, miss
 
 
+def why_fails(v, P):
+    """أسماءُ الشروط التي يسقط عليها الصفُّ بالأرقام P (بترتيب الصيّاد) — نقيّة · للتشخيص."""
+    out = []
+    if v["age"] > P["lookback"]:
+        out.append("lookback")
+    if not (1.0 <= v["price"] <= P["price_max"]):
+        out.append("price")
+    cl = v["cliff"].get(str(int(P["lookback"])))
+    if cl is None or cl > -P["cliff"] / 100.0:
+        out.append("cliff")
+    lo, hi, n, t = P["band_low"], 1.0 + P["band_hi"], int(P["hold"]), v["tail"]
+    if not (lo <= t[-1] <= hi):
+        out.append("band")
+    elif len(t) < n or not all(lo <= x <= hi for x in t[-n:]):
+        out.append("hold")
+    if v["rose"] is not None and v["rose"] > P["rose"]:
+        out.append("rose")
+    if v.get("shares") is None or not (v["shares"] < P["shares"]):
+        out.append("shares")
+    if v.get("pump"):
+        out.append("pump")
+    return out
+
+
+def mode_diag(key, tool):
+    """§② أسبابُ فرق المطابقة: لكلّ (رمز، جلسة) في السجلّ الحقيقيّ تُعاد القيمُ **بلا أيّ مرشِّح** وتُطبع مع الشروط الساقطة — قراءةٌ ووصف."""
+    import Super_stock as S
+    t = TOOLS[tool]
+    led = {}
+    for ln in open(os.path.join(ROOT, "hunter_ledger.jsonl"), encoding="utf-8"):
+        try:
+            j = json.loads(ln)
+        except ValueError:
+            continue
+        if j.get("hunter") == t["ledger_hunter"] and j.get("kind") == "candidate":
+            led.setdefault(j["symbol"], {})[j["session"]] = j
+    wide = {"rose": 1e9, "band_low": 0.0, "band_hi": 1e9, "hold": 1, "shares": 1e18, "cliff": -1e9, "lookback": 250, "price_max": 1e9}
+    today = dt.date.today().isoformat()
+    log(f"# 📏 T-GATECAL — تشخيصُ مطابقة السجلّ · {tool} · {sum(len(v) for v in led.values())} (رمز·جلسة) في {len(led)} رمزًا")
+    tally = {}
+    sv = S.CONFIG.get("SPLIT_LOOKBACK_DAYS")
+    try:
+        S.CONFIG["SPLIT_LOOKBACK_DAYS"] = 250
+        for sym in sorted(led):
+            js = _getjson(f"https://api.polygon.io/v2/aggs/ticker/{sym}/range/1/day/{BARS_FROM}/{today}?adjusted=true&sort=asc&limit=50000&apiKey={key}") or {}
+            rows = [(dt.datetime.utcfromtimestamp(x["t"] / 1000).date().isoformat(), x["o"], x["h"], x["l"], x["c"], x.get("v") or 0.0)
+                    for x in js.get("results") or []]
+            sj = _getjson(f"https://api.polygon.io/v3/reference/splits?ticker={sym}&limit=1000&apiKey={key}") or {}
+            sp = sorted([r["execution_date"], float(r["split_to"]) / float(r["split_from"])] for r in sj.get("results") or [] if float(r.get("split_from") or 0) > 0)
+            d0, d1 = min(led[sym]), max(led[sym])
+            got = {r["d"]: r for r in (_feat_split_hunter(S, key, sym, rows, sp, d0, d1, float(S.EXPLODED_PCT), wide) if len(rows) >= 30 else [])}
+            log(f"## {sym} — شموع {len(rows)} · تقسيماتُ Polygon {sp[-4:]}")
+            for d in sorted(led[sym]):
+                lj, r = led[sym][d], got.get(d)
+                if r is None:
+                    why = "لا صفّ: " + ("لا شموع" if len(rows) < 30 else "لا تقسيمَ عكسيًّا في 250 يومًا عند Polygon (أو الحدثُ طرح)" if not any(
+                        x <= d and q < 1 and (dt.date.fromisoformat(d) - dt.date.fromisoformat(x)).days <= 250 for x, q in sp) else "سقط في الإعادة (القمّة÷2 أو السعر)")
+                    tally[why] = tally.get(why, 0) + 1
+                    log(f"- {d}: {why} · السجلّ: فلوت {lj.get('float')} · سعر {lj.get('price')} · ÷2 {lj.get('half')} · مرجع {lj.get('ref')}")
+                    continue
+                v = r["v"]
+                f = why_fails(v, t["current"]) + ([] if v.get("exch") == "XNAS" else [f"exch={v.get('exch')}"])
+                kk = "يعبر" if not f else "يسقط على: " + "+".join(f)
+                tally[kk] = tally.get(kk, 0) + 1
+                log(f"- {d}: {kk} · عمر {v['age']} · سعر {v['price']} · كليف120 {v['cliff'].get('120')} · ذيل {v['tail']} · صعد {v['rose']} · "
+                    f"أسهم {v.get('shares')} · قروب {v.get('pump')} ‖ السجلّ: فلوت {lj.get('float')} · سعر {lj.get('price')} · ÷2 {lj.get('half')} · مرجع {lj.get('ref')}")
+    finally:
+        S.CONFIG["SPLIT_LOOKBACK_DAYS"] = sv
+    log("")
+    log("## الحصيلة")
+    for kk, n in sorted(tally.items(), key=lambda z: -z[1]):
+        log(f"- {kk}: {n}")
+    return RC_OK
+
+
 def _fmt(x, pc=False):
     if x is None:
         return "—"
@@ -718,11 +793,13 @@ def main(argv=None):
     if mode == "confirm":
         return mode_confirm(tool, d_in)
     key = (os.environ.get("POLYGON_API_KEY") or "").strip()
-    if mode in ("prep", "feat") and not key:
+    if mode in ("prep", "feat", "diag") and not key:
         log(f"⛔ بلا مفتاح Polygon — خروج {RC_KEY}")
         return RC_KEY
     if mode == "prep":
         return mode_prep(key, tool)
+    if mode == "diag":
+        return mode_diag(key, tool)
     if mode == "feat":
         d_from, d_to = argv[argv.index("--from") + 1], argv[argv.index("--to") + 1]
         if d_to[:4] in HIST_CONF and d_from < TOOLS[tool]["built"] and not freeze_ok(tool):
