@@ -103204,6 +103204,29 @@ check("🙈 BPK3 T-BLIND-PICK الملحق 1: الصفُّ الكامل (فلو�
       and sorted(_bp3_v[3]) == ["d1", "d3"] and sorted(_bp3_v[4]) == ["d1"] and "X" in _bp3_v[4]["d1"]
       and _bp3_v[5] is True and _bp3_v[6] == (False, 11, 11, 11) and _bp3_v[7] and _bp3_v[8] and _bp3_v[9] and _bp3_v[10], str(_bp3_v)[:400])
 
+# 🔧 BPK4 — عطلٌ مُثبَت في T-BLIND-PICK (2026-11-18 · `44271235564` «أيّامُ FINRA متعذّرة 40»): `_FINRA_BUDGET` يبدأ 0 فـ`_finra_day_map` يُرجع {}
+#    بلا نداء ⟵ الملحق يهيّئ الميزانيةَ والقاطعَ قبل أوّل نداء · وتعذّرُ FINRA للجلسات كلِّها عطلُ مصدرٍ (خروج 5) لا «لا قياس».
+try:
+    import ast as _bp4_ast, inspect as _bp4_in
+    _bp4_t = _bp4_ast.parse(_bp4_in.getsource(_BP.mode_a1))
+    _bp4_lines = {}
+    for _n in _bp4_ast.walk(_bp4_t):
+        if isinstance(_n, _bp4_ast.Assign) and isinstance(_n.targets[0], _bp4_ast.Subscript):
+            _a = getattr(_n.targets[0].value, "attr", None)
+            if _a in ("_FINRA_BUDGET", "_FINRA_FAILS"):
+                _bp4_lines[_a] = _n.lineno
+        if isinstance(_n, _bp4_ast.Call) and getattr(_n.func, "attr", None) == "_finra_day_map":
+            _bp4_lines.setdefault("call", _n.lineno)
+    _bp4_guard = any(isinstance(_n, _bp4_ast.If) and "finra_fail == len(plan)" in _bp4_ast.unparse(_n.test)
+                     and any(isinstance(_r, _bp4_ast.Return) and getattr(_r.value, "id", None) == "RC_POP" for _r in _n.body)
+                     for _n in _bp4_ast.walk(_bp4_t))
+    _bp4_v = (_bp4_lines, _bp4_guard)
+except Exception as _bp4_e:                                                                       # noqa: BLE001
+    _bp4_v = f"⛔ {type(_bp4_e).__name__}: {_bp4_e}"
+check("🔧 BPK4 T-BLIND-PICK: ميزانيةُ FINRA وقاطعُه يُهيَّآن قبل أوّل نداء · وتعذّرُ FINRA للجلسات كلِّها عطلُ مصدرٍ (خروج 5) لا «لا قياس»",
+      isinstance(_bp4_v, tuple) and {"_FINRA_BUDGET", "_FINRA_FAILS", "call"} <= set(_bp4_v[0])
+      and _bp4_v[0]["_FINRA_BUDGET"] < _bp4_v[0]["call"] and _bp4_v[0]["_FINRA_FAILS"] < _bp4_v[0]["call"] and _bp4_v[1], str(_bp4_v)[:200])
+
 # 🔒 MOC1 — «اقفل كمية التجميع» (أمرُ المالك 2026-11-17): momo.py ‏run/cut/set تخرج 8 بلا MOMO_REOPEN=1 حرفيًّا · وcheck مفتوح (0).
 try:
     import importlib.util as _moc_iu, subprocess as _moc_sp, sys as _moc_sys, os as _moc_os
