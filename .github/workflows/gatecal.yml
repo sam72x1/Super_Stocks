@@ -1,0 +1,108 @@
+name: "📏 T-GATECAL — معايرةُ شروط الأدوات (قراءةٌ فقط)"
+
+# أمرُ المالك 2026-11-18 «T-GATECAL — معايرة شروط كل الأدوات على النهج العلمي» · العقد fm_forensics/gatecal/T_GATECAL_prereg.md.
+# يدويٌّ بلا كرون · لا تلغرام · لا دفع · النتيجةُ سجلٌّ و artifact. stage: count (العدُّ أوّلًا) | select (جزءُ الاختيار) | confirm (مرّةً بعد التثبيت).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      tool:
+        description: "الأداة: split_hunter"
+        required: true
+        default: "split_hunter"
+      stage:
+        description: "count | select | confirm"
+        required: true
+        default: "count"
+      from:
+        description: "أوّلُ جلسة (ISO)"
+        required: true
+      to:
+        description: "آخرُ جلسة (ISO)"
+        required: true
+
+concurrency:
+  group: super-stocks-gatecal
+  cancel-in-progress: false
+
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: 📦 التحضير
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/gatecal/gatecal.py prep --tool ${{ inputs.tool }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gatecal-prep
+          path: fm_forensics/gatecal/out/gatecal_prep_*.json.gz
+          retention-days: 30
+
+  feat:
+    needs: prep
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        k: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: gatecal-prep
+          path: gatecal_in
+      - name: 🧪 الإعادة
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/gatecal/gatecal.py feat ${{ matrix.k }} --tool ${{ inputs.tool }} --from ${{ inputs.from }} --to ${{ inputs.to }} --dir gatecal_in
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gatecal-feat-${{ matrix.k }}
+          path: fm_forensics/gatecal/out/gatecal_feat_*.json.gz
+          retention-days: 30
+
+  assemble:
+    needs: feat
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gatecal-*
+          path: gatecal_in
+      - name: ⚖️ ${{ inputs.stage }}
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: |
+          set -o pipefail
+          python fm_forensics/gatecal/gatecal.py ${{ inputs.stage }} --tool ${{ inputs.tool }} --dir gatecal_in | tee gatecal_${{ inputs.tool }}_${{ inputs.stage }}.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gatecal-${{ inputs.tool }}-${{ inputs.stage }}-log
+          path: gatecal_*.log
+          retention-days: 90

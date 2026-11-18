@@ -103888,6 +103888,191 @@ except Exception as _e:                                          # noqa: BLE001
     check("📏 أقفالُ الهامش وسجلّ المرفوضين انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
 
+# 📏 GTC1-GTC6 — `T-GATECAL` (أمرُ المالك 2026-11-18): العقدُ والملحقُ ببصمتَيهما · إعادةُ الصيّاد بدوالّه بالاسم وبلا نظرٍ للأمام · الوسمُ يستبعد قفزةَ
+# يوم التقسيم · منحنى شرطٍ واحد وقاعدةُ الاقتراح والتأكيد · جزءُ التأكيد مغلقٌ قبل التثبيت · ولا إرسالَ ولا تغييرَ عتبة.
+try:
+    import ast as _gt_ast
+    import datetime as _gt_dt
+    import gzip as _gt_gz
+    import importlib.util as _gt_il
+    import json as _gt_js
+    import os as _gt_os
+    import random as _gt_rnd
+    import tempfile as _gt_tmp
+    _gt_p = _gt_os.path.join(_gt_os.path.dirname(_gt_os.path.abspath(__file__)), "fm_forensics", "gatecal", "gatecal.py")
+    _gt_sp = _gt_il.spec_from_file_location("gatecal_lock", _gt_p)
+    _GT = _gt_il.module_from_spec(_gt_sp)
+    _gt_sp.loader.exec_module(_GT)
+    _gt_tree = _gt_ast.parse(open(_gt_p, encoding="utf-8").read())
+    _gt_T = _GT.TOOLS["split_hunter"]
+
+    _gt_sv = _GT.CONTRACT_SHA
+    try:
+        _GT.CONTRACT_SHA = "0" * 64
+        _gt_rc_bad = _GT.main(["count", "--tool", "split_hunter", "--dir", "/nonexistent_gc"])
+    finally:
+        _GT.CONTRACT_SHA = _gt_sv
+    _gt_cfgcur = {"rose": S.CONFIG["SPLIT_ROSE_MAX_PCT"], "band_low": S.CONFIG["SPLIT_RADAR_BAND_LOW"], "shares": S.CONFIG["SPLIT_RADAR_FLOAT_MAX"],
+                  "cliff": S.CONFIG["SPLIT_CLIFF_PCT"], "lookback": S.CONFIG["SPLIT_LOOKBACK_DAYS"], "price_max": S.CONFIG["SPLIT_RADAR_PRICE_MAX"]}
+    check("📏 GTC1: عقدُ `T-GATECAL` وملحقُ صيّاد التقسيم يطابقان بصمتَيهما (مغايرة ⟵ خروج 11 قبل أيّ وضع) · والجردُ موجود · وكلُّ سلّمٍ يحوي "
+          "الرقمَ الحاليّ وقيمةً أرخى منه · والحاليُّ في الأداة = النافذُ في `CONFIG` (20% · 0.70 · 2م · 30% · 120 · 10$) · و39 قيمةً في المجموع",
+          _GT.contract_ok("split_hunter") and _gt_rc_bad == 11 and _gt_os.path.exists(_gt_os.path.join(_gt_os.path.dirname(_gt_p), "T_GATECAL_INVENTORY.md"))
+          and all(_gt_T["current"][c] in lad and _GT.loosest("split_hunter", c) != _gt_T["current"][c] for c, lad in _gt_T["ladders"].items())
+          and all(float(_gt_T["current"][k]) == float(v) for k, v in _gt_cfgcur.items())
+          and sum(len(v) for v in _gt_T["ladders"].values()) == 39 and set(_gt_T["ladders"]) == set(_gt_T["current"]) == set(_gt_T["loose_dir"]),
+          f"rc={_gt_rc_bad} n={sum(len(v) for v in _gt_T['ladders'].values())}")
+
+    # فِكستشر: تقسيمٌ عكسيّ في الجلسة 200 · قمّةٌ بعده 7.7 · جلوسٌ عند 4 · ثمّ انفجار
+    _gt_rnd.seed(5)
+    _gd, _d = [], _gt_dt.date(2023, 1, 2)
+    while len(_gd) < 330:
+        if _d.weekday() < 5:
+            _gd.append(_d.isoformat())
+        _d += _gt_dt.timedelta(1)
+    _gc = []
+    for _i in range(330):
+        _gc.append(round(20 - 0.02 * _i if _i < 200 else 7.5 - 0.25 * (_i - 200) if _i < 215 else 4.0 + 0.03 * _gt_rnd.random() if _i < 240
+                         else 4.0 * (1 + 0.35 * (_i - 239)) if _i < 250 else 12, 3))
+    _gc[150] = _gc[149] * 0.6
+    for _i in range(151, 200):
+        _gc[_i] = _gc[_i - 1] * 0.999
+    _grows = [(_gd[_i], _gc[_i], _gc[_i] * 1.03, _gc[_i] * 0.97, _gc[_i], 1e5) for _i in range(330)]
+    _gsp = [[_gd[200], 0.1]]
+    _gt_get = _GT._getjson
+    _gt_loose = {c: _GT.loosest("split_hunter", c) for c in _gt_T["ladders"]}
+    _gt_cfg = S.CONFIG["SPLIT_LOOKBACK_DAYS"]
+    try:
+        _GT._getjson = lambda url, tries=4: {"results": {"share_class_shares_outstanding": 1.5e6, "primary_exchange": "XNAS"}}
+        S.CONFIG["SPLIT_LOOKBACK_DAYS"] = 250
+        _go = _GT._feat_split_hunter(S, "k", "TST", _grows, _gsp, _gd[30], _gd[-1], 100.0, _gt_loose)
+        _cut = 232                                                 # الجلسة 232: ما بعدها يُحذف ويُشوَّه ⟵ قيمُ شروطها لا تتغيّر
+        _grows2 = _grows[:_cut + 1] + [(_gd[_i], 99.0, 999.0, 0.01, 77.0, 1e9) for _i in range(_cut + 1, 330)]
+        _go2 = _GT._feat_split_hunter(S, "k", "TST", _grows2, _gsp + [[_gd[300], 0.5]], _gd[30], _gd[_cut], 100.0, _gt_loose)
+    finally:
+        _GT._getjson = _gt_get
+        S.CONFIG["SPLIT_LOOKBACK_DAYS"] = _gt_cfg
+    _v1 = {r["d"]: r["v"] for r in _go if r["d"] <= _gd[_cut]}
+    _v2 = {r["d"]: dict(r["v"], price=round(r["v"]["price"] / 0.5, 4)) for r in _go2}     # تقسيمٌ لاحقٌ يغيّر المقياسَ المسوّى لا السعرَ الخامّ
+    _gt_feat = next(n for n in _gt_tree.body if isinstance(n, _gt_ast.FunctionDef) and n.name == "_feat_split_hunter")
+    _gt_attrs = {n.attr for n in _gt_ast.walk(_gt_feat) if isinstance(n, _gt_ast.Attribute)}
+    _gt_mf = next(n for n in _gt_tree.body if isinstance(n, _gt_ast.FunctionDef) and n.name == "mode_feat")
+    _gt_fin = any(isinstance(n, _gt_ast.Try) and n.finalbody and "SPLIT_LOOKBACK_DAYS" in _gt_ast.dump(n.finalbody[0]) for n in _gt_ast.walk(_gt_mf))
+    check("📏 GTC2: إعادةُ صيّاد التقسيم بدوالّه بالاسم (`_split_setup_probe` · `_post_split_high` · `_event_day_open` · `group_pump_scar` · AST) · "
+          "وقيمُ شروط الجلسة لا تتغيّر بحذف وتشويه كلّ ما بعدها ولا بتقسيمٍ لاحق (السعرُ الخامّ يومَها يُعاد) · وإرخاءُ `CONFIG` يُستعاد في `finally`",
+          len(_go) >= 20 and _v1 and set(_v1) == set(_v2) and all(_v1[d] == _v2[d] for d in _v1)
+          and {"_split_setup_probe", "_post_split_high", "_event_day_open", "group_pump_scar"} <= _gt_attrs and _gt_fin
+          and S.CONFIG["SPLIT_LOOKBACK_DAYS"] == _gt_cfg,
+          f"n={len(_go)} same={sum(1 for d in _v1 if _v1[d] == _v2.get(d))}/{len(_v1)} fin={_gt_fin}")
+
+    _dd = [f"d{k:02d}" for k in range(30)]
+    _hh, _cc = [1.0] * 30, [1.0] * 30
+    _hh[10] = 2.0
+    _x_eq = _GT.exploded_label(_dd, _hh, _cc, 5, 100.0, set())
+    _hh[10] = 2.5
+    _x_gt = _GT.exploded_label(_dd, _hh, _cc, 5, 100.0, set())
+    _x_spl = _GT.exploded_label(_dd, _hh, _cc, 5, 100.0, {"d10"})
+    _x_spl2 = _GT.exploded_label(_dd, _hh, _cc, 5, 100.0, {"d09"})          # الجلسةُ التي تلي التنفيذ تُستبعد أيضًا
+    _x_short = _GT.exploded_label(_dd[:25], _hh[:25], _cc[:25], 5, 100.0, set())
+    _oo = [1.0] * 30
+    _h2 = [1.0] * 30
+    _h2[8] = 1.55                                                   # نصفٌ عند ‏+50% والباقي بإغلاق الجلسة 20
+    _c2 = [1.0] * 30
+    _c2[25] = 1.2
+    _tr1 = _GT.trade_return(_oo, _h2, _c2, 5)
+    _h2[9] = 2.1
+    _tr2 = _GT.trade_return(_oo, _h2, _c2, 5)
+    _tr0 = _GT.trade_return(_oo, [1.0] * 30, _c2, 5)
+    check("📏 GTC3: «المنفجر» أكبرُ من الحدّ حصرًا في [D+1، D+20] مع استبعاد جلسة تنفيذ التقسيم والتي تليها · نافذةٌ ناقصة ⟵ بلا وسم · "
+          "والصفقةُ: دخولٌ افتتاحُ D+1 · نصفٌ ‏+50% والباقي ‏+100% أو إغلاقُ الجلسة 20 · بعد كلفة 1.8%",
+          _x_eq[0] is False and _x_gt[0] is True and _x_spl[0] is False and _x_spl2[0] is False and _x_short == (None, None)
+          and abs(_tr1 - (0.5 * 0.5 + 0.5 * 0.2 - 0.018)) < 1e-9 and abs(_tr2 - (0.5 * 0.5 + 0.5 * 1.0 - 0.018)) < 1e-9
+          and abs(_tr0 - (0.2 - 0.018)) < 1e-9 and _GT.trade_return(_oo[:25], _h2[:25], _c2[:25], 5) is None and _GT.COST == 0.018 and _GT.WIN == 20,
+          f"x={_x_eq[0]},{_x_gt[0]},{_x_spl[0]},{_x_spl2[0]} tr={_tr1},{_tr2},{_tr0}")
+
+    _cur = dict(_gt_T["current"])
+    _vok = {"age": 50, "price": 4.0, "cliff": {"60": -0.4, "90": -0.4, "120": -0.4, "180": -0.4, "250": -0.4}, "tail": [1.0, 1.0, 1.0, 1.0, 1.0],
+            "rose": 10.0, "shares": 1.5e6, "pump": False}
+    _v23 = dict(_vok, rose=23.0)
+    _vsh = dict(_vok, shares=None)
+    _vtwo = dict(_v23, shares=2.5e6)
+    _ix = {f"s{k:03d}": k for k in range(200)}
+
+    def _gt_row(sym, k, v, x=0, r=0.0):
+        return {"sym": sym, "d": f"s{k:03d}", "v": v, "x": bool(x), "r": r, "ret5": 0.0, "dec": 0}
+    _by = {"AAA": [_gt_row("AAA", 10, _v23, 1, 0.5), _gt_row("AAA", 12, _vok, 1, 0.4), _gt_row("AAA", 40, _vok, 0, -0.1)],
+           "BBB": [_gt_row("BBB", 10, _v23, 0, -0.2)]}
+    _PL = dict(_cur, rose=40.0)
+    _ep_cur = _GT.episodes(_by, _ix, _PL, _cur)
+    _ep_23 = _GT.episodes(_by, _ix, _PL, dict(_cur, rose=23.0))
+    check("📏 GTC4: `passes` بأرقام الصيّاد (23% يُرفض عند 20 ويعبر عند 23 · فلوتٌ مجهول يُرفض) · «يرفضه الشرطُ وحدَه» لا يعدّ مَن يرفضه شرطان · "
+          "والحلقةُ: نافذتُها من أوّل عبورٍ عند الأرخى ودخولُها عند القيمة أوّلُ جلسةٍ فيها تعبر (AAA يدخل الحاليَّ في جلسته الثالثة لا الأولى) ولا حلقةَ قبل 20 جلسة",
+          _GT.passes(_vok, _cur) and not _GT.passes(_v23, _cur) and _GT.passes(_v23, dict(_cur, rose=23.0)) and not _GT.passes(_vsh, _cur)
+          and _GT.fails_only(_v23, _cur, "rose") and not _GT.fails_only(_vtwo, _cur, "rose") and not _GT.fails_only(_vok, _cur, "rose")
+          and [(s, d, (r or {}).get("d")) for s, d, r in _ep_cur] == [("AAA", "s010", "s012"), ("AAA", "s040", "s040"), ("BBB", "s010", None)]
+          and [(s, d, (r or {}).get("d")) for s, d, r in _ep_23] == [("AAA", "s010", "s010"), ("AAA", "s040", "s040"), ("BBB", "s010", "s010")]
+          and _GT.cond_value(_v23, "rose", _cur) == 23.0 and _GT.cond_value(_vok, "hold", _cur) == 5,
+          f"cur={[(s, d, (r or {}).get('d')) for s, d, r in _ep_cur]}")
+
+    def _gt_pt(n, rate, e):
+        return {"n": n, "rate": rate, "e_mean": e, "ent": []}
+    _pts = {15.0: _gt_pt(5, 0.3, 0.1), 20.0: _gt_pt(10, 0.2, 0.05), 23.0: _gt_pt(16, 0.2, 0.05), 25.0: _gt_pt(20, 0.25, 0.06),
+            30.0: _gt_pt(30, 0.19, 0.2), 40.0: _gt_pt(40, 0.3, 0.04)}
+    _pr1 = _GT.propose("split_hunter", "rose", _pts)
+    _pr2 = _GT.propose("split_hunter", "rose", {**_pts, 25.0: _gt_pt(14, 0.25, 0.06), 23.0: _gt_pt(14, 0.25, 0.06)})
+    _cf_ok = _GT.confirm_one("split_hunter", "rose", 25.0, _pts)[0]
+    _cf_rate = _GT.confirm_one("split_hunter", "rose", 30.0, _pts)[0]
+    _cf_e = _GT.confirm_one("split_hunter", "rose", 40.0, _pts)[0]
+    _cf_few = _GT.confirm_one("split_hunter", "rose", 23.0, {**_pts, 23.0: _gt_pt(14, 0.3, 0.3)})[0]
+    check("📏 GTC5: قاعدةُ الاقتراح = أرخى قيمةٍ لا تُنزل نسبةَ الانفجار ولا متوسّطَ الفائض عن الحاليّ وتُدخل 5 حلقاتٍ فأكثر (40 يسقط بالفائض · 30 بالنسبة "
+          "⟵ 25) · ولا مرشَّحَ إن لم تُضَف 5 · والتأكيدُ بالشروط الثلاثة نفسِها («يُقترح» · نسبةٌ أدنى · فائضٌ أدنى · مضافون دون 5 ⟵ «يبقى الرقم») · والأشدُّ من الحاليّ لا يُرشَّح",
+          _pr1 == 25.0 and _pr2 is None and _cf_ok == "✅ يُقترح التغيير" and _cf_rate == _cf_e == _cf_few == "يبقى الرقم"
+          and _GT.MIN_ADDED == 5 and _GT.propose("split_hunter", "rose", {15.0: _gt_pt(50, 0.9, 0.9), 20.0: _gt_pt(10, 0.2, 0.05), 23.0: _gt_pt(10, 0.2, 0.05),
+                                                                         25.0: _gt_pt(10, 0.2, 0.05), 30.0: _gt_pt(10, 0.2, 0.05), 40.0: _gt_pt(10, 0.2, 0.05)}) is None,
+          f"pr={_pr1},{_pr2} cf={_cf_ok},{_cf_rate},{_cf_e},{_cf_few}")
+
+    _gt_sv6 = (dict(_GT.FREEZE_SHA), _GT.result_path)
+    with _gt_tmp.TemporaryDirectory() as _gt_d:
+        with _gt_gz.open(_gt_os.path.join(_gt_d, "gatecal_prep_split_hunter.json.gz"), "wt", encoding="utf-8") as _fh:
+            _gt_js.dump({"sessions": sorted(_ix), "rev_syms": [], "splits": {}, "asof": "2026-11-18"}, _fh)
+        for _k in range(40):
+            with _gt_gz.open(_gt_os.path.join(_gt_d, f"gatecal_feat_split_hunter_{_k:02d}.json.gz"), "wt", encoding="utf-8") as _fh:
+                _gt_js.dump({"from": "2023-01-03", "to": "2025-01-10", "rows": [{"sym": "A", "d": "2025-01-10" if _k == 3 else "2023-05-05",
+                                                                                 "x": None, "r": None, "ret5": 0.0, "v": dict(_vok, exch="XNAS")}]}, _fh)
+        try:
+            _GT.FREEZE_SHA.clear()
+            _GT.result_path = lambda tool: _gt_os.path.join(_gt_d, "none.md")
+            _rc_sel = _GT.mode_select("split_hunter", _gt_d)
+            _rc_conf = _GT.mode_confirm("split_hunter", _gt_d)
+            _sv_env = _gt_os.environ.get("POLYGON_API_KEY")
+            _gt_os.environ["POLYGON_API_KEY"] = "x"
+            try:
+                _rc_feat = _GT.main(["feat", "0", "--tool", "split_hunter", "--from", "2025-01-02", "--to", "2026-11-17", "--dir", _gt_d])
+            finally:
+                if _sv_env is None:
+                    _gt_os.environ.pop("POLYGON_API_KEY", None)
+                else:
+                    _gt_os.environ["POLYGON_API_KEY"] = _sv_env
+            open(_gt_os.path.join(_gt_d, "none.md"), "w").write("x")
+            _rc_once = _GT.mode_confirm("split_hunter", _gt_d)
+        finally:
+            _GT.FREEZE_SHA.clear()
+            _GT.FREEZE_SHA.update(_gt_sv6[0])
+            _GT.result_path = _gt_sv6[1]
+    _gt_calls = {getattr(n.func, "attr", None) or getattr(n.func, "id", None) for n in _gt_ast.walk(_gt_tree) if isinstance(n, _gt_ast.Call)}
+    import yaml as _gt_yaml
+    _gt_wf = _gt_yaml.safe_load(open(".github/workflows/gatecal.yml", encoding="utf-8"))
+    _gt_on = _gt_wf.get(True) or _gt_wf.get("on") or {}
+    _gt_wtxt = "\n".join(ln for ln in open(".github/workflows/gatecal.yml", encoding="utf-8").read().splitlines() if not ln.strip().startswith("#"))
+    check("📏 GTC6: الاختيارُ يرفض جلسةً خارج 2023/2024 (8) · وإعادةُ جزء التأكيد التاريخيّ قبل التثبيت ⟵ 8 · والتأكيدُ بلا تثبيتٍ ببصمته ⟵ 9 · وبعد صدوره ⟵ 7 · "
+          "والأداةُ بلا إرسالٍ ولا حفظ حالة · و`gatecal.yml` يدويٌّ قارئٌ بلا كرون ولا أسرار تلغرام",
+          (_rc_sel, _rc_conf, _rc_feat, _rc_once) == (8, 9, 8, 7)
+          and not ({"send_telegram", "git_save", "save_watchlist", "send_document"} & _gt_calls)
+          and set(_gt_on) == {"workflow_dispatch"} and (_gt_wf.get("permissions") or {}) == {"contents": "read"} and "TELEGRAM" not in _gt_wtxt,
+          f"rc={(_rc_sel, _rc_conf, _rc_feat, _rc_once)}")
+except Exception as _e:                                          # noqa: BLE001
+    check("📏 أقفالُ `T-GATECAL` انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
