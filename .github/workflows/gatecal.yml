@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       tool:
-        description: "الأداة: split_hunter | split_filter"
+        description: "الأداة: split_hunter | split_filter | ready"
         required: true
         default: "split_hunter"
       stage:
@@ -60,6 +60,8 @@ jobs:
         env:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           PYTHONUNBUFFERED: "1"
+          GATECAL_FROM: ${{ inputs.from }}
+          GATECAL_TO: ${{ inputs.to }}
         run: python fm_forensics/gatecal/gatecal.py prep --tool ${{ inputs.tool }}
       - uses: actions/upload-artifact@v4
         with:
@@ -104,6 +106,8 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0              # سجلُّ الرفض بتاريخه (مطابقةُ الجاهزيّة)
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"      # 🔒 PYV1

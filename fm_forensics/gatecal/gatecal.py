@@ -69,6 +69,30 @@ TOOLS["split_filter"] = {
     "label": {"rose": "G1 «ما صعد أوّل التقسيم» % (فيصل: 20)", "band_low": "أدنى النطاق حول القمّة÷2 (×)", "band_hi": "أعلى النطاق فوق القمّة÷2 (+)",
               "bounce": "الارتدادُ من القاع % (فيصل: 10)", "tol": "تسامحُ ثبات الدعم الثاني (هندسيّ)", "zone": "فوق أعلى الطلبات % (منطقةُ الدخول)"},
 }
+# الأداة 3 «الجاهزية وتحت المتابعة» (الملحق 3): كلُّ شرطٍ = مفتاحُ `CONFIG` واحد في `analyze_ticker` الإنتاجيّ · والحاليُّ = النافذُ بعد `apply_faisal_only`
+_RD = {"price": 0.4000000059604645, "floor": 71.72029570041596, "ceil": 99.94998260261913, "spike": 78.27380827782238,
+       "dvol": 14314.770054221153, "gapdist": 1134.782634295228}
+TOOLS["ready"] = {
+    "addendum": "T_GATECAL_A3_ready.md", "addendum_sha": "8d89e67f520fb7943f0108cc5badb34028f9d9fa8bfc8088d899b1bac7711248",
+    "built": "2026-08-16", "ledger_hunter": (), "bars_from": "2020-10-01",
+    "current": {"base": 120.0, "rr": 0.5, "price": _RD["price"], "spike": _RD["spike"], "ceil": _RD["ceil"], "floor": _RD["floor"],
+                "dvol": _RD["dvol"], "chase": 35.0, "gapdist": _RD["gapdist"]},
+    "ladders": {"base": [80.0, 100.0, 120.0, 150.0, 200.0, 300.0, 475.0], "rr": [0.75, 0.5, 0.4, 0.3, 0.2, 0.0],
+                "price": [0.5, _RD["price"], 0.3, 0.2], "spike": [100.0, _RD["spike"], 70.0, 60.0, 50.0],
+                "ceil": [99.9, _RD["ceil"], 99.99, 100.0], "floor": [80.0, _RD["floor"], 65.0, 60.0, 50.0],
+                "dvol": [25000.0, _RD["dvol"], 10000.0, 5000.0, 0.0], "chase": [25.0, 35.0, 50.0, 75.0, 100.0],
+                "gapdist": [_RD["gapdist"], 2000.0, 5000.0]},
+    "loose_dir": {"base": 1, "rr": -1, "price": -1, "spike": -1, "ceil": 1, "floor": -1, "dvol": -1, "chase": 1, "gapdist": 1},
+    "label": {"base": "M4 عرضُ القاعدة % (قرارُ المالك 120)", "rr": "العائد/المخاطرة للهدف الأوّل (هندسيّ)", "price": "M1 أدنى سعر $ (ظرفُ الكاتالوج)",
+              "spike": "M3 الانفجارُ السابق % (ظرف)", "ceil": "M2 سقفُ الهبوط من القمّة % (ظرف)", "floor": "M2 أرضيّةُ الهبوط % (ظرف)",
+              "dvol": "M5 السيولةُ الدولاريّة $ (ظرف)", "chase": "M4ب صعودُ 5 جلسات % (قرارُ المالك 35)", "gapdist": "M9 بُعدُ الفجوة % (ظرف)"},
+}
+RD_KEY = {"base": "BASE_RANGE_MAX_PCT", "rr": "MIN_RR_T1", "price": "MIN_PRICE", "spike": "PRIOR_SPIKE_FLOOR", "ceil": "MAX_DROP_PCT",
+          "floor": "MIN_DROP_FLOOR", "dvol": "MIN_DOLLAR_VOL", "chase": "RECENT_RISE_BLOCK_PCT", "gapdist": "GAP_ABOVE_MAX_DIST_PCT"}
+RD_VAL = {"base": "base_range", "rr": "rr", "price": "price", "spike": "best_spike", "ceil": "drop_pct", "floor": "drop_pct",
+          "dvol": "dollar_vol", "chase": "gain5", "gapdist": "gap_above_dist"}
+RD_NW_FROM = "2026-08-16"                      # صفوفُ «تحت المتابعة» (ناقصٌ واحد فأقلّ) تُحفظ من يوم بُنيت القائمة — جدولُ الجدار الفعليّ
+RD_HISTORY_DAYS, RD_STALE_DAYS = 800, 7        # نافذةُ الإنتاج (`T-REBUILD` §③) · ولا شمعةَ في 7 أيّام ⟵ خارج كون يومه
 SF_LOOKBACK, SF_PRICE = 120, (1.0, 10.0)        # نافذةُ الحدث وحدودُ السعر في فلتر التقسيم — ثابتةٌ عند النافذ (الملحق 2)
 
 
@@ -181,10 +205,26 @@ def sf_why(v, P):
     return out
 
 
+def rd_passes(v, P):
+    """الجاهزيّة: صفُّها يحمل نتيجةَ `analyze_ticker` الإنتاجيّ لكلّ قيمةِ سلّمٍ بشرطٍ واحد (`p`) وبإرخاء الكلّ (`all`) ⟵ P = الحاليُّ · أو يختلف
+    عنه في شرطٍ واحد · أو أرخى السلّم في الكلّ — وغيرُ ذلك لم يُحسب فيُرفع (لا تخمين)."""
+    t = TOOLS["ready"]
+    diff = [c for c in t["current"] if P[c] != t["current"][c]]
+    if not diff:
+        return bool(v["p"]["base"][t["ladders"]["base"].index(t["current"]["base"])])
+    if len(diff) == 1:
+        return bool(v["p"][diff[0]][t["ladders"][diff[0]].index(P[diff[0]])])
+    if all(P[c] == loosest("ready", c) for c in t["current"]):
+        return bool(v["all"])
+    raise ValueError("توليفةٌ لم تُحسب في إعادة الجاهزيّة")
+
+
 def passes(v, P):
     """هل يعبر الصفُّ بالأرقام P؟ — صفُّ فلتر التقسيم (يحمل `seqs`) بترتيب فلتره · وصفُّ الصيّاد بترتيب الصيّاد: (ترتيبُ الصيّاد نفسُه: حدث · سعر · كليف · قرب القمّة÷2 · حافظ · لم يصعد · فلوت · قروب)."""
     if "seqs" in v:
         return not sf_why(v, P)
+    if "p" in v:
+        return rd_passes(v, P)
     if v["age"] > P["lookback"] or not (1.0 <= v["price"] <= P["price_max"]):
         return False
     cl = v["cliff"].get(str(int(P["lookback"])))
@@ -207,6 +247,9 @@ def fails_only(v, P, cond):
     if passes(v, P):
         return False
     Q = dict(P)
+    if "p" in v:                                    # الجاهزيّة: «وحدَه» = يعبر بأرخى سلّم هذا الشرط والبقيّةُ عند الحاليّ
+        Q[cond] = loosest("ready", cond)
+        return passes(v, Q)
     if "seqs" in v:                                 # فلترُ التقسيم: الارتدادُ والتسامحُ يُرخيان إلى أرخى سلّمهما (مفاتيحُ التسلسل المحسوبة)
         Q[cond] = {"rose": 1e9, "band_low": 0.0, "band_hi": 1e9, "bounce": loosest("split_filter", "bounce"),
                    "tol": loosest("split_filter", "tol"), "zone": 1e9}[cond]
@@ -219,6 +262,8 @@ def fails_only(v, P, cond):
 
 def cond_value(v, cond, P):
     """قيمةُ الشرط في الصفّ (لتوزيعه وهامشه)."""
+    if "p" in v:
+        return (v.get("vals") or {}).get(RD_VAL[cond])
     if cond == "rose":
         return v["rose"]
     if "seqs" in v:
@@ -474,7 +519,16 @@ def mode_prep(key, tool):
             sess.append(d.isoformat())
         d += dt.timedelta(1)
     rev = sorted(s for s, v in splits.items() if any(r < 1 for _x, r in v) and s.isalpha() and len(s) <= 5)
-    _jdump({"tool": tool, "splits": splits, "sessions": sess, "rev_syms": rev, "pages": pages, "asof": today}, os.path.join(OUT, f"gatecal_prep_{tool}.json.gz"))
+    members = {}
+    if tool == "ready":                             # كونُ الجاهزيّة: لقطةُ ناسداك (CS/ADRC) أوّلَ كلّ شهرٍ في المدى — نقطةً في الزمن (يشمل المشطوب)
+        import pit_universe as PU
+        a, b = (os.environ.get("GATECAL_FROM") or "2026-08-16"), (os.environ.get("GATECAL_TO") or today)
+        for m in sorted({d[:7] for d in sess if a[:7] <= d[:7] <= b[:7]}):
+            first = next(d for d in sess if d[:7] == m)
+            members[m] = sorted(r["ticker"] for r in PU.fetch_universe(first, key) if r.get("type") in ("CS", "ADRC"))
+            log(f"prep ready {first}: {len(members[m])}")
+        rev = sorted({x for v in members.values() for x in v})
+    _jdump({"tool": tool, "splits": splits, "sessions": sess, "rev_syms": rev, "members": members, "pages": pages, "asof": today}, os.path.join(OUT, f"gatecal_prep_{tool}.json.gz"))
     log(f"📦 prep {tool}: صفحات {pages} · رموزٌ بتقسيم {len(splits)} · بتقسيمٍ عكسيّ {len(rev)} · جلسات {len(sess)}")
     return RC_OK
 
@@ -606,10 +660,102 @@ def _feat_split_filter(S, key, sym, rows, sp, d_from, d_to, pct, loose):
     return out
 
 
-FEAT_FN = {"split_hunter": _feat_split_hunter, "split_filter": _feat_split_filter}
-RELAX = {"split_hunter": lambda loose: {"SPLIT_LOOKBACK_DAYS": int(loose["lookback"])}, "split_filter": lambda loose: {}}
+def rd_reason(S, sym, df):
+    """`analyze_ticker` بالإعداد القائم ⟵ (عبر؟، سببُ الرفض من `_REJECT_STATS`) — الدالّةُ الإنتاجيّة بالاسم."""
+    S._REJECT_STATS.clear()
+    try:
+        r = S.analyze_ticker(sym, df)
+    except Exception:                                            # noqa: BLE001
+        return False, "⛔ استثناء", None
+    why = next(iter(S._REJECT_STATS), None) if not r else None
+    return bool(r), why, r
+
+
+def _feat_ready(S, key, sym, rows, sp, d_from, d_to, pct, loose, ctx=None):
+    """الجاهزيّة: لكلّ جلسة D والرمزُ عضوٌ في كون شهرها — `analyze_ticker` الإنتاجيّ على آخر 800 يومٍ حتى D بمقياس D (تقسيماتٌ منفّذة حتى D) ·
+    الحاليّ ⟵ وإن رُفض فبإرخاء الكلّ ⟵ وإن عبر أحدُهما فكلُّ قيمةِ سلّمٍ بشرطٍ واحد · والقيمُ بـ`near_watch_measure` بالاسم."""
+    import pandas as pd
+    import catalog_envelope as CE
+    t = TOOLS["ready"]
+    cur_cfg, member = ctx["cfg"], ctx["member"]
+    days = [x[0] for x in rows]
+    O, H, Lw, C, V = ([float(x[q]) for x in rows] for q in (1, 2, 3, 4, 5))
+    split_days = {x for x, _r in sp}
+    full = pd.DataFrame({"Open": O, "High": H, "Low": Lw, "Close": C, "Volume": V}, index=pd.to_datetime(days))
+    loose_cfg = dict(cur_cfg)
+    loose_cfg.update({RD_KEY[c]: loose[c] for c in loose})
+    out = []
+    try:
+        for i, d in enumerate(days):
+            if d < d_from or d > d_to or i < 60 or sym not in member.get(d[:7], ()):
+                continue
+            lo = bisect.bisect_left(days, (dt.date.fromisoformat(d) - dt.timedelta(RD_HISTORY_DAYS)).isoformat())
+            sub = full.iloc[lo:i + 1]
+            f = fwd_factor(sp, d)
+            if f != 1.0:
+                sub = sub.copy()
+                sub[["Open", "High", "Low", "Close"]] *= f
+                sub["Volume"] /= f
+            S.CONFIG.clear()
+            S.CONFIG.update(cur_cfg)
+            ok0, why, r0 = rd_reason(S, sym, sub)
+            ok_all = ok0
+            if not ok0:
+                S.CONFIG.clear()
+                S.CONFIG.update(loose_cfg)
+                ok_all = rd_reason(S, sym, sub)[0]
+            S.CONFIG.clear()
+            S.CONFIG.update(cur_cfg)
+            nw, vals = None, (CE.result_vals(r0) if r0 else None)
+            if not ok0:                             # «تحت المتابعة» كما يقيسها البوت: القيمُ بالبوّابات مُرخاة والخارجُ عن ظرف الكاتالوج
+                m = S.near_watch_measure(sym, sub, ctx["edges"])
+                if m:
+                    vals = m[0]
+                    nw = list(m[1]) if S.near_watch_founded(m[0], ctx["edges"]) else None
+            if not (ok0 or ok_all or (nw is not None and len(nw) <= 1 and d >= RD_NW_FROM)):
+                continue
+            pm = {}
+            for c, lad in t["ladders"].items():
+                pm[c] = []
+                for val in lad:
+                    if val == t["current"][c]:
+                        pm[c].append(int(ok0))
+                        continue
+                    if not ok_all:                  # لا يعبر حتى بإرخاء الكلّ ⟵ لا يعبر بإرخاء شرطٍ واحد (السلالمُ داخل الأرخى)
+                        pm[c].append(0)
+                        continue
+                    S.CONFIG.clear()
+                    S.CONFIG.update(cur_cfg)
+                    S.CONFIG[RD_KEY[c]] = val
+                    pm[c].append(int(rd_reason(S, sym, sub)[0]))
+            S.CONFIG.clear()
+            S.CONFIG.update(cur_cfg)
+            x, mx = exploded_label(days, H, C, i, pct, split_days)
+            out.append({"sym": sym, "d": d, "x": x, "mx": mx, "r": trade_return(O, H, C, i),
+                        "ret5": (C[i] / C[i - 5] - 1.0) if C[i - 5] > 0 else None,
+                        "v": {"p": pm, "all": int(ok_all), "why": why, "exch": "XNAS", "nw": nw,
+                              "vals": {k: (round(float(z), 4) if isinstance(z, (int, float)) and z == z else None)
+                                       for k, z in (vals or {}).items() if k in set(RD_VAL.values())}}})
+    finally:
+        S.CONFIG.clear()
+        S.CONFIG.update(cur_cfg)
+    return out
+
+
+def rd_context(S, prep):
+    """إعدادُ الإنتاج الحيّ (`apply_faisal_only` بالمفتاح 1 على نسخة) وعضويّةُ الكون الشهريّة — وصمتُ السجلّ."""
+    cur = dict(S.CONFIG)
+    cur["FAISAL_ONLY"] = 1
+    S.apply_faisal_only(cur, log_fn=lambda *a: None)
+    S.log = lambda *a, **k: None
+    import envelope_scan as EV
+    return {"cfg": cur, "member": {m: set(v) for m, v in (prep.get("members") or {}).items()}, "edges": EV.load_edges() or {}}
+
+
+FEAT_FN = {"split_hunter": _feat_split_hunter, "split_filter": _feat_split_filter, "ready": _feat_ready}
+RELAX = {"split_hunter": lambda loose: {"SPLIT_LOOKBACK_DAYS": int(loose["lookback"])}, "split_filter": lambda loose: {}, "ready": lambda loose: {}}
 DIAG_WIDE = {"split_hunter": {"rose": 1e9, "band_low": 0.0, "band_hi": 1e9, "hold": 1, "shares": 1e18, "cliff": -1e9, "lookback": 250, "price_max": 1e9},
-             "split_filter": {"rose": 1e9, "band_low": 0.0, "band_hi": 1e9, "bounce": 5.0, "tol": 0.04, "zone": 1e9}}
+             "split_filter": {"rose": 1e9, "band_low": 0.0, "band_hi": 1e9, "bounce": 5.0, "tol": 0.04, "zone": 1e9}, "ready": {}}
 
 
 def mode_feat(key, tool, k, d_from, d_to, d_in):
@@ -628,14 +774,19 @@ def mode_feat(key, tool, k, d_from, d_to, d_in):
     relax = RELAX[tool](loose)
     sv = {kk: S.CONFIG.get(kk) for kk in relax}
     out, nobars, t0 = [], 0, time.time()
+    bars_from = t.get("bars_from", BARS_FROM)
+    ctx = rd_context(S, prep) if tool == "ready" else None
     try:
         S.CONFIG.update(relax)                                      # إرخاءُ نافذة الحدث لقراءة القيم — يُستعاد
         for j, sym in enumerate(syms):
-            js = _getjson(f"https://api.polygon.io/v2/aggs/ticker/{sym}/range/1/day/{BARS_FROM}/{prep['asof']}?adjusted=true&sort=asc&limit=50000&apiKey={key}") or {}
+            js = _getjson(f"https://api.polygon.io/v2/aggs/ticker/{sym}/range/1/day/{bars_from}/{prep['asof']}?adjusted=true&sort=asc&limit=50000&apiKey={key}") or {}
             rows = [(dt.datetime.utcfromtimestamp(x["t"] / 1000).date().isoformat(), x["o"], x["h"], x["l"], x["c"], x.get("v") or 0.0)
                     for x in js.get("results") or []]
             if len(rows) < 30:
                 nobars += 1
+                continue
+            if ctx is not None:
+                out.extend(_feat_ready(S, key, sym, rows, prep["splits"].get(sym) or [], d_from, d_to, pct, loose, ctx))
                 continue
             out.extend(FEAT_FN[tool](S, key, sym, rows, prep["splits"].get(sym) or [], d_from, d_to, pct, loose))
             if j % 25 == 0:
@@ -678,6 +829,87 @@ def _months(a, b):
     return max(1.0, (dt.date.fromisoformat(b) - dt.date.fromisoformat(a)).days / 30.44)
 
 
+def wall_base(code):
+    """مفتاحُ الجدار بلا ما بين القوسين (`_reject_key_base` بمعناه) — نقيّة."""
+    k = str(code or "")
+    i = k.find("(")
+    return (k[:i].strip() or k) if i > 0 else k
+
+
+def rd_ledger_pairs(snaps, sessions):
+    """سجلُّ الرفض اليوميّ (`reject_log.json` بلقطاته) ⟵ {(رمز، جلسةُ الشموع): جدار} — يومُ اللقطة X يقرأ شموعَ آخر جلسةٍ قبل X ·
+    والجدرانُ المقصوصةُ بالعيّنة (`sampled`) لا تُعَدّ (قائمتُها ناقصة) · نقيّة."""
+    out = {}
+    for day in snaps:
+        date = str(day.get("date") or "")
+        k = bisect.bisect_left(sessions, date) - 1
+        if k < 0:
+            continue
+        cut = set(day.get("sampled") or [])
+        for wall, syms in (day.get("walls") or {}).items():
+            if wall in cut:
+                continue
+            for sym in syms or []:
+                out[(sym, sessions[k])] = wall
+    return out
+
+
+def rd_ledger(rows_by_sym, sessions, snaps=None):
+    """§② مطابقةُ الجاهزيّة: جدارُ البوت المسجَّل مقابل جدار الإعادة للصفّ نفسِه (حيث للإعادة صفّ) ⟵ (المقارَن، المتّفق، المختلف)."""
+    if snaps is None:
+        import subprocess
+        snaps, seen = [], set()
+        try:
+            cs = subprocess.run(["git", "log", "--format=%H", "--", "reject_log.json"], cwd=ROOT, capture_output=True, text=True, timeout=120).stdout.split()
+        except Exception:                                        # noqa: BLE001
+            cs = []
+        for c in cs:
+            try:
+                blob = subprocess.run(["git", "show", f"{c}:reject_log.json"], cwd=ROOT, capture_output=True, text=True, timeout=60).stdout
+                for day in json.loads(blob):
+                    if day.get("date") not in seen:              # الأحدثُ أوّلًا (git log) ⟵ آخرُ كتابةٍ لليوم تغلب
+                        seen.add(day.get("date"))
+                        snaps.append(day)
+            except Exception:                                    # noqa: BLE001
+                continue
+    pairs = rd_ledger_pairs(snaps, sessions)
+    tot, hit, miss = 0, 0, []
+    for (sym, d), wall in sorted(pairs.items()):
+        r = next((z for z in rows_by_sym.get(sym, []) if z["d"] == d), None)
+        if r is None:
+            continue
+        tot += 1
+        got = wall_base(r["v"].get("why")) if not r["v"]["p"]["base"][TOOLS["ready"]["ladders"]["base"].index(TOOLS["ready"]["current"]["base"])] else "عبر"
+        if got == wall_base(wall):
+            hit += 1
+        else:
+            miss.append((sym, d, f"السجلّ {wall} · الإعادة {got}"))
+    return tot, hit, miss
+
+
+def wall_table(rows_by_sym, ix, win=WIN):
+    """🧱 جدولُ الجدار الفعليّ: صفوفُ «تحت المتابعة» بناقصٍ واحد فأقلّ (أوّلُ صفٍّ للرمز ثمّ لا صفَّ قبل win جلسة) ⟵
+    {(ناقصُ الظرف، جدارُ الفرز): [عدد، موسوم، منفجر]} — نقيّة."""
+    out = {}
+    for sym in sorted(rows_by_sym):
+        last = None
+        for r in rows_by_sym[sym]:
+            nw = r["v"].get("nw")
+            if nw is None or len(nw) > 1 or r["v"]["p"]["base"][TOOLS["ready"]["ladders"]["base"].index(120.0)]:
+                continue
+            q = ix[r["d"]]
+            if last is not None and q - last < win:
+                continue
+            last = q
+            k = ((nw[0] if nw else "لا ناقص"), wall_base(r["v"].get("why")))
+            c = out.setdefault(k, [0, 0, 0])
+            c[0] += 1
+            if r.get("x") is not None:
+                c[1] += 1
+                c[2] += int(bool(r["x"]))
+    return out
+
+
 def ledger_match(tool, rows_by_sym):
     """§② مطابقةُ السجلّ: عابرو `hunter_ledger.jsonl` (مرشَّحين) — كم منهم يعبر في الإعادة بالأرقام الحاليّة في جلسته؟"""
     t = TOOLS[tool]
@@ -705,6 +937,8 @@ def why_fails(v, P):
     """أسماءُ الشروط التي يسقط عليها الصفُّ بالأرقام P (بترتيب الصيّاد) — نقيّة · للتشخيص."""
     if "seqs" in v:
         return sf_why(v, P)
+    if "p" in v:
+        return [] if passes(v, P) else [str(v.get("why") or "؟")]
     out = []
     if v["age"] > P["lookback"]:
         out.append("lookback")
@@ -839,8 +1073,16 @@ def mode_count(tool, d_in):
         log(f"  - بإرخاء «{t['label'][cond]}» وحدَه إلى {_fmt(PL[cond])}: {per[cond][0]} حلقة · منفجرون {per[cond][2]}")
     best = max(per.values(), key=lambda z: z[0]) if per else (0, 0, 0)
     suff = best[0] >= SUFF["loose_eps"] and best[2] >= SUFF["loose_x"] and c1[0] >= SUFF["cur_eps"]
-    tot, hit, miss = ledger_match(tool, by_sym)
-    log(f"- مطابقةُ السجلّ (§②): عابرو السجلّ الحقيقيّ {tot} (رمز·جلسة) · منهم في الإعادة عابرون {hit} "
+    tot, hit, miss = rd_ledger(by_sym, preps[0]["sessions"]) if tool == "ready" else ledger_match(tool, by_sym)
+    if tool == "ready":
+        log("")
+        log("### 🧱 الجدارُ الفعليّ لصفوف «تحت المتابعة» بناقصٍ واحد فأقلّ (أوّلُ ظهورٍ للرمز كلَّ 20 جلسة)")
+        log("| ناقصُ الظرف المعروض | جدارُ الفرز الفعليّ | حلقات | موسومة | منفجرون | نسبة |")
+        log("|---|---|---|---|---|---|")
+        for (a_, b_), c in sorted(wall_table(by_sym, ix).items(), key=lambda z: -z[1][0]):
+            log(f"| {a_} | {b_} | {c[0]} | {c[1]} | {c[2]} | {_fmt(c[2] / c[1] if c[1] else None, True)} |")
+        log("")
+    log(f"- مطابقةُ السجلّ (§②): {'صفوفُ سجلّ الرفض المقارَنة' if tool == 'ready' else 'عابرو السجلّ الحقيقيّ'} {tot} (رمز·جلسة) · منهم {'متّفقُ الجدار' if tool == 'ready' else 'في الإعادة عابرون'} {hit} "
         f"({_fmt(hit / tot if tot else None, True)}) · الحدّ {MATCH_FLOOR:.0%}")
     for m in miss[:40]:
         log(f"  - لم يطابق: {m[0]} {m[1]} — {m[2]}")
