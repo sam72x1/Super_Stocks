@@ -123,7 +123,7 @@ def result_path(tool):
     return os.path.join(HERE, f"T_GATECAL_{tool}_RESULT.md")
 
 
-FREEZE_SHA = {}                # {أداة: بصمةُ ملفّ تثبيتها} — يُملأ في PR التثبيت قبل فتح جزء التأكيد
+FREEZE_SHA = {"ready": "b063303cb5457bce6e64e5f962372d8ba38683ebe483c44e5e6f8de1632c8a7b"}                # {أداة: بصمةُ ملفّ تثبيتها} — يُملأ في PR التثبيت قبل فتح جزء التأكيد
 
 
 def freeze_ok(tool):
@@ -1162,6 +1162,11 @@ def mode_confirm(tool, d_in):
     if not fz["proposals"]:
         log("⚖️ لا شرطَ مرشَّحًا من الاختيار ⟵ كلُّ الأرقام تبقى (والمنحنياتُ أعلاه وصف)")
     log("⚖️ GATECAL_CONFIRM " + tool + ": " + (" · ".join(out) or "لا مرشَّح"))
+    rest = [c for c in t["ladders"] if c not in fz["proposals"]]
+    if era and rest:                                # بقيّةُ الشروط على جزء التأكيد — وصفٌ لا حكم (لم تُرشَّح في الاختيار فلا يُقترح لها شيء)
+        log("")
+        log("## وصفٌ لا حكم — منحنياتُ الشروط غيرِ المرشَّحة على جزء التأكيد")
+        print_curves(tool, by_sym, ix, pool, _months(a, b), conds=rest)
     return RC_OK
 
 
