@@ -244,11 +244,11 @@
   "anchor_price": 0.5323,
   "anchor_open": 0.4776,
   "anchor_low": 0.4638,
-  "date": "2026-11-18",
   "pre_done": true,
   "pre_hi": 0.5299,
   "pre_usd": 111930,
-  "pre_n": 7
+  "pre_n": 7,
+  "date": "2026-11-18"
  },
  "LIQ:EPSM": {
   "last_eval_ms": 1794944880000,
@@ -3766,5 +3766,12 @@
  },
  "LIQ:PLUT": {
   "date": "2026-11-18"
+ },
+ "XM:BRNX": {
+  "date": "2026-11-18",
+  "ms": 1795003980000,
+  "px": 0.5323,
+  "pct": 0.2983,
+  "gold": false
  }
 }
