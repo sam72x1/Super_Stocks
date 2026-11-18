@@ -103230,8 +103230,11 @@ check("🔧 BPK4 T-BLIND-PICK: ميزانيةُ FINRA وقاطعُه يُهيَ�
 # 🔧 NXL5 — عطلٌ مُثبَت (2026-11-18 · أوّلُ تشغيلةٍ حيّة `44274187793`): الإكسل أُرسل و`git add` رفض `near_watch_daily/near_watch_<الجلسة>.csv`
 #    لأن `*.csv` في `.gitignore` يتجاهله ⟵ استثناءٌ صريح · والقفلُ سلوكيّ: `git check-ignore` على مسار الملفّ الذي تكتبه الخطوةُ نفسُها (`NW_XLSX_DIR`).
 try:
-    import subprocess as _nx5_sp, os as _nx5_os
-    _nx5_p = _nx5_os.path.join(S.NW_XLSX_DIR, "near_watch_2026-11-17.csv")
+    import subprocess as _nx5_sp, ast as _nx5_ast
+    # قيمةُ الإنتاج من المصدر (السويّةُ تحوّل `S.NW_XLSX_DIR` إلى مجلّدٍ مؤقّت في رأسها)
+    _nx5_dir = next(_n.value.value for _n in _nx5_ast.parse(open("Super_stock.py", encoding="utf-8").read()).body
+                    if isinstance(_n, _nx5_ast.Assign) and getattr(_n.targets[0], "id", None) == "NW_XLSX_DIR")
+    _nx5_p = _nx5_dir + "/near_watch_2026-11-17.csv"
     _nx5_rc = _nx5_sp.run(["git", "check-ignore", "-q", "--no-index", _nx5_p], capture_output=True).returncode
     _nx5_ctl = _nx5_sp.run(["git", "check-ignore", "-q", "--no-index", "some_dir/x.csv"], capture_output=True).returncode
     _nx5_v = (_nx5_rc, _nx5_ctl)
