@@ -103227,6 +103227,92 @@ check("🔧 BPK4 T-BLIND-PICK: ميزانيةُ FINRA وقاطعُه يُهيَ�
       isinstance(_bp4_v, tuple) and {"_FINRA_BUDGET", "_FINRA_FAILS", "call"} <= set(_bp4_v[0])
       and _bp4_v[0]["_FINRA_BUDGET"] < _bp4_v[0]["call"] and _bp4_v[0]["_FINRA_FAILS"] < _bp4_v[0]["call"] and _bp4_v[1], str(_bp4_v)[:200])
 
+# 🎯 TGV1-TGV5 (‏2026-11-18 · أداةُ حكم `T-SHADOW-TGT` §①-§⑤ قبل أوانه · تذكيرُ التفويض): الوقفُ أوّلًا داخل الشمعة · الافتتاحُ تحت الوقف ⟵ الافتتاح · الهدفُ بسعره ·
+#    النتيجةُ متوسّطُ النصفين · أهليّةُ الذراع ② بأسبابها · المجموعتان من 11-09 والمرساةُ عند 09:25 أو بعدها تُستبعَد · قبل الأوان خروج 7 بلا عائد ·
+#    صدر ⟵ 6 · العقدُ ⟵ 9 · الأرضيّةُ 20 ⟵ «لا قياس» · والـworkflow قارئٌ يدويٌّ بلا تلغرام.
+try:
+    import importlib.util as _tgv_iu, datetime as _tgv_dt, os as _tgv_os, contextlib as _tgv_cl, io as _tgv_io
+    from zoneinfo import ZoneInfo as _tgv_Z
+    _tgv_sp = _tgv_iu.spec_from_file_location("_tgv_mod", "fm_forensics/shadow_tgt/shadow_tgt.py")
+    _TG = _tgv_iu.module_from_spec(_tgv_sp); _tgv_sp.loader.exec_module(_TG)
+    _tgv_NY = _tgv_Z("America/New_York")
+
+    def _tgv_ms(day, hh, mm):
+        y, mo, d = map(int, day.split("-"))
+        return int(_tgv_dt.datetime(y, mo, d, hh, mm, tzinfo=_tgv_NY).timestamp() * 1000)
+
+    def _tgv_bars(day, E, path):
+        """شمعةُ 09:24 بإغلاق E ثمّ `path` قائمة (o, h, l, c) من 09:25."""
+        out = [(_tgv_ms(day, 9, 24), E, E, E, E, 1)]
+        for i, (o, h, l, c) in enumerate(path):
+            m = 9 * 60 + 25 + i
+            out.append((_tgv_ms(day, m // 60, m % 60), o, h, l, c, 1))
+        return out
+    # TGV1
+    _t1a = _TG.sim_half([(0, 1.0, 1.3, 0.85, 1.0)], 0.9, 1.2)            # الوقفُ والهدفُ في شمعة ⟵ الوقف
+    _t1b = _TG.sim_half([(0, 0.8, 0.95, 0.75, 0.9)], 0.9, 1.2)           # افتتاحٌ تحت الوقف ⟵ الافتتاح
+    _t1c = _TG.sim_half([(0, 1.4, 1.6, 1.35, 1.5)], 0.9, 1.2)            # افتتاحٌ فوق الهدف ⟵ الهدفُ بسعره
+    _t1d = _TG.sim_half([(0, 1.0, 1.1, 0.95, 1.05), (1, 1.05, 1.1, 1.0, 1.07)], 0.9, 1.2)
+    _t1e = _TG.sim_arm([(0, 1.0, 1.25, 0.95, 1.2), (1, 1.2, 1.22, 0.85, 0.88)], 1.0, 0.9, 1.2, 1.5)
+    _tgv1 = (_t1a, _t1b, _t1c, _t1d, round(_t1e["ret"], 9), _t1e["fill1"], _t1e["fill2"], _t1e["stop_pre1"])
+    # TGV2
+    _d = "2026-11-10"
+    _b = _tgv_bars(_d, 1.0, [(1.0, 1.25, 0.95, 1.2)] * 3)
+    _r_none = _TG.measure_row(_b, _d, None)[0]
+    _r_nolv = _TG.measure_row(_b, _d, {"src": "none"})[0]
+    _r_below = _TG.measure_row(_b, _d, {"src": "on_demand", "stop": 1.0, "t1": 1.2, "t2": 1.4})[0]
+    _r_above = _TG.measure_row(_b, _d, {"src": "on_demand", "stop": 0.8, "t1": 0.95, "t2": 1.4})[0]
+    _r_inv = _TG.measure_row(_b, _d, {"src": "list", "stop": 0.8, "t1": 1.3, "t2": 1.2})[0]
+    _r_ok = _TG.measure_row(_b, _d, {"src": "list", "stop": 0.8, "t1": 1.1, "t2": 1.5})[0]
+    _tgv2 = (_r_none["why2"], _r_nolv["why2"], _r_below["why2"], _r_above["why2"], _r_inv["why2"], _r_ok["a2"] is not None,
+             round(_r_ok["a2"]["ret"], 9), _r_ok["src"], _TG.measure_row([], _d, None)[1],
+             _TG.measure_row(_tgv_bars(_d, 1.0, [])[:1], _d, None)[1])
+    # TGV3
+    def _row(d, sym, sh, gap, hh=9, mm=0):
+        return {"sample": "fwd", "tod": "pre", "date": d, "symbol": sym, "shadow": sh, "gap_pct": gap, "anchor_ms": _tgv_ms(d, hh, mm)}
+    _rows3 = [_row("2026-11-06", "OLD", True, 50), _row("2026-11-09", "A", True, 5), _row("2026-11-09", "B", False, 20.0),
+              _row("2026-11-09", "C", False, 19.9), _row("2026-11-09", "D", True, 40, 9, 25), _row("2026-11-09", "E", False, 30, 9, 40),
+              dict(_row("2026-11-09", "F", True, 40), tod="post"), dict(_row("2026-11-09", "G", True, 40), sample="bt")]
+    _g3, _c3 = _TG.tgt_groups(_rows3)
+    _tgv3 = ([r["symbol"] for r in _g3["S"]], [r["symbol"] for r in _g3["C20"]], _c3)
+    # TGV4
+    _now_early = _tgv_dt.datetime(2026, 11, 20, 12, 0, tzinfo=_tgv_NY)
+    _rowsS = [_row(f"2026-11-{9 + (i % 10):02d}", f"S{i}", True, 40) for i in range(25)]
+    _rowsC = [_row(f"2026-11-{9 + (i % 10):02d}", f"C{i}", False, 30) for i in range(25)]
+    _fetch = lambda s, d: _tgv_bars(d, 1.0, [(1.0, 1.25 if s.startswith("S") else 1.05, 0.95, 1.1)] * 3)  # noqa: E731
+    _e_rc, _e_l = _TG.run(_rowsS + _rowsC, {}, _fetch, _now_early)
+    _d_rc, _ = _TG.run(_rowsS + _rowsC, {}, _fetch, _now_early, done=True)
+    _rowsS30 = _rowsS + [_row(f"2026-11-{9 + (i % 10):02d}", f"S{100 + i}", True, 40) for i in range(5)]
+    _v_rc, _v_l = _TG.run(_rowsS30 + _rowsC, {}, _fetch, _now_early)
+    _late = _tgv_dt.datetime(2027, 1, 2, 12, 0, tzinfo=_tgv_NY)
+    _l_rc, _l_l = _TG.run(_rowsS + _rowsC[:10], {}, _fetch, _late)
+    _keep = _TG.CONTRACT_SHA
+    try:
+        _TG.CONTRACT_SHA = "0" * 64
+        with _tgv_cl.redirect_stdout(_tgv_io.StringIO()):
+            _c_rc = _TG.main(["--mode", "status"])
+    finally:
+        _TG.CONTRACT_SHA = _keep
+    _tgv4 = (_e_rc, any("%" in x for x in _e_l), _d_rc, _v_rc, "يفرّق" in "\n".join(_v_l), _l_rc, any(x.startswith("⚖️ الذراع ①") and x.endswith("«لا قياس»") and "C20 10" in x for x in _l_l), _c_rc,
+             _TG.contract_ok())
+    # TGV5
+    _wf = open(".github/workflows/shadow_tgt.yml", encoding="utf-8").read()
+    _wf_lines = [x.split("#")[0] for x in _wf.splitlines()]
+    _tgv5 = ("contents: read" in _wf and not any("schedule" in x or "TELEGRAM" in x or "git push" in x or "contents: write" in x for x in _wf_lines)
+             and "--mode" in _wf)
+    _tgv_v = (_tgv1, _tgv2, _tgv3, _tgv4, _tgv5)
+except Exception as _tgv_e:                                                                       # noqa: BLE001
+    _tgv_v = f"⛔ {type(_tgv_e).__name__}: {_tgv_e}"
+check("🎯 TGV1-TGV5 أداةُ حكم T-SHADOW-TGT: الوقفُ أوّلًا · الافتتاحُ تحت الوقف ⟵ الافتتاح · الهدفُ بسعره · متوسّطُ النصفين · أهليّةُ ② بأسبابها · "
+      "المجموعتان من 11-09 بلا مرساة 09:25 · قبل الأوان 7 بلا عائد · صدر 6 · العقد 9 · الأرضيّة «لا قياس» · workflow قارئٌ بلا تلغرام",
+      isinstance(_tgv_v, tuple)
+      and _tgv_v[0] == ((0.9, "stop"), (0.8, "stop"), (1.2, "tgt"), (1.07, "close"), round(0.5 * 0.2 + 0.5 * (0.9 - 1), 9), True, False, False)
+      and _tgv_v[1][:5] == ("بلا التقاط", "بلا مستويات", "تحت الوقف عند الدخول", "فوق الهدف الأول عند الدخول", "الهدف 1 ليس تحت الهدف 2")
+      and _tgv_v[1][5] is True and _tgv_v[1][6] == round(0.5 * 0.1 + 0.5 * 0.2, 9) and _tgv_v[1][7] == "list"
+      and _tgv_v[1][8] == "bars" and _tgv_v[1][9] == "no_regular"
+      and _tgv_v[2] == (["A"], ["B"], {"S": 1, "C20": 1})
+      and _tgv_v[3] == (7, False, 6, 0, True, 0, True, 9, True) and _tgv_v[4] is True, str(_tgv_v)[:500])
+
 # 🔒 MOC1 — «اقفل كمية التجميع» (أمرُ المالك 2026-11-17): momo.py ‏run/cut/set تخرج 8 بلا MOMO_REOPEN=1 حرفيًّا · وcheck مفتوح (0).
 try:
     import importlib.util as _moc_iu, subprocess as _moc_sp, sys as _moc_sys, os as _moc_os
