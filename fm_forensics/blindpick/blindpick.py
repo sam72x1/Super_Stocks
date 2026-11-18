@@ -540,6 +540,10 @@ def mode_a1(key, build):
     if not plan:
         return RC_POP
     aidx = avail_index()
+    # 🔧 عطلٌ مُثبَت (2026-11-18 · `44271235564`: «أيّامُ FINRA متعذّرة 40»): ميزانيةُ تنزيلات FINRA في Super_stock تبدأ 0 ولا يهيّئها إلّا
+    #    `_bt_short_enrich` ⟵ `_finra_day_map` يُرجع {} بلا أيّ نداء ⟵ الشورتُ مجهولٌ لكلّ صفّ (ومنه «—» في البطاقات الـ200 الملغاة) · `BPK4`
+    S._FINRA_BUDGET[0] = int(S.CONFIG["FINRA_BUDGET"])
+    S._FINRA_FAILS[0] = 0
     meta, finra_fail = {}, 0
     for d, ts, h in plan:
         snap = show_json(h, "near_watch.json")
@@ -550,6 +554,9 @@ def mode_a1(key, build):
         snapday = ts.date().isoformat()
         meta[d] = [{"sym": e["symbol"], "rsi": e.get("rsi_now"), "fl": float_asof(e, snapday, cc), "av": avail_asof(aidx, e["symbol"], d),
                     "sh": fmap.get(e["symbol"])} for e in session_rows(snap)]
+    if finra_fail == len(plan):
+        log(f"⛔ ملفّاتُ FINRA متعذّرةٌ للجلسات كلِّها ({finra_fail}) — عطلُ مصدرٍ لا «لا قياس» · لا حكمَ ولا بطاقات — خروج 5")
+        return RC_POP
     pre = {d: [r for r in rows if complete_row(r, d, voided)] for d, rows in meta.items()}
     syms = sorted({r["sym"] for rows in pre.values() for r in rows})
     log(f"🔢 صفوف {sum(len(v) for v in meta.values())} · كاملةٌ قبل الشموع {sum(len(v) for v in pre.values())} · رموزُها {len(syms)} · "
