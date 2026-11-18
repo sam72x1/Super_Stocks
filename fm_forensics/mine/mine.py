@@ -28,7 +28,7 @@ import filter_core as FC                                          # noqa: E402
 CONTRACT = os.path.join(HERE, "T_MINE_prereg.md")
 CONTRACT_SHA = "96ee3a6d10b7b909eab0468107dcca8ee760ab3b71759646ad0918868d91e51b"
 FREEZE = os.path.join(HERE, "data", "mine_freeze.json")
-FREEZE_SHA = ""                                                   # §④ يُملأ في PR التثبيت قبل فتح 2025 · فارغٌ ⟵ التأكيدُ مرفوض
+FREEZE_SHA = "03828974b4378d9e2b044ee338924406e0fd8ed75bdef73e9b2c820f7613fe81"                                                   # §④ يُملأ في PR التثبيت قبل فتح 2025 · فارغٌ ⟵ التأكيدُ مرفوض
 RESULT = os.path.join(HERE, "T_MINE_RESULT.md")
 OUT = os.path.join(HERE, "out")
 DISC_YEARS = ("2023", "2024")                                     # §③

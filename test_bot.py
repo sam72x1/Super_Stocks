@@ -103733,6 +103733,22 @@ except Exception as _e:                                          # noqa: BLE001
     check("⛏️ أقفالُ `T-MINE` انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
 
+# ⛏️ MIN7 — ملفُّ التثبيت (§④): ببصمته المشحونة · بعقده · 3 توليفاتٍ فأقلّ بشروطٍ مسمّاة في الأداة · ومعه عددُ المجرَّب
+try:
+    import json as _m7_js
+    _m7 = _m7_js.load(open(_MN.FREEZE, encoding="utf-8"))
+    _m7_top = _m7.get("top") or []
+    check("⛏️ MIN7: ملفُّ تثبيت `T-MINE` يطابق بصمتَه المشحونة وعقدَه · 3 توليفاتٍ فأقلّ كلٌّ بثلاثة شروطٍ فأقلّ مسمّاةٍ في الأداة ومؤهَّلةٍ "
+          "في سنتَي الاكتشاف وحدَهما · وعددُ المجرَّب مكتوب · ولا حكمَ تأكيدٍ بلا تثبيت",
+          _MN.freeze_ok() and len(_MN.FREEZE_SHA) == 64 and _m7.get("contract_sha") == _MN.CONTRACT_SHA and 1 <= len(_m7_top) <= _MN.TOP_N
+          and all(1 <= len(t["conds"]) <= _MN.MAX_K and set(t["conds"]) <= set(_MN.NAMES) and set(t["stats"]) == set(_MN.DISC_YEARS)
+                  and all(_MN.eligible(t["stats"][y]) for y in _MN.DISC_YEARS) for t in _m7_top)
+          and isinstance(_m7.get("tried"), int) and _m7["tried"] > len(_m7_top),
+          f"ok={_MN.freeze_ok()} top={[t['conds'] for t in _m7_top]} tried={_m7.get('tried')}")
+except Exception as _e:                                          # noqa: BLE001
+    check("⛏️ قفلُ تثبيت `T-MINE` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
