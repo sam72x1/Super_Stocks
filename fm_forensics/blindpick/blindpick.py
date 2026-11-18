@@ -6,6 +6,7 @@
   judge --picks   — اختياراتُ المالك ⟵ داخل الخزنة ⟵ الحكمُ بقاعدة FILTER_PROTOCOL (آلةُ T-BASKET وضابطُها بالاسم) ⟵ `T_BLIND_PICK_RESULT.md`.
 لا CONFIG · لا إنتاج · ولا تعديلَ على أيّ أداةٍ قائمة (تُستورد بالاسم).
 """
+import collections
 import concurrent.futures as cf
 import datetime as dt
 import gzip
@@ -40,6 +41,12 @@ MIN_N, COV_FLOOR = 30, 0.80
 WORKERS = 8
 RC_OK, RC_KEY, RC_PICKS, RC_VAULT, RC_CONTRACT, RC_POP = 0, 2, 4, 6, 11, 5
 RC_MISMATCH = 7                                                  # resend: البناءُ لا يطابق الخزنة ⟵ لا إرسالَ ولا كتابة
+# 📎 الملحق 1 (2026-11-18 · أمرُ المالك): البطاقاتُ الـ200 ملغاة ⟵ إعادةُ السحب من الصفوف الكاملة (الفلوت والشورت والمتاح معلومة يومَ القرار)
+ADDENDUM = os.path.join(HERE, "T_BLIND_PICK_addendum_1.md")
+ADDENDUM_SHA = "b8bb293e0941cf292edf78e78d564f8cc78289d4058a8ffc5078b23095065e3d"
+VAULT_A1 = os.path.join(ROOT, "blind_pick_a1.vault")
+A1_MIN_SESS, A1_GAP, A1_BARS = 30, 10, 10                                     # §④ الملحق: أرضيّةُ الجلسات · والفاصلُ لتكرار الرمز مرّةً ثانية
+RC_NOMEASURE = 3                                                 # §④ الملحق: دون 30 جلسة ⟵ «لا قياس» بلا بطاقات
 UTC = dt.timezone.utc
 
 
@@ -49,6 +56,10 @@ def log(m=""):
 
 def contract_ok():
     return hashlib.sha256(open(CONTRACT, "rb").read()).hexdigest() == CONTRACT_SHA
+
+
+def addendum_ok():
+    return os.path.exists(ADDENDUM) and hashlib.sha256(open(ADDENDUM, "rb").read()).hexdigest() == ADDENDUM_SHA
 
 
 def lottery(d, sym, salt=""):
@@ -204,6 +215,51 @@ def svg_chart(rows, w=900, h=330):
     return "".join(out)
 
 
+def svg_chart10(rows, rsis, w=480):
+    """(نقيّة) §⑤ الملحق: آخرُ الشموع (10) تملأ العرض ⟵ لوحةُ السعر (محورُ سعرٍ يمين · بلا تواريخ) ⟵ أعمدةُ الحجم ⟵ خطُّ RSI(14) بمرجعَي 30/70 ·
+    rows = [(o، h، l، c، v)] · rsis = [RSI أو None] بطولها · بلا ماكد ولا خطوط دعمٍ ومقاومة."""
+    if not rows:
+        return "<p>—</p>"
+    ph, vh, rh, gap, pad, rx = 300, 70, 100, 14, 8, 58
+    h = ph + vh + rh + 2 * gap
+    hi = max(r[1] for r in rows)
+    lo = min(r[2] for r in rows)
+    span = (hi - lo) or (hi or 1.0)
+    hi, lo = hi + span * 0.04, lo - span * 0.04
+    span = hi - lo
+    vmax = max(r[4] for r in rows) or 1.0
+    n = len(rows)
+    cw = (w - rx - pad) / n
+    y = lambda p: pad + (hi - p) / span * (ph - 2 * pad)                             # noqa: E731
+    out = [f'<svg viewBox="0 0 {w} {h}" width="100%" xmlns="http://www.w3.org/2000/svg" style="background:#fff;direction:ltr" direction="ltr">']
+    for k in range(5):
+        p = lo + span * k / 4
+        yy = y(p)
+        out.append(f'<line x1="0" x2="{w - rx}" y1="{yy:.1f}" y2="{yy:.1f}" stroke="#eee"/>'
+                   f'<text x="{w - rx + 6}" y="{yy + 5:.1f}" font-size="15" fill="#222">{p:.4g}</text>')
+    vy0 = ph + gap
+    ry0 = ph + vh + 2 * gap
+    ry = lambda v: ry0 + (100 - v) / 100 * rh                                        # noqa: E731
+    for i, (o, hh, l, c, v) in enumerate(rows):
+        x = pad + i * cw + cw / 2
+        col = "#1a9850" if c >= o else "#d73027"
+        out.append(f'<line x1="{x:.1f}" x2="{x:.1f}" y1="{y(hh):.1f}" y2="{y(l):.1f}" stroke="{col}" stroke-width="1.6"/>')
+        top, bot = y(max(o, c)), y(min(o, c))
+        out.append(f'<rect x="{x - cw * 0.32:.1f}" y="{top:.1f}" width="{cw * 0.64:.1f}" height="{max(bot - top, 1.5):.1f}" fill="{col}"/>')
+        vb = v / vmax * (vh - 4)
+        out.append(f'<rect x="{x - cw * 0.32:.1f}" y="{vy0 + vh - vb:.1f}" width="{cw * 0.64:.1f}" height="{vb:.1f}" fill="{col}" opacity="0.55"/>')
+    out.append(f'<text x="{w - rx + 6}" y="{vy0 + 14}" font-size="13" fill="#666">الحجم</text>')
+    for lv in (30, 70):
+        out.append(f'<line x1="0" x2="{w - rx}" y1="{ry(lv):.1f}" y2="{ry(lv):.1f}" stroke="#bbb" stroke-dasharray="4,4"/>'
+                   f'<text x="{w - rx + 6}" y="{ry(lv) + 5:.1f}" font-size="14" fill="#666">{lv}</text>')
+    pts = [(pad + i * cw + cw / 2, ry(float(v))) for i, v in enumerate(rsis or []) if v is not None and i < n]
+    if len(pts) >= 2:
+        out.append('<polyline fill="none" stroke="#7b3fa0" stroke-width="2.5" points="' + " ".join(f"{a:.1f},{b:.1f}" for a, b in pts) + '"/>')
+    out.append(f'<text x="{w - rx + 6}" y="{ry0 + 14}" font-size="13" fill="#666">RSI 14</text>')
+    out.append("</svg>")
+    return "".join(out)
+
+
 def _num(x, dec=0):
     if x is None:
         return "—"
@@ -224,18 +280,19 @@ def stab_text(st, f=1.0):
     return f"لم يثبت: مضى {st.get('bars_after')} من {st.get('need')} جلسات فوق القاع الدقيق ${pv:.4g}"
 
 
-def card_html(label, rows, fields, behav):
+def card_html(label, rows, fields, behav, chart=None):
     tr = "".join(f"<tr><th>{html.escape(k)}</th><td>{v}</td></tr>" for k, v in fields)
     tb = "".join(f"<tr><th>{html.escape(k)}</th><td>{html.escape('—' if v is None else str(v))}</td></tr>" for k, v in behav)
-    return (f'<div class="card"><h3>البطاقة {label}</h3>{svg_chart(rows)}'
+    return (f'<div class="card"><h3>البطاقة {label}</h3>{chart if chart is not None else svg_chart(rows)}'
             f'<table>{tr}</table><h4>سلوكه في الانفجارات السابقة (حتى يوم القرار)</h4><table>{tb}</table></div>')
 
 
-def page(sections):
+def page(sections, n=N_SESS):
     css = ("body{font-family:sans-serif;direction:rtl;margin:12px;background:#f7f7f7}.card{background:#fff;border:1px solid #ccc;"
            "border-radius:8px;padding:10px;margin:12px 0}table{border-collapse:collapse;width:100%;font-size:14px}th,td{border-bottom:1px solid #eee;"
            "padding:4px;text-align:right}th{width:45%;color:#444}h2{background:#223;color:#fff;padding:8px;border-radius:6px}")
-    head = ("<h1>🙈 اختبارٌ أعمى — 40 جلسة × 5 بطاقات</h1><p>كلُّ بطاقةٍ بلا رمزٍ ولا تاريخ · الأرقامُ كما كانت يومَ القرار · «—» = لا مصدرَ مؤرَّخ.</p>"
+    head = (f"<h1>🙈 اختبارٌ أعمى — {n} جلسة × 5 بطاقات</h1>"
+            "<p>كلُّ بطاقةٍ بلا رمزٍ ولا تاريخ · الأرقامُ كما كانت يومَ القرار · «—» = لا مصدرَ مؤرَّخ.</p>"
             "<p><b>الردّ:</b> رقمُ بطاقةٍ واحدة لكلّ جلسة (مثل «7-3») · والجلسةُ التي تعرف فيها سهمًا: «7: أعرفه» (تُستبعد).</p>")
     return f"<!doctype html><html lang=ar dir=rtl><head><meta charset=utf-8><meta name=viewport content='width=device-width'><style>{css}</style></head><body>{head}{''.join(sections)}</body></html>"
 
@@ -422,6 +479,157 @@ def send_doc(path, caption, token, admin, owner=None, post=None):
     return ok
 
 
+
+# ── الملحق 1: إعادةُ السحب من الصفوف الكاملة ─────────────────────────────────────────────────────────────────────────────
+def complete_row(r, d, voided):
+    """(نقيّة) §② الملحق: الفلوتُ والشورتُ والمتاحُ معلومةٌ يومَ القرار · وليس الزوجُ (رمز، d) من البطاقات الملغاة."""
+    return (r.get("fl") is not None and r.get("av") is not None and r.get("sh") is not None
+            and (r.get("sym"), d) not in voided)
+
+
+def a1_counts(comp):
+    """(نقيّة) §③ الملحق: comp = {d: [رموز الصفوف الكاملة]} ⟵ العدُّ قبل أيّ بناء (بلا رمزٍ ولا تاريخ)."""
+    ns = sorted(len(v) for v in comp.values())
+    med = (ns[len(ns) // 2] if len(ns) % 2 else (ns[len(ns) // 2 - 1] + ns[len(ns) // 2]) / 2) if ns else None
+    return {"sessions": len(comp), "min": ns[0] if ns else None, "median": med, "max": ns[-1] if ns else None,
+            "ge5": sum(1 for n in ns if n >= NPICK), "symbols": len({s for v in comp.values() for s in v})}
+
+
+def select_a1(sessions_cands, sidx, gap=None, npick=NPICK):
+    """(نقيّة) §④ الملحق: [(d، [(رمز، درجة)])] على الصفوف الكاملة · من الأقدم ⟵ {d: خمسةُ رموز} للجلسات المكتملة وحدَها.
+    gap=None ⟵ (أ) بلا تكرار · gap=N ⟵ (ب) الرمزُ يعود مرّةً ثانيةً فقط إن كان بين يومَي القرار N جلسةً فأكثر (sidx: d ⟵ رقمُ الجلسة في التقويم).
+    جلسةٌ دون npick تسقط كلُّها ولا تُعلِّم رموزَها مستعملة."""
+    uses, out = {}, {}
+    for d, cands in sorted(sessions_cands):
+        ranked = sorted(cands, key=lambda x: (-x[1], lottery(d, x[0])))
+        pick = []
+        for s, _sc in ranked:
+            u = uses.get(s) or []
+            if s in pick or (u and (gap is None or len(u) >= 2 or sidx[d] - u[-1] < gap)):
+                continue
+            pick.append(s)
+            if len(pick) == npick:
+                break
+        if len(pick) == npick:
+            out[d] = pick
+            for s in pick:
+                uses.setdefault(s, []).append(sidx[d])
+    return out
+
+
+def mode_a1(key, build):
+    """§③-§⑤ الملحق: العدُّ ⟵ (أ) ثمّ (ب) ⟵ «لا قياس» دون 30 ⟵ وإلّا (build) البطاقاتُ والخزنةُ الجديدة والإرسال."""
+    import market_calendar as MC
+    import journal_vault as J
+    import three_cond_daily as TC
+    import opentry_link_probe as OPL
+    import Super_stock as S
+    RB = _load("rb_blind", "fm_forensics/rebuild/rebuild.py")
+    TB = _load("tb_blind", "fm_forensics/nawaqis/tbook.py")
+    pws = _vault_pw(J)
+    old = next((x for x in (J.decrypt(open(VAULT, encoding="utf-8").read(), p) for p in pws) if x), None) if os.path.exists(VAULT) else None
+    if old is None or not old.get("cards"):
+        log("⛔ خزنةُ البطاقات الملغاة لا تُفكّ — لا يُعرَف ما يُستبعد — خروج 6")
+        return RC_VAULT
+    voided = {(c["sym"], c["d"]) for c in old["cards"].values()}
+    log(f"🗑️ أزواجُ البطاقات الملغاة: {len(voided)}")
+    sessions = TB._sessions("2026-07-01", dt.datetime.now(UTC).date().isoformat(), MC)
+    sidx = {d: i for i, d in enumerate(sessions)}
+    plan = plan_sessions(snapshots(), sessions, TC.WW.close_utc)
+    log(f"📅 مجمعُ الجلسات {len(plan)} · من {plan[0][0] if plan else '—'} إلى {plan[-1][0] if plan else '—'}")
+    if not plan:
+        return RC_POP
+    aidx = avail_index()
+    meta, finra_fail = {}, 0
+    for d, ts, h in plan:
+        snap = show_json(h, "near_watch.json")
+        cc_h = _git("log", "-1", f"--before={ts.isoformat()}", "--format=%H", "--", "company_cache.json").strip()
+        cc = show_json(cc_h, "company_cache.json") if cc_h else {}
+        fmap = S._finra_day_map(d) or {}
+        finra_fail += int(not fmap)
+        snapday = ts.date().isoformat()
+        meta[d] = [{"sym": e["symbol"], "rsi": e.get("rsi_now"), "fl": float_asof(e, snapday, cc), "av": avail_asof(aidx, e["symbol"], d),
+                    "sh": fmap.get(e["symbol"])} for e in session_rows(snap)]
+    pre = {d: [r for r in rows if complete_row(r, d, voided)] for d, rows in meta.items()}
+    syms = sorted({r["sym"] for rows in pre.values() for r in rows})
+    log(f"🔢 صفوف {sum(len(v) for v in meta.values())} · كاملةٌ قبل الشموع {sum(len(v) for v in pre.values())} · رموزُها {len(syms)} · "
+        f"أيّامُ FINRA متعذّرة {finra_fail}")
+    bars, hours, t0 = {}, {}, time.time()
+
+    def _one(s):
+        return s, TC.P.ticker_daily_adj(s, BARS_FROM, BARS_TO, key), TC._hours_one(s, HOURS_FROM, BARS_TO, key)
+    with cf.ThreadPoolExecutor(max_workers=WORKERS) as ex:
+        for i, (s, dr, hr) in enumerate(ex.map(_one, syms), 1):
+            bars[s], hours[s] = dr or [], hr or []
+            if i % 200 == 0:
+                log(f"   … الشموع {i}/{len(syms)} · {round(time.time() - t0)}s")
+    comp = {d: [r for r in rows if any(x[0] == d for x in bars.get(r["sym"]) or [])] for d, rows in pre.items()}
+    c = a1_counts({d: [r["sym"] for r in rows] for d, rows in comp.items()})
+    log(f"📊 العدّ (البند 2): الجلسات {c['sessions']} · الصفوفُ الكاملة لكلّ جلسة أدنى {c['min']} · وسيط {c['median']} · أعلى {c['max']} · "
+        f"**جلساتٌ فيها 5 صفوفٍ كاملةٍ فأكثر {c['ge5']}** · **رموزٌ مختلفة {c['symbols']}**")
+    info, cands = {}, []
+    for d, rows in comp.items():
+        cs = []
+        for r in rows:
+            s = r["sym"]
+            st = TC.exact_low_stability(bars[s], hours[s], d)
+            bm = TC.recent_explosion(bars[s], hours[s], d)
+            fl, sc = flags_of(r["rsi"], r["fl"], r["av"], st, bm, OPL.FLOAT_OWNER, OPL.AVAIL_OWNER)
+            info[(d, s)] = dict(r, st=st, bm=bm, flags=fl, score=sc)
+            cs.append((s, sc))
+        cands.append((d, cs))
+    picks = select_a1(cands, sidx)
+    log(f"🅰️ (أ) بلا تكرار: جلساتٌ مؤهَّلة {len(picks)}")
+    arm = "A"
+    if len(picks) < A1_MIN_SESS:
+        picks = select_a1(cands, sidx, gap=A1_GAP)
+        arm = "B"
+        log(f"🅱️ (ب) تكرارٌ مرّةً ثانية بفاصل {A1_GAP} جلسات فأكثر: جلساتٌ مؤهَّلة {len(picks)}")
+    if len(picks) < A1_MIN_SESS:
+        log(f"⚖️ الحكم «لا قياس» — {len(picks)} جلسة دون {A1_MIN_SESS} · لا بطاقات (§④ الملحق) — خروج 3")
+        return RC_NOMEASURE
+    log(f"✅ {len(picks)} جلسة فأكثر من {A1_MIN_SESS} بالاختيار ({arm}) · توزيعُ الدرجات "
+        f"{dict(sorted(collections.Counter(info[(d, s)]['score'] for d, v in picks.items() for s in v).items()))}")
+    if not build:
+        return RC_OK
+    order = sorted(picks, key=lambda d: hashlib.sha256(f"T-BLIND-PICK|A1|sess|{d}".encode()).hexdigest())
+    sections, cards = [], {}
+    for j, d in enumerate(order, 1):
+        chosen = sorted(picks[d], key=lambda s: lottery(d, s, "A1|show|"))
+        body = [f"<h2>الجلسة {j}</h2>"]
+        for k, s in enumerate(chosen, 1):
+            label = f"{j}-{k}"
+            it = info[(d, s)]
+            sp = poly_splits(s, key, _getjson)
+            rows, f = asof_rows(bars[s], sp, d, RB.asof_factor)
+            beh = S.behavior_explosion_detail(behav_frame(rows))
+            last = beh.get("تاريخ آخر انفجار")
+            beh["تاريخ آخر انفجار"] = None if last is None else f"قبل {last} جلسة من يوم القرار"
+            fields = [("RSI", _num(it["rsi"], 1)), ("ثبات آخر 5 جلسات", html.escape(stab_text(it["st"], f))),
+                      ("الفلوت", _num(it["fl"])), ("الشورت (حجم FINRA اليوميّ)", _num(it["sh"])),
+                      ("الأسهم المعروضة (المتاح)", _num(it["av"]))]
+            closes = S.pd.Series([x[4] for x in rows], dtype=float)
+            rs = S.rsi(closes, 14).tolist() if len(rows) >= 15 else [None] * len(rows)
+            r10 = [None if (v is None or v != v) else float(v) for v in rs[-A1_BARS:]]
+            body.append(card_html(label, [], fields, [(cn, beh.get(cn)) for cn in S.NW_XLSX_BEHAV_COLS],
+                                  chart=svg_chart10([(x[1], x[2], x[3], x[4], x[5]) for x in rows[-A1_BARS:]], r10)))
+            cards[label] = {"sym": s, "d": d, "score": it["score"], "flags": list(it["flags"])}
+        sections.append("".join(body))
+    vault = {"v": 1, "test": "T-BLIND-PICK", "addendum": 1, "contract_sha": CONTRACT_SHA, "addendum_sha": ADDENDUM_SHA, "arm": arm,
+             "sessions": order, "cards": cards, "picks": {}, "created": dt.datetime.now(UTC).isoformat(timespec="seconds")}
+    txt = J.encrypt(vault, pws[0])
+    if txt is None:
+        log("⛔ التشفيرُ فشل — لا إرسال — خروج 6")
+        return RC_VAULT
+    open(VAULT_A1, "w", encoding="utf-8").write(txt)
+    path = os.path.join(tempfile.mkdtemp(), "blind_cards_A1.html")
+    open(path, "w", encoding="utf-8").write(page(sections, len(order)))
+    log(f"🃏 بطاقات {len(cards)} في {len(order)} جلسة · الحجم {os.path.getsize(path) // 1024}KB")
+    ok = send_doc(path, f"🙈 T-BLIND-PICK (الملحق 1 · صفوفٌ كاملة) — {len(order)} جلسة × 5 بطاقات · ردّ برقم بطاقةٍ لكلّ جلسة (مثل 7-3) أو «أعرفه»",
+                  S.TELEGRAM_TOKEN, S._admin_chat())
+    log(f"📨 الإرسال: {'✅' if ok else '❌'} · المفتاحُ مشفّرٌ في blind_pick_a1.vault")
+    return RC_OK if ok else RC_VAULT
+
 def _getjson(url, tries=3):
     import requests
     for i in range(tries):
@@ -509,7 +717,7 @@ def mode_judge(key, picks_txt, d_in):
     B = _load("basket_blind", "fm_forensics/basket/basket.py")
     FC = _load("fc_blind", "fm_forensics/nawaqis/filter_core.py")
     pws = _vault_pw(J)
-    v = next((x for x in (J.decrypt(open(VAULT, encoding="utf-8").read(), p) for p in pws) if x), None) if os.path.exists(VAULT) else None
+    v = next((x for x in (J.decrypt(open(VAULT_A1, encoding="utf-8").read(), p) for p in pws) if x), None) if os.path.exists(VAULT_A1) else None
     if v is None:
         log("⛔ الخزنةُ غائبة أو لا تُفكّ — خروج 6")
         return RC_VAULT
@@ -523,7 +731,7 @@ def mode_judge(key, picks_txt, d_in):
     txt = J.encrypt(v, pws[0])
     if txt is None:
         return RC_VAULT
-    open(VAULT, "w", encoding="utf-8").write(txt)
+    open(VAULT_A1, "w", encoding="utf-8").write(txt)
     log(f"🔐 الاختياراتُ في الخزنة: {len(picks)} جلسة · أعرفه {sum(1 for x in picks.values() if x == 'known')}")
     p = os.path.join(d_in, "basket_extra.json.gz")
     if not os.path.exists(p):
@@ -560,7 +768,7 @@ def mode_judge(key, picks_txt, d_in):
             log(f"   … الصفقات {n + 1}/{len(todo)}")
     ev = judge_eval(recs, picked, FC, B.boot_mean)
     L = ["# 🙈 `T-BLIND-PICK` «اختبارٌ أعمى لاختيار المالك» — النتيجة", "",
-         f"> العقد `T_BLIND_PICK_prereg.md` · آلةُ T-BASKET وضابطُها (`{BASKET_RUN}`) · الاختياراتُ في `blind_pick.vault` ({v['picks_at']}).", "",
+         f"> العقد `T_BLIND_PICK_prereg.md` والملحق 1 (`T_BLIND_PICK_addendum_1.md` · البطاقاتُ من الصفوف الكاملة) · آلةُ T-BASKET وضابطُها (`{BASKET_RUN}`) · الاختياراتُ في `blind_pick.vault` ({v['picks_at']}).", "",
          f"- الجلسات {len(v['sessions'])} · محسوبة {len(sess_ok)} · «أعرفه» {sum(1 for x in picks.values() if x == 'known')} · بلا ردّ "
          f"{len(v['sessions']) - len(picks)}", "",
          f"## الحاكم (بالأضعف) — الحكم: **{ev['verdict']}**", "",
@@ -599,6 +807,12 @@ def main(argv=None):
         return mode_cards(key)
     if mode == "resend":
         return mode_cards(key, resend=True)
+    if mode in ("count1", "cards1", "judge"):
+        if not addendum_ok():
+            log("⛔ الملحق 1 لا يطابق بصمتَه — خروج 11 قبل أيّ جلب")
+            return RC_CONTRACT
+    if mode in ("count1", "cards1"):
+        return mode_a1(key, build=(mode == "cards1"))
     if mode == "judge":
         d_in = argv[argv.index("--dir") + 1] if "--dir" in argv else "bp_in"
         return mode_judge(key, os.environ.get("BLIND_PICKS", ""), d_in)

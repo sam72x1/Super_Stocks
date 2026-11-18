@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "cards (البناءُ والإرسال) | resend (إعادةُ إرسال البطاقات نفسِها بلا مسّ الخزنة) | judge (الحكم بعد الاختيارات)"
+        description: "count1 (الملحق 1: العدُّ وحدَه) | cards1 (الملحق 1: العدُّ ثمّ البناءُ والإرسال إن بلغت 30) | judge (الحكم بعد الاختيارات · خزنةُ الملحق) | cards/resend (الملغاة)"
         required: true
         default: "cards"
       picks:
@@ -55,7 +55,7 @@ jobs:
           BLIND_PICKS: ${{ inputs.picks }}
           PYTHONUNBUFFERED: "1"
         run: |
-          case "$BP_MODE" in cards|resend|judge) ;; *) echo "mode غيرُ معروف: $BP_MODE"; exit 2;; esac
+          case "$BP_MODE" in cards|resend|count1|cards1|judge) ;; *) echo "mode غيرُ معروف: $BP_MODE"; exit 2;; esac
           python fm_forensics/blindpick/blindpick.py "$BP_MODE" --dir bp_in
       - name: 💾 الخزنة (مشفّرة) والنتيجة
         env:
@@ -64,6 +64,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f blind_pick.vault
+          if [ -f blind_pick_a1.vault ]; then git add -f blind_pick_a1.vault; fi
           if [ -f fm_forensics/blindpick/T_BLIND_PICK_RESULT.md ]; then git add -f fm_forensics/blindpick/T_BLIND_PICK_RESULT.md; fi
           if git diff --cached --quiet; then echo "لا جديد"; exit 0; fi
           git commit -q -m "🙈 T-BLIND-PICK: $BP_MODE"
