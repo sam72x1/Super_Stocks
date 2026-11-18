@@ -1999,5 +1999,23 @@
   "usd_eff": 47218,
   "candle_class_eff": "group",
   "frames_usd": null
+ },
+ {
+  "symbol": "BANL",
+  "date": "2026-11-18",
+  "sustain_min": 4,
+  "operator_ok": false,
+  "fired_ts_ms": 1795023078782,
+  "trigger_bar_ms": 1795022940000,
+  "fired_ts_src": "telegram_sent",
+  "fired_at": "2026-11-18T21:18:40Z",
+  "break_level": 3.2,
+  "price": 3.3,
+  "vol_x": 5.4,
+  "usd": 5422,
+  "candle_class": "group",
+  "usd_eff": 5422,
+  "candle_class_eff": "group",
+  "frames_usd": null
  }
 ]
