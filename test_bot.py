@@ -104481,6 +104481,92 @@ except Exception as _e:                                          # noqa: BLE001
     check("📏 قفلُ ملحق رادار الضغط `T-GATECAL` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
 
+# 📏 GTC17-GTC19 — `T-GATECAL` الملحقان 5 و6 (سجلّاتُ البوت · بلا شبكة): البصمتان · الحاليُّ من الأداة الحيّة وفي السلّم · الغلافُ وصفٌ على الجلسات
+# المشتركة بـ`hunter_ledger.summary` بالاسم · وأرضيّةُ ما قبل الجلسة: المعدومُ يسقط · الحدُّ شامل · التشديدُ بالقيمة · والكفايةُ بعتباتها الثلاث
+try:
+    import importlib.util as _g17_iu
+    import presession_feats as _g17_PF
+    import presession_radar as _g17_PRR
+    _g17_sp = _g17_iu.spec_from_file_location("gatecal_ledger_t", _gt_os.path.join(_gt_os.path.dirname(_gt_p), "gatecal_ledger.py"))
+    _GL = _g17_iu.module_from_spec(_g17_sp)
+    _g17_sp.loader.exec_module(_GL)
+    _g17_cur = _GL.ps_current()
+    _g17_keep = _g17_PF.FLOOR_BY_SLOT.get("PM")
+    try:
+        _g17_PF.FLOOR_BY_SLOT["PM"] = 0.5
+        _g17_live = _GL.ps_current()["floor"]
+    finally:
+        _g17_PF.FLOOR_BY_SLOT["PM"] = _g17_keep
+    _g17_real = _GL.ADDENDA["envelope"]
+    try:
+        _GL.ADDENDA["envelope"] = (_g17_real[0], "0" * 64)
+        _g17_bad = _GL.contract_ok("envelope")
+        _g17_rc_bad = _GL.main(["count", "--tool", "envelope"])
+    finally:
+        _GL.ADDENDA["envelope"] = _g17_real
+    check("📏 GTC17: الملحقان 5 و6 يطابقان بصمتَيهما (وبصمةٌ خاطئة ⟵ خروج 11 قبل أيّ قراءة) · وحاليُّ الأداة 6 يُقرأ من الأداة الحيّة وهو في السلّم",
+          _GL.contract_ok("envelope") and _GL.contract_ok("presession") and (not _g17_bad) and _g17_rc_bad == _GL.RC_CONTRACT
+          and _g17_cur == {"floor": _g17_PF.FLOOR_BY_SLOT["PM"], "usd": float(_g17_PRR.MIN_DAY_USD), "cap": _g17_PRR.PREFILTER_CAP, "topk": _g17_PF.TOPK}
+          and _g17_live == 0.5 and _g17_cur["floor"] in _GL.PS_FLOOR_LADDER and _g17_cur["usd"] in _GL.PS_USD_LADDER and _GL.PS_USD_LADDER[0] == _g17_cur["usd"]
+          and _GL.PS_SUFF == {"loose_names": 100, "loose_hits": 30, "cur_hits": 20}
+          and "ledger" in str((_g7_jobs.get("ledger") or {}).get("if")) and "ledger" in str((_g7_jobs.get("prep") or {}).get("if")),
+          f"cur={_g17_cur} bad={_g17_bad}/{_g17_rc_bad}")
+    # الغلاف: جلسةٌ بلا شاهدٍ محسوم تخرج · وغيرُ المحسوم لا يُعَدّ · والفرقُ على المشتركة وحدَها
+    _g18_o = lambda h100, h50=True: {"resolved": True, "hit100": h100, "hit50": h50, "max_gain": 10.0}   # noqa: E731
+    _g18_rows = ([{"hunter": "envelope", "session": "2026-09-01", "outcome": _g18_o(True)}] * 2
+                 + [{"hunter": "envelope", "session": "2026-09-01", "outcome": _g18_o(False)}] * 2
+                 + [{"hunter": "control", "session": "2026-09-01", "outcome": _g18_o(False, False)}] * 4
+                 + [{"hunter": "envelope", "session": "2026-09-02", "outcome": _g18_o(True)}] * 3      # بلا شاهد ⟵ خارج
+                 + [{"hunter": "envelope", "session": "2026-09-01", "outcome": None}]
+                 + [{"hunter": "split", "session": "2026-09-01", "outcome": _g18_o(True)}])
+    _g18_c = _GL.env_rows(_g18_rows)
+    _g18_d = _GL.env_diff(_g18_c, "hit100", B=200)
+    _g18_d50 = _GL.env_diff(_g18_c, "hit50", B=200)
+    _g18_src = _insp0.getsource(_GL.mode_envelope)
+    _g18_tree = _ast0.parse(_g18_src)
+    _g18_calls = {c.func.attr for c in _ast0.walk(_g18_tree) if isinstance(c, _ast0.Call) and isinstance(c.func, _ast0.Attribute)
+                  and getattr(c.func.value, "id", None) == "LEDGER"}
+    check("📏 GTC18: الغلافُ وصفٌ — المحسومُ على الجلسات المشتركة وحدَها (جلسةٌ بلا شاهد وصفٌّ بلا حسم وصيّادٌ آخر خارجًا) · الفرقُ = معدّلُ الصيّاد − "
+          "الشاهد لكلّ مفتاح · و`hunter_ledger.summary` بالاسم · ولا سلّمَ عتبةٍ في الأداة 5",
+          sorted(_g18_c) == ["2026-09-01"] and len(_g18_c["2026-09-01"]["e"]) == 4 and len(_g18_c["2026-09-01"]["c"]) == 4
+          and abs(_g18_d[0] - 0.5) < 1e-9 and abs(_g18_d50[0] - 1.0) < 1e-9 and _g18_d[1] <= _g18_d[0] <= _g18_d[2]
+          and "summary" in _g18_calls and _GL.env_diff({}, "hit100") is None and not hasattr(_GL, "ENV_LADDER"),
+          f"common={sorted(_g18_c)} d={_g18_d} d50={_g18_d50} calls={_g18_calls}")
+    # ما قبل الجلسة: فِكستشر
+    _g19_led = [{"day": "D1", "sess": "PM", "sym": "a", "usd_day": 150_000.0}, {"day": "D1", "sess": "PM", "sym": "B", "usd_day": 600_000.0},
+                {"day": "D1", "sess": "PM", "sym": "C", "usd_day": 300_000.0}, {"day": "D2", "sess": "AH", "sym": "E", "usd_day": 120_000.0}]
+    _g19_out = [{"key": "D1|PM|A", "day": "D1", "sess": "PM", "sym": "A", "rank": 1, "in_top": True, "rank_val": 0.69903, "hit": 1, "full_hit": 1},
+                {"key": "D1|PM|B", "day": "D1", "sess": "PM", "sym": "B", "rank": 2, "in_top": True, "rank_val": 0.60, "hit": 0, "full_hit": 1},
+                {"key": "D1|PM|C", "day": "D1", "sess": "PM", "sym": "C", "rank": 7, "in_top": True, "rank_val": None, "hit": 1, "full_hit": 0},
+                {"key": "D1|PM|D", "day": "D1", "sess": "PM", "sym": "D", "rank": 40, "in_top": False, "rank_val": 2.0, "hit": 1, "full_hit": 0},
+                {"key": "D1|PM|F", "day": "D1", "sess": "PM", "sym": "F", "rank": 4, "in_top": True, "rank_val": 0.65, "hit": 0, "full_hit": 0},
+                {"key": "D2|AH|E", "day": "D2", "sess": "AH", "sym": "E", "rank": 1, "in_top": True, "rank_val": 5.0, "hit": 0, "full_hit": 0},
+                {"key": "D2|PM|X", "day": "D2", "sess": "PM", "sym": "X", "rank": 1, "in_top": True, "rank_val": 9.0, "hit": 1, "drop": 1},
+                {"key": "D2|XX|Y", "day": "D2", "sess": "XX", "sym": "Y", "in_top": True, "hit": 1}]
+    _g19_rows = _GL.ps_join(_g19_led, _g19_out, drop=lambda o: bool(o.get("drop")))
+    _g19_pm = [r for r in _g19_rows if r["sess"] == "PM"]
+    _g19_p = lambda f, u=None: _GL.ps_point(_g19_pm, f, u)                                                # noqa: E731
+    _g19_S = _GL.ps_sufficient
+    _g19_mk = lambda n, h: {"names": n, "hits": h}                                                        # noqa: E731
+    check("📏 GTC19: أرضيّةُ ما قبل الجلسة — الضمُّ بالمفتاح (حالةُ الرمز لا تفرّق · المستبعَدُ عند الحصّاد وجلسةٌ غريبة خارجًا) · «المُرسَل» = "
+          "`in_top` والقيمةُ ≥ الأرضيّة شاملةَ الحدّ والمعدومُ يسقط (وبلا أرضيّةٍ يمرّ) · أرضيّةُ القيمة تشدّد والمجهولُ يسقط · والأرضيّةُ لـPM وحدَه · "
+          "والكفايةُ بعتباتها الثلاث · وتوزيعُ الترتيب",
+          len(_g19_rows) == 6 and {r["sym"]: r["usd_day"] for r in _g19_pm} == {"A": 150_000.0, "B": 600_000.0, "C": 300_000.0, "D": None, "F": None}
+          and (_g19_p(None)["names"], _g19_p(None)["hits"], _g19_p(None)["full_hits"]) == (4, 2, 2)
+          and (_g19_p(0.69903)["names"], _g19_p(0.69903)["hits"]) == (1, 1) and _g19_p(0.70)["names"] == 0
+          and (_g19_p(0.60)["names"], _g19_p(0.60)["hits"]) == (3, 1)
+          and _g19_p(None, 250_000.0)["names"] == 2 and _g19_p(None, 150_000.0)["names"] == 3 and _g19_p(None, 700_000.0)["names"] == 0
+          and _g19_p(None)["days"] == 1 and abs(_g19_p(None)["per_day"] - 4.0) < 1e-9
+          and _GL.ps_sent({"sess": "AH", "in_top": True, "rank_val": 0.1}, 0.69903, None)
+          and not _GL.ps_sent({"sess": "PM", "in_top": False, "rank_val": 9.0}, None, None)
+          and _g19_S(_g19_mk(100, 30), _g19_mk(50, 20)) and not _g19_S(_g19_mk(99, 30), _g19_mk(50, 20))
+          and not _g19_S(_g19_mk(100, 29), _g19_mk(50, 20)) and not _g19_S(_g19_mk(100, 30), _g19_mk(50, 19))
+          and _GL.ps_rank_buckets(_g19_pm, 10) == {"top": 2, "mid": 0, "tail": 1},
+          f"rows={len(_g19_rows)} p0={_g19_p(None)} pcur={_g19_p(0.69903)} b={_GL.ps_rank_buckets(_g19_pm, 10)}")
+except Exception as _e:                                          # noqa: BLE001
+    check("📏 قفلُ الملحقين 5 و6 `T-GATECAL` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
