@@ -104073,6 +104073,31 @@ except Exception as _e:                                          # noqa: BLE001
     check("📏 أقفالُ `T-GATECAL` انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
 
+# 🩺 GTC7 — تشخيصُ مطابقة السجلّ (`gatecal.py diag`): «يسقط على» = عكسُ `passes` حرفًا على 400 صفٍّ عشوائيّ · والوضعُ قارئٌ بجوبٍ واحد
+try:
+    import random as _g7_rnd
+    _g7_rnd.seed(77)
+    _g7_bad, _g7_seen = 0, set()
+    for _ in range(400):
+        _v = {"age": _g7_rnd.choice([30, 100, 130, 300]), "price": _g7_rnd.choice([0.8, 3.0, 9.0, 12.0]),
+              "cliff": {str(L): _g7_rnd.choice([-0.5, -0.31, -0.2, None]) for L in (60, 90, 120, 180, 250)},
+              "tail": [_g7_rnd.choice([0.5, 0.72, 1.0, 1.2, 1.4]) for _k in range(_g7_rnd.choice([2, 5]))],
+              "rose": _g7_rnd.choice([None, 5.0, 20.0, 20.01, 60.0]), "shares": _g7_rnd.choice([None, 1e6, 2e6, 5e6]), "pump": _g7_rnd.random() < 0.2}
+        _w = _GT.why_fails(_v, _gt_T["current"])
+        _g7_seen.update(_w)
+        if _GT.passes(_v, _gt_T["current"]) != (not _w):
+            _g7_bad += 1
+    _g7_wf = _gt_yaml.safe_load(open(".github/workflows/gatecal.yml", encoding="utf-8"))
+    _g7_jobs = _g7_wf.get("jobs") or {}
+    check("🩺 GTC7: «يسقط على …» في التشخيص = عكسُ `passes` على 400 صفٍّ عشوائيّ (صفرُ اختلاف) ويسمّي الشروطَ الثمانية · و`diag` جوبٌ واحدٌ مشروطٌ "
+          "بمرحلته والبقيّةُ لا تعمل معه",
+          _g7_bad == 0 and _g7_seen == {"lookback", "price", "cliff", "band", "hold", "rose", "shares", "pump"}
+          and "diag" in str((_g7_jobs.get("diag") or {}).get("if")) and "!=" in str((_g7_jobs.get("prep") or {}).get("if")),
+          f"bad={_g7_bad} seen={sorted(_g7_seen)}")
+except Exception as _e:                                          # noqa: BLE001
+    check("🩺 قفلُ تشخيص `T-GATECAL` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
