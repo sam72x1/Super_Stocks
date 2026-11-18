@@ -656,6 +656,9 @@ def main(argv=None):
     if not contract_ok():
         log(f"⛔ العقد لا يطابق بصمتَه — خروج {RC_CONTRACT} قبل أيّ جلب")
         return RC_CONTRACT
+    if os.path.exists(RESULT):
+        log(f"🔒 صدر حكمُ `T-MINE` (`{os.path.basename(RESULT)}`) والبحثُ مُقفَلٌ نهائيًّا بأمر المالك 2026-11-18 — خروج {RC_ONCE}")
+        return RC_ONCE
     mode = argv[0] if argv else ""
     d_in = argv[argv.index("--dir") + 1] if "--dir" in argv else "mine_in"
     if mode == "discover":
