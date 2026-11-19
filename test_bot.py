@@ -104703,6 +104703,84 @@ except Exception as _e:                                          # noqa: BLE001
     check("📨 قفلُ وجهة إكسل «تحت المتابعة» انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
 
+# 🧺🎯 ENVL1-ENVL3 — `T-ENV-LIMIT` (أمرُ المالك 2026-11-19 · وصفٌ · مرّةً واحدة): العقدُ ببصمته · أوّلُ ظهورٍ لكلّ سهمٍ داخل ذراعه ·
+#    الصفقةُ بنصّ §③ (دخولُ افتتاح الجلسة 1 · البيعُ عند الهدف نفسِه · إغلاقُ الجلسة 40 · الشطبُ −100% · التقسيمُ يُستبعد · لا دخول) ·
+#    والحكمُ §⑥ بحدّيه والكفاية · والبوتسترابُ حتميٌّ بالبذرة وعنقوديٌّ بالجلسة · والأداةُ بلا تلغرام ولا كتابة
+try:
+    import importlib.util as _el_iu, ast as _el_ast, inspect as _el_in, os as _el_os
+    _el_p = _el_os.path.join("fm_forensics", "envlimit", "envlimit.py")
+    _el_spec = _el_iu.spec_from_file_location("_envlimit_t", _el_p)
+    _EL = _el_iu.module_from_spec(_el_spec)
+    _el_spec.loader.exec_module(_EL)
+    _el_fa = _EL.first_appearance([
+        {"hunter": "envelope", "symbol": "aaa", "session": "2026-08-12"}, {"hunter": "envelope", "symbol": "AAA", "session": "2026-08-10"},
+        {"hunter": "control", "symbol": "AAA", "session": "2026-08-20"}, {"hunter": "control", "symbol": "AAA", "session": "2026-08-25"},
+        {"hunter": "split", "symbol": "ZZZ", "session": "2026-08-10"}, {"hunter": "envelope", "symbol": "", "session": "2026-08-10"},
+        {"hunter": "envelope", "symbol": "BBB", "session": "bad"}])
+    _el_cal = [f"S{i:03d}" for i in range(100)]
+    _el_w = _EL.window("S010", _el_cal)
+    check("🧺🎯 ENVL1: العقدُ ببصمته (وبصمةٌ أخرى ⟵ لا) · الذراعان 50 و100 وحدَهما · أوّلُ ظهورٍ = أقدمُ جلسةٍ داخل الذراع (الرمزُ بالحروف الكبيرة · "
+          "صيّادٌ آخر وصفٌّ معطوب خارجًا) · النافذةُ 40 جلسةً بعد جلسة الرصد وبأقلّ منها None",
+          _EL.contract_ok() and not _EL.contract_ok(sha="0" * 64) and _EL.ARMS == {"L50": 0.50, "L100": 1.00} and _EL.FWD == 40
+          and abs(_EL.COST - 1.8) < 1e-12 and _el_fa == {"e": {"AAA": "2026-08-10"}, "c": {"AAA": "2026-08-20"}}
+          and _el_w is not None and len(_el_w) == 40 and _el_w[0] == "S011" and _el_w[-1] == "S050"
+          and _EL.window("S060", _el_cal) is None and _EL.window("S059", _el_cal) is not None,
+          f"fa={_el_fa} w={(_el_w or [None])[0]}")
+    _el_win = [f"D{d:03d}" for d in range(1, 41)]
+    _el_flat = {d: (10.0, 10.5, 9.5, 9.0) for d in _el_win}
+    _el_hit = dict(_el_flat)
+    _el_hit["D005"] = (10.0, 15.0, 9.0, 11.0)                    # الأعلى = الهدفُ بالضبط ⟵ لمس
+    _el_near = dict(_el_flat)
+    _el_near["D005"] = (10.0, 14.99, 9.0, 11.0)
+    _el_gap = dict(_el_flat)
+    _el_gap["D005"] = (18.0, 19.0, 17.0, 18.5)                   # افتتح فوق الهدف ⟵ البيعُ عند الهدف نفسِه لا أفضل
+    _el_T = _EL.trade
+    _el_t1, _el_t2, _el_t3 = _el_T(_el_hit, _el_win, 0.5), _el_T(_el_near, _el_win, 0.5), _el_T(_el_gap, _el_win, 0.5)
+    _el_t4 = _el_T(_el_hit, _el_win, 1.0)
+    _el_t5 = _el_T({d: _el_flat[d] for d in _el_win[:10]}, _el_win, 0.5)
+    _el_t6 = _el_T({**{d: _el_flat[d] for d in _el_win[:39]}, "D050": (1.0, 1.0, 1.0, 1.0)}, _el_win, 0.5)
+    _el_t7 = _el_T(_el_hit, _el_win, 0.5, splits=["D003"], session="D000")
+    _el_t8 = _el_T(_el_hit, _el_win, 0.5, splits=["D006"], session="D000")
+    _el_t9 = _el_T(_el_hit, _el_win, 0.5, splits=["D000"], session="D000")
+    _el_t10 = _el_T({d: _el_flat[d] for d in _el_win[1:]}, _el_win, 0.5)
+    _el_t11 = _el_T({**_el_flat, "D001": (10.0, 15.0, 9.0, 12.0)}, _el_win, 0.5)
+    check("🧺🎯 ENVL2: الصفقةُ بنصّ §③ — لمسٌ بالأعلى شاملَ الحدّ يبيع عند الهدف نفسِه (ولو افتتح فوقه) ناقصَ 1.8 · دون الحدّ بسنتٍ ⟵ إغلاقُ الجلسة 40 · "
+          "انقطاعٌ بلا شموعٍ بعده ⟵ شطبٌ −100 بلا كلفةٍ فوقه · غيابُ يوم 40 مع شموعٍ بعده ⟵ آخرُ إغلاقٍ في النافذة · تقسيمٌ بعد الرصد وحتى الخروج ⟵ "
+          "يُستبعد (وبعد الخروج أو يومَ الرصد لا) · بلا شمعةِ الجلسة 1 ⟵ لا دخول · ويومُ الدخول نفسُه يُحسب",
+          _el_t1 == {"status": "hit", "ret": 50.0 - 1.8, "exit": "D005"} and _el_t3["status"] == "hit" and abs(_el_t3["ret"] - 48.2) < 1e-9
+          and _el_t2["status"] == "time" and abs(_el_t2["ret"] - (-10.0 - 1.8)) < 1e-9 and _el_t2["exit"] == "D040"
+          and _el_t4["status"] == "time" and _el_t5 == {"status": "delist", "ret": -100.0, "exit": "D010"}
+          and _el_t6["status"] == "time" and _el_t6["exit"] == "D039"
+          and _el_t7["status"] == "split" and _el_t7["ret"] is None and _el_t8["status"] == "hit" and _el_t9["status"] == "hit"
+          and _el_t10 == {"status": "noentry", "ret": None, "exit": None} and _el_t11["exit"] == "D001" and _el_t11["status"] == "hit",
+          f"t1={_el_t1} t2={_el_t2} t5={_el_t5} t6={_el_t6}")
+    _el_bs = {f"s{i:02d}": {"e": [float(i), float(i) + 1.0], "c": [float(-i)] if i % 2 else []} for i in range(1, 13)}
+    _el_b1, _el_b2 = _EL.boot(_el_bs), _EL.boot(_el_bs)
+    _el_b3 = _EL.boot(_el_bs, seed="OTHER")
+    _el_one = _EL.boot({"x": {"e": [1.0, 2.0, 3.0, 40.0], "c": [0.0, 1.0]}})   # جلسةٌ واحدة ⟵ العنقودُ واحد ⟵ الفاصلُ نقطة
+    _el_V = _EL.verdict
+    _el_mk = lambda elo, dlo: {"e": (1.0, elo, 2.0), "c": (0.0, -1.0, 1.0), "d": (1.0, dlo, 2.0), "skipped": 0}   # noqa: E731
+    _el_src = _el_in.getsource(_EL)
+    _el_calls = {getattr(c.func, "attr", getattr(c.func, "id", "")) for c in _el_ast.walk(_el_ast.parse(_el_src)) if isinstance(c, _el_ast.Call)}
+    _el_yml = open(_el_os.path.join(".github", "workflows", "envlimit.yml"), encoding="utf-8").read()
+    check("🧺🎯 ENVL3: البوتسترابُ حتميٌّ بالبذرة (وبذرةٌ أخرى تختلف) وعنقوديٌّ بالجلسة (جلسةٌ واحدة ⟵ فاصلٌ = المتوسّط) ويعدّ المهمَل · الحكمُ: الحدّان الأدنيان "
+          "فوق الصفر معًا ⟵ «يتحوّل» وأحدُهما عند الصفر أو دونه ⟵ «لا يتحوّل» ودون 30 صيّادًا أو 20 شاهدًا ⟵ «لا قياس» · والأداةُ بلا تلغرام ولا حفظ "
+          "· مرّةً واحدة · والـworkflow يدويٌّ بلا كرون وبلا رمز تلغرام",
+          _el_b1 == _el_b2 and _el_b1["d"] != _el_b3["d"] and _el_b1["skipped"] == 0 and _el_b1["e"][1] <= _el_b1["e"][0] <= _el_b1["e"][2]
+          and abs(_el_one["e"][0] - 11.5) < 1e-9 and _el_one["e"][1] == _el_one["e"][2] == _el_one["e"][0] and _el_one["d"][1] == _el_one["d"][0]
+          and _EL.boot({"x": {"e": [1.0], "c": []}}) is None
+          and 300 < _EL.boot({"a": {"e": [1.0], "c": []}, "b": {"e": [2.0], "c": [1.0]}})["skipped"] < 700
+          and _el_V(30, 20, _el_mk(0.1, 0.1)) == "يتحوّل" and _el_V(30, 20, _el_mk(0.0, 0.1)) == "لا يتحوّل"
+          and _el_V(30, 20, _el_mk(0.1, 0.0)) == "لا يتحوّل" and _el_V(30, 20, _el_mk(-0.1, 5.0)) == "لا يتحوّل"
+          and _el_V(29, 20, _el_mk(0.1, 0.1)) == "لا قياس" and _el_V(30, 19, _el_mk(0.1, 0.1)) == "لا قياس" and _el_V(30, 20, None) == "لا قياس"
+          and not ({"send_telegram", "send_telegram_document", "send_owner_document", "git_save", "post"} & _el_calls)
+          and "os.path.exists(RESULT)" in _el_src and _EL.RC_ONCE == 7 and _EL.RC_CONTRACT == 11
+          and "schedule:" not in _el_yml and "workflow_dispatch:" in _el_yml and "TELEGRAM" not in _el_yml and "contents: read" in _el_yml,
+          f"b1={_el_b1['d']} one={_el_one['e']}")
+except Exception as _e:                                          # noqa: BLE001
+    check("🧺🎯 قفلُ `T-ENV-LIMIT` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
