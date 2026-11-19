@@ -36,6 +36,8 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # 📣 (2026-11-19) قناةُ المشتركين — اختياريّ: غيابُه ⟵ لا إرسال · والمفتاحُ `subs_channel.ON` مطفأٌ حتى موافقة المالك (`SUB1`-`SUB9`)
+          TELEGRAM_SUBS_CHAT_ID: ${{ secrets.TELEGRAM_SUBS_CHAT_ID }}
           SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           # 📺 شموعُ الصيّاد من TradingView (أمرُ المالك 2026-09-30 «انقل الصيّادين إلى ترندق فيو» · `bars_source`):

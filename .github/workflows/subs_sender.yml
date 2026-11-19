@@ -1,0 +1,41 @@
+name: "📣 قناة المشتركين — إرسالُ موعد الصباح (06:00 الرياض)"
+
+# 📣 أمرا المالك 2026-11-19 (عرضٌ وتوقيتٌ لا قياس): رسائلُ الأدوات اليوميّة المسمّاة في `subs_channel.ACTIVE` تُحفظ مشفّرةً في `subs_outbox/`
+#    (نسخةُ القناة بلا اسم فيصل) ⟵ هذا الجوبُ يُرسلها عند موعد القناة ويختم كلًّا بملفّ `.sent` (لا حذف).
+#    يُطلقه مُطلِقُ الصباح قبل الموعد ببضع دقائق (`flush --wait` ينتظر الموعد) · والكرونُ أدناه احتياطٌ لإعادة ما تعذّر.
+#    ↩️ `subs_channel.ON = False` ⟵ الجوبُ يخرج بسطرٍ واحد بلا إرسال · وغيابُ `TELEGRAM_SUBS_CHAT_ID` ⟵ لا إرسال (`SUB1`-`SUB9`).
+permissions:
+  contents: write          # دفعُ أختام `.sent`
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 4,10,16 * * *"     # احتياطٌ فقط (تأخّرُ GitHub المقيس ساعات) — يُعيد ما بقي ولم يُرسَل
+
+concurrency:
+  group: subs-sender
+  cancel-in-progress: false
+
+jobs:
+  flush:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 📣 إرسالُ الموعد
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_SUBS_CHAT_ID: ${{ secrets.TELEGRAM_SUBS_CHAT_ID }}
+          PYTHONUNBUFFERED: "1"
+        run: python subs_channel.py flush --wait

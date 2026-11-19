@@ -206,10 +206,6 @@ CONFIG = {
     "NW_XLSX": os.environ.get("NW_XLSX", "1").strip() != "0",
     # 📨 (2026-11-19 · عطلٌ مُثبَت) إكسلُ «تحت المتابعة» يذهب للمالك (`TELEGRAM_OWNER_ID` وإلّا أوّلُ رقم) بدليل وصولٍ في السجلّ · "0" ⟵ المُرسِلُ القديم بت-بت
     "NW_XLSX_OWNER": os.environ.get("NW_XLSX_OWNER", "1").strip() != "0",
-    # 📣 قناةُ المشتركين (أمرُ المالك 2026-11-19 · عرضٌ لا قياس): نسخةٌ **كما هي** من رسائل الفرز اليوميّ المسمّاة في `SUBS_CHANNEL_MSGS`
-    #    إلى `TELEGRAM_SUBS_CHAT_ID` · **مطفأٌ حتى يوافق المالكُ على القائمة** («قبل التفعيل اطبع لي») · وغيابُ السرّ ⟵ لا إرسال ·
-    #    والمطفأُ ⟵ `send_telegram` بت-بت · `SUB1`-`SUB4`.
-    "SUBS_CHANNEL": os.environ.get("SUBS_CHANNEL", "0").strip() == "1",
     # 📏 «الهامش بجانب كلّ ناقص» (أمرُ المالك 2026-11-18 · `T-GATECAL` ⑥ · عرضٌ لا قياس): كلُّ معيارٍ خارجٍ يُحفظ بقيمته وحدّه وهامشه % في
     #    `out_detail` ⟵ رسالةُ «تحت المتابعة» تطبع الهامش وترتّب كتلةَ 📱 بالهامش الأصغر أوّلًا · والإكسلُ يحمل «الشرط الناقص: قيمته والحد»
     #    و«الهامش %» · بلا عتبةٍ جديدة وبلا تغيير اختيار · `NW_MARGIN=0` (بيئةُ التشغيل) ⟵ بت-بت · `NMG1`-`NMG4`.
@@ -11926,23 +11922,6 @@ def _recipient_hint(body: str) -> str:
     return ""
 
 
-# 📣 ما يذهب لقناة المشتركين — **بالاسم وحدَه**: رسالةٌ بلا وسمٍ أو بوسمٍ خارج هذي القائمة لا تذهب أبدًا (إكسل · ملفّات · «تحرّك 30%» ·
-#    الظلّ · «شروطك الثلاثة» · دفترُ الصفقات · البطاقاتُ الحيّة · الأعطال — كلُّها بلا وسم). والوسومُ الموسومة خارجها (رسائلُ تجديد الجمعة)
-#    تنتظر قرارَ المالك ولا تذهب.
-SUBS_CHANNEL_MSGS = ("daily_report", "hand", "split_radar", "tracking", "press")
-SUBS_CHANNEL_NAMES = {
-    "daily_report": "📋 التقرير اليوميّ «قائمة الأسبوع» بكلّ أقسامه (الجاهز للدخول · شُطب اليوم · الارتداد الواصل · متابعة أسهم الصيّاد · 🏁 انفجر · 👀 تحت المتابعة · سطورُ التنبيه)",
-    "hand": "🕵️ رسالة «أسهم فيها علامات يد»",
-    "split_radar": "🎯 رسالة «رادار أسهم التقسيم»",
-    "tracking": "📡 «متابعة التنبيهات السابقة» (هدفٌ تحقّق · وقفٌ ضُرب · انتهت)",
-    "press": "🗜️ «رادار الضغط» (جوبُه المستقلّ)",
-    "renewal_list": "🔄 «القائمة الأسبوعية الجديدة» (الجمعة)",
-    "wrapup": "🧺 «حصاد الأسبوع» (الجمعة)",
-    "fate": "🔄 «مصير أسهم الأسبوع الماضي» (الجمعة)",
-    "weekly_report": "📊 «التقرير الأسبوعي» للأداء (الجمعة)",
-}
-
-
 def _parse_chat_ids(raw) -> list:
     """مُحلِّلُ أرقام المحادثات المشترك (الفاصلةُ العربية والمنقوطة والسطرُ والمسافة) · يُسقط التكرارَ ويحفظ الترتيب."""
     raw = (raw or "").replace(";", ",").replace("،", ",") \
@@ -11956,58 +11935,25 @@ def _parse_chat_ids(raw) -> list:
     return out
 
 
-def _subs_targets(subs) -> list:
-    """📣 وجهاتُ قناة المشتركين لرسالةٍ موسومة — فارغةٌ ما لم يكن المفتاحُ مُشعَلًا **والوسمُ في القائمة** **والسرُّ حاضرًا**."""
-    if not subs or not CONFIG.get("SUBS_CHANNEL") or subs not in SUBS_CHANNEL_MSGS:
-        return []
-    return _parse_chat_ids(os.environ.get("TELEGRAM_SUBS_CHAT_ID", ""))
-
-
-def subs_manifest_lines() -> list:
-    """📣 ما سيذهب لقناة المشتركين وما لا يذهب — بالأسماء (للعرض على المالك قبل التفعيل)."""
-    on = [SUBS_CHANNEL_NAMES[k] for k in SUBS_CHANNEL_MSGS]
-    off = [v for k, v in SUBS_CHANNEL_NAMES.items() if k not in SUBS_CHANNEL_MSGS]
-    return (["📣 يذهب لقناة المشتركين:"] + ["  • " + x for x in on]
-            + ["⛔ موسومٌ ولا يذهب (قرارُك):"] + ["  • " + x for x in off])
-
-
 def _stamp_chunks(chunks: list) -> list:
     """ختمُ الإصدار في كلّ جزء **بصيغة `send_telegram` حرفًا** (قناةُ المشتركين ترى الختمَ نفسَه · `SUB2` يقارن الأجزاء بأجزاء المالك)."""
     stamp = f"\n🧾 إصدار {code_version()} · {dt.date.today().isoformat()}" + data_basis_suffix()
     return [c + stamp for c in chunks]
 
 
-def subs_mirror(text: str, subs: str) -> int:
-    """📣 نسخةٌ **كما هي** (الأجزاءُ والختمُ نفسُها) من رسالةٍ مسمّاة إلى قناة المشتركين — تُنادى **بعد** `send_telegram` للمالك ·
-    صفرُ عملٍ ما لم يكن المفتاحُ مُشعَلًا والاسمُ في `SUBS_CHANNEL_MSGS` والسرُّ والتوكنُ حاضرَين · فشلُها لا يمسّ شيئًا ·
-    ولا رقمَ محادثةٍ في السجلّ."""
+def subs_mirror(text: str, subs: str) -> str:
+    """📣 قناةُ المشتركين (أمرا المالك 2026-11-19 · عرضٌ وتوقيتٌ لا قياس): تُنادى **بعد** `send_telegram` للمالك برسالةٍ **مسمّاة** ⟵
+    `subs_channel.enqueue` — الأجزاءُ نفسُها بختمها ⟵ تنظيفُ اسم فيصل في نسخة القناة وحدَها ⟵ صندوقٌ مشفّرٌ لموعد القناة (06:00 الرياض) أو
+    إرسالٌ فوريّ بسطر «تأخّر الإرسال» إن فات الموعد. `subs_channel.ON = False` أو اسمٌ خارج `subs_channel.ACTIVE` أو غيابُ السرّ ⟵ «off»
+    بلا تقطيعٍ ولا ختمٍ ولا ملفّ · ونسخةُ المالك لا تُمَسّ · وعطلُها لا يرمي (`SUB1`-`SUB9`)."""
     try:
-        targets = _subs_targets(subs)
-        if not targets or not TELEGRAM_TOKEN:
-            return 0
-        chunks = _stamp_chunks(_chunk_message(text))
-        url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+        import subs_channel as _SC
+        if not _SC.active(subs):
+            return "off"
+        return _SC.enqueue(subs, _stamp_chunks(_chunk_message(text)), saver=git_save)
     except Exception as e:                                       # noqa: BLE001
         log(f"⚠️ قناة المشتركين ({subs}): {type(e).__name__}")
-        return 0
-    sent = 0
-    for ch in chunks:
-        for cid in targets:
-            try:
-                r = requests.post(url, json={"chat_id": cid, "text": ch, "parse_mode": "HTML",
-                                             "disable_web_page_preview": True}, timeout=30)
-                if r.status_code != 200 and "can't parse entities" in (r.text or ""):
-                    r = requests.post(url, json={"chat_id": cid, "text": _strip_tags(ch),
-                                                 "disable_web_page_preview": True}, timeout=30)
-                if r.status_code == 200:
-                    sent += 1
-                else:
-                    log(f"⚠️ قناة المشتركين رفضت ({subs}): HTTP {r.status_code} · {_redact_secrets(r.text or '')[:120]}")
-            except Exception as e:                               # noqa: BLE001
-                log(f"⚠️ قناة المشتركين ({subs}): {type(e).__name__}")
-        time.sleep(1)
-    log(f"📣 قناة المشتركين ⟵ {subs}: وصل {sent} من {len(chunks) * len(targets)} جزءًا")
-    return sent
+        return "error"
 
 
 def send_telegram(text: str, on_admin=None) -> bool:
