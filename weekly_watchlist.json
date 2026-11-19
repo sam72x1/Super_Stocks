@@ -869,7 +869,7 @@
    "hit": "t1",
    "hit_date": "2026-11-17",
    "max_gain_pct": 13.0,
-   "last_price": 0.4953,
+   "last_price": 0.5199,
    "borrow_hist": [
     [
      "2026-11-17",
@@ -1280,7 +1280,7 @@
    "hit": "t2",
    "hit_date": "2026-09-04",
    "max_gain_pct": 100.4,
-   "last_price": 13.61,
+   "last_price": 14.2,
    "live_alert": {
     "breakout": "2026-11-18",
     "dump": "2026-10-16",
@@ -1759,7 +1759,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.55,
+   "last_price": 1.45,
    "borrow_hist": [
     [
      "2026-11-19",
@@ -1784,7 +1784,8 @@
     "close": 1.54
    },
    "live_alert": {
-    "buyzone": "2026-11-19"
+    "buyzone": "2026-11-19",
+    "break": "2026-11-19"
    }
   },
   {
@@ -3062,7 +3063,7 @@
    "hit": "t2",
    "hit_date": "2026-11-10",
    "max_gain_pct": 52.2,
-   "last_price": 0.6368,
+   "last_price": 0.6472,
    "borrow_hist": [
     [
      "2026-11-10",
@@ -3511,7 +3512,7 @@
    "hit": "t1",
    "hit_date": "2026-11-13",
    "max_gain_pct": 17.6,
-   "last_price": 3.33,
+   "last_price": 3.27,
    "borrow_hist": [
     [
      "2026-11-13",
@@ -3967,7 +3968,7 @@
    "hit": "t1",
    "hit_date": "2026-11-12",
    "max_gain_pct": 42.7,
-   "last_price": 2.01,
+   "last_price": 2.0,
    "live_alert": {
     "sweep": "2026-11-19"
    },
@@ -4347,7 +4348,7 @@
    "hit": "t2",
    "hit_date": "2026-08-21",
    "max_gain_pct": 399.1,
-   "last_price": 3.87,
+   "last_price": 3.8,
    "live_alert": {
     "buyzone": "2026-08-17",
     "sweep": "2026-08-17",
@@ -5235,7 +5236,7 @@
    "hit": "t2",
    "hit_date": "2026-11-03",
    "max_gain_pct": 37.3,
-   "last_price": 4.27,
+   "last_price": 4.2438,
    "faisal_levels": "🧭 إغلاقات الهابطة $4.71 · $4.88 · $5.10 · جسم قبل الهبوط $6.19 · اختبار المقاومة $4.34 إلى $4.71",
    "live_alert": {
     "breakout": "2026-11-02",
@@ -5714,7 +5715,7 @@
    "hit": "t2",
    "hit_date": "2026-10-29",
    "max_gain_pct": 38.8,
-   "last_price": 10.21,
+   "last_price": 9.99,
    "borrow_hist": [
     [
      "2026-10-28",
@@ -6160,7 +6161,7 @@
    "hit": "t2",
    "hit_date": "2026-10-14",
    "max_gain_pct": 40.4,
-   "last_price": 1.22,
+   "last_price": 1.2026,
    "live_alert": {
     "breakout": "2026-11-06",
     "sweep": "2026-11-18"
