@@ -204,6 +204,18 @@ def run(now_utc=None) -> int:
                       src_of=lambda _s: LEDGER.frame_src(hist.get(_s)))   # 📺 مصدرُ المرجع (ملحق §⑦)
     except Exception:                                            # noqa: BLE001
         pass
+    # 🟡 المستوى المخفّف (أمرُ المالك 2026-11-19 · `METHOD_RELAXED=0` ⟵ القائمةُ فارغة فلا صفَّ ولا قسم): باسمٍ مستقلّ في السجلّ
+    #    الأماميّ ليُحسم منفصلًا عن المطابق الكامل.
+    rel = list(getattr(S, "_METHOD_RELAXED", []) or [])
+    if rel:
+        try:
+            LEDGER.record("method_relaxed", sess, rel, log=S.log,
+                          ref_of=lambda _s: float(hist[_s]["Close"].iloc[-1]),
+                          src_of=lambda _s: LEDGER.frame_src(hist.get(_s)))
+        except Exception:                                        # noqa: BLE001
+            pass
+        S.log("🟡 مخفّف: " + " · ".join(f"{r.get('symbol')} +{float(r.get('relaxed_over') or 0):.2f}%" for r in rel))
+    _rel_block = ("\n\n" + S._rtl_join(S.method_relaxed_lines(rel))) if rel else ""
     # 🎁 **إثراء الكماليّات الحيّة** (طلب المالك 2026-08-01: «نفس اللي أضفناها في
     #    أداة التقسيم»): تدفّق السيولة · شمعة 4س · اختبار القاع.
     #    🔒 **بعد `scan_method_hunter`** ⇒ يستحيل بنيويًّا أن يُدخل مرشّحًا أو يُخرجه
@@ -236,10 +248,10 @@ def run(now_utc=None) -> int:
             "لا يوجد سهم يطابق الشروط اليوم.",
             f"🩺 فُحِص {len(hist)} من {len(uni)} رمزًا ({cov:.0f}% تغطية)"
             + (f" · جلسة {S.esc(str(sess))}" if sess else ""),
-        ] + ([""] + S.method_near_lines(_near) if _near else [])) + "\n\n" + S.FOOTER
+        ] + ([""] + S.method_near_lines(_near) if _near else [])) + _rel_block + "\n\n" + S.FOOTER
     else:
         try:
-            msg = S.build_method_alert(rows, today=sess) + "\n\n" + S.FOOTER
+            msg = S.build_method_alert(rows, today=sess) + _rel_block + "\n\n" + S.FOOTER
         except Exception as e:                                   # noqa: BLE001
             return _fail(S, f"تعذّر بناء التنبيه رغم {len(rows)} مطابق ({e}).")
     if not S.send_telegram(msg):

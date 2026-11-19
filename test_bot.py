@@ -23305,8 +23305,10 @@ def _lg_hook_safe(path):
 
 for _f in ("split_hunter.py", "method_hunter.py", "split_filter_hunter.py",
            "envelope_hunter.py"):
+    # 🟡 2026-11-19 (أمرُ المالك «هامش 1%»): `method_hunter.py` صار نداءين — المطابقُ الكامل وسجلُّ المخفّف `method_relaxed` — وكلاهما
+    #    داخل `try` ومُهمَلُ القيمة (العددُ يُعَدّ بالاسم فلا يمرّ نداءٌ ثالث).
     check(f"🌱 H1🔒 {_f}: نداءُ التسجيل **داخل `try` ومُهمَلُ القيمة** (لا يمسّ القرار)",
-          _lg_hook_safe(_f) == 1)
+          _lg_hook_safe(_f) == (2 if _f == "method_hunter.py" else 1))
 
 check("🌱 H1🔒 وصيّادُ المقسّم **لم يُحذف منه سطر** (إضافةٌ محضة)",
       (lambda src: "scan_split_hunter" in src and "session_gate" in src
@@ -105152,6 +105154,122 @@ try:
           f"calls={sorted(_mrc_calls & {'send_telegram', 'git_save', 'open'})}")
 except Exception as _e:                                          # noqa: BLE001
     check("🔬🔢 أقفالُ عدّ المخفّف انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+# 🟡 MRX1-MRX4 — المستوى المخفّف في صيّاد «النهج العلمي» (أمرُ المالك 2026-11-19 «هامش 1%»): منفصلٌ عن المطابق الكامل · باسمٍ مستقلّ في السجلّ ·
+#    والمطابقُ الكامل والقريبون بت-بت · `METHOD_RELAXED=0` ⟵ صفرُ عمل · و🏷️ MRC3: عدُّ «بلا هدف فجوة» وصفٌ قبل البناء.
+def _mrx_df(last):
+    _c = list(_sm_cl); _c[-1] = last
+    _h = list(_sm_hi); _h[-1] = max(_h[-1], last + 0.01)
+    return S.pd.DataFrame({"Open": _c, "High": _h, "Low": _sm_lo, "Close": _c, "Volume": [5e5] * len(_c)},
+                          index=S.pd.date_range("2026-03-02", periods=len(_c), freq="B"))
+
+
+def _mrx_scan(hist, on=True, pump=None, off=None, bor=None, calls=None):
+    _o = (S.CONFIG.get("METHOD_RELAXED"), S.CONFIG.get("METHOD_RELAX_OVER_PCT"))
+    try:
+        S.CONFIG["METHOD_RELAXED"] = on
+        def _off(sym, today=None):
+            if calls is not None:
+                calls.append(sym)
+            return bool(off and off(sym))
+        _rows = S.scan_method_hunter(
+            hist, today=list(hist.values())[0].index[-1].date(),
+            fetch_pump=pump or (lambda d: False), fetch_offering=_off,
+            fetch_borrow=bor or (lambda s: {"shares_available": 7_000, "borrow_fee": 120.0}),
+            fetch_splits=lambda s: None)
+        return ([r["symbol"] for r in _rows], [dict(r) for r in S._METHOD_RELAXED],
+                [(n["symbol"], n["why"]) for n in S._METHOD_NEAR], dict(S._METHOD_STAGE))
+    except Exception as _e:                                      # noqa: BLE001
+        return ([f"⛔ {type(_e).__name__}"], [], [], {})
+    finally:
+        S.CONFIG["METHOD_RELAXED"], S.CONFIG["METHOD_RELAX_OVER_PCT"] = _o
+
+
+_mrx_a = _mrx_scan({"TEST": _mrx_df(3.215)})
+_mrx_b = _mrx_scan({"TEST": _mrx_df(3.25)})
+_mrx_c = _mrx_scan({"TEST": _mrx_df(3.16)})
+check("🟡 MRX1: تجاوزُ الدخول بنصف بالمئة ⟵ مخفّفٌ لا مطابقٌ كامل (ويبقى في القريبين بسببه) · وبـ1.6% ⟵ لا مخفّف · وداخل المنطقة ⟵ مطابقٌ كامل ولا مخفّف · والهامشُ 1",
+      _mrx_a[0] == [] and [r["symbol"] for r in _mrx_a[1]] == ["TEST"]
+      and 0.4 < _mrx_a[1][0]["relaxed_over"] < 0.6 and abs(_mrx_a[1][0]["t1"] - 5.0) < 1e-6
+      and len(_mrx_a[2]) == 1 and "تجاوز منطقة الدخول" in _mrx_a[2][0][1]
+      and _mrx_b[0] == [] and _mrx_b[1] == [] and len(_mrx_b[2]) == 1
+      and _mrx_c[0] == ["TEST"] and _mrx_c[1] == []
+      and S.CONFIG["METHOD_RELAX_OVER_PCT"] == 1.0 and S.CONFIG["METHOD_RELAXED"] is True,
+      str((_mrx_a[0], _mrx_a[1][:1], _mrx_b[1], _mrx_c[:2]))[:160])
+_mrx_h = {"REL": _mrx_df(3.215), "FULL": _mrx_df(3.16), "FAR": _mrx_df(3.25)}
+_mrx_calls = []
+_mrx_on = _mrx_scan(_mrx_h, on=True, calls=_mrx_calls)
+_mrx_off = _mrx_scan(_mrx_h, on=False)
+check("🟡 MRX2: المفتاحُ مطفأً ⟵ لا مخفّف · والمطابقُ الكامل والقريبون وعدّاداتُ المراحل متطابقةٌ بين الوضعين · وفحصُ الطرح للمطابق الكامل قبل المخفّف",
+      _mrx_off[1] == [] and [r["symbol"] for r in _mrx_on[1]] == ["REL"]
+      and _mrx_on[0] == _mrx_off[0] == ["FULL"] and _mrx_on[2] == _mrx_off[2] and len(_mrx_on[2]) == 2
+      and _mrx_on[3] == _mrx_off[3] and _mrx_calls == ["FULL", "REL"],
+      str((_mrx_on[0], _mrx_off[1], _mrx_calls, _mrx_on[3] == _mrx_off[3]))[:160])
+_mrx_gap0 = S.falling_gap_candle
+try:
+    S.falling_gap_candle = lambda df, price=None: None
+    _mrx_ng = _mrx_scan({"TEST": _mrx_df(3.215)})
+finally:
+    S.falling_gap_candle = _mrx_gap0
+_mrx_fail = [_mrx_scan({"TEST": _mrx_df(3.215)}, pump=lambda d: True),
+             _mrx_scan({"TEST": _mrx_df(3.215)}, off=lambda s: True),
+             _mrx_scan({"TEST": _mrx_df(3.215)}, bor=lambda s: {"shares_available": 20_001}),
+             _mrx_ng]
+_mrx_unk = _mrx_scan({"TEST": _mrx_df(3.215)}, bor=lambda s: None)
+check("🟡 MRX3: المخفّفُ لا يُرخي شرطًا آخر — قروبٌ أو طرحٌ أو متاحٌ فوق 20 ألفًا أو بلا فجوة ⟵ لا يظهر (والقريبون كما هم) · والمتاحُ المجهول يمرّ كما في الأصل",
+      all(f[0] == [] and f[1] == [] and len(f[2]) == 1 and "تجاوز منطقة الدخول" in f[2][0][1] for f in _mrx_fail)
+      and len(_mrx_unk[1]) == 1 and _mrx_unk[1][0]["avail"] is None,
+      str([(f[0], len(f[1])) for f in _mrx_fail])[:120])
+try:
+    import ast as _mrx_ast
+    _mrx_lines = "\n".join(S.method_relaxed_lines(_mrx_a[1]))
+    _mrx_src = open("method_hunter.py", encoding="utf-8").read()
+    _mrx_tree = _mrx_ast.parse(_mrx_src)
+    _mrx_rec = [c for c in _mrx_ast.walk(_mrx_tree) if isinstance(c, _mrx_ast.Call)
+                and getattr(c.func, "attr", None) == "record" and c.args
+                and isinstance(c.args[0], _mrx_ast.Constant)]
+    _mrx_names = sorted(c.args[0].value for c in _mrx_rec)
+    _mrx_relrec = [c for c in _mrx_rec if c.args[0].value == "method_relaxed"]
+    _mrx_msgs = [n for n in _mrx_ast.walk(_mrx_tree) if isinstance(n, _mrx_ast.Assign)
+                 and getattr(n.targets[0], "id", None) == "msg"]
+    _mrx_led = [ln for ln in open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read().splitlines()
+                if ln.startswith("|") and "METHOD_RELAX_OVER_PCT" in ln]
+    _mrx4 = ("مخفّف: تجاوز الدخول بـ0.49%" in _mrx_lines and "ليس مطابقًا كاملًا" in _mrx_lines
+             and S.method_relaxed_lines([]) == [] and S.method_relaxed_lines(None) == []
+             and _mrx_names == ["method", "method_relaxed"]
+             and len(_mrx_relrec) == 1 and getattr(_mrx_relrec[0].args[2], "id", None) == "rel"
+             and len(_mrx_msgs) == 2 and all("_rel_block" in _mrx_ast.unparse(m.value) for m in _mrx_msgs)
+             and len(_mrx_led) == 1 and "`engineering`" in _mrx_led[0])
+    _mrx4d = str((_mrx_names, len(_mrx_msgs), len(_mrx_led)))
+except Exception as _e:                                          # noqa: BLE001
+    _mrx4, _mrx4d = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🟡 MRX4: القسمُ بوسمه «مخفّف: تجاوز الدخول بـX%» منفصلًا · موصولٌ في فرعَي الرسالة · والسجلُّ الأماميّ باسم `method_relaxed` على قائمة المخفّف وحدَها · وللهامش صفٌّ في دفتر المصادر",
+      _mrx4, _mrx4d[:160])
+try:
+    import method_relaxed_count as _mrc3
+    _mrc3_gap0 = S.falling_gap_candle
+    _mrc3_kw = dict(pump=lambda d: False, offering=lambda s, today=None: False)
+    _d_in, _d_rel = _mrx_df(3.16), _mrx_df(3.215)
+    _mrc3_day = _d_in.index[-1].date()
+    _mrc3_full = _mrc3.classify(S, "T", _d_in, _mrc3_day, **_mrc3_kw)
+    _mrc3_r = _mrc3.classify(S, "T", _d_rel, _mrc3_day, **_mrc3_kw)
+    try:
+        S.falling_gap_candle = lambda df, price=None: None
+        _mrc3_ng = _mrc3.classify(S, "T", _d_in, _mrc3_day, **_mrc3_kw)
+        _mrc3_ngp = _mrc3.classify(S, "T", _d_in, _mrc3_day, pump=lambda d: True, offering=lambda s, today=None: False)
+        _mrc3_ngb = _mrc3.classify(S, "T", _d_in, _mrc3_day, borrow_known={"T": {"shares_available": 50_000}}, **_mrc3_kw)
+    finally:
+        S.falling_gap_candle = _mrc3_gap0
+    _mrc3_ok = (_mrc3_full is None and _mrc3_r and _mrc3_r["nogap"] is False and _mrc3_r["fail"] is None
+                and _mrc3_ng and _mrc3_ng["nogap"] is True and _mrc3_ng["fail"] is None and _mrc3_ng["over"] <= 0
+                and _mrc3_ngp["fail"] == "قروب" and _mrc3_ngb["fail"] == "متاح فوق الحدّ")
+    _mrc3_d = str((_mrc3_full, _mrc3_ng and (_mrc3_ng["nogap"], _mrc3_ng["fail"])))
+except Exception as _e:                                          # noqa: BLE001
+    _mrc3_ok, _mrc3_d = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🏷️ MRC3: عدُّ «بلا هدف فجوة» — داخل المنطقة بلا فجوة ⟵ يُعَدّ موسومًا وتُكمَل شروطُ القروب والطرح والمتاح بعده · وداخل المنطقة بفجوة ⟵ ليس من العدّ (شأنُ المطابق الكامل)",
+      _mrc3_ok, _mrc3_d[:140])
+_ = S.scan_method_hunter({}, today=None)          # تنظيفُ الحالة العامّة
+
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

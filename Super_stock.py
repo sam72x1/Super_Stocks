@@ -641,6 +641,12 @@ CONFIG = {
     #    كنهج الافضل كم؟» فأجاب «**20 وتحت**» ⇒ عشرون ألفًا. والمقياس **المتاح
     #    للاقتراض** (ChartExchange) وهو قراءة فيصل الموثّقة للشورت. **مجهولٌ ⇒ يمرّ.**
     "METHOD_SHORT_MAX": 20_000,
+    # 🟡 **المستوى المخفّف** (أمرُ المالك 2026-11-19 «هامش 1%»): مَن استوفى الشروطَ الستّة عدا أن سعره تجاوز مستوى الدخول بهامشٍ
+    #    صغير يُعرَض **منفصلًا** بوسم «مخفّف: تجاوز الدخول بـX%» وباسمٍ مستقلّ في السجلّ الأماميّ (`method_relaxed`) —
+    #    **والمطابقُ الكامل وقائمةُ القريبين وكلُّ شرطٍ آخر بت-بت** (يُعالَج بعد الحلقة بما بقي من ميزانيّة الطرح).
+    #    `METHOD_RELAXED=0` (بيئةُ التشغيل) ⟵ صفرُ عمل · والهامشُ **قرارُ المالك** لا رقمٌ من فيصل (`MRX1`-`MRX4`).
+    "METHOD_RELAXED": os.environ.get("METHOD_RELAXED", "1").strip() != "0",
+    "METHOD_RELAX_OVER_PCT": 1.0,
     # 🕓 **الفريم: اليوميّ ثم 4 ساعات** (قرار المالك 2026-08-01: «نمشي بالتسلسل حسب
     #    اللي أعرفه من أبو بدر — لأن **الأهداف وغالبًا الشموع وحده**»). فالمستويات
     #    (‏القاع · الفجوة-الهدف) واحدةٌ عبر الفريمين، والتسلسل يُقرأ حيث يظهر.
@@ -9344,6 +9350,7 @@ _METHOD_FOUNDING = []
 #    **عددُ القريبين لا عددُ مَن بلغ التسلسل** — يتساويان **فقط** حين لا مطابق
 #    كامل. فأوّلُ يومٍ يُنتج مطابقًا كانت المقارنة ستُطبَع **مبخوسة بصمت**.
 _METHOD_STAGE = {}
+_METHOD_RELAXED = []       # 🟡 المستوى المخفّف لآخر مسح (`METHOD_RELAXED`) — منفصلٌ عن المطابق الكامل
 # كم يُعرَض منهم — **وما زاد يُعلَن عددُه لا يُقصّ صامتًا**.
 # 🔴 **رُفِع 10 ⟶ 25 (2026-08-01، بسؤال المالك «فيه أسهم بالقديمة مب بالجديدة»):**
 # القائمة **مسقوفةٌ طبيعيًّا** بمَن يبلغ التسلسل الرباعيّ (‏14 يوم 07-31 من 3386
@@ -9759,6 +9766,29 @@ def method_near_lines(near, cap=None):
     return out
 
 
+def method_relaxed_lines(rel):
+    """🟡 قسمُ «المستوى المخفّف» في رسالة النهج العلمي — **منفصلٌ عن المطابق الكامل** (أمرُ المالك 2026-11-19). نقيّة · لا شيء ⟵ `[]`."""
+    rows = list(rel or [])
+    if not rows:
+        return []
+    out = [f"🟡 <b>مستوى مخفّف — ليس مطابقًا كاملًا</b> ({len(rows)}):",
+           "<i>استوفى الشروطَ كلَّها عدا أن سعره فوق مستوى الدخول بهامشٍ صغير.</i>"]
+    for r in rows:
+        try:
+            av = r.get("avail")
+            out.append(
+                f"  • <b>{esc(str(r.get('symbol') or '?'))}</b> ${float(r.get('price') or 0):.2f} "
+                f"[{esc(str(r.get('frame') or '—'))}] — مخفّف: تجاوز الدخول بـ{float(r.get('relaxed_over') or 0):.2f}%")
+            out.append(
+                f"    الدخول ${float(r.get('entry') or 0):.2f} · الوقف ${float(r.get('stop') or 0):.2f} · "
+                f"الهدف ${float(r.get('t1') or 0):.2f} · المتاح "
+                + ("غير مؤكّد" if av is None else f"{int(float(av)):,}")
+                + ("" if r.get("off_checked") else " · الطرح لم يُفحَص"))
+        except Exception:                                        # noqa: BLE001
+            continue
+    return out
+
+
 def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None,
                        fetch_borrow=None, fetch_splits=None, fetch_h4=None):
     """🔬 **صيّاد «النهج العلمي»** — أداةٌ مستقلّة عن فارز الارتكاز وعن صيّاد المقسّم.
@@ -9794,6 +9824,9 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
     h4_budget = [int(CONFIG["METHOD_4H_CAP"])]
     _METHOD_NEAR.clear()
     _METHOD_FOUNDING.clear()
+    _METHOD_RELAXED.clear()
+    _rel_cap = float(CONFIG.get("METHOD_RELAX_OVER_PCT") or 0) if CONFIG.get("METHOD_RELAXED") else 0.0
+    _rel_pending = []
     for sym, df in (history or {}).items():
         try:
             if df is None or len(df) < 60:
@@ -9864,6 +9897,8 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
                 #    — فيُقرأ اختفاءُ اسمٍ من العرض «حذفًا» لا «إبعادًا».
                 _near(f"تجاوز منطقة الدخول بـ{(price / entry - 1.0) * 100:.1f}% "
                       f"(الدخول ${entry:.2f})")
+                if 0 < (price / entry - 1.0) * 100.0 <= _rel_cap:        # 🟡 يُفحَص بعد الحلقة — لا يمسّ ما قبله ولا ما بعده
+                    _rel_pending.append((sym, df, price, bot, entry, stop, frame, fnd, ts))
                 continue
             stage["entry_zone"] += 1
             gap = falling_gap_candle(df, price=entry)   # ③ الهدف البنيويّ
@@ -9944,6 +9979,45 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
     # 🔭 الأقربُ إلى الدخول أوّلًا (مَن هو **داخل** المنطقة سالبُ `over_pct` فيتصدّر)
     _METHOD_NEAR.sort(key=lambda n: n.get("over_pct") if n.get("over_pct")
                       is not None else 1e9)
+    # 🟡 **المستوى المخفّف** — الشروطُ ③-⑥ نفسُها بدوالّها نفسِها على مَن تجاوز الدخولَ بالهامش وحدَه · بعد الحلقة ⟵ ميزانيّةُ
+    #    الطرح تُصرف للمطابق الكامل أوّلًا · وسقوطُه هنا صامت (سببُه في «القريبين» سلفًا: «تجاوز منطقة الدخول»).
+    for (_s, _d, _p, _b, _e, _st, _fr, _f, _t) in _rel_pending:
+        try:
+            _g = falling_gap_candle(_d, price=_e)
+            _t1 = float((_g or {}).get("head") or 0)
+            if not _t1 or _t1 <= _e or fp(_d):
+                continue
+            _oc = False
+            if off_budget[0] > 0:
+                off_budget[0] -= 1
+                try:
+                    if fo(_s, today=today):
+                        continue
+                    _oc = True
+                except Exception:                                # noqa: BLE001
+                    pass
+            try:
+                _bo = fb(_s)
+            except Exception:                                    # noqa: BLE001
+                _bo = None
+            _a = (_bo or {}).get("shares_available")
+            try:
+                if _a is not None and float(_a) > float(CONFIG["METHOD_SHORT_MAX"]):
+                    continue
+            except (TypeError, ValueError):
+                pass
+            _METHOD_RELAXED.append({
+                "symbol": _s, "price": _p, "bottom": _b, "entry": _e, "stop": _st, "t1": _t1,
+                "relaxed_over": (_p / _e - 1.0) * 100.0, "frame": _fr,
+                "peak": _f["peak"], "rise_pct": _f["rise_pct"], "bars_since_peak": _f["bars_since_peak"],
+                "bounce_pct": _t.get("bounce_pct"), "avail": _a,
+                "borrow_fee": (_bo or {}).get("borrow_fee"), "off_checked": _oc})
+        except Exception as e:                                   # noqa: BLE001
+            log(f"⚠️ النهج العلمي·مخفّف·{_s}: {e}")
+    _METHOD_RELAXED.sort(key=lambda r: r["relaxed_over"])
+    del _METHOD_RELAXED[int(CONFIG["METHOD_MAX"]):]
+    if _rel_cap > 0:
+        log(f"🟡 النهج العلمي·مخفّف (تجاوز الدخول بـ{_rel_cap:g}% أو أقلّ): فُحِص {len(_rel_pending)} → {len(_METHOD_RELAXED)}")
     _METHOD_STAGE.clear()
     _METHOD_STAGE.update(stage, matched=len(rows))
     # 🔴 النافذةُ **من `CONFIG`** لا مغروسةً نصًّا: رقمٌ مكتوبٌ في سطرِ عرضٍ
