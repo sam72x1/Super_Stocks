@@ -73545,6 +73545,7 @@ try:
     _want9 = {"daily_screener.yml", "pullback_monitor.yml", "hand_digest.yml", "analyze.yml", "hand_check.yml",
               "split_hunter.yml", "split_filter.yml", "method_hunter.yml", "envelope_hunter.yml", "press_radar.yml",
               "shadow_telegram.yml", "app_compare.yml", "tgtladder.yml",
+              "subs_trial.yml",          # 📣🧪 2026-11-19: تجربةُ القناة تشغّل الأدواتِ بمصدرها (قارئة)
               "method_relaxed.yml"}      # 🔬🔢 2026-11-19: عدُّ المخفّف يقرأ مصدرَ صيّاد النهج نفسَه (قراءةٌ فقط)
     _got9 = set()
     for _fn9 in sorted(_tvb_os.listdir(".github/workflows")):
@@ -105094,7 +105095,8 @@ try:
     _sb_ss = open(_sb_os.path.join(_sb_wf, "subs_sender.yml"), encoding="utf-8").read()
     check("📣 SUB4: السرُّ `TELEGRAM_SUBS_CHAT_ID` في جوبات المنتجين الخمسة والمُرسِل وحدَها · والمُرسِلُ `flush --wait` بمجموعة تزامنٍ ثابتة "
           "وصلاحيةِ دفعٍ · ولا مفتاحَ بيئةٍ يُشعل القناة",
-          _sb_with == ["daily_screener.yml", "presession_digest.yml", "press_radar.yml", "split_filter.yml", "split_hunter.yml", "subs_sender.yml"]
+          _sb_with == ["daily_screener.yml", "presession_digest.yml", "press_radar.yml", "split_filter.yml", "split_hunter.yml", "subs_sender.yml",
+                       "subs_trial.yml"]          # 📣🧪 2026-11-19: تجربةُ العرض اليدويّة (قارئةٌ · بلا محادثة المالك · `SBT3`)
           and "python subs_channel.py flush --wait" in _sb_ss and "group: subs-sender" in _sb_ss and "contents: write" in _sb_ss
           and not any(_ln.strip().startswith(("SUBS_CHANNEL:", "SUBS_ON:")) for f in _sb_with
                       for _ln in open(_sb_os.path.join(_sb_wf, f), encoding="utf-8").read().splitlines()),
@@ -105355,6 +105357,55 @@ except Exception as _e:                                          # noqa: BLE001
 check("🏷️ MNG4: القسمُ بوسمه منفصلًا وبلا سطر هدف · والزائدُ عن السقف يُعلَن عددُه · موصولٌ في كتلة الرسالة · والسجلُّ الأماميّ باسم `method_nogap` على قائمته وحدَها",
       _mng4, _mng4d[:160])
 _ = S.scan_method_hunter({}, today=None)          # تنظيفُ الحالة العامّة
+
+
+# 📣🧪 SBT1-SBT3 — تجربةُ قناة المشتركين (أمرُ المالك 2026-11-19 «عرض فقط»): التقاطٌ بلا إرسالٍ للمالك ولا حفظ · ونسخةُ القناة وحدَها تُرسَل.
+try:
+    import subs_trial as _sbt
+    import ast as _sbt_ast
+    import datetime as _sbt_dt
+    import subs_channel as _sbt_SC
+    _sbt_c = {"daily": {"sent": ["A فيصل", "B", "hand kisar_ فيصل"], "mirror": [("daily_report", "A فيصل"), ("hand", "hand kisar_ فيصل")]},
+              "method": {"sent": ["M1 فيصل: «x»"], "mirror": []},
+              "press": {"sent": ["⛔ عطل"], "mirror": []},
+              "split_hunter": {"sent": ["لا يوجد"], "mirror": [("split_hunter", "لا يوجد")]},
+              "envelope": {"sent": ["X"], "mirror": []}}
+    _sbt_todo, _sbt_rep = _sbt.plan(_sbt_c, {"daily": 0, "method": 0, "press": 1, "split_hunter": 0, "split_filter": 0, "presession": "KeyError"})
+    check("📣🧪 SBT1: `plan` — المسمّى للقناة وحدَه يُرسَل من الأداة ذات نداء القناة (وما سواه لا) · والنهجُ العلمي برسائله إن خرج 0 · والعطلُ والصامتُ "
+          "وما لم يُنتج لا تُرسَل وسببُها مكتوب · وعدُّ الاسم قبل الحذف لكلّ أداة",
+          _sbt_todo == [("daily", "A فيصل"), ("daily", "hand kisar_ فيصل"), ("split_hunter", "لا يوجد"), ("method", "M1 فيصل: «x»")]
+          and _sbt_rep["daily"] == {"sent": 2, "why": None, "name_hits": 3}
+          and _sbt_rep["method"]["name_hits"] == 1 and _sbt_rep["split_hunter"]["name_hits"] == 0
+          and _sbt_rep["press"]["sent"] == 0 and "لم تكتمل" in _sbt_rep["press"]["why"]
+          and "لم تكتمل" in _sbt_rep["presession"]["why"] and "لم تُنتج" in _sbt_rep["split_filter"]["why"]
+          and _sbt_rep["envelope"]["sent"] == 0 and "صامت" in _sbt_rep["envelope"]["why"]
+          and _sbt.count_name("فيصل @Kisar_ فيصل") == 3 and _sbt.count_name(None) == 0,
+          str((_sbt_todo, _sbt_rep.get("press")))[:160])
+    _sbt_df = S.pd.DataFrame({"Close": [1.0, 2.0, 3.0]}, index=S.pd.date_range("2026-11-17", periods=3, freq="B"))
+    _sbt_cut = _sbt.cut_hist({"A": _sbt_df, "B": _sbt_df.iloc[2:]}, _sbt_dt.date(2026, 11, 18))
+    check("📣🧪 SBT2: `cut_hist` — شمعةُ الجلسة الجارية لا تدخل (القصُّ عند آخر جلسةٍ مكتملة شاملًا) · والرمزُ الذي يفرغ يسقط · وبلا حدٍّ أو بغير قاموسٍ يُعاد كما هو",
+          list(_sbt_cut) == ["A"] and len(_sbt_cut["A"]) == 2 and float(_sbt_cut["A"]["Close"].iloc[-1]) == 2.0
+          and _sbt.cut_hist({"A": _sbt_df}, None)["A"] is _sbt_df and _sbt.cut_hist(None, _sbt_dt.date(2026, 11, 18)) is None,
+          str({k: len(v) for k, v in _sbt_cut.items()}))
+    _sbt_src = open("subs_trial.py", encoding="utf-8").read()
+    _sbt_main = [n for n in _sbt_ast.walk(_sbt_ast.parse(_sbt_src)) if isinstance(n, _sbt_ast.FunctionDef) and n.name == "main"][0]
+    _sbt_asg = {_sbt_ast.unparse(t) for n in _sbt_ast.walk(_sbt_main) if isinstance(n, _sbt_ast.Assign) for t in n.targets}
+    _sbt_pops = {c.args[0].value for c in _sbt_ast.walk(_sbt_main) if isinstance(c, _sbt_ast.Call)
+                 and _sbt_ast.unparse(c.func) == "os.environ.pop" and c.args and isinstance(c.args[0], _sbt_ast.Constant)}
+    _sbt_wf = open(".github/workflows/subs_trial.yml", encoding="utf-8").read()
+    _sbt_code = "\n".join(_ln for _ln in _sbt_wf.splitlines() if not _ln.strip().startswith("#"))
+    check("📣🧪 SBT3: التجربةُ لا تصل المالكَ ولا المستودع — تُسقط رقمَي المالك من البيئة وتستبدل الإرسالَ والمستندين والحفظَ ونداءَ القناة قبل أيّ أداة · "
+          "والـworkflow يدويٌّ قارئٌ بلا `TELEGRAM_CHAT_ID` ولا كرون · ولا يقرأ مفتاحَ القناة ولا يغيّره · وأوّلُ سطرٍ «تجربة»",
+          {"S.send_telegram", "S.subs_mirror", "S.git_save", "S.send_telegram_document", "S.send_owner_document",
+           "S.download_history", "S.TELEGRAM_CHAT"} <= _sbt_asg
+          and {"TELEGRAM_CHAT_ID", "TELEGRAM_OWNER_ID"} <= _sbt_pops
+          and "contents: read" in _sbt_code and "contents: write" not in _sbt_code and "schedule:" not in _sbt_code
+          and "TELEGRAM_CHAT_ID" not in _sbt_code and "TELEGRAM_OWNER_ID" not in _sbt_code and "workflow_dispatch:" in _sbt_code
+          and "SC.ON" not in _sbt_src and ".ON =" not in _sbt_src and _sbt.FIRST_LINE == "تجربة"
+          and "chunks[0] = FIRST_LINE" in _sbt_src and _sbt_SC.ON is False,
+          str(sorted(_sbt_asg))[:160])
+except Exception as _e:                                          # noqa: BLE001
+    check("📣🧪 SBT1-SBT3: تجربةُ قناة المشتركين", False, f"⛔ {type(_e).__name__}: {_e}")
 
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
