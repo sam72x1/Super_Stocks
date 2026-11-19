@@ -48,3 +48,7 @@
 {"schema": 1, "date": "2026-11-18", "symbol": "GMM", "src": "on_demand", "why": "ok", "captured_at": "2026-11-18T14:25:10+00:00", "stop": 0.83, "t1": 1.6, "t2": 1.82}
 {"schema": 1, "date": "2026-11-18", "symbol": "CUE", "src": "on_demand", "why": "ok", "captured_at": "2026-11-18T14:25:10+00:00", "stop": 2.83, "t1": 9.09, "t2": 10.44}
 {"schema": 1, "date": "2026-11-18", "symbol": "VWAV", "src": "on_demand", "why": "ok", "captured_at": "2026-11-18T14:25:10+00:00", "stop": 0.35, "t1": 0.65, "t2": 1.0}
+{"schema": 1, "date": "2026-11-19", "symbol": "SPRC", "src": "on_demand", "why": "ok", "captured_at": "2026-11-19T14:25:49+00:00", "stop": 0.23, "t1": 0.37, "t2": 0.44}
+{"schema": 1, "date": "2026-11-19", "symbol": "LGHL", "src": "on_demand", "why": "ok", "captured_at": "2026-11-19T14:25:49+00:00", "stop": 0.79, "t1": 1.01, "t2": 1.18}
+{"schema": 1, "date": "2026-11-19", "symbol": "GMEX", "src": "on_demand", "why": "ok", "captured_at": "2026-11-19T14:25:49+00:00", "stop": 0.3, "t1": 0.38, "t2": 0.49}
+{"schema": 1, "date": "2026-11-19", "symbol": "XXII", "src": "on_demand", "why": "ok", "captured_at": "2026-11-19T14:25:49+00:00", "stop": 0.37, "t1": 0.42, "t2": 0.48}
