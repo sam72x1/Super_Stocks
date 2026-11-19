@@ -105881,6 +105881,55 @@ except Exception:                            # noqa: BLE001
 check("🌙 NGT5: `night.yml` يدويٌّ وحدَه · `contents: read` · بلا أيّ سرّ · والأداةُ لا ترسل ولا تحفظ ولا تستورد البوت", _ngt_w)
 
 
+# 🌙🔧 NGT6 — عطلُ أداةٍ مُثبَت في أوّل تشغيلة اكتشاف (`44622259245`: مقبسٌ جديد لكلّ طلب ⟵ تعذّر 83% ⟵ خروج 5 بلا أيّ عائد):
+#    الجلبُ يعيد استعمالَ مقبسٍ واحدٍ لكلّ عامل · ويعيد ما تعذّر وحدَه في جولاتٍ لاحقة · و«رمزٌ غيرُ مُدرَج» ليس تعذّرًا · وعدّادُ الحالات يُحفظ.
+try:
+    _ngt6_made, _ngt6_calls, _ngt6_sleeps = [], [], []
+
+    class _Ngt6Chart:
+        def __init__(self):
+            _ngt6_made.append(1)
+
+        def close(self):
+            pass
+
+    def _ngt6_bars(full, ses, ch):
+        _ngt6_calls.append((full, ses))
+        _n = sum(1 for c in _ngt6_calls if c == (full, ses))
+        if full == "NASDAQ:FLK" and _n == 1:
+            return None, "exc:Timeout"                      # يتعذّر مرّةً ثمّ ينجح
+        if full == "BOATS:DEAD":
+            return None, "timeout"                          # يتعذّر دائمًا
+        if full == "BOATS:NOB":
+            return None, "symbol_error:x"                   # غيرُ مُدرَج — ليس تعذّرًا
+        return [(1, 1.0, 1.0, 1.0, 1.0, 1.0)], "ok"
+
+    _ngt6_out = _NGT.fetch_all(["AAA", "FLK", "DEAD", "NOB"], workers=1, bars_fn=_ngt6_bars,
+                               chart_factory=_Ngt6Chart, sleep=lambda x: _ngt6_sleeps.append(x))
+    _ngt6_st = dict(_NGT.FETCH_STATUS)
+    _ngt6_ok = (_ngt6_out["FLK"][1] == "ok" and _ngt6_out["FLK"][3] == "ok" and _ngt6_out["DEAD"][3] == "timeout"
+                and _ngt6_out["DEAD"][1] == "ok" and _ngt6_out["NOB"][3].startswith("symbol_error")
+                and len(_ngt6_made) == 1 + _NGT.FETCH_RETRY_ROUNDS            # مقبسٌ للدفعة ومقبسٌ لكلّ جولة إعادة — لا مقبسَ لكلّ طلب
+                and _ngt6_calls.count(("NASDAQ:AAA", "extended")) == 1 and _ngt6_calls.count(("BOATS:NOB", "regular")) == 1
+                and _ngt6_calls.count(("BOATS:FLK", "regular")) == 1          # الناجحُ من الرمز المُعاد لا يُجلب ثانيةً
+                and _ngt6_calls.count(("NASDAQ:FLK", "extended")) == 2 and _ngt6_calls.count(("NASDAQ:DEAD", "extended")) == 1
+                and _ngt6_calls.count(("BOATS:DEAD", "regular")) == 1 + _NGT.FETCH_RETRY_ROUNDS
+                and _ngt6_sleeps.count(_NGT.FETCH_RETRY_WAIT_S) == _NGT.FETCH_RETRY_ROUNDS
+                and _ngt6_st == {"ext:ok": 4, "boats:ok": 2, "boats:timeout": 1, "boats:symbol_error": 1})
+    _ngt6_rows = _NGT.build_rows(["2026-08-31", "2026-09-01", "2026-09-02"], ["2026-09-02"], {"2026-09-02": ["DEAD", "NOB", "GONE"]},
+                                 {"DEAD": _ngt6_out["DEAD"], "NOB": _ngt6_out["NOB"], "GONE": (None, "symbol_error:x", None, "symbol_error:x")})
+    _ngt6_src = open("fm_forensics/night/night_probe.py", encoding="utf-8").read()
+    _ngt6_err = ""
+except Exception as _e:                      # noqa: BLE001
+    _ngt6_ok, _ngt6_rows, _ngt6_st, _ngt6_src = False, ([], {}, 0, 0), {}, ""
+    _ngt6_err = f"⛔ {type(_e).__name__}: {_e}"
+check("🌙🔧 NGT6: جلبُ T-NIGHT — مقبسٌ يُعاد استعمالُه لا مقبسٌ لكلّ طلب · ما تعذّر وحدَه يُعاد بعد مهلة والناجحُ لا يُجلب ثانيةً · "
+      "«غيرُ مُدرَج» على BOATS يمضي إلى الصفوف وعلى NASDAQ يُستبعد · والتعذّرُ الباقي يُعَدّ تعذّرًا · وعدّادُ الحالات محفوظ",
+      _ngt6_ok and _ngt6_rows[2] == 3 and _ngt6_rows[3] == 1 and _ngt6_rows[1].get("رمزٌ غيرُ مُدرَج") == 1
+      and _ngt6_rows[1].get("بلا مرجع") == 1 and "ch=None" in _ngt6_src,
+      _ngt6_err or f"{_ngt6_st} made={len(_ngt6_made)} rows={_ngt6_rows[1:]}")
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
