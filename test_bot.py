@@ -104634,8 +104634,8 @@ except Exception as _e:                                          # noqa: BLE001
 #    الوجهةُ `TELEGRAM_OWNER_ID` وإلّا أوّلُ رقم · HTTP 200 بلا ok أو بلا رقم رسالةٍ ⟵ False · السجلُّ بلا رقم المحادثة ·
 #    والمفتاحُ مطفأ ⟵ المُرسِلُ القديم · والسرُّ موصولٌ في daily_screener.yml
 try:
-    import tempfile as _nx6_tf, io as _nx6_io, contextlib as _nx6_cl
-    _nx6_f = os.path.join(_nx6_tf.mkdtemp(), "x.xlsx")
+    import tempfile as _nx6_tf, io as _nx6_io, contextlib as _nx6_cl, os as _nx6_os
+    _nx6_f = _nx6_os.path.join(_nx6_tf.mkdtemp(), "x.xlsx")
     open(_nx6_f, "wb").write(b"x")
 
     class _Nx6R:
