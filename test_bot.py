@@ -105405,7 +105405,7 @@ try:
           and "chunks[0] = FIRST_LINE" in _sbt_src and _sbt_SC.ON is False,
           str(sorted(_sbt_asg))[:160])
 except Exception as _e:                                          # noqa: BLE001
-    check("📣🧪 SBT1-SBT3: تجربةُ قناة المشتركين", False, f"⛔ {type(_e).__name__}: {_e}")
+    check("📣🧪 SBT0: كتلةُ تجربة قناة المشتركين لم تكتمل", False, f"⛔ {type(_e).__name__}: {_e}")
 
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
