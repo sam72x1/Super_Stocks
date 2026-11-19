@@ -14,6 +14,8 @@
 - **رسالةُ الظلّ:** يومَ الجلسة (`operator_entry_live._no_session` بالاسم) عند `SHADOW_CHECKS_NY` (05:30 · 06:30 · 07:30 · 08:30 · 09:05 نيويورك ·
   كلُّها داخل انتظار `shadow_telegram.WAIT_MAX_S`) ⟵ إن لم يُختم اليومُ على main ولا تشغيلةٌ حيّةٌ أو منتظرة ⟵ يُطلَق `shadow_telegram.yml` ·
   والرسالةُ نفسُها وختمُها ودِدوبُها كما هي (الإطلاقُ المكرّر لا يُرسل مرّتين).
+- **قناةُ المشتركين (2026-11-19):** قبل موعدها (`subs_channel.SEND_AT` الرياض) بـ`SUBS_LEAD_MIN` ثمّ كلَّ ساعةٍ حتى المساء ⟵ إن كان في صندوق main
+  رسالةٌ لم تُرسَل حلّ موعدُها ⟵ يُطلَق `subs_sender.yml` · والقناةُ مطفأة (`subs_channel.ON = False`) ⟵ لا نقطةَ أصلًا (بت-بت · `SUB8`).
 🔒 **لا يُرسل تلغرامَ ولا يكتب حالةً ولا يمسّ قاعدةً** — إطلاقاتُ `workflow_dispatch` وقراءاتٌ من GitHub API وحدَها · وبلا مفتاح ⟵ صفرُ عمل ·
 وتعذّرُ الـAPI ⟵ سطرُ سجلٍّ ويمضي (الكروناتُ القديمةُ باقيةٌ احتياطًا).
 ↩️ **الرجوع: احذف سطرَ `MORNING_STARTER: "1"` من `morning_starter.yml`** ⟵ التشغيلةُ القائمة تقرأ الملفَّ من main عند كلّ استيقاظ فتتوقّف بلا
@@ -28,6 +30,7 @@ import time
 from zoneinfo import ZoneInfo
 
 import operator_entry_live as OE                       # alive_runs · _gh_api · _no_session — بالاسم
+import subs_channel as SC                              # 📣 موعدُ قناة المشتركين وصندوقُها — بالاسم
 from pullback_session import in_window, next_slot      # نافذةُ المراقب وفتحاتُه — بالاسم
 
 NY = ZoneInfo("America/New_York")
@@ -46,6 +49,8 @@ SHADOW_SEND_NY = 9 * 60 + 25                         # = `shadow_telegram.SEND_A
 SHADOW_GUARD_MIN = 50     # لا إطلاقَ ثانٍ للرسالة قبل هذا من الأوّل (حتى تظهر تشغيلتُه)
 ACTIVE = ("queued", "in_progress", "waiting", "pending", "requested")
 SEARCH_DAYS = 4           # أبعدُ بحثٍ عن الفتحة/النقطة التالية (نهايةُ أسبوعٍ طويلة)
+SUBS_WF = "subs_sender.yml"
+SUBS_LEAD_MIN = 6         # إطلاقُ مُرسِل القناة قبل موعدها (ينتظره بـ`flush --wait`)
 _sleep = time.sleep
 
 
@@ -91,6 +96,71 @@ def next_shadow_point(now, done, no_session=None):
                 continue
             return key, at
     return None, None
+
+
+def next_subs_point(now, done, on=None, env=None):
+    """🔒 **نقيّة** (بحقن `on`): (مفتاحُ النقطة، لحظتُها UTC) لقناة المشتركين — موعدُها (`subs_channel.SEND_AT` الرياض) ناقصَ `SUBS_LEAD_MIN` ثمّ
+    كلَّ ساعةٍ بعده حتى `EVENING_HOUR` (إعادةُ ما تعذّر) — لم تُعالَج ولم يفُت موعدُها بأكثر من `LATE_MIN` · والقناةُ مطفأة ⟵ (None, None)
+    فالحارسُ بت-بت (`SUB8`)."""
+    if not (SC.on() if on is None else on):
+        return None, None
+    h, m = SC._at(env)
+    d0 = now.astimezone(SC.RIYADH).date()
+    for k in range(2):
+        d = d0 + dt.timedelta(days=k)
+        base = dt.datetime(d.year, d.month, d.day, h, m, tzinfo=SC.RIYADH)
+        pts = [base - dt.timedelta(minutes=SUBS_LEAD_MIN)]
+        pts += [base + dt.timedelta(hours=i) for i in range(1, 24 - h) if (base + dt.timedelta(hours=i)).hour < SC.EVENING_HOUR]
+        for at in pts:
+            at = at.astimezone(UTC)
+            key = at.isoformat()
+            if key in done or at < now - dt.timedelta(minutes=LATE_MIN):
+                continue
+            return key, at
+    return None, None
+
+
+def _main_names(api, path):
+    """أسماءُ ملفّات مجلّدٍ على main ⟵ [] إن لم يوجد (404) · وNone عند تعذّر القراءة."""
+    try:
+        res = api("GET", f"/contents/{path}?ref=main")
+    except Exception as e:                                       # noqa: BLE001
+        if "HTTP 404" in str(e):
+            return []
+        log(f"⚠️ قراءةُ {path}: {e}")
+        return None
+    return [str((x or {}).get("name") or "") for x in res] if isinstance(res, list) else []
+
+
+def ensure_subs(api, now, key):
+    """نقطةُ القناة: في صندوق main رسالةٌ لم تُرسَل حلّ موعدُها أو يحلّ خلال انتظار المُرسِل ⟵ إطلاقُ `subs_sender.yml` (ما لم تكن تشغيلتُه قائمة) ·
+    وإلّا لا شيء. الموعدُ من بادئة اسم الملفّ (`subs_channel.unsent_names`) بلا فكّ تشفير."""
+    names = []
+    for d in SC.month_dirs(now):
+        got = _main_names(api, d)
+        if got is None:
+            names = None
+            break
+        names += got
+    if names is None:
+        log("📣 تعذّرت قراءةُ صندوق القناة — يُطلَق المُرسِل احتياطًا")
+        due = [now]
+    else:
+        due = [d for _n, d in SC.unsent_names(names) if d <= now + dt.timedelta(minutes=SC.WAIT_MAX_MIN)]
+    if not due:
+        log(f"📣 {key}: لا رسالةَ في صندوق القناة حلّ موعدُها — لا إطلاق")
+        return False
+    try:
+        active = [r.get("id") for r in (_runs(api, SUBS_WF) or []) if str(r.get("status") or "") in ACTIVE]
+    except Exception as e:                                       # noqa: BLE001
+        log(f"⚠️ فحصُ تشغيلات المُرسِل: {e}")
+        active = []
+    if active:
+        log(f"📣 {key}: تشغيلةٌ قائمة {active} — لا إطلاق")
+        return False
+    ok = _dispatch(api, SUBS_WF)
+    log(f"📣 {key}: {len(due)} رسالةً حلّ موعدُها ⟵ {'أُطلق مُرسِلُ القناة' if ok else '⛔ تعذّر الإطلاق'}")
+    return ok
 
 
 def _runs(api, wf, status=None):
@@ -192,12 +262,13 @@ def main(now_fn=None, api=None, no_session=None):
     t0 = now_fn()
     hop_at = t0 + dt.timedelta(minutes=BUDGET_MIN - HOP_LEFT_MIN)
     log(f"🌅 مُطلِقُ الصباح: ميزانيّة {BUDGET_MIN} دقيقة · الخلَفُ عند {hop_at.strftime('%a %H:%M')} UTC")
-    done_m, done_s, shadow_last = set(), set(), None
+    done_m, done_s, done_c, shadow_last = set(), set(), set(), None
     while True:
         now = now_fn()
         slot, at_m = next_monitor_point(now, done_m)
         key, at_s = next_shadow_point(now, done_s, no_session)
-        wake = min(x for x in (at_m, at_s, hop_at) if x is not None)
+        ckey, at_c = next_subs_point(now, done_c)
+        wake = min(x for x in (at_m, at_s, at_c, hop_at) if x is not None)
         if wake > now:
             _sleep((wake - now).total_seconds())
             now = now_fn()
@@ -212,6 +283,9 @@ def main(now_fn=None, api=None, no_session=None):
             if shadow_last is None or (now - shadow_last) >= dt.timedelta(minutes=SHADOW_GUARD_MIN):
                 if ensure_shadow(api, now, key):
                     shadow_last = now
+        if ckey is not None and at_c <= now:
+            done_c.add(ckey)
+            ensure_subs(api, now, ckey)
         if now >= hop_at:
             ok = _dispatch(api, SELF_WF)
             log(f"🔗 {'أُطلق الخلَف' if ok else '⛔ تعذّر إطلاقُ الخلَف — الكروناتُ الاحتياطيّة شبكةُ أمان'} — خروج")

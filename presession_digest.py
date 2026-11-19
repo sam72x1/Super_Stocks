@@ -417,6 +417,7 @@ def main() -> int:
     if not S.send_telegram(msg + "\n\n" + S.FOOTER):
         _log("⚠️ تيليجرام رفض التقرير — لا ختم، تُعاد المحاولة.")
         return 5
+    S.subs_mirror(msg + "\n\n" + S.FOOTER, "presession")   # 📣 قناةُ المشتركين بالاسم (`SUB3`) — مطفأةٌ ⟵ صفرُ عمل
     if cov[1] and pct < MIN_COVERAGE_PCT:
         _log(f"⚠️ تغطيةُ الحسم {pct:.0f}% دون {MIN_COVERAGE_PCT:g}% — لا ختم.")
     else:

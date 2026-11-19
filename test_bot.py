@@ -104829,75 +104829,232 @@ except Exception as _e:                                          # noqa: BLE001
     check("📏🔒 قفلُ إغلاق `T-GATECAL` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
 
-# 📣 SUB1-SUB4 — قناةُ المشتركين (أمرُ المالك 2026-11-19 · عرضٌ لا قياس): نسخةٌ **كما هي** من رسائل الفرز اليوميّ المسمّاة وحدَها إلى
-#    `TELEGRAM_SUBS_CHAT_ID` · المفتاحُ `SUBS_CHANNEL` مطفأٌ حتى موافقة المالك ⟵ صفرُ عمل · وغيابُ السرّ ⟵ لا إرسال · و`send_telegram` بت-بت.
+# 📣 SUB1-SUB9 — قناةُ المشتركين v2 (أمرا المالك 2026-11-19 · عرضٌ وتوقيتٌ لا قياس): رسائلُ الأدوات اليوميّة المسمّاة في `subs_channel.ACTIVE`
+#    ⟵ نسخةُ القناة بلا اسم فيصل (`sanitize`) ⟵ صندوقٌ مشفّر لموعد 06:00 الرياض أو إرسالٌ فوريّ بسطر «تأخّر الإرسال» · `ON = False` ⟵ صفرُ عمل ·
+#    وغيابُ السرّ ⟵ لا إرسال · ونسخةُ المالك و`send_telegram` بت-بت.
 try:
     import ast as _sb_ast
+    import datetime as _sb_dt
     import os as _sb_os
+    import shutil as _sb_sh
+    import subprocess as _sb_sp
+    import tempfile as _sb_tf
+    import subs_channel as _SC
+    import morning_starter as _sb_MS
+
+    _sb_U = _sb_dt.timezone.utc
 
     class _SbResp:
         def __init__(self, code=200, text='{"ok":true}'):
             self.status_code, self.text = code, text
 
     _sb_posts, _sb_logs = [], []
-    _sb_post0, _sb_tok0, _sb_chat0, _sb_log0 = S.requests.post, S.TELEGRAM_TOKEN, S.TELEGRAM_CHAT, S.log
-    _sb_cfg0 = S.CONFIG.get("SUBS_CHANNEL")
-    _sb_env0 = _sb_os.environ.get("TELEGRAM_SUBS_CHAT_ID")
-    _sb_res = {}
+    _sb_post0, _sb_tok0, _sb_chat0, _sb_log0, _sb_sclog0 = S.requests.post, S.TELEGRAM_TOKEN, S.TELEGRAM_CHAT, S.log, _SC.log
+    _sb_on0, _sb_box0, _sb_sleep0, _sb_enq0, _sb_chunk0 = _SC.ON, _SC.OUTBOX, _SC.time.sleep, _SC.enqueue, S._chunk_message
+    _sb_env0 = {k: _sb_os.environ.get(k) for k in ("TELEGRAM_SUBS_CHAT_ID", "TELEGRAM_BOT_TOKEN", "SUBS_SEND_AT")}
+    _sb_tmp = _sb_tf.mkdtemp(prefix="subs_lock_")
+    _sb_res, _sb_nchunk = {}, [0]
+    _sb_E = {"TELEGRAM_SUBS_CHAT_ID": "-100777، -100888", "TELEGRAM_BOT_TOKEN": "T0K"}
+    _sb_POST = lambda url, json=None, timeout=None, **k: (_sb_posts.append(dict(json or {})), _SbResp())[1]   # noqa: E731
+
+    def _sb_files():
+        return sorted(_sb_os.path.relpath(_sb_os.path.join(r, f), _sb_tmp) for r, _d, fs in _sb_os.walk(_sb_tmp) for f in fs)
     try:
-        S.requests.post = lambda url, json=None, timeout=None, **k: (_sb_posts.append(dict(json or {})), _SbResp())[1]
+        S.requests.post = _sb_POST
         S.TELEGRAM_TOKEN, S.TELEGRAM_CHAT = "T0K", "111,222"
         S.log = lambda m="": _sb_logs.append(str(m))
-        _sb_os.environ["TELEGRAM_SUBS_CHAT_ID"] = "-100777، -100888"
-        _sb_text = "📋 <b>قائمة الأسبوع</b>\n" + ("سطر\n" * 1500)
-        # (أ) مطفأ ⟵ صفرُ عملٍ لكلّ اسمٍ ولو كان السرُّ والتوكنُ حاضرَين · وإرسالُ المالك نفسُه بالأجزاء والختم المعتادَين
-        S.CONFIG["SUBS_CHANNEL"] = False
-        _sb_res["off"] = [S.subs_mirror(_sb_text, k) for k in S.SUBS_CHANNEL_MSGS]
-        _sb_res["off_posts"] = len(_sb_posts)
+        _SC.log = lambda m="": _sb_logs.append(str(m))
+        _SC.time.sleep = lambda s: None
+        _SC.OUTBOX = _sb_os.path.join(_sb_tmp, "subs_outbox")
+        _sb_os.environ.update(_sb_E)
+        _sb_os.environ.pop("SUBS_SEND_AT", None)
+
+        def _sb_count(t):
+            _sb_nchunk[0] += 1
+            return _sb_chunk0(t)
+        S._chunk_message = _sb_count
+        _sb_text = "📋 <b>قائمة الأسبوع</b> (فيصل · 3 مطابق)\n" + ("سطرٌ — داخلَ ظرف فيصل تمامًا\n" * 900)
+        # (أ) SUB1 — مطفأ افتراضيًّا ⟵ «off» لكلّ اسم بلا تقطيعٍ ولا ملفٍّ ولا إرسال · والمالكُ يتلقّى كعادته
+        _sb_res["default_off"] = (_sb_on0 is False)
+        _SC.ON = False
+        _sb_res["off"] = [S.subs_mirror(_sb_text, k) for k in _SC.NAMES]
+        _sb_res["off_chunks"], _sb_res["off_posts"], _sb_res["off_files"] = _sb_nchunk[0], len(_sb_posts), _sb_files()
+        S._chunk_message = _sb_chunk0
         S.send_telegram(_sb_text)
-        _sb_owner = [p for p in _sb_posts]
-        _sb_res["owner_ids"] = sorted({p["chat_id"] for p in _sb_owner})
-        _sb_res["owner_chunks"] = [p["text"] for p in _sb_owner if p["chat_id"] == "111"]
+        _sb_res["owner_ids"] = sorted({p["chat_id"] for p in _sb_posts})
+        _sb_res["owner_chunks"] = [p["text"] for p in _sb_posts if p["chat_id"] == "111"]
         del _sb_posts[:]
-        # (ب) مُشعَل ⟵ الأجزاءُ نفسُها بختمها لكلّ رقمٍ في السرّ (والفاصلةُ العربية) · والاسمُ خارج القائمة أو بلا سرٍّ ⟵ لا شيء
-        S.CONFIG["SUBS_CHANNEL"] = True
-        _sb_res["on_n"] = S.subs_mirror(_sb_text, "daily_report")
-        _sb_res["on_ids"] = sorted({p["chat_id"] for p in _sb_posts})
-        _sb_res["on_chunks"] = [p["text"] for p in _sb_posts if p["chat_id"] == "-100777"]
+        # (ب) SUB2 — مُشعَل: قبل الموعد ⟵ صندوقٌ مشفّرٌ بأجزاء المالك منظَّفةً · بعده ⟵ إرسالٌ فوريّ بسطر «تأخّر الإرسال» لأرقام السرّ وحدَها
+        _SC.ON = True
+        _sb_T0 = _sb_dt.datetime(2026, 11, 19, 22, 30, tzinfo=_sb_U)          # 01:30 الرياض ⟵ موعدُ 06:00 من اليوم نفسِه
+        _sb_TL = _sb_dt.datetime(2026, 11, 20, 8, 40, tzinfo=_sb_U)           # 11:40 الرياض ⟵ متأخّرة
+        _SC.enqueue = lambda key, chunks, **k: _sb_enq0(key, chunks, now=_sb_T0, **k)
+        _sb_res["q"] = S.subs_mirror(_sb_text, "daily_report")
+        _sb_res["q_files"], _sb_res["q_posts"] = _sb_files(), len(_sb_posts)
+        _sb_v = (_SC.JV.decrypt(open(_sb_os.path.join(_sb_tmp, _sb_res["q_files"][0]), encoding="utf-8").read(), _SC._pass())
+                 if len(_sb_res["q_files"]) == 1 else None) or {}
+        _sb_res["q_chunks_ok"] = (_sb_v.get("chunks") == [_SC.sanitize(c) for c in _sb_res["owner_chunks"]]
+                                  and _sb_v.get("due") == "2026-11-20T03:00:00+00:00")
+        _sb_res["q_plain"] = "قائمة الأسبوع" in open(_sb_os.path.join(_sb_tmp, _sb_res["q_files"][0]), encoding="utf-8").read() \
+            if _sb_res["q_files"] else True
+        _SC.enqueue = lambda key, chunks, **k: _sb_enq0(key, chunks, now=_sb_TL, **k)
+        _sb_res["late"] = S.subs_mirror(_sb_text, "hand")
+        _sb_res["late_ids"] = sorted({p["chat_id"] for p in _sb_posts})
+        _sb_l100 = [p["text"] for p in _sb_posts if p["chat_id"] == "-100777"]
+        _sb_res["late_ok"] = (len(_sb_l100) == len(_sb_res["owner_chunks"])
+                              and _sb_l100[0].startswith(_SC.LATE_LINE.format(at="06:00"))
+                              and _sb_l100[1:] == [_SC.sanitize(c) for c in _sb_res["owner_chunks"][1:]])
+        _sb_res["late_files"] = _sb_files()
         del _sb_posts[:]
-        _sb_res["blocked"] = [S.subs_mirror("x", k) for k in ("renewal_list", "wrapup", "fate", "weekly_report", "x30", "shadow", "", None)]
-        _sb_res["blocked_posts"] = len(_sb_posts)
+        _sb_res["blocked"] = [S.subs_mirror(_sb_text, k) for k in ("x30", "shadow", "three_cond", "near_watch_xlsx", "trade_journal",
+                                                                     "renewal_list", "wrapup", "fate", "weekly_report", "", None)]
+        _sb_res["blocked_posts"], _sb_res["blocked_files"] = len(_sb_posts), _sb_files()
         _sb_os.environ["TELEGRAM_SUBS_CHAT_ID"] = "  "
-        _sb_res["nosecret"] = S.subs_mirror("x", "daily_report")
+        _sb_res["nosecret"] = S.subs_mirror(_sb_text, "daily_report")
         _sb_os.environ.pop("TELEGRAM_SUBS_CHAT_ID", None)
-        _sb_res["nosecret2"] = S.subs_mirror("x", "daily_report")
+        _sb_res["nosecret2"] = S.subs_mirror(_sb_text, "daily_report")
         _sb_res["nosecret_posts"] = len(_sb_posts)
-        # (ج) رفضُ القناة لا يرمي ولا يمسّ شيئًا · ولا رقمَ محادثةٍ في السجلّ
         _sb_os.environ["TELEGRAM_SUBS_CHAT_ID"] = "-100999"
         S.requests.post = lambda url, json=None, timeout=None, **k: _SbResp(400, "Bad Request: chat not found")
-        _sb_res["fail"] = S.subs_mirror("x", "hand")
+        _sb_res["fail"] = S.subs_mirror("x", "tracking")                    # متأخّرةٌ رُفضت ⟵ تُحفظ لإعادة الإرسال
+        _sb_res["fail_files"] = [f for f in _sb_files() if "_tracking_" in f]
         S.requests.post = lambda *a, **k: (_ for _ in ()).throw(ConnectionError("net"))
-        _sb_res["raise"] = S.subs_mirror("x", "hand")
+        _sb_res["raise"] = S.subs_mirror("y", "press")
+        _SC.enqueue = _sb_enq0
+        S.requests.post = _sb_POST
+        _sb_os.environ.update(_sb_E)
+        # (ج) SUB5 — نسخةُ القناة بلا «فيصل» ولا «kisar» على رسائل البنّائين الحقيقيّين (فِكستشراتُ السويّة) ونصٍّ مُجهِد ·
+        #     والحارسُ الأخير في `_send` يرفض جزءًا يحمل الاسم
+        _sb_fx = {k: globals().get(k) for k in ("_dm_mix", "_dm_ro", "_dm_allw", "_pw_msg", "_bg_msg", "_hs", "_card", "_sr_sec", "_sr_msg",
+                                                 "_sh_alert", "_fm_card", "_fr_msg", "_onco_alert", "_no_plan_alert", "_sf_msg")}
+        _sb_fx = {k: v for k, v in _sb_fx.items() if isinstance(v, str) and v}
+        _sb_fx["stress"] = "\n".join([
+            "🧮 <b>فلترة أسهم التقسيم</b> (فيصل · 1 مطابق) — 2026-06-09",
+            "   🔒 اقتراض: صعب 🔥 (رسوم 61%) = إيجابي — يصعّب دخول شورت جديد للحرب (فيصل: «عاليه جدا للشورت = اجابي» — DSY رسوم 725%)",
+            "  📏 متوسطات من التقسيم (30 جلسة): 20 ⏳ $4.35 · 50 <b>لم ينضج</b> — فيصل يقيسها من تاريخ التقسيم (30 LABT · 40 JEM · 50)",
+            "  ⚠️ سيولة كبيرة بلا كسر الرقم الحرج $1.20 — سيولة قطيع (LABT −40%)",
+            "👀 <b>تحت المتابعة</b> (632) — قريبٌ من كتالوج فيصل، غيرُ مرشَّح بعد",
+            "<i>🗣️ فيصل: «إذا ما عرفت الدخول — اركب معه».</i>",
+            "مصدر @kisar_ و KISAR ‏فيصل‏",
+            "🟢 0 جاهز · 👀 10 قيد المتابعة (نموذج فيصل: «اذا حافظ ع ادنى قاع طبق النموذج»)"])
+        _sb_clean = {k: _SC.sanitize(v) for k, v in _sb_fx.items()}
+        _sb_res["fx_n"] = len(_sb_fx)
+        _sb_res["fx_bad"] = sorted(k for k, v in _sb_clean.items() if _SC.bad(v))
+        _sb_res["fx_had"] = sum(1 for v in _sb_fx.values() if _SC.bad(v))
+        _sb_st = _sb_clean["stress"]
+        _sb_res["stress_ok"] = ("(1 مطابق)" in _sb_st and "حرب" not in _sb_st and "DSY" not in _sb_st
+                                and "📏 متوسطات من التقسيم (30 جلسة): 20 ⏳ $4.35 · 50 <b>لم ينضج</b>" in _sb_st
+                                and "سيولة قطيع" in _sb_st and "LABT" not in _sb_st
+                                and "قريبٌ من الكتالوج، غيرُ مرشَّح بعد" in _sb_st and "اركب معه" not in _sb_st
+                                and "اذا حافظ" not in _sb_st and "🟢 0 جاهز · 👀 10 قيد المتابعة" in _sb_st)
+        del _sb_posts[:]
+        _sb_res["guard"] = _SC._send(["سطرٌ فيه فيصل", "سليم"], _sb_E, _sb_POST)
+        _sb_res["guard_texts"] = [p["text"] for p in _sb_posts]
+        del _sb_posts[:]
+        _sb_res["ids"] = all(_SC.parse_ids(x) == S._parse_chat_ids(x) for x in ("-1،-2;-3\n-4 -1", "", "  ", "-9,,-9", "\t-5\r"))
+        # (د) SUB6 — موعدُ القناة: قبل 06:00 الرياض ⟵ اليوم · بعده ⟵ متأخّرة · من 21:00 الرياض ⟵ الغد · و`SUBS_SEND_AT` يُعيده · والمخالفُ يرمي
+        _sb_r = lambda y, mo, d, h, mi: _sb_dt.datetime(y, mo, d, h, mi, tzinfo=_SC.RIYADH).astimezone(_sb_U)   # noqa: E731
+        _sb_d6 = [_SC.due_for(_sb_r(2026, 11, 20, 5, 59), {}), _SC.due_for(_sb_r(2026, 11, 20, 6, 1), {}),
+                  _SC.due_for(_sb_r(2026, 11, 20, 20, 59), {}), _SC.due_for(_sb_r(2026, 11, 20, 21, 0), {}),
+                  _SC.due_for(_sb_r(2026, 11, 20, 5, 0), {"SUBS_SEND_AT": "07:30"})]
+        _sb_res["due_ok"] = (_sb_d6[0] == (_sb_r(2026, 11, 20, 6, 0), False) and _sb_d6[1] == (_sb_r(2026, 11, 20, 6, 0), True)
+                             and _sb_d6[2] == (_sb_r(2026, 11, 20, 6, 0), True) and _sb_d6[3] == (_sb_r(2026, 11, 21, 6, 0), False)
+                             and _sb_d6[4] == (_sb_r(2026, 11, 20, 7, 30), False))
+        try:
+            _SC.due_for(_sb_r(2026, 11, 20, 5, 0), {"SUBS_SEND_AT": "22:00"})
+            _sb_res["due_bad"] = False
+        except ValueError:
+            _sb_res["due_bad"] = True
+        # (هـ) SUB7 — `flush`: ما حلّ موعدُه وحدَه بترتيب الأسماء · ختمُ `.sent` بلا حذف · لا إعادة · سطرُ التأخّر بعد المهلة · ومطفأٌ/بلا سرّ ⟵ صفر
+        _sb_sh.rmtree(_SC.OUTBOX, ignore_errors=True)
+        _sb_TA = _sb_dt.datetime(2026, 11, 19, 22, 0, tzinfo=_sb_U)
+        for _k in ("press", "daily_report"):
+            _SC.enqueue(_k, [f"رسالة {_k}"], now=_sb_TA, env=_sb_E, post=_sb_POST)
+        _SC.enqueue("tracking", ["رسالة الغد"], now=_sb_dt.datetime(2026, 11, 20, 18, 30, tzinfo=_sb_U), env=_sb_E, post=_sb_POST)
+        _sb_res["pre_flush"] = _SC.flush(_sb_dt.datetime(2026, 11, 20, 2, 59, tzinfo=_sb_U), _sb_E, _sb_POST)
+        _sb_res["f1"] = _SC.flush(_sb_dt.datetime(2026, 11, 20, 3, 1, tzinfo=_sb_U), _sb_E, _sb_POST)
+        _sb_res["f1_texts"] = [p["text"] for p in _sb_posts if p["chat_id"] == "-100777"]
+        _sb_res["f2"] = _SC.flush(_sb_dt.datetime(2026, 11, 20, 3, 5, tzinfo=_sb_U), _sb_E, _sb_POST)
+        _sb_res["after_files"] = _sb_files()
+        del _sb_posts[:]
+        _sb_res["f_late"] = _SC.flush(_sb_dt.datetime(2026, 11, 21, 3, 30, tzinfo=_sb_U), _sb_E, _sb_POST)
+        _sb_res["f_late_text"] = [p["text"] for p in _sb_posts][:1]
+        _SC.enqueue("hand", ["يد"], now=_sb_dt.datetime(2026, 11, 21, 22, 0, tzinfo=_sb_U), env=_sb_E, post=_sb_POST)
+        _SC.ON = False
+        _sb_res["f_off"] = _SC.flush(_sb_dt.datetime(2026, 11, 22, 3, 1, tzinfo=_sb_U), _sb_E, _sb_POST)
+        _SC.ON = True
+        _sb_res["f_nosec"] = _SC.flush(_sb_dt.datetime(2026, 11, 22, 3, 1, tzinfo=_sb_U), {"TELEGRAM_BOT_TOKEN": "T0K"}, _sb_POST)
+        _sb_slept = []
+        _SC.time.sleep = lambda s: _sb_slept.append(s)
+        _sb_res["w_soon"] = _SC.wait_due(lambda: _sb_dt.datetime(2026, 11, 22, 2, 54, tzinfo=_sb_U), _SC.time.sleep)
+        _sb_res["w_far"] = _SC.wait_due(lambda: _sb_dt.datetime(2026, 11, 22, 2, 40, tzinfo=_sb_U), _SC.time.sleep)
+        _SC.time.sleep = lambda s: None
+        _sb_res["un"] = _SC.unsent_names(["202611200300_00_daily_report_a.vault", "202611200300_00_daily_report_a.sent",
+                                          "202611200300_03_tracking_b.vault", "bad.vault", "x.txt"])
+        # (و) SUB8 — مُطلِقُ الصباح: القناةُ مطفأة ⟵ لا نقطة (بت-بت) · مُشعَلة ⟵ قبل الموعد بـ6 دقائق ثمّ كلَّ ساعةٍ حتى المساء ·
+        #     ويُطلَق المُرسِلُ إن كان في صندوق main ما حلّ موعدُه ولم يُرسَل وحدَه
+        _SC.ON, _SC.OUTBOX = False, _sb_box0          # مسارُ الصندوق على main كما في الإنتاج (قراءةٌ بالـAPI المحقون وحدَه)
+        _sb_res["ms_off"] = [_sb_MS.next_subs_point(_sb_TA + _sb_dt.timedelta(hours=h), set()) for h in range(0, 30, 3)]
+        _SC.ON = True
+        _sb_k, _sb_a = _sb_MS.next_subs_point(_sb_TA, set())
+        _sb_pts, _sb_dn = [_sb_a], {_sb_k}
+        for _i in range(20):
+            _sb_k2, _sb_a2 = _sb_MS.next_subs_point(_sb_pts[-1] + _sb_dt.timedelta(seconds=1), _sb_dn)
+            _sb_dn.add(_sb_k2)
+            _sb_pts.append(_sb_a2)
+        _sb_res["ms_pts"] = [p.astimezone(_SC.RIYADH).strftime("%d %H:%M") for p in _sb_pts[:16]]
+        _sb_disp = []
+
+        def _sb_api(listing, runs=()):
+            def api(method, path, body=None):
+                if method == "POST":
+                    _sb_disp.append(path)
+                    return {}
+                if path.startswith("/contents/subs_outbox/2026-11"):
+                    if listing is None:
+                        raise RuntimeError("HTTP 404: Not Found")
+                    if listing == "err":
+                        raise RuntimeError("HTTP 500: boom")
+                    return [{"name": n} for n in listing]
+                if path.startswith("/contents/"):
+                    raise RuntimeError("HTTP 404: Not Found")
+                return {"workflow_runs": list(runs)}
+            return api
+        _sb_now8 = _sb_dt.datetime(2026, 11, 20, 2, 54, tzinfo=_sb_U)
+        _sb_e = [_sb_MS.ensure_subs(_sb_api(["202611200300_00_daily_report_a.vault"]), _sb_now8, "k1"),
+                 _sb_MS.ensure_subs(_sb_api(["202611200300_00_daily_report_a.vault", "202611200300_00_daily_report_a.sent"]), _sb_now8, "k2"),
+                 _sb_MS.ensure_subs(_sb_api(["202611210300_00_daily_report_b.vault"]), _sb_now8, "k3"),
+                 _sb_MS.ensure_subs(_sb_api(None), _sb_now8, "k4"),
+                 _sb_MS.ensure_subs(_sb_api(["202611200300_00_daily_report_a.vault"], [{"id": 9, "status": "queued"}]), _sb_now8, "k5"),
+                 _sb_MS.ensure_subs(_sb_api("err"), _sb_now8, "k6")]
+        _sb_res["ensure"] = (_sb_e, list(_sb_disp))
+        _sb_res["no_ids_logged"] = not any(x in "\n".join(_sb_logs) for x in ("-100777", "-100888", "-100999", "T0K"))
     finally:
-        S.requests.post, S.TELEGRAM_TOKEN, S.TELEGRAM_CHAT, S.log = _sb_post0, _sb_tok0, _sb_chat0, _sb_log0
-        S.CONFIG["SUBS_CHANNEL"] = _sb_cfg0
-        if _sb_env0 is None:
-            _sb_os.environ.pop("TELEGRAM_SUBS_CHAT_ID", None)
-        else:
-            _sb_os.environ["TELEGRAM_SUBS_CHAT_ID"] = _sb_env0
-    check("📣 SUB1: قناةُ المشتركين مطفأةٌ ⟵ صفرُ إرسالٍ لكلّ اسمٍ ولو حضر السرُّ والتوكن · والمالكُ يتلقّى كعادته (مستلماه وحدَهما) · "
-          "والمفتاحُ مطفأٌ افتراضيًّا (موافقةُ المالك قبل التفعيل)",
-          _sb_res["off"] == [0] * len(S.SUBS_CHANNEL_MSGS) and _sb_res["off_posts"] == 0 and _sb_res["owner_ids"] == ["111", "222"]
-          and len(_sb_res["owner_chunks"]) >= 2 and _sb_cfg0 is False,
-          f"off={_sb_res['off']} owner={_sb_res['owner_ids']} cfg={_sb_cfg0}")
-    check("📣 SUB2: مُشعَلًا تصل القناةَ **الأجزاءُ نفسُها بختمها** كما للمالك لكلّ رقمٍ في السرّ · والاسمُ خارج القائمة (رسائلُ الجمعة · «تحرّك 30%» · الظلّ · "
-          "بلا اسم) أو السرُّ الغائب/الفارغ ⟵ صفر · ورفضُ القناة أو عطلُ الشبكة لا يرمي · ولا رقمَ محادثةٍ في السجلّ",
-          _sb_res["on_chunks"] == _sb_res["owner_chunks"] and _sb_res["on_ids"] == ["-100777", "-100888"]
-          and _sb_res["on_n"] == 2 * len(_sb_res["owner_chunks"]) and _sb_res["blocked"] == [0] * 8 and _sb_res["blocked_posts"] == 0
-          and _sb_res["nosecret"] == 0 and _sb_res["nosecret2"] == 0 and _sb_res["nosecret_posts"] == 0
-          and _sb_res["fail"] == 0 and _sb_res["raise"] == 0
-          and not any(x in "\n".join(_sb_logs) for x in ("-100777", "-100888", "-100999", "111", "222")),
-          f"on={_sb_res['on_n']} ids={_sb_res['on_ids']} blocked={_sb_res['blocked']} fail={_sb_res['fail']}")
+        S.requests.post, S.TELEGRAM_TOKEN, S.TELEGRAM_CHAT, S.log, _SC.log = _sb_post0, _sb_tok0, _sb_chat0, _sb_log0, _sb_sclog0
+        _SC.ON, _SC.OUTBOX, _SC.time.sleep, _SC.enqueue, S._chunk_message = _sb_on0, _sb_box0, _sb_sleep0, _sb_enq0, _sb_chunk0
+        for _k, _v in _sb_env0.items():
+            if _v is None:
+                _sb_os.environ.pop(_k, None)
+            else:
+                _sb_os.environ[_k] = _v
+        _sb_sh.rmtree(_sb_tmp, ignore_errors=True)
+    check("📣 SUB1: قناةُ المشتركين مطفأةٌ افتراضيًّا (`subs_channel.ON = False`) ⟵ «off» لكلّ اسمٍ ولو حضر السرُّ والتوكن · بلا تقطيعٍ ولا ملفٍّ "
+          "ولا إرسال · والمالكُ يتلقّى كعادته (مستلماه وحدَهما)",
+          _sb_res["default_off"] and _sb_res["off"] == ["off"] * len(_SC.NAMES) and _sb_res["off_chunks"] == 0
+          and _sb_res["off_posts"] == 0 and _sb_res["off_files"] == [] and _sb_res["owner_ids"] == ["111", "222"]
+          and len(_sb_res["owner_chunks"]) >= 2,
+          f"off={_sb_res['off'][:3]} chunks={_sb_res['off_chunks']} files={_sb_res['off_files']}")
+    check("📣 SUB2: مُشعَلًا قبل الموعد ⟵ ملفٌّ مشفّرٌ واحد (لا نصَّ مكشوفًا) بأجزاء المالك منظَّفةً وموعدِ 03:00 UTC · وبعده ⟵ إرسالٌ فوريّ أوّلُه "
+          "«تأخّر الإرسال» لأرقام السرّ وحدَها بلا ملفّ · والاسمُ خارج `ACTIVE` أو السرُّ الغائب ⟵ «off» · والرفضُ يُحفظ ولا يرمي · ولا رقمَ في السجلّ",
+          _sb_res["q"] == "queued" and len(_sb_res["q_files"]) == 1 and _sb_res["q_files"][0].startswith("subs_outbox/2026-11/202611200300_00_daily_report_")
+          and _sb_res["q_chunks_ok"] and not _sb_res["q_plain"] and _sb_res["q_posts"] == 0
+          and _sb_res["late"] == "late_sent" and _sb_res["late_ids"] == ["-100777", "-100888"] and _sb_res["late_ok"]
+          and _sb_res["late_files"] == _sb_res["q_files"]
+          and _sb_res["blocked"] == ["off"] * 11 and _sb_res["blocked_posts"] == 0 and _sb_res["blocked_files"] == _sb_res["q_files"]
+          and _sb_res["nosecret"] == "off" and _sb_res["nosecret2"] == "off" and _sb_res["nosecret_posts"] == 0
+          and _sb_res["fail"] == "late_queued" and len(_sb_res["fail_files"]) == 1 and _sb_res["raise"] == "late_queued"
+          and _sb_res["no_ids_logged"],
+          f"q={_sb_res['q']} late={_sb_res['late']} blocked={_sb_res['blocked'][:3]} fail={_sb_res['fail']} raise={_sb_res['raise']}")
 
     def _sb_keys(path, fn=None):
         _tr = _sb_ast.parse(open(path, encoding="utf-8").read())
@@ -104906,25 +105063,66 @@ try:
                       and (getattr(c.func, "id", None) == "subs_mirror" or getattr(c.func, "attr", None) == "subs_mirror")
                       and len(c.args) == 2 and isinstance(c.args[1], _sb_ast.Constant))
     _sb_here = _sb_os.path.dirname(_sb_os.path.abspath(__file__))
-    _sb_users = sorted(f for f in _sb_os.listdir(_sb_here) if f.endswith(".py") and f != "test_bot.py"
-                       and "subs_mirror" in open(_sb_os.path.join(_sb_here, f), encoding="utf-8").read())
-    check("📣 SUB3: الموصولُ بالاسم من نقطة النداء (AST): التقريرُ واليدُ ورادارُ التقسيم من `run_daily_watchlist` · المتابعةُ من `run_performance_system` · "
-          "رادارُ الضغط من `press_radar.run` · ورسائلُ الجمعة موسومةٌ خارج القائمة · ولا ملفَّ آخر ينادي `subs_mirror`",
+    _sb_users = sorted(f for f in _sb_os.listdir(_sb_here) if f.endswith(".py") and f not in ("test_bot.py",)
+                       and "subs_mirror(" in open(_sb_os.path.join(_sb_here, f), encoding="utf-8").read())
+    check("📣 SUB3: الموصولُ بالاسم من نقطة النداء (AST): التقريرُ واليدُ ورادارُ التقسيم من الفرز · المتابعةُ · رادارُ الضغط · الصيّادُ (المطابقُ و«لا يوجد») · "
+          "فلترُ التقسيم · حصادُ ما قبل الجلسة · ولا نداءَ من رسائل الأعطال · و`ACTIVE` الثمانيةُ بعينها · ورسائلُ الجمعة موسومةٌ خارجها",
           _sb_keys("Super_stock.py", "run_daily_watchlist") == ["daily_report", "hand", "split_radar"]
           and _sb_keys("Super_stock.py", "run_performance_system") == ["tracking", "weekly_report"]
-          and _sb_keys("press_radar.py", "run") == ["press"]
           and _sb_keys("Super_stock.py", "run_weekly_renewal") == ["fate", "renewal_list", "wrapup"]
-          and set(_sb_keys("Super_stock.py")) <= set(S.SUBS_CHANNEL_NAMES)
-          and set(S.SUBS_CHANNEL_MSGS) == {"daily_report", "hand", "split_radar", "tracking", "press"}
-          and _sb_users == ["Super_stock.py", "press_radar.py"],
-          f"users={_sb_users} daily={_sb_keys('Super_stock.py', 'run_daily_watchlist')}")
+          and _sb_keys("press_radar.py", "run") == ["press"]
+          and _sb_keys("split_hunter.py", "run") == ["split_hunter", "split_hunter"] and _sb_keys("split_hunter.py", "_fail") == []
+          and _sb_keys("split_filter_hunter.py", "run") == ["split_filter"] and _sb_keys("split_filter_hunter.py", "_fail") == []
+          and _sb_keys("presession_digest.py") == ["presession"]
+          and set(_sb_keys("Super_stock.py")) <= set(_SC.NAMES)
+          and _SC.ACTIVE == ("daily_report", "hand", "split_radar", "tracking", "split_hunter", "split_filter", "press", "presession")
+          and _sb_users == ["Super_stock.py", "presession_digest.py", "press_radar.py", "split_filter_hunter.py", "split_hunter.py"],
+          f"users={_sb_users} sh={_sb_keys('split_hunter.py', 'run')}")
     _sb_wf = _sb_os.path.join(_sb_here, ".github", "workflows")
     _sb_with = sorted(f for f in _sb_os.listdir(_sb_wf) if "TELEGRAM_SUBS_CHAT_ID" in open(_sb_os.path.join(_sb_wf, f), encoding="utf-8").read())
-    check("📣 SUB4: السرُّ `TELEGRAM_SUBS_CHAT_ID` في جوبَي الفرز اليوميّ ورادار الضغط وحدَهما · والمفتاحُ بلا بيئةٍ مطفأ",
-          _sb_with == ["daily_screener.yml", "press_radar.yml"] and not any(
-              _ln.strip().startswith("SUBS_CHANNEL:") for f in _sb_with
-              for _ln in open(_sb_os.path.join(_sb_wf, f), encoding="utf-8").read().splitlines()),
+    _sb_ss = open(_sb_os.path.join(_sb_wf, "subs_sender.yml"), encoding="utf-8").read()
+    check("📣 SUB4: السرُّ `TELEGRAM_SUBS_CHAT_ID` في جوبات المنتجين الخمسة والمُرسِل وحدَها · والمُرسِلُ `flush --wait` بمجموعة تزامنٍ ثابتة "
+          "وصلاحيةِ دفعٍ · ولا مفتاحَ بيئةٍ يُشعل القناة",
+          _sb_with == ["daily_screener.yml", "presession_digest.yml", "press_radar.yml", "split_filter.yml", "split_hunter.yml", "subs_sender.yml"]
+          and "python subs_channel.py flush --wait" in _sb_ss and "group: subs-sender" in _sb_ss and "contents: write" in _sb_ss
+          and not any(_ln.strip().startswith(("SUBS_CHANNEL:", "SUBS_ON:")) for f in _sb_with
+                      for _ln in open(_sb_os.path.join(_sb_wf, f), encoding="utf-8").read().splitlines()),
           f"wf={_sb_with}")
+    check("📣 SUB5: نسخةُ القناة بلا «فيصل» ولا «kisar» على رسائل البنّائين الحقيقيّين (فِكستشراتُ السويّة) والنصِّ المُجهِد · والعباراتُ محايدة · "
+          "وسطرُ كلامه (الحرب · DSY) يُحذف كاملًا · والقوسُ والمقطعُ المنسوبان وحدَهما في سطر البيانات · والحارسُ الأخير يرفض جزءًا يحمل الاسم",
+          _sb_res["fx_n"] >= 12 and _sb_res["fx_had"] >= 8 and _sb_res["fx_bad"] == [] and _sb_res["stress_ok"]
+          and _sb_res["guard"] is False and _sb_res["guard_texts"] == ["سليم", "سليم"] and _sb_res["ids"],
+          f"fx={_sb_res['fx_n']} had={_sb_res['fx_had']} bad={_sb_res['fx_bad']} stress={_sb_res['stress_ok']} guard={_sb_res['guard_texts']}")
+    check("📣 SUB6: موعدُ القناة 06:00 الرياض — قبله اليوم · بعده متأخّرة · من 21:00 لصباح الغد · و`SUBS_SEND_AT` يُعيده · وخارجَ الصباح يرمي",
+          _sb_res["due_ok"] and _sb_res["due_bad"], f"{_sb_res['due_ok']} {_sb_res['due_bad']}")
+    check("📣 SUB7: `flush` يُرسل ما حلّ موعدُه وحدَه بترتيب الأسماء ويختمه `.sent` بلا حذف ولا إعادة · وبعد المهلة أوّلُه «تأخّر الإرسال» · "
+          "ومطفأٌ أو بلا سرّ ⟵ صفر · و`wait_due` ينتظر الموعدَ القريب وحدَه",
+          _sb_res["pre_flush"] == 0 and _sb_res["f1"] == 2 and _sb_res["f2"] == 0
+          and [t.split("\n")[0] for t in _sb_res["f1_texts"]] == ["رسالة daily_report", "رسالة press"]
+          and sum(f.endswith(".vault") for f in _sb_res["after_files"]) == 3 and sum(f.endswith(".sent") for f in _sb_res["after_files"]) == 2
+          and _sb_res["f_late"] == 1 and _sb_res["f_late_text"] and _sb_res["f_late_text"][0].startswith(_SC.LATE_LINE.format(at="06:00"))
+          and _sb_res["f_off"] == 0 and _sb_res["f_nosec"] == 0 and _sb_res["w_soon"] == 360.0 and _sb_res["w_far"] == 0.0
+          and [n for n, _d in _sb_res["un"]] == ["202611200300_03_tracking_b.vault"],
+          f"f1={_sb_res['f1']} f2={_sb_res['f2']} late={_sb_res['f_late']} w={_sb_res['w_soon']}/{_sb_res['w_far']}")
+    check("📣 SUB8: مُطلِقُ الصباح — القناةُ مطفأة ⟵ لا نقطةَ أصلًا (بت-بت) · مُشعَلة ⟵ 05:54 الرياض ثمّ كلَّ ساعةٍ 07:00…20:00 ثمّ الغد · "
+          "والمُرسِلُ يُطلَق إن كان في صندوق main ما حلّ موعدُه ولم يُرسَل (والقراءةُ المتعذّرة احتياطًا) · ولا يُطلَق مع تشغيلةٍ قائمة",
+          _sb_res["ms_off"] == [(None, None)] * 10
+          and _sb_res["ms_pts"] == (["20 05:54"] + [f"20 {h:02d}:00" for h in range(7, 21)] + ["21 05:54"])
+          and _sb_res["ensure"][0] == [True, False, False, False, False, True]
+          and _sb_res["ensure"][1] == ["/actions/workflows/subs_sender.yml/dispatches"] * 2,
+          f"pts={_sb_res['ms_pts'][:3]} ensure={_sb_res['ensure']}")
+    _sb_ign = [_sb_sp.run(["git", "check-ignore", "-q", _p], capture_output=True, cwd=_sb_here).returncode
+               for _p in ("subs_outbox/2026-11/202611200300_00_daily_report_ab.vault",
+                          "subs_outbox/2026-11/202611200300_00_daily_report_ab.sent")]
+    _sb_scsrc = open(_sb_os.path.join(_sb_here, "subs_channel.py"), encoding="utf-8").read()
+    check("📣 SUB9: الصندوقُ يُدفَع (لا يتجاهله `.gitignore`) · ولا يطبع `subs_channel` رقمَ محادثةٍ ولا توكنًا · والإرسالُ `sendMessage` لا تحويل",
+          _sb_ign == [1, 1] and "forwardMessage" not in _sb_scsrc and "/sendMessage" in _sb_scsrc
+          and not any(isinstance(n, _sb_ast.Call) and getattr(n.func, "id", None) == "log"
+                      and any(isinstance(a, _sb_ast.JoinedStr) and any(isinstance(v, _sb_ast.FormattedValue)
+                                                                       and getattr(v.value, "id", None) in ("cid", "tok", "ids")
+                                                                       for v in a.values) for a in n.args)
+                      for n in _sb_ast.walk(_sb_ast.parse(_sb_scsrc))),
+          f"ignore_rc={_sb_ign}")
 except Exception as _e:                                          # noqa: BLE001
     check("📣 أقفالُ قناة المشتركين انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 

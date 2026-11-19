@@ -299,6 +299,7 @@ def run(fetch_ext=None, now_utc=None):
         if not S.send_telegram(_none):
             S.log("⛔ صيّاد المقسّم: تلغرام رفض رسالة «لا يوجد».")
             return 1
+        S.subs_mirror(_none, "split_hunter")    # 📣 قناةُ المشتركين بالاسم (`SUB3`) — مطفأةٌ ⟵ صفرُ عمل
         _stamp(S, sess)                 # 🔔 ⓿-و: «السوق فُحِص وسُلِّم» — تاريخٌ واحد
         return 0
     # 🌱 **ذاكرةُ الصيّاد** (`harvest_prereg.md`، بإذن المالك «نعم ابنها»):
@@ -352,6 +353,7 @@ def run(fetch_ext=None, now_utc=None):
         S.log("⛔ صيّاد المقسّم: تلغرام رفض التنبيه — المطابق لم يصل.")
         return 1
     S.log("✅ أُرسل تنبيه صيّاد المقسّم لتلغرام.")
+    S.subs_mirror(msg, "split_hunter")          # 📣 قناةُ المشتركين بالاسم (`SUB3`) — مطفأةٌ ⟵ صفرُ عمل
     _watch(S, rows, sess)               # 🪝👀 متابعة يومية للمطابق (أمر المالك)
     _stamp(S, sess)                     # 🔔 ⓿-و: «السوق فُحِص وسُلِّم» — تاريخٌ واحد
     return 0

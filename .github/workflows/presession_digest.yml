@@ -45,6 +45,8 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # 📣 (2026-11-19) قناةُ المشتركين — اختياريّ: غيابُه ⟵ لا إرسال · والمفتاحُ `subs_channel.ON` مطفأٌ حتى موافقة المالك (`SUB1`-`SUB9`)
+          TELEGRAM_SUBS_CHAT_ID: ${{ secrets.TELEGRAM_SUBS_CHAT_ID }}
           # 📡 بلا هذا المفتاح **لا حسمَ إطلاقًا** — والأداةُ تخرج بخروجٍ غيرِ
           #    صفريّ ورسالةٍ صريحة («عطلٌ صريحٌ لا صمت»).
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}

@@ -220,6 +220,7 @@ def run(now_utc=None) -> int:
         S.log("⛔ فلترة التقسيم: تلغرام رفض الرسالة.")
         return 1
     S.log("✅ أُرسلت رسالة فلترة التقسيم.")
+    S.subs_mirror(msg, "split_filter")          # 📣 قناةُ المشتركين بالاسم (`SUB3`) — مطفأةٌ ⟵ صفرُ عمل
     _write_stamp(S, sess)
     return 0
 
