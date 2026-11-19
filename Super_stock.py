@@ -204,6 +204,8 @@ CONFIG = {
     # 📎 «ملفُّ تحت المتابعة» اليوميّ (أمرُ المالك 2026-11-17): إكسلٌ على تلغرام ‏+ CSV مؤرشَف · عرضٌ فقط ·
     #    `NW_XLSX=0` (بيئةُ التشغيل) ⟵ صفرُ عمل وصفرُ ملفّ (بت-بت) · `NXL1`-`NXL4`.
     "NW_XLSX": os.environ.get("NW_XLSX", "1").strip() != "0",
+    # 📨 (2026-11-19 · عطلٌ مُثبَت) إكسلُ «تحت المتابعة» يذهب للمالك (`TELEGRAM_OWNER_ID` وإلّا أوّلُ رقم) بدليل وصولٍ في السجلّ · "0" ⟵ المُرسِلُ القديم بت-بت
+    "NW_XLSX_OWNER": os.environ.get("NW_XLSX_OWNER", "1").strip() != "0",
     # 📏 «الهامش بجانب كلّ ناقص» (أمرُ المالك 2026-11-18 · `T-GATECAL` ⑥ · عرضٌ لا قياس): كلُّ معيارٍ خارجٍ يُحفظ بقيمته وحدّه وهامشه % في
     #    `out_detail` ⟵ رسالةُ «تحت المتابعة» تطبع الهامش وترتّب كتلةَ 📱 بالهامش الأصغر أوّلًا · والإكسلُ يحمل «الشرط الناقص: قيمته والحد»
     #    و«الهامش %» · بلا عتبةٍ جديدة وبلا تغيير اختيار · `NW_MARGIN=0` (بيئةُ التشغيل) ⟵ بت-بت · `NMG1`-`NMG4`.
@@ -12064,6 +12066,40 @@ def send_telegram_document(path: str, caption: str = "") -> bool:
     return ok
 
 
+def send_owner_document(path: str, caption: str = "", owner=None, post=None) -> bool:
+    """📨 ملفٌّ **للمالك**: الوجهةُ `TELEGRAM_OWNER_ID` إن وُجد وإلّا أوّلُ رقمٍ في `TELEGRAM_CHAT_ID` (`_admin_chat`) · ودليلُ الوصول
+    في السجلّ (رقمُ الرسالة · نوعُ المحادثة · عددُ المستلمين) **بلا رقم المحادثة** · وHTTP 200 بلا `ok` أو بلا رقم رسالةٍ ⟵ False.
+    (عطلٌ مُثبَت 2026-11-19: إكسلُ «تحت المتابعة» سُجّل «أُرسل» في `44274187793` ولم يجده المالك — `send_telegram_document`
+    يكتفي بـHTTP 200 ولا يطبع أين ذهب · سابقةُ `BPK2`.)"""
+    owner = str(owner if owner is not None else os.environ.get("TELEGRAM_OWNER_ID", "")).strip()
+    targets = [owner] if owner else _admin_chat()
+    where = "TELEGRAM_OWNER_ID" if owner else "أوّلُ رقمٍ في TELEGRAM_CHAT_ID"
+    if not TELEGRAM_TOKEN or not targets:
+        log(f"ℹ️ (بلا تيليجرام) ملف جاهز: {path}")
+        return False
+    post = post or requests.post
+    ok = True
+    for cid in targets:
+        try:
+            with open(path, "rb") as fh:
+                r = post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendDocument",
+                         data={"chat_id": cid, "caption": caption[:1000]}, files={"document": fh}, timeout=60)
+            try:
+                js = r.json() or {}
+            except Exception:                                    # noqa: BLE001
+                js = {}
+            res = js.get("result") or {}
+            log(f"📨 sendDocument ⟵ {where}: HTTP {r.status_code} · ok={js.get('ok')} · رقمُ الرسالة {res.get('message_id')}"
+                f" · نوعُ المحادثة {(res.get('chat') or {}).get('type')} · مستلمو التقرير {len(_chat_recipients())}")
+            if r.status_code != 200 or not js.get("ok") or not res.get("message_id"):
+                ok = False
+                log(f"⚠️ sendDocument رفض: {_redact_secrets(str(js.get('description') or ''))[:160]}")
+        except Exception as e:                                   # noqa: BLE001
+            log(f"⚠️ خطأ sendDocument: {type(e).__name__}")
+            ok = False
+    return ok
+
+
 def _write_csv_file(rows: list, prefix: str):
     """يكتب صفوفًا إلى CSV ويرجع المسار (أو None لو فاضي/فشل)."""
     if not rows:
@@ -14384,7 +14420,7 @@ def near_watch_xlsx_step(hist: dict, session: str = "", sender=None, tag: str = 
             ws.freeze_panes = "B2"
             xpath = os.path.join(_tf.mkdtemp(prefix="nwx_"), f"near_watch_{day}.xlsx")
             wb.save(xpath)
-            sent = bool((sender or send_telegram_document)(
+            sent = bool((sender or (send_owner_document if CONFIG.get("NW_XLSX_OWNER") else send_telegram_document))(
                 xpath, f"📎 تحت المتابعة — جلسة {day} · {len(rows)} سهم · عرضٌ لا حكم"))
         except Exception as _xe:                                 # noqa: BLE001
             log(f"⚠️ إكسل تحت المتابعة{tag}: {type(_xe).__name__}: {_xe} — الـCSV كُتب")
