@@ -104912,10 +104912,10 @@ try:
           "رادارُ الضغط من `press_radar.run` · ورسائلُ الجمعة موسومةٌ خارج القائمة · ولا ملفَّ آخر ينادي `subs_mirror`",
           _sb_keys("Super_stock.py", "run_daily_watchlist") == ["daily_report", "hand", "split_radar"]
           and _sb_keys("Super_stock.py", "run_performance_system") == ["tracking", "weekly_report"]
-          and _sb_keys("press_radar.py", "run") == ["press_radar"]
+          and _sb_keys("press_radar.py", "run") == ["press"]
           and _sb_keys("Super_stock.py", "run_weekly_renewal") == ["fate", "renewal_list", "wrapup"]
           and set(_sb_keys("Super_stock.py")) <= set(S.SUBS_CHANNEL_NAMES)
-          and set(S.SUBS_CHANNEL_MSGS) == {"daily_report", "hand", "split_radar", "tracking", "press_radar"}
+          and set(S.SUBS_CHANNEL_MSGS) == {"daily_report", "hand", "split_radar", "tracking", "press"}
           and _sb_users == ["Super_stock.py", "press_radar.py"],
           f"users={_sb_users} daily={_sb_keys('Super_stock.py', 'run_daily_watchlist')}")
     _sb_wf = _sb_os.path.join(_sb_here, ".github", "workflows")

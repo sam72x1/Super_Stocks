@@ -1060,7 +1060,7 @@ def run(now_utc=None, fetch_hist=None, sender=None, state_path=STATE_FILE,
             _log("⛔ إرسال تلغرام فشل — لا ختم ولا سجل (الكرون الثاني يعيد).")
             return 1
         if sender is None:
-            S.subs_mirror(msg, "press_radar")      # 📣 قناةُ المشتركين بالاسم (`SUB3`) — مطفأٌ ⟵ صفرُ عمل
+            S.subs_mirror(msg, "press")      # 📣 قناةُ المشتركين بالاسم (`SUB3`) — مطفأٌ ⟵ صفرُ عمل
         for r in rows:
             state.setdefault("symbols", {}).setdefault(r["symbol"], {})["last_alert"] = session_iso
         append_ledger(rows, session_iso, path=ledger_path)

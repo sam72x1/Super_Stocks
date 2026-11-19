@@ -11929,13 +11929,13 @@ def _recipient_hint(body: str) -> str:
 # 📣 ما يذهب لقناة المشتركين — **بالاسم وحدَه**: رسالةٌ بلا وسمٍ أو بوسمٍ خارج هذي القائمة لا تذهب أبدًا (إكسل · ملفّات · «تحرّك 30%» ·
 #    الظلّ · «شروطك الثلاثة» · دفترُ الصفقات · البطاقاتُ الحيّة · الأعطال — كلُّها بلا وسم). والوسومُ الموسومة خارجها (رسائلُ تجديد الجمعة)
 #    تنتظر قرارَ المالك ولا تذهب.
-SUBS_CHANNEL_MSGS = ("daily_report", "hand", "split_radar", "tracking", "press_radar")
+SUBS_CHANNEL_MSGS = ("daily_report", "hand", "split_radar", "tracking", "press")
 SUBS_CHANNEL_NAMES = {
     "daily_report": "📋 التقرير اليوميّ «قائمة الأسبوع» بكلّ أقسامه (الجاهز للدخول · شُطب اليوم · الارتداد الواصل · متابعة أسهم الصيّاد · 🏁 انفجر · 👀 تحت المتابعة · سطورُ التنبيه)",
     "hand": "🕵️ رسالة «أسهم فيها علامات يد»",
     "split_radar": "🎯 رسالة «رادار أسهم التقسيم»",
     "tracking": "📡 «متابعة التنبيهات السابقة» (هدفٌ تحقّق · وقفٌ ضُرب · انتهت)",
-    "press_radar": "🗜️ «رادار الضغط» (جوبُه المستقلّ press_radar)",
+    "press": "🗜️ «رادار الضغط» (جوبُه المستقلّ)",
     "renewal_list": "🔄 «القائمة الأسبوعية الجديدة» (الجمعة)",
     "wrapup": "🧺 «حصاد الأسبوع» (الجمعة)",
     "fate": "🔄 «مصير أسهم الأسبوع الماضي» (الجمعة)",
@@ -11972,7 +11972,7 @@ def subs_manifest_lines() -> list:
 
 
 def _stamp_chunks(chunks: list) -> list:
-    """ختمُ الإصدار في كلّ جزء (تعريفُ النسخة فورًا — ضمانٌ ضدّ لبس الرسائل القديمة) · مشتركٌ بين المالك وقناة المشتركين."""
+    """ختمُ الإصدار في كلّ جزء **بصيغة `send_telegram` حرفًا** (قناةُ المشتركين ترى الختمَ نفسَه · `SUB2` يقارن الأجزاء بأجزاء المالك)."""
     stamp = f"\n🧾 إصدار {code_version()} · {dt.date.today().isoformat()}" + data_basis_suffix()
     return [c + stamp for c in chunks]
 
@@ -12031,7 +12031,9 @@ def send_telegram(text: str, on_admin=None) -> bool:
         log("⚠️ تيليجرام: رسالة فارغة — لم يُرسَل شيء.")
         return False
     # ختم الإصدار في كل رسالة (تعريف النسخة فورًا — ضمان ضد لبس الرسائل القديمة)
-    chunks = _stamp_chunks(chunks)
+    # ختم الإصدار في كل رسالة (تعريف النسخة فورًا — ضمان ضد لبس الرسائل القديمة)
+    stamp = f"\n🧾 إصدار {code_version()} · {dt.date.today().isoformat()}" + data_basis_suffix()
+    chunks = [c + stamp for c in chunks]
     ok = True
     for ch in chunks:
         for cid in recipients:
