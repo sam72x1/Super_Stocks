@@ -30,6 +30,8 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # 📣 (2026-11-19) قناةُ المشتركين — اختياريّ: غيابُه ⟵ لا إرسال · والمفتاحُ `SUBS_CHANNEL` مطفأٌ حتى موافقة المالك (`SUB1`-`SUB4`)
+          TELEGRAM_SUBS_CHAT_ID: ${{ secrets.TELEGRAM_SUBS_CHAT_ID }}
           # 🔥 حركة الافتر لقرائن «الصحوة» (extended_last_price) — فاشل-آمن:
           # غيابه = القراءة اليومية وحدها، لا تعطيل
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
