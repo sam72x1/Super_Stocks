@@ -104630,6 +104630,79 @@ except Exception as _e:                                          # noqa: BLE001
     check("🗂️ قفلُ ⑦ لبقيّة الأدوات `T-GATECAL` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
 
+# 📨 NXL6 — إكسلُ «تحت المتابعة» يذهب للمالك بدليل وصول (عطلٌ مُثبَت 2026-11-19 · `44274187793` «أُرسل» ولم يجده المالك):
+#    الوجهةُ `TELEGRAM_OWNER_ID` وإلّا أوّلُ رقم · HTTP 200 بلا ok أو بلا رقم رسالةٍ ⟵ False · السجلُّ بلا رقم المحادثة ·
+#    والمفتاحُ مطفأ ⟵ المُرسِلُ القديم · والسرُّ موصولٌ في daily_screener.yml
+try:
+    import tempfile as _nx6_tf, io as _nx6_io, contextlib as _nx6_cl
+    _nx6_f = os.path.join(_nx6_tf.mkdtemp(), "x.xlsx")
+    open(_nx6_f, "wb").write(b"x")
+
+    class _Nx6R:
+        def __init__(self, code, js):
+            self.status_code, self._js = code, js
+
+        def json(self):
+            return self._js
+    _nx6_calls = []
+
+    def _nx6_post(js, code=200):
+        def _p(url, data=None, files=None, timeout=None):
+            _nx6_calls.append(str((data or {}).get("chat_id")))
+            return _Nx6R(code, js)
+        return _p
+    _nx6_good = {"ok": True, "result": {"message_id": 77, "chat": {"type": "private", "id": 987654321}}}
+    _nx6_tok, _nx6_chat = S.TELEGRAM_TOKEN, S.TELEGRAM_CHAT
+    _nx6_cfg = S.CONFIG.get("NW_XLSX_OWNER")
+    try:
+        S.TELEGRAM_TOKEN, S.TELEGRAM_CHAT = "T0K", "111222333,444555666"
+        _nx6_buf = _nx6_io.StringIO()
+        with _nx6_cl.redirect_stdout(_nx6_buf), _nx6_cl.redirect_stderr(_nx6_buf):
+            _nx6_a = S.send_owner_document(_nx6_f, "c", owner="999000111", post=_nx6_post(_nx6_good))
+            _nx6_b = S.send_owner_document(_nx6_f, "c", owner="", post=_nx6_post(_nx6_good))
+            _nx6_c = S.send_owner_document(_nx6_f, "c", owner="", post=_nx6_post({"ok": False, "description": "x", "result": {"message_id": 5}}))
+            _nx6_d = S.send_owner_document(_nx6_f, "c", owner="", post=_nx6_post({"ok": True, "result": {}}))
+            _nx6_e = S.send_owner_document(_nx6_f, "c", owner="", post=_nx6_post(_nx6_good, code=403))
+        _nx6_log = _nx6_buf.getvalue()
+        # مسارُ النداء الحيّ: الخطوةُ تختار المُرسِل بالمفتاح
+        _nx6_seen = []
+        _nx6_o1, _nx6_o2 = S.send_owner_document, S.send_telegram_document
+        _nx6_nw, _nx6_rows = S.load_near_watch, S.near_watch_xlsx_rows
+        _nx6_dir, _nx6_saved = S.NW_XLSX_DIR, list(S.NW_CSV_SAVED)
+        try:
+            S.send_owner_document = lambda p, c="": (_nx6_seen.append("owner"), True)[1]
+            S.send_telegram_document = lambda p, c="": (_nx6_seen.append("old"), True)[1]
+            S.load_near_watch = lambda *a, **k: {}
+            S.near_watch_xlsx_rows = lambda nw, hist: (["symbol"], [{"symbol": "AAA", "last_seen": "2026-01-02"}], 0)
+            S.NW_XLSX_DIR = _nx6_tf.mkdtemp()
+            with _nx6_cl.redirect_stdout(_nx6_io.StringIO()):
+                S.CONFIG["NW_XLSX_OWNER"] = True
+                S.near_watch_xlsx_step({})
+                S.CONFIG["NW_XLSX_OWNER"] = False
+                S.near_watch_xlsx_step({})
+        finally:
+            S.send_owner_document, S.send_telegram_document = _nx6_o1, _nx6_o2
+            S.load_near_watch, S.near_watch_xlsx_rows = _nx6_nw, _nx6_rows
+            S.NW_XLSX_DIR = _nx6_dir
+            S.NW_CSV_SAVED[:] = _nx6_saved
+    finally:
+        S.TELEGRAM_TOKEN, S.TELEGRAM_CHAT = _nx6_tok, _nx6_chat
+        S.CONFIG["NW_XLSX_OWNER"] = _nx6_cfg
+    _nx6_yml = open(".github/workflows/daily_screener.yml", encoding="utf-8").read()
+    _nx6_env = [ln.strip() for ln in _nx6_yml.splitlines() if not ln.strip().startswith("#")]
+    check("📨 NXL6: إكسلُ «تحت المتابعة» للمالك — `TELEGRAM_OWNER_ID` أوّلًا وإلّا أوّلُ رقمٍ وحدَه · 200 بلا ok أو بلا رقم رسالةٍ أو 403 ⟵ False · "
+          "السجلُّ يحمل رقمَ الرسالة ونوعَ المحادثة وعددَ المستلمين بلا رقم المحادثة · المفتاحُ يختار المُرسِل · والسرُّ موصول",
+          _nx6_a is True and _nx6_b is True and _nx6_c is False and _nx6_d is False and _nx6_e is False
+          and _nx6_calls == ["999000111", "111222333", "111222333", "111222333", "111222333"]
+          and "رقمُ الرسالة 77" in _nx6_log and "نوعُ المحادثة private" in _nx6_log and "مستلمو التقرير 2" in _nx6_log
+          and not any(x in _nx6_log for x in ("999000111", "111222333", "444555666", "987654321", "T0K"))
+          and _nx6_seen == ["owner", "old"]
+          and "TELEGRAM_OWNER_ID: ${{ secrets.TELEGRAM_OWNER_ID }}" in _nx6_env,
+          f"ret={[_nx6_a, _nx6_b, _nx6_c, _nx6_d, _nx6_e]} calls={len(_nx6_calls)} seen={_nx6_seen}")
+except Exception as _e:                                          # noqa: BLE001
+    check("📨 قفلُ وجهة إكسل «تحت المتابعة» انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

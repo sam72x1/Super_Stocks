@@ -112,6 +112,8 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # 📨 (2026-11-19) وجهةُ إكسل «تحت المتابعة» — اختياريّ: غيابُه ⟵ أوّلُ رقمٍ في TELEGRAM_CHAT_ID (`NXL6`)
+          TELEGRAM_OWNER_ID: ${{ secrets.TELEGRAM_OWNER_ID }}
           # 14ج: بريد تواصل حقيقي لطلبات SEC (أضف سرّ SEC_CONTACT بصيغة
           # «Bot/1.0 (email@example.com)») — فارغ = الافتراضي القديم.
           SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
