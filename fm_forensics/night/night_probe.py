@@ -105,10 +105,13 @@ def poly_night_trades(sym, day, key):
             "last": res[-1].get("participant_timestamp") if res else None}
 
 
-def tv_bars(symbol, session, n=5000, interval="1"):
-    """شموعُ TradingView بجلسةٍ تُسمّى صراحةً (regular · extended · overnight …) — نسخةُ `tv_data.Chart.bars` بمُدخَل الجلسة."""
+def tv_bars(symbol, session, n=5000, interval="1", ch=None):
+    """شموعُ TradingView بجلسةٍ تُسمّى صراحةً (regular · extended · overnight …) — نسخةُ `tv_data.Chart.bars` بمُدخَل الجلسة.
+    `ch` (اختياريّ) مقبسٌ قائمٌ يُعاد استعمالُه: لا يُغلق عند النجاح ولا عند «رمزٌ غيرُ مُدرَج» · ويُغلق عند أيّ عطلٍ آخر ليُفتح من جديد."""
     import tv_data as T
-    ch = T.Chart()
+    own = ch is None
+    if own:
+        ch = T.Chart()
     cs = "cs_" + T._rand()
     spec = json.dumps({"symbol": symbol, "adjustment": "splits", "session": session}, separators=(",", ":"))
     got, status = [], None
@@ -140,7 +143,14 @@ def tv_bars(symbol, session, n=5000, interval="1"):
     except Exception as e:                                         # noqa: BLE001
         status = f"exc:{type(e).__name__}"
     finally:
-        ch.close()
+        _st = status or "timeout"
+        if own or not (_st == "ok" or _st.startswith("symbol_error")):
+            ch.close()
+        elif _st == "ok":
+            try:
+                ch.open().send(T.msg("chart_delete_session", [cs]))
+            except Exception:                                      # noqa: BLE001
+                ch.close()
     sessions = None
     for m in got:
         if m.get("m") == "symbol_resolved":

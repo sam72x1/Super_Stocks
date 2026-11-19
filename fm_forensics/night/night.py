@@ -244,38 +244,79 @@ def universe_at(prev_day, day):
     return sorted(s for s, e in nw.items() if isinstance(e, dict) and str(e.get("last_seen") or "") >= lim)
 
 
-def fetch_all(symbols, workers=8):
-    """{رمز: (ext, ext_status, boats, boats_status)} — `symbol_error` = غيرُ مُدرَج (ليس تعذّرًا)."""
-    import night_probe as P
-    q, out, lock = queue.Queue(), {}, threading.Lock()
-    for s in symbols:
-        q.put(s)
+FETCH_WORKERS, FETCH_STAGGER_S, FETCH_PAUSE_S, FETCH_RETRY_ROUNDS, FETCH_RETRY_WAIT_S = 4, 1.5, 0.15, 3, 45.0
+FETCH_STATUS = {}
 
-    def one(full, ses):
-        for _ in range(2):
-            bars, st, _info = P.tv_bars(full, ses, n=BARS_N, interval=INTERVAL)
-            if bars is not None or st.startswith("symbol_error"):
-                return bars, st
-        return bars, st
 
-    def work():
-        while True:
+def _status_key(st):
+    st = str(st or "timeout")
+    return "symbol_error" if st.startswith("symbol_error") else st.split(":")[0]
+
+
+def fetch_all(symbols, workers=FETCH_WORKERS, bars_fn=None, chart_factory=None, sleep=None):
+    """{رمز: (ext, ext_status, boats, boats_status)} — `symbol_error` = غيرُ مُدرَج (ليس تعذّرًا).
+    🔧 (عطلُ الأداة في التشغيلة `44622259245`: مقبسٌ جديد لكلّ طلب ⟵ 83% تعذّر) ⟵ **مقبسٌ واحدٌ لكلّ عاملٍ يُعاد استعمالُه** ·
+    وما تعذّر يُعاد في جولاتٍ لاحقة بعد مهلة (حتى `FETCH_RETRY_ROUNDS`) · وعدّادُ الحالات يُطبع (`FETCH_STATUS`)."""
+    import time as _t
+    if bars_fn is None or chart_factory is None:
+        import night_probe as P
+        import tv_data as T
+        bars_fn = bars_fn or (lambda full, ses, ch: P.tv_bars(full, ses, n=BARS_N, interval=INTERVAL, ch=ch)[:2])
+        chart_factory = chart_factory or (lambda: T.Chart())
+    sleep = sleep or _t.sleep
+    out, lock = {}, threading.Lock()
+    FETCH_STATUS.clear()
+
+    def bad(st):
+        return not (st == "ok" or str(st).startswith("symbol_error"))
+
+    def run(todo, nworkers):
+        q = queue.Queue()
+        for s in todo:
+            q.put(s)
+
+        def work(k):
+            if k:
+                sleep(FETCH_STAGGER_S * k)
+            ch = chart_factory()
             try:
-                s = q.get_nowait()
-            except queue.Empty:
-                return
-            e, es = one(f"NASDAQ:{s}", "extended")
-            b, bs = one(f"BOATS:{s}", "regular")
-            with lock:
-                out[s] = (e, es, b, bs)
-                if len(out) % 100 == 0:
-                    print(f"   … جُلب {len(out)} من {len(symbols)}", flush=True)
+                while True:
+                    try:
+                        s = q.get_nowait()
+                    except queue.Empty:
+                        return
+                    prev = out.get(s)
+                    e, es = (prev[0], prev[1]) if prev and not bad(prev[1]) else bars_fn(f"NASDAQ:{s}", "extended", ch)
+                    b, bs = (prev[2], prev[3]) if prev and not bad(prev[3]) else bars_fn(f"BOATS:{s}", "regular", ch)
+                    with lock:
+                        out[s] = (e, es, b, bs)
+                        if len(out) % 100 == 0 and prev is None:
+                            print(f"   … جُلب {len(out)} من {len(symbols)}", flush=True)
+                    sleep(FETCH_PAUSE_S)
+            finally:
+                try:
+                    ch.close()
+                except Exception:                                  # noqa: BLE001
+                    pass
 
-    ts = [threading.Thread(target=work, daemon=True) for _ in range(workers)]
-    for t in ts:
-        t.start()
-    for t in ts:
-        t.join()
+        ts = [threading.Thread(target=work, args=(k,), daemon=True) for k in range(max(1, min(nworkers, len(todo))))]
+        for t in ts:
+            t.start()
+        for t in ts:
+            t.join()
+
+    run(list(symbols), workers)
+    for rnd in range(FETCH_RETRY_ROUNDS):
+        failed = [s for s in symbols if bad(out[s][1]) or bad(out[s][3])]
+        if not failed:
+            break
+        print(f"   ↻ إعادةُ {len(failed)} رمزًا تعذّر (الجولة {rnd + 1})", flush=True)
+        sleep(FETCH_RETRY_WAIT_S)
+        run(failed, max(1, workers // 2))
+    for s in symbols:
+        for tag, st in (("ext", out[s][1]), ("boats", out[s][3])):
+            k = f"{tag}:{_status_key(st)}"
+            FETCH_STATUS[k] = FETCH_STATUS.get(k, 0) + 1
     return out
 
 
@@ -359,6 +400,8 @@ def main(argv=None):
     rep = {"mode": a.mode, "prereg_sha16": PREREG_SHA16, "days": [part[0], part[-1], len(part)], "symbols": len(syms), "units": units,
            "rows": len(rows), "skips": skips, "fetch_fail": fetch_fail,
            "generated_utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
+    rep["fetch_status"] = dict(sorted(FETCH_STATUS.items()))
+    print(f"   حالاتُ الجلب: {rep['fetch_status']}")
     print(f"   وحدات {units} · صفوف {len(rows)} · تعذّر جلب {fetch_fail} · مستبعَد {skips}")
     if units and fetch_fail / units > COVER_MAX_FAIL:
         print("⛔ تغطيةُ الجلب دون الحدّ ⟵ «لا قياس»")
