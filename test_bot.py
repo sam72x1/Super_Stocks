@@ -73534,7 +73534,8 @@ check("📺 TVB8 فاشلٌ-آمن كلّيًّا: `tv_download` يرمي ⟵ ي
 try:
     _want9 = {"daily_screener.yml", "pullback_monitor.yml", "hand_digest.yml", "analyze.yml", "hand_check.yml",
               "split_hunter.yml", "split_filter.yml", "method_hunter.yml", "envelope_hunter.yml", "press_radar.yml",
-              "shadow_telegram.yml", "app_compare.yml", "tgtladder.yml"}
+              "shadow_telegram.yml", "app_compare.yml", "tgtladder.yml",
+              "method_relaxed.yml"}      # 🔬🔢 2026-11-19: عدُّ المخفّف يقرأ مصدرَ صيّاد النهج نفسَه (قراءةٌ فقط)
     _got9 = set()
     for _fn9 in sorted(_tvb_os.listdir(".github/workflows")):
         if not _fn9.endswith((".yml", ".yaml")):
