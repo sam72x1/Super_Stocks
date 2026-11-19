@@ -1,0 +1,2819 @@
+{
+ "generated_utc": "2026-11-19T21:12:03+00:00",
+ "cases": {
+  "SVRE": {
+   "move_day": "2026-11-18",
+   "daily": {
+    "_status": 429
+   },
+   "minute_status": 429,
+   "polygon_sessions": {},
+   "night_trades": {
+    "_status": 403
+   }
+  },
+  "INHD": {
+   "move_day": "2026-11-19",
+   "daily": {
+    "_status": 429
+   },
+   "minute_status": 429,
+   "polygon_sessions": {},
+   "night_trades": {
+    "_status": 403
+   }
+  },
+  "LGHL": {
+   "move_day": "2026-11-19",
+   "daily": {
+    "_status": 429
+   },
+   "minute_status": 429,
+   "polygon_sessions": {},
+   "night_trades": {
+    "_status": 403
+   }
+  },
+  "BRTX": {
+   "move_day": "2026-11-19",
+   "daily": {
+    "_status": 429
+   },
+   "minute_status": 429,
+   "polygon_sessions": {},
+   "night_trades": {
+    "_status": 403
+   }
+  }
+ },
+ "depth": {
+  "TSLA": {
+   "2023-06-14": {
+    "status": 429,
+    "night_bars": 0,
+    "night_vol": 0,
+    "pre_bars": 0,
+    "trades": {
+     "_status": 403
+    }
+   },
+   "2024-06-12": {
+    "status": 429,
+    "night_bars": 0,
+    "night_vol": 0,
+    "pre_bars": 0,
+    "trades": {
+     "_status": 429
+    }
+   },
+   "2025-03-12": {
+    "status": 429,
+    "night_bars": 0,
+    "night_vol": 0,
+    "pre_bars": 0,
+    "trades": {
+     "_status": 429
+    }
+   },
+   "2025-09-10": {
+    "status": 429,
+    "night_bars": 0,
+    "night_vol": 0,
+    "pre_bars": 0,
+    "trades": {
+     "_status": 429
+    }
+   },
+   "2026-03-11": {
+    "status": 429,
+    "night_bars": 0,
+    "night_vol": 0,
+    "pre_bars": 0,
+    "trades": {
+     "_status": 429
+    }
+   },
+   "2026-08-12": {
+    "status": 429,
+    "night_bars": 0,
+    "night_vol": 0,
+    "pre_bars": 0,
+    "trades": {
+     "_status": 429
+    }
+   },
+   "2026-11-18": {
+    "status": 429,
+    "night_bars": 0,
+    "night_vol": 0,
+    "pre_bars": 0,
+    "trades": {
+     "_status": 429
+    }
+   }
+  },
+  "NVDA": {
+   "2023-06-14": {
+    "status": 429,
+    "night_bars": 0,
+    "night_vol": 0,
+    "pre_bars": 0,
+    "trades": {
+     "_status": 429
+    }
+   },
+   "2024-06-12": {
+    "status": 429,
+    "night_bars": 0,
+    "night_vol": 0,
+    "pre_bars": 0,
+    "trades": {
+     "_status": 429
+    }
+   },
+   "2025-03-12": {
+    "status": 429,
+    "night_bars": 0,
+    "night_vol": 0,
+    "pre_bars": 0,
+    "trades": {
+     "_status": 429
+    }
+   },
+   "2025-09-10": {
+    "status": 429,
+    "night_bars": 0,
+    "night_vol": 0,
+    "pre_bars": 0,
+    "trades": {
+     "_status": 429
+    }
+   },
+   "2026-03-11": {
+    "status": 429,
+    "night_bars": 0,
+    "night_vol": 0,
+    "pre_bars": 0,
+    "trades": {
+     "_status": 429
+    }
+   },
+   "2026-08-12": {
+    "status": 429,
+    "night_bars": 0,
+    "night_vol": 0,
+    "pre_bars": 0,
+    "trades": {
+     "_status": 429
+    }
+   },
+   "2026-11-18": {
+    "status": 429,
+    "night_bars": 0,
+    "night_vol": 0,
+    "pre_bars": 0,
+    "trades": {
+     "_status": 429
+    }
+   }
+  }
+ },
+ "tv": {
+  "SVRE": {
+   "NASDAQ:SVRE|extended": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "0400-2000",
+     "session_display": "0400-2000",
+     "subsessions": [
+      {
+       "id": "night",
+       "description": "Night",
+       "session": "2000-0400",
+       "private": true
+      },
+      {
+       "id": "24h",
+       "description": "24h",
+       "session": "2000-2000",
+       "private": false
+      },
+      {
+       "id": "premarket",
+       "description": "Premarket",
+       "session": "0400-0930",
+       "private": true
+      },
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "0930-1600",
+       "private": false
+      },
+      {
+       "id": "postmarket",
+       "description": "Postmarket",
+       "session": "1600-2000",
+       "private": true
+      },
+      {
+       "id": "extended",
+       "description": "Extended Trading Hours",
+       "session": "0400-2000",
+       "private": false
+      }
+     ],
+     "subsession_id": "extended",
+     "timezone": "America/New_York",
+     "has_extended_hours": true,
+     "exchange": "Cboe One",
+     "listed_exchange": "NASDAQ",
+     "update_mode": "streaming"
+    },
+    "first": "2026-06-30 14:00",
+    "last": "2026-11-19 16:12",
+    "sessions": {
+     "2026-11-17|after": {
+      "n": 3,
+      "first": "16:25",
+      "open": 0.42,
+      "high": 0.42,
+      "high_at": "16:25",
+      "low": 0.381,
+      "last": 0.381,
+      "last_at": "16:48",
+      "vol": 563.0,
+      "usd": 236.304
+     },
+     "2026-11-17|pre": {
+      "n": 1,
+      "first": "09:20",
+      "open": 0.411,
+      "high": 0.411,
+      "high_at": "09:20",
+      "low": 0.411,
+      "last": 0.411,
+      "last_at": "09:20",
+      "vol": 207.0,
+      "usd": 85.077
+     },
+     "2026-11-17|reg": {
+      "n": 29,
+      "first": "09:40",
+      "open": 0.438,
+      "high": 0.442,
+      "high_at": "09:51",
+      "low": 0.38,
+      "last": 0.3949,
+      "last_at": "15:59",
+      "vol": 4451.0,
+      "usd": 1785.0034999999998
+     },
+     "2026-11-18|after": {
+      "n": 170,
+      "first": "16:00",
+      "open": 0.8624,
+      "high": 0.9553,
+      "high_at": "18:07",
+      "low": 0.8093,
+      "last": 0.865,
+      "last_at": "19:59",
+      "vol": 405609.0,
+      "usd": 357571.9468
+     },
+     "2026-11-18|pre": {
+      "n": 326,
+      "first": "04:00",
+      "open": 0.5463,
+      "high": 3.1,
+      "high_at": "04:45",
+      "low": 0.432,
+      "last": 0.8165,
+      "last_at": "09:29",
+      "vol": 6022689.0,
+      "usd": 6479159.732900003
+     },
+     "2026-11-18|reg": {
+      "n": 381,
+      "first": "09:30",
+      "open": 0.8166,
+      "high": 1.15,
+      "high_at": "09:54",
+      "low": 0.68,
+      "last": 0.8646,
+      "last_at": "15:59",
+      "vol": 6869992.0,
+      "usd": 6044634.664299987
+     },
+     "2026-11-19|after": {
+      "n": 13,
+      "first": "16:00",
+      "open": 1.11,
+      "high": 1.28,
+      "high_at": "16:03",
+      "low": 1.11,
+      "last": 1.19,
+      "last_at": "16:12",
+      "vol": 89046.0,
+      "usd": 106167.3
+     },
+     "2026-11-19|pre": {
+      "n": 235,
+      "first": "04:00",
+      "open": 0.8,
+      "high": 0.9599,
+      "high_at": "04:32",
+      "low": 0.745,
+      "last": 0.86,
+      "last_at": "09:28",
+      "vol": 220193.0,
+      "usd": 184403.70129999987
+     },
+     "2026-11-19|reg": {
+      "n": 279,
+      "first": "09:30",
+      "open": 0.8685,
+      "high": 1.13,
+      "high_at": "14:49",
+      "low": 0.784,
+      "last": 1.12,
+      "last_at": "15:59",
+      "vol": 517732.0,
+      "usd": 485987.2428000001
+     }
+    }
+   },
+   "NASDAQ:SVRE|overnight": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "0930-1600",
+     "session_display": "0930-1600",
+     "subsessions": [
+      {
+       "id": "night",
+       "description": "Night",
+       "session": "2000-0400",
+       "private": true
+      },
+      {
+       "id": "24h",
+       "description": "24h",
+       "session": "2000-2000",
+       "private": false
+      },
+      {
+       "id": "premarket",
+       "description": "Premarket",
+       "session": "0400-0930",
+       "private": true
+      },
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "0930-1600",
+       "private": false
+      },
+      {
+       "id": "postmarket",
+       "description": "Postmarket",
+       "session": "1600-2000",
+       "private": true
+      },
+      {
+       "id": "extended",
+       "description": "Extended Trading Hours",
+       "session": "0400-2000",
+       "private": false
+      }
+     ],
+     "subsession_id": "regular",
+     "timezone": "America/New_York",
+     "has_extended_hours": true,
+     "exchange": "Cboe One",
+     "listed_exchange": "NASDAQ",
+     "update_mode": "streaming"
+    },
+    "first": "2026-02-04 12:54",
+    "last": "2026-11-19 15:59",
+    "sessions": {
+     "2026-11-17|reg": {
+      "n": 29,
+      "first": "09:40",
+      "open": 0.438,
+      "high": 0.442,
+      "high_at": "09:51",
+      "low": 0.38,
+      "last": 0.3949,
+      "last_at": "15:59",
+      "vol": 4451.0,
+      "usd": 1785.0034999999998
+     },
+     "2026-11-18|reg": {
+      "n": 381,
+      "first": "09:30",
+      "open": 0.8166,
+      "high": 1.15,
+      "high_at": "09:54",
+      "low": 0.68,
+      "last": 0.8646,
+      "last_at": "15:59",
+      "vol": 6869992.0,
+      "usd": 6044634.664299987
+     },
+     "2026-11-19|reg": {
+      "n": 279,
+      "first": "09:30",
+      "open": 0.8685,
+      "high": 1.13,
+      "high_at": "14:49",
+      "low": 0.784,
+      "last": 1.12,
+      "last_at": "15:59",
+      "vol": 517732.0,
+      "usd": 485987.2428000001
+     }
+    }
+   },
+   "BOATS:SVRE|regular": {
+    "status": "ok",
+    "n": 3917,
+    "info": {
+     "session": "2000-0400",
+     "session_display": "2000-0400",
+     "subsessions": [
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "2000-0400",
+       "private": false
+      }
+     ],
+     "subsession_id": "regular",
+     "timezone": "America/New_York",
+     "has_extended_hours": false,
+     "exchange": "BOATS",
+     "listed_exchange": "BOATS",
+     "update_mode": "streaming"
+    },
+    "first": "2023-10-04 22:37",
+    "last": "2026-11-19 03:57",
+    "sessions": {
+     "2026-11-17|night": {
+      "n": 1,
+      "first": "20:18",
+      "open": 0.4419,
+      "high": 0.4419,
+      "high_at": "20:18",
+      "low": 0.4419,
+      "last": 0.4419,
+      "last_at": "20:18",
+      "vol": 1.0,
+      "usd": 0.4419
+     },
+     "2026-11-18|night": {
+      "n": 247,
+      "first": "20:58",
+      "open": 0.4034,
+      "high": 0.5626,
+      "high_at": "21:49",
+      "low": 0.4034,
+      "last": 0.541,
+      "last_at": "03:52",
+      "vol": 232165.0,
+      "usd": 125950.37920000005
+     },
+     "2026-11-19|night": {
+      "n": 401,
+      "first": "20:00",
+      "open": 0.8819,
+      "high": 0.9099,
+      "high_at": "20:00",
+      "low": 0.7408,
+      "last": 0.755,
+      "last_at": "03:57",
+      "vol": 346444.0,
+      "usd": 271638.3342999998
+     }
+    }
+   },
+   "BOATS:SVRE|extended": {
+    "status": "ok",
+    "n": 3917,
+    "info": {
+     "session": "2000-0400",
+     "session_display": "2000-0400",
+     "subsessions": [
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "2000-0400",
+       "private": false
+      }
+     ],
+     "subsession_id": "regular",
+     "timezone": "America/New_York",
+     "has_extended_hours": false,
+     "exchange": "BOATS",
+     "listed_exchange": "BOATS",
+     "update_mode": "streaming"
+    },
+    "first": "2023-10-04 22:37",
+    "last": "2026-11-19 03:57",
+    "sessions": {
+     "2026-11-17|night": {
+      "n": 1,
+      "first": "20:18",
+      "open": 0.4419,
+      "high": 0.4419,
+      "high_at": "20:18",
+      "low": 0.4419,
+      "last": 0.4419,
+      "last_at": "20:18",
+      "vol": 1.0,
+      "usd": 0.4419
+     },
+     "2026-11-18|night": {
+      "n": 247,
+      "first": "20:58",
+      "open": 0.4034,
+      "high": 0.5626,
+      "high_at": "21:49",
+      "low": 0.4034,
+      "last": 0.541,
+      "last_at": "03:52",
+      "vol": 232165.0,
+      "usd": 125950.37920000005
+     },
+     "2026-11-19|night": {
+      "n": 401,
+      "first": "20:00",
+      "open": 0.8819,
+      "high": 0.9099,
+      "high_at": "20:00",
+      "low": 0.7408,
+      "last": 0.755,
+      "last_at": "03:57",
+      "vol": 346444.0,
+      "usd": 271638.3342999998
+     }
+    }
+   }
+  },
+  "INHD": {
+   "NASDAQ:INHD|extended": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "0400-2000",
+     "session_display": "0400-2000",
+     "subsessions": [
+      {
+       "id": "night",
+       "description": "Night",
+       "session": "2000-0400",
+       "private": true
+      },
+      {
+       "id": "24h",
+       "description": "24h",
+       "session": "2000-2000",
+       "private": false
+      },
+      {
+       "id": "premarket",
+       "description": "Premarket",
+       "session": "0400-0930",
+       "private": true
+      },
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "0930-1600",
+       "private": false
+      },
+      {
+       "id": "postmarket",
+       "description": "Postmarket",
+       "session": "1600-2000",
+       "private": true
+      },
+      {
+       "id": "extended",
+       "description": "Extended Trading Hours",
+       "session": "0400-2000",
+       "private": false
+      }
+     ],
+     "subsession_id": "extended",
+     "timezone": "America/New_York",
+     "has_extended_hours": true,
+     "exchange": "Cboe One",
+     "listed_exchange": "NASDAQ",
+     "update_mode": "streaming"
+    },
+    "first": "2026-08-18 09:08",
+    "last": "2026-11-19 16:11",
+    "sessions": {
+     "2026-11-17|pre": {
+      "n": 3,
+      "first": "04:31",
+      "open": 2.34,
+      "high": 2.74,
+      "high_at": "09:28",
+      "low": 2.34,
+      "last": 2.74,
+      "last_at": "09:29",
+      "vol": 228.0,
+      "usd": 573.9200000000001
+     },
+     "2026-11-17|reg": {
+      "n": 23,
+      "first": "09:30",
+      "open": 2.75,
+      "high": 2.75,
+      "high_at": "09:30",
+      "low": 2.35,
+      "last": 2.37,
+      "last_at": "15:01",
+      "vol": 3772.0,
+      "usd": 9519.465
+     },
+     "2026-11-18|after": {
+      "n": 221,
+      "first": "16:11",
+      "open": 2.59,
+      "high": 4.08,
+      "high_at": "19:13",
+      "low": 2.59,
+      "last": 4.04,
+      "last_at": "19:59",
+      "vol": 617897.0,
+      "usd": 2142258.319999998
+     },
+     "2026-11-18|reg": {
+      "n": 16,
+      "first": "09:33",
+      "open": 2.39,
+      "high": 2.39,
+      "high_at": "09:33",
+      "low": 2.185,
+      "last": 2.32,
+      "last_at": "15:59",
+      "vol": 682.0,
+      "usd": 1565.4299999999996
+     },
+     "2026-11-19|after": {
+      "n": 10,
+      "first": "16:00",
+      "open": 2.83,
+      "high": 3.06,
+      "high_at": "16:10",
+      "low": 2.83,
+      "last": 2.98,
+      "last_at": "16:11",
+      "vol": 9310.0,
+      "usd": 27133.92
+     },
+     "2026-11-19|pre": {
+      "n": 326,
+      "first": "04:00",
+      "open": 4.16,
+      "high": 4.39,
+      "high_at": "04:00",
+      "low": 2.9,
+      "last": 3.14,
+      "last_at": "09:29",
+      "vol": 1415352.0,
+      "usd": 4694005.334000007
+     },
+     "2026-11-19|reg": {
+      "n": 364,
+      "first": "09:30",
+      "open": 3.16,
+      "high": 3.46,
+      "high_at": "09:59",
+      "low": 2.75,
+      "last": 2.85,
+      "last_at": "15:59",
+      "vol": 1428605.0,
+      "usd": 4537663.490000003
+     }
+    }
+   },
+   "NASDAQ:INHD|overnight": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "0930-1600",
+     "session_display": "0930-1600",
+     "subsessions": [
+      {
+       "id": "night",
+       "description": "Night",
+       "session": "2000-0400",
+       "private": true
+      },
+      {
+       "id": "24h",
+       "description": "24h",
+       "session": "2000-2000",
+       "private": false
+      },
+      {
+       "id": "premarket",
+       "description": "Premarket",
+       "session": "0400-0930",
+       "private": true
+      },
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "0930-1600",
+       "private": false
+      },
+      {
+       "id": "postmarket",
+       "description": "Postmarket",
+       "session": "1600-2000",
+       "private": true
+      },
+      {
+       "id": "extended",
+       "description": "Extended Trading Hours",
+       "session": "0400-2000",
+       "private": false
+      }
+     ],
+     "subsession_id": "regular",
+     "timezone": "America/New_York",
+     "has_extended_hours": true,
+     "exchange": "Cboe One",
+     "listed_exchange": "NASDAQ",
+     "update_mode": "streaming"
+    },
+    "first": "2026-07-31 12:54",
+    "last": "2026-11-19 15:59",
+    "sessions": {
+     "2026-11-17|reg": {
+      "n": 23,
+      "first": "09:30",
+      "open": 2.75,
+      "high": 2.75,
+      "high_at": "09:30",
+      "low": 2.35,
+      "last": 2.37,
+      "last_at": "15:01",
+      "vol": 3772.0,
+      "usd": 9519.465
+     },
+     "2026-11-18|reg": {
+      "n": 16,
+      "first": "09:33",
+      "open": 2.39,
+      "high": 2.39,
+      "high_at": "09:33",
+      "low": 2.185,
+      "last": 2.32,
+      "last_at": "15:59",
+      "vol": 682.0,
+      "usd": 1565.4299999999996
+     },
+     "2026-11-19|reg": {
+      "n": 364,
+      "first": "09:30",
+      "open": 3.16,
+      "high": 3.46,
+      "high_at": "09:59",
+      "low": 2.75,
+      "last": 2.85,
+      "last_at": "15:59",
+      "vol": 1428605.0,
+      "usd": 4537663.490000003
+     }
+    }
+   },
+   "BOATS:INHD|regular": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "2000-0400",
+     "session_display": "2000-0400",
+     "subsessions": [
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "2000-0400",
+       "private": false
+      }
+     ],
+     "subsession_id": "regular",
+     "timezone": "America/New_York",
+     "has_extended_hours": false,
+     "exchange": "BOATS",
+     "listed_exchange": "BOATS",
+     "update_mode": "streaming"
+    },
+    "first": "2026-05-12 22:57",
+    "last": "2026-11-19 03:59",
+    "sessions": {
+     "2026-11-17|night": {
+      "n": 8,
+      "first": "20:11",
+      "open": 2.39,
+      "high": 2.4,
+      "high_at": "20:11",
+      "low": 2.33,
+      "last": 2.39,
+      "last_at": "02:10",
+      "vol": 286.0,
+      "usd": 683.5
+     },
+     "2026-11-18|night": {
+      "n": 3,
+      "first": "23:59",
+      "open": 2.35,
+      "high": 2.43,
+      "high_at": "00:35",
+      "low": 2.35,
+      "last": 2.43,
+      "last_at": "00:35",
+      "vol": 116.0,
+      "usd": 280.6
+     },
+     "2026-11-19|night": {
+      "n": 478,
+      "first": "20:00",
+      "open": 4.05,
+      "high": 4.75,
+      "high_at": "00:59",
+      "low": 3.9,
+      "last": 4.44,
+      "last_at": "03:59",
+      "vol": 853903.0,
+      "usd": 3813826.3299999973
+     }
+    }
+   },
+   "BOATS:INHD|extended": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "2000-0400",
+     "session_display": "2000-0400",
+     "subsessions": [
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "2000-0400",
+       "private": false
+      }
+     ],
+     "subsession_id": "regular",
+     "timezone": "America/New_York",
+     "has_extended_hours": false,
+     "exchange": "BOATS",
+     "listed_exchange": "BOATS",
+     "update_mode": "streaming"
+    },
+    "first": "2026-05-12 22:57",
+    "last": "2026-11-19 03:59",
+    "sessions": {
+     "2026-11-17|night": {
+      "n": 8,
+      "first": "20:11",
+      "open": 2.39,
+      "high": 2.4,
+      "high_at": "20:11",
+      "low": 2.33,
+      "last": 2.39,
+      "last_at": "02:10",
+      "vol": 286.0,
+      "usd": 683.5
+     },
+     "2026-11-18|night": {
+      "n": 3,
+      "first": "23:59",
+      "open": 2.35,
+      "high": 2.43,
+      "high_at": "00:35",
+      "low": 2.35,
+      "last": 2.43,
+      "last_at": "00:35",
+      "vol": 116.0,
+      "usd": 280.6
+     },
+     "2026-11-19|night": {
+      "n": 478,
+      "first": "20:00",
+      "open": 4.05,
+      "high": 4.75,
+      "high_at": "00:59",
+      "low": 3.9,
+      "last": 4.44,
+      "last_at": "03:59",
+      "vol": 853903.0,
+      "usd": 3813826.3299999973
+     }
+    }
+   }
+  },
+  "LGHL": {
+   "NASDAQ:LGHL|extended": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "0400-2000",
+     "session_display": "0400-2000",
+     "subsessions": [
+      {
+       "id": "night",
+       "description": "Night",
+       "session": "2000-0400",
+       "private": true
+      },
+      {
+       "id": "24h",
+       "description": "24h",
+       "session": "2000-2000",
+       "private": false
+      },
+      {
+       "id": "premarket",
+       "description": "Premarket",
+       "session": "0400-0930",
+       "private": true
+      },
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "0930-1600",
+       "private": false
+      },
+      {
+       "id": "postmarket",
+       "description": "Postmarket",
+       "session": "1600-2000",
+       "private": true
+      },
+      {
+       "id": "extended",
+       "description": "Extended Trading Hours",
+       "session": "0400-2000",
+       "private": false
+      }
+     ],
+     "subsession_id": "extended",
+     "timezone": "America/New_York",
+     "has_extended_hours": true,
+     "exchange": "Cboe One",
+     "listed_exchange": "NASDAQ",
+     "update_mode": "streaming"
+    },
+    "first": "2026-09-29 10:25",
+    "last": "2026-11-19 16:11",
+    "sessions": {
+     "2026-11-17|after": {
+      "n": 16,
+      "first": "16:02",
+      "open": 1.03,
+      "high": 1.12,
+      "high_at": "19:37",
+      "low": 1.03,
+      "last": 1.12,
+      "last_at": "19:37",
+      "vol": 1102.0,
+      "usd": 1163.05
+     },
+     "2026-11-17|pre": {
+      "n": 68,
+      "first": "04:00",
+      "open": 1.5,
+      "high": 1.56,
+      "high_at": "07:26",
+      "low": 1.29,
+      "last": 1.29,
+      "last_at": "09:28",
+      "vol": 25144.0,
+      "usd": 35307.52999999999
+     },
+     "2026-11-17|reg": {
+      "n": 89,
+      "first": "09:30",
+      "open": 1.44,
+      "high": 1.44,
+      "high_at": "09:30",
+      "low": 0.95,
+      "last": 1.06,
+      "last_at": "15:59",
+      "vol": 22847.0,
+      "usd": 25820.93519999999
+     },
+     "2026-11-18|after": {
+      "n": 9,
+      "first": "16:02",
+      "open": 0.8773,
+      "high": 0.9291,
+      "high_at": "19:17",
+      "low": 0.8544,
+      "last": 0.9291,
+      "last_at": "19:35",
+      "vol": 2748.0,
+      "usd": 2385.0837999999994
+     },
+     "2026-11-18|pre": {
+      "n": 34,
+      "first": "04:01",
+      "open": 1.07,
+      "high": 1.07,
+      "high_at": "04:01",
+      "low": 0.965,
+      "last": 0.966,
+      "last_at": "09:27",
+      "vol": 7663.0,
+      "usd": 7632.2221
+     },
+     "2026-11-18|reg": {
+      "n": 71,
+      "first": "09:31",
+      "open": 0.9659,
+      "high": 1.01,
+      "high_at": "15:48",
+      "low": 0.8,
+      "last": 0.8953,
+      "last_at": "15:59",
+      "vol": 13880.0,
+      "usd": 12728.184299999999
+     },
+     "2026-11-19|after": {
+      "n": 3,
+      "first": "16:05",
+      "open": 0.7886,
+      "high": 0.7886,
+      "high_at": "16:05",
+      "low": 0.7626,
+      "last": 0.7626,
+      "last_at": "16:11",
+      "vol": 164.0,
+      "usd": 127.696
+     },
+     "2026-11-19|pre": {
+      "n": 328,
+      "first": "04:00",
+      "open": 1.05,
+      "high": 2.27,
+      "high_at": "04:04",
+      "low": 0.902,
+      "last": 1.06,
+      "last_at": "09:29",
+      "vol": 4057347.0,
+      "usd": 5431175.309399993
+     },
+     "2026-11-19|reg": {
+      "n": 329,
+      "first": "09:30",
+      "open": 1.07,
+      "high": 1.22,
+      "high_at": "09:32",
+      "low": 0.62,
+      "last": 0.8195,
+      "last_at": "15:59",
+      "vol": 801478.0,
+      "usd": 787688.5828999995
+     }
+    }
+   },
+   "NASDAQ:LGHL|overnight": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "0930-1600",
+     "session_display": "0930-1600",
+     "subsessions": [
+      {
+       "id": "night",
+       "description": "Night",
+       "session": "2000-0400",
+       "private": true
+      },
+      {
+       "id": "24h",
+       "description": "24h",
+       "session": "2000-2000",
+       "private": false
+      },
+      {
+       "id": "premarket",
+       "description": "Premarket",
+       "session": "0400-0930",
+       "private": true
+      },
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "0930-1600",
+       "private": false
+      },
+      {
+       "id": "postmarket",
+       "description": "Postmarket",
+       "session": "1600-2000",
+       "private": true
+      },
+      {
+       "id": "extended",
+       "description": "Extended Trading Hours",
+       "session": "0400-2000",
+       "private": false
+      }
+     ],
+     "subsession_id": "regular",
+     "timezone": "America/New_York",
+     "has_extended_hours": true,
+     "exchange": "Cboe One",
+     "listed_exchange": "NASDAQ",
+     "update_mode": "streaming"
+    },
+    "first": "2026-08-24 09:54",
+    "last": "2026-11-19 15:59",
+    "sessions": {
+     "2026-11-17|reg": {
+      "n": 89,
+      "first": "09:30",
+      "open": 1.44,
+      "high": 1.44,
+      "high_at": "09:30",
+      "low": 0.95,
+      "last": 1.06,
+      "last_at": "15:59",
+      "vol": 22847.0,
+      "usd": 25820.93519999999
+     },
+     "2026-11-18|reg": {
+      "n": 71,
+      "first": "09:31",
+      "open": 0.9659,
+      "high": 1.01,
+      "high_at": "15:48",
+      "low": 0.8,
+      "last": 0.8953,
+      "last_at": "15:59",
+      "vol": 13880.0,
+      "usd": 12728.184299999999
+     },
+     "2026-11-19|reg": {
+      "n": 329,
+      "first": "09:30",
+      "open": 1.07,
+      "high": 1.22,
+      "high_at": "09:32",
+      "low": 0.62,
+      "last": 0.8195,
+      "last_at": "15:59",
+      "vol": 801478.0,
+      "usd": 787688.5828999995
+     }
+    }
+   },
+   "BOATS:LGHL|regular": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "2000-0400",
+     "session_display": "2000-0400",
+     "subsessions": [
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "2000-0400",
+       "private": false
+      }
+     ],
+     "subsession_id": "regular",
+     "timezone": "America/New_York",
+     "has_extended_hours": false,
+     "exchange": "BOATS",
+     "listed_exchange": "BOATS",
+     "update_mode": "streaming"
+    },
+    "first": "2026-07-29 03:13",
+    "last": "2026-11-19 03:51",
+    "sessions": {
+     "2026-11-17|night": {
+      "n": 143,
+      "first": "20:03",
+      "open": 1.6,
+      "high": 1.6,
+      "high_at": "20:03",
+      "low": 1.41,
+      "last": 1.41,
+      "last_at": "03:45",
+      "vol": 12840.0,
+      "usd": 18788.989999999998
+     },
+     "2026-11-18|night": {
+      "n": 42,
+      "first": "20:03",
+      "open": 1.26,
+      "high": 1.26,
+      "high_at": "20:03",
+      "low": 0.99,
+      "last": 0.99,
+      "last_at": "03:55",
+      "vol": 10604.0,
+      "usd": 11259.119999999999
+     },
+     "2026-11-19|night": {
+      "n": 176,
+      "first": "20:01",
+      "open": 0.925,
+      "high": 1.11,
+      "high_at": "20:35",
+      "low": 0.9246,
+      "last": 1.07,
+      "last_at": "03:51",
+      "vol": 51799.0,
+      "usd": 55961.274600000004
+     }
+    }
+   },
+   "BOATS:LGHL|extended": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "2000-0400",
+     "session_display": "2000-0400",
+     "subsessions": [
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "2000-0400",
+       "private": false
+      }
+     ],
+     "subsession_id": "regular",
+     "timezone": "America/New_York",
+     "has_extended_hours": false,
+     "exchange": "BOATS",
+     "listed_exchange": "BOATS",
+     "update_mode": "streaming"
+    },
+    "first": "2026-07-29 03:13",
+    "last": "2026-11-19 03:51",
+    "sessions": {
+     "2026-11-17|night": {
+      "n": 143,
+      "first": "20:03",
+      "open": 1.6,
+      "high": 1.6,
+      "high_at": "20:03",
+      "low": 1.41,
+      "last": 1.41,
+      "last_at": "03:45",
+      "vol": 12840.0,
+      "usd": 18788.989999999998
+     },
+     "2026-11-18|night": {
+      "n": 42,
+      "first": "20:03",
+      "open": 1.26,
+      "high": 1.26,
+      "high_at": "20:03",
+      "low": 0.99,
+      "last": 0.99,
+      "last_at": "03:55",
+      "vol": 10604.0,
+      "usd": 11259.119999999999
+     },
+     "2026-11-19|night": {
+      "n": 176,
+      "first": "20:01",
+      "open": 0.925,
+      "high": 1.11,
+      "high_at": "20:35",
+      "low": 0.9246,
+      "last": 1.07,
+      "last_at": "03:51",
+      "vol": 51799.0,
+      "usd": 55961.274600000004
+     }
+    }
+   }
+  },
+  "BRTX": {
+   "NASDAQ:BRTX|extended": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "0400-2000",
+     "session_display": "0400-2000",
+     "subsessions": [
+      {
+       "id": "night",
+       "description": "Night",
+       "session": "2000-0400",
+       "private": true
+      },
+      {
+       "id": "24h",
+       "description": "24h",
+       "session": "2000-2000",
+       "private": false
+      },
+      {
+       "id": "premarket",
+       "description": "Premarket",
+       "session": "0400-0930",
+       "private": true
+      },
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "0930-1600",
+       "private": false
+      },
+      {
+       "id": "postmarket",
+       "description": "Postmarket",
+       "session": "1600-2000",
+       "private": true
+      },
+      {
+       "id": "extended",
+       "description": "Extended Trading Hours",
+       "session": "0400-2000",
+       "private": false
+      }
+     ],
+     "subsession_id": "extended",
+     "timezone": "America/New_York",
+     "has_extended_hours": true,
+     "exchange": "Cboe One",
+     "listed_exchange": "NASDAQ",
+     "update_mode": "streaming"
+    },
+    "first": "2026-05-28 12:33",
+    "last": "2026-11-19 15:59",
+    "sessions": {
+     "2026-11-17|pre": {
+      "n": 1,
+      "first": "04:00",
+      "open": 1.42,
+      "high": 1.42,
+      "high_at": "04:00",
+      "low": 1.42,
+      "last": 1.42,
+      "last_at": "04:00",
+      "vol": 37.0,
+      "usd": 52.54
+     },
+     "2026-11-17|reg": {
+      "n": 7,
+      "first": "09:54",
+      "open": 1.39,
+      "high": 1.39,
+      "high_at": "09:54",
+      "low": 1.35,
+      "last": 1.36,
+      "last_at": "15:59",
+      "vol": 424.0,
+      "usd": 578.49
+     },
+     "2026-11-18|reg": {
+      "n": 5,
+      "first": "09:41",
+      "open": 1.34,
+      "high": 1.41,
+      "high_at": "11:22",
+      "low": 1.34,
+      "last": 1.35,
+      "last_at": "15:54",
+      "vol": 440.0,
+      "usd": 596.0500000000001
+     },
+     "2026-11-19|reg": {
+      "n": 7,
+      "first": "10:48",
+      "open": 1.34,
+      "high": 1.34,
+      "high_at": "10:48",
+      "low": 1.29,
+      "last": 1.31,
+      "last_at": "15:59",
+      "vol": 852.0,
+      "usd": 1123.63
+     }
+    }
+   },
+   "NASDAQ:BRTX|overnight": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "0930-1600",
+     "session_display": "0930-1600",
+     "subsessions": [
+      {
+       "id": "night",
+       "description": "Night",
+       "session": "2000-0400",
+       "private": true
+      },
+      {
+       "id": "24h",
+       "description": "24h",
+       "session": "2000-2000",
+       "private": false
+      },
+      {
+       "id": "premarket",
+       "description": "Premarket",
+       "session": "0400-0930",
+       "private": true
+      },
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "0930-1600",
+       "private": false
+      },
+      {
+       "id": "postmarket",
+       "description": "Postmarket",
+       "session": "1600-2000",
+       "private": true
+      },
+      {
+       "id": "extended",
+       "description": "Extended Trading Hours",
+       "session": "0400-2000",
+       "private": false
+      }
+     ],
+     "subsession_id": "regular",
+     "timezone": "America/New_York",
+     "has_extended_hours": true,
+     "exchange": "Cboe One",
+     "listed_exchange": "NASDAQ",
+     "update_mode": "streaming"
+    },
+    "first": "2026-05-20 10:08",
+    "last": "2026-11-19 15:59",
+    "sessions": {
+     "2026-11-17|reg": {
+      "n": 7,
+      "first": "09:54",
+      "open": 1.39,
+      "high": 1.39,
+      "high_at": "09:54",
+      "low": 1.35,
+      "last": 1.36,
+      "last_at": "15:59",
+      "vol": 424.0,
+      "usd": 578.49
+     },
+     "2026-11-18|reg": {
+      "n": 5,
+      "first": "09:41",
+      "open": 1.34,
+      "high": 1.41,
+      "high_at": "11:22",
+      "low": 1.34,
+      "last": 1.35,
+      "last_at": "15:54",
+      "vol": 440.0,
+      "usd": 596.0500000000001
+     },
+     "2026-11-19|reg": {
+      "n": 7,
+      "first": "10:48",
+      "open": 1.34,
+      "high": 1.34,
+      "high_at": "10:48",
+      "low": 1.29,
+      "last": 1.31,
+      "last_at": "15:59",
+      "vol": 852.0,
+      "usd": 1123.63
+     }
+    }
+   },
+   "BOATS:BRTX|regular": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "2000-0400",
+     "session_display": "2000-0400",
+     "subsessions": [
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "2000-0400",
+       "private": false
+      }
+     ],
+     "subsession_id": "regular",
+     "timezone": "America/New_York",
+     "has_extended_hours": false,
+     "exchange": "BOATS",
+     "listed_exchange": "BOATS",
+     "update_mode": "streaming"
+    },
+    "first": "2026-03-03 22:02",
+    "last": "2026-11-12 22:47",
+    "sessions": {}
+   },
+   "BOATS:BRTX|extended": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "2000-0400",
+     "session_display": "2000-0400",
+     "subsessions": [
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "2000-0400",
+       "private": false
+      }
+     ],
+     "subsession_id": "regular",
+     "timezone": "America/New_York",
+     "has_extended_hours": false,
+     "exchange": "BOATS",
+     "listed_exchange": "BOATS",
+     "update_mode": "streaming"
+    },
+    "first": "2026-03-03 22:02",
+    "last": "2026-11-12 22:47",
+    "sessions": {}
+   }
+  },
+  "TSLA": {
+   "NASDAQ:TSLA|extended|1": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "0400-2000",
+     "session_display": "0400-2000",
+     "subsessions": [
+      {
+       "id": "night",
+       "description": "Night",
+       "session": "2000-0400",
+       "private": true
+      },
+      {
+       "id": "24h",
+       "description": "24h",
+       "session": "2000-2000",
+       "private": false
+      },
+      {
+       "id": "premarket",
+       "description": "Premarket",
+       "session": "0400-0930",
+       "private": true
+      },
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "0930-1600",
+       "private": false
+      },
+      {
+       "id": "postmarket",
+       "description": "Postmarket",
+       "session": "1600-2000",
+       "private": true
+      },
+      {
+       "id": "extended",
+       "description": "Extended Trading Hours",
+       "session": "0400-2000",
+       "private": false
+      }
+     ],
+     "subsession_id": "extended",
+     "timezone": "America/New_York",
+     "has_extended_hours": true,
+     "exchange": "Cboe One",
+     "listed_exchange": "NASDAQ",
+     "update_mode": "streaming"
+    },
+    "first": "2026-11-12 06:19",
+    "last": "2026-11-19 16:12",
+    "night_days": 0,
+    "night_first": null,
+    "night_bars": 0
+   },
+   "NASDAQ:TSLA|extended|30": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "0400-2000",
+     "session_display": "0400-2000",
+     "subsessions": [
+      {
+       "id": "night",
+       "description": "Night",
+       "session": "2000-0400",
+       "private": true
+      },
+      {
+       "id": "24h",
+       "description": "24h",
+       "session": "2000-2000",
+       "private": false
+      },
+      {
+       "id": "premarket",
+       "description": "Premarket",
+       "session": "0400-0930",
+       "private": true
+      },
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "0930-1600",
+       "private": false
+      },
+      {
+       "id": "postmarket",
+       "description": "Postmarket",
+       "session": "1600-2000",
+       "private": true
+      },
+      {
+       "id": "extended",
+       "description": "Extended Trading Hours",
+       "session": "0400-2000",
+       "private": false
+      }
+     ],
+     "subsession_id": "extended",
+     "timezone": "America/New_York",
+     "has_extended_hours": true,
+     "exchange": "Cboe One",
+     "listed_exchange": "NASDAQ",
+     "update_mode": "streaming"
+    },
+    "first": "2026-04-09 12:30",
+    "last": "2026-11-19 16:00",
+    "night_days": 0,
+    "night_first": null,
+    "night_bars": 0
+   },
+   "NASDAQ:TSLA|overnight|1": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "0930-1600",
+     "session_display": "0930-1600",
+     "subsessions": [
+      {
+       "id": "night",
+       "description": "Night",
+       "session": "2000-0400",
+       "private": true
+      },
+      {
+       "id": "24h",
+       "description": "24h",
+       "session": "2000-2000",
+       "private": false
+      },
+      {
+       "id": "premarket",
+       "description": "Premarket",
+       "session": "0400-0930",
+       "private": true
+      },
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "0930-1600",
+       "private": false
+      },
+      {
+       "id": "postmarket",
+       "description": "Postmarket",
+       "session": "1600-2000",
+       "private": true
+      },
+      {
+       "id": "extended",
+       "description": "Extended Trading Hours",
+       "session": "0400-2000",
+       "private": false
+      }
+     ],
+     "subsession_id": "regular",
+     "timezone": "America/New_York",
+     "has_extended_hours": true,
+     "exchange": "Cboe One",
+     "listed_exchange": "NASDAQ",
+     "update_mode": "streaming"
+    },
+    "first": "2026-11-03 10:40",
+    "last": "2026-11-19 15:59",
+    "night_days": 0,
+    "night_first": null,
+    "night_bars": 0
+   },
+   "NASDAQ:TSLA|overnight|30": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "0930-1600",
+     "session_display": "0930-1600",
+     "subsessions": [
+      {
+       "id": "night",
+       "description": "Night",
+       "session": "2000-0400",
+       "private": true
+      },
+      {
+       "id": "24h",
+       "description": "24h",
+       "session": "2000-2000",
+       "private": false
+      },
+      {
+       "id": "premarket",
+       "description": "Premarket",
+       "session": "0400-0930",
+       "private": true
+      },
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "0930-1600",
+       "private": false
+      },
+      {
+       "id": "postmarket",
+       "description": "Postmarket",
+       "session": "1600-2000",
+       "private": true
+      },
+      {
+       "id": "extended",
+       "description": "Extended Trading Hours",
+       "session": "0400-2000",
+       "private": false
+      }
+     ],
+     "subsession_id": "regular",
+     "timezone": "America/New_York",
+     "has_extended_hours": true,
+     "exchange": "Cboe One",
+     "listed_exchange": "NASDAQ",
+     "update_mode": "streaming"
+    },
+    "first": "2025-05-09 09:30",
+    "last": "2026-11-19 15:30",
+    "night_days": 0,
+    "night_first": null,
+    "night_bars": 0
+   },
+   "BOATS:TSLA|regular|1": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "2000-0400",
+     "session_display": "2000-0400",
+     "subsessions": [
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "2000-0400",
+       "private": false
+      }
+     ],
+     "subsession_id": "regular",
+     "timezone": "America/New_York",
+     "has_extended_hours": false,
+     "exchange": "BOATS",
+     "listed_exchange": "BOATS",
+     "update_mode": "streaming"
+    },
+    "first": "2026-11-03 22:45",
+    "last": "2026-11-19 03:57",
+    "night_days": 12,
+    "night_first": "2026-11-04|night",
+    "night_bars": 5000
+   },
+   "BOATS:TSLA|regular|30": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "2000-0400",
+     "session_display": "2000-0400",
+     "subsessions": [
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "2000-0400",
+       "private": false
+      }
+     ],
+     "subsession_id": "regular",
+     "timezone": "America/New_York",
+     "has_extended_hours": false,
+     "exchange": "BOATS",
+     "listed_exchange": "BOATS",
+     "update_mode": "streaming"
+    },
+    "first": "2025-08-24 21:30",
+    "last": "2026-11-19 03:30",
+    "night_days": 313,
+    "night_first": "2025-08-25|night",
+    "night_bars": 5000
+   }
+  },
+  "NVDA": {
+   "NASDAQ:NVDA|extended|1": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "0400-2000",
+     "session_display": "0400-2000",
+     "subsessions": [
+      {
+       "id": "night",
+       "description": "Night",
+       "session": "2000-0400",
+       "private": true
+      },
+      {
+       "id": "24h",
+       "description": "24h",
+       "session": "2000-2000",
+       "private": false
+      },
+      {
+       "id": "premarket",
+       "description": "Premarket",
+       "session": "0400-0930",
+       "private": true
+      },
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "0930-1600",
+       "private": false
+      },
+      {
+       "id": "postmarket",
+       "description": "Postmarket",
+       "session": "1600-2000",
+       "private": true
+      },
+      {
+       "id": "extended",
+       "description": "Extended Trading Hours",
+       "session": "0400-2000",
+       "private": false
+      }
+     ],
+     "subsession_id": "extended",
+     "timezone": "America/New_York",
+     "has_extended_hours": true,
+     "exchange": "Cboe One",
+     "listed_exchange": "NASDAQ",
+     "update_mode": "streaming"
+    },
+    "first": "2026-11-12 12:53",
+    "last": "2026-11-19 16:12",
+    "night_days": 0,
+    "night_first": null,
+    "night_bars": 0
+   },
+   "NASDAQ:NVDA|extended|30": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "0400-2000",
+     "session_display": "0400-2000",
+     "subsessions": [
+      {
+       "id": "night",
+       "description": "Night",
+       "session": "2000-0400",
+       "private": true
+      },
+      {
+       "id": "24h",
+       "description": "24h",
+       "session": "2000-2000",
+       "private": false
+      },
+      {
+       "id": "premarket",
+       "description": "Premarket",
+       "session": "0400-0930",
+       "private": true
+      },
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "0930-1600",
+       "private": false
+      },
+      {
+       "id": "postmarket",
+       "description": "Postmarket",
+       "session": "1600-2000",
+       "private": true
+      },
+      {
+       "id": "extended",
+       "description": "Extended Trading Hours",
+       "session": "0400-2000",
+       "private": false
+      }
+     ],
+     "subsession_id": "extended",
+     "timezone": "America/New_York",
+     "has_extended_hours": true,
+     "exchange": "Cboe One",
+     "listed_exchange": "NASDAQ",
+     "update_mode": "streaming"
+    },
+    "first": "2026-04-09 12:30",
+    "last": "2026-11-19 16:00",
+    "night_days": 0,
+    "night_first": null,
+    "night_bars": 0
+   },
+   "NASDAQ:NVDA|overnight|1": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "0930-1600",
+     "session_display": "0930-1600",
+     "subsessions": [
+      {
+       "id": "night",
+       "description": "Night",
+       "session": "2000-0400",
+       "private": true
+      },
+      {
+       "id": "24h",
+       "description": "24h",
+       "session": "2000-2000",
+       "private": false
+      },
+      {
+       "id": "premarket",
+       "description": "Premarket",
+       "session": "0400-0930",
+       "private": true
+      },
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "0930-1600",
+       "private": false
+      },
+      {
+       "id": "postmarket",
+       "description": "Postmarket",
+       "session": "1600-2000",
+       "private": true
+      },
+      {
+       "id": "extended",
+       "description": "Extended Trading Hours",
+       "session": "0400-2000",
+       "private": false
+      }
+     ],
+     "subsession_id": "regular",
+     "timezone": "America/New_York",
+     "has_extended_hours": true,
+     "exchange": "Cboe One",
+     "listed_exchange": "NASDAQ",
+     "update_mode": "streaming"
+    },
+    "first": "2026-11-03 10:40",
+    "last": "2026-11-19 15:59",
+    "night_days": 0,
+    "night_first": null,
+    "night_bars": 0
+   },
+   "NASDAQ:NVDA|overnight|30": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "0930-1600",
+     "session_display": "0930-1600",
+     "subsessions": [
+      {
+       "id": "night",
+       "description": "Night",
+       "session": "2000-0400",
+       "private": true
+      },
+      {
+       "id": "24h",
+       "description": "24h",
+       "session": "2000-2000",
+       "private": false
+      },
+      {
+       "id": "premarket",
+       "description": "Premarket",
+       "session": "0400-0930",
+       "private": true
+      },
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "0930-1600",
+       "private": false
+      },
+      {
+       "id": "postmarket",
+       "description": "Postmarket",
+       "session": "1600-2000",
+       "private": true
+      },
+      {
+       "id": "extended",
+       "description": "Extended Trading Hours",
+       "session": "0400-2000",
+       "private": false
+      }
+     ],
+     "subsession_id": "regular",
+     "timezone": "America/New_York",
+     "has_extended_hours": true,
+     "exchange": "Cboe One",
+     "listed_exchange": "NASDAQ",
+     "update_mode": "streaming"
+    },
+    "first": "2025-05-09 09:30",
+    "last": "2026-11-19 15:30",
+    "night_days": 0,
+    "night_first": null,
+    "night_bars": 0
+   },
+   "BOATS:NVDA|regular|1": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "2000-0400",
+     "session_display": "2000-0400",
+     "subsessions": [
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "2000-0400",
+       "private": false
+      }
+     ],
+     "subsession_id": "regular",
+     "timezone": "America/New_York",
+     "has_extended_hours": false,
+     "exchange": "BOATS",
+     "listed_exchange": "BOATS",
+     "update_mode": "streaming"
+    },
+    "first": "2026-11-05 00:40",
+    "last": "2026-11-19 03:59",
+    "night_days": 11,
+    "night_first": "2026-11-05|night",
+    "night_bars": 5000
+   },
+   "BOATS:NVDA|regular|30": {
+    "status": "ok",
+    "n": 5000,
+    "info": {
+     "session": "2000-0400",
+     "session_display": "2000-0400",
+     "subsessions": [
+      {
+       "id": "regular",
+       "description": "Regular Trading Hours",
+       "session": "2000-0400",
+       "private": false
+      }
+     ],
+     "subsession_id": "regular",
+     "timezone": "America/New_York",
+     "has_extended_hours": false,
+     "exchange": "BOATS",
+     "listed_exchange": "BOATS",
+     "update_mode": "streaming"
+    },
+    "first": "2025-08-24 21:30",
+    "last": "2026-11-19 03:30",
+    "night_days": 313,
+    "night_first": "2025-08-25|night",
+    "night_bars": 5000
+   }
+  }
+ },
+ "yahoo": {
+  "SVRE": {
+   "status": "ok",
+   "n": 1783,
+   "sessions": {
+    "2026-11-13|after": {
+     "n": 32,
+     "first": "16:00",
+     "open": 0.4476,
+     "high": 0.62,
+     "high_at": "16:09",
+     "low": 0.4476,
+     "last": 0.4811,
+     "last_at": "19:43",
+     "vol": 60254.0,
+     "usd": 26969.6904
+    },
+    "2026-11-13|pre": {
+     "n": 2,
+     "first": "04:28",
+     "open": 0.6275,
+     "high": 0.6275,
+     "high_at": "04:28",
+     "low": 0.578,
+     "last": 0.578,
+     "last_at": "07:16",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-13|reg": {
+     "n": 29,
+     "first": "09:33",
+     "open": 0.6152999997138977,
+     "high": 0.6152999997138977,
+     "high_at": "09:33",
+     "low": 0.4505000114440918,
+     "last": 0.4521999955177307,
+     "last_at": "15:59",
+     "vol": 59424.0,
+     "usd": 31209.313546597958
+    },
+    "2026-11-16|after": {
+     "n": 6,
+     "first": "16:00",
+     "open": 0.4315,
+     "high": 0.52,
+     "high_at": "17:57",
+     "low": 0.4006,
+     "last": 0.433,
+     "last_at": "17:58",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-16|pre": {
+     "n": 1,
+     "first": "09:29",
+     "open": 0.473,
+     "high": 0.473,
+     "high_at": "09:29",
+     "low": 0.473,
+     "last": 0.473,
+     "last_at": "09:29",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-16|reg": {
+     "n": 67,
+     "first": "09:30",
+     "open": 0.44999998807907104,
+     "high": 0.5598999857902527,
+     "high_at": "10:14",
+     "low": 0.40059998631477356,
+     "last": 0.4311000108718872,
+     "last_at": "15:59",
+     "vol": 173436.0,
+     "usd": 81879.98281183839
+    },
+    "2026-11-17|after": {
+     "n": 3,
+     "first": "16:00",
+     "open": 0.4098,
+     "high": 0.4689,
+     "high_at": "18:57",
+     "low": 0.4098,
+     "last": 0.4201,
+     "last_at": "19:44",
+     "vol": 57035233.0,
+     "usd": 23373038.4834
+    },
+    "2026-11-17|pre": {
+     "n": 3,
+     "first": "07:23",
+     "open": 0.42,
+     "high": 0.42,
+     "high_at": "07:23",
+     "low": 0.42,
+     "last": 0.42,
+     "last_at": "08:32",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-17|reg": {
+     "n": 40,
+     "first": "09:38",
+     "open": 0.4300000071525574,
+     "high": 0.4790000021457672,
+     "high_at": "11:07",
+     "low": 0.3799999952316284,
+     "last": 0.3971000015735626,
+     "last_at": "15:50",
+     "vol": 56097.0,
+     "usd": 22704.05756750703
+    },
+    "2026-11-18|after": {
+     "n": 237,
+     "first": "16:00",
+     "open": 0.8647,
+     "high": 0.9553,
+     "high_at": "18:02",
+     "low": 0.807,
+     "last": 0.85,
+     "last_at": "19:59",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-18|pre": {
+     "n": 330,
+     "first": "04:00",
+     "open": 0.55,
+     "high": 2.9483,
+     "high_at": "04:45",
+     "low": 0.432,
+     "last": 0.8165,
+     "last_at": "09:29",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-18|reg": {
+     "n": 382,
+     "first": "09:30",
+     "open": 0.8166000247001648,
+     "high": 1.149999976158142,
+     "high_at": "09:54",
+     "low": 0.6800000071525574,
+     "last": 0.8647000193595886,
+     "last_at": "15:59",
+     "vol": 158190543.0,
+     "usd": 132387395.61223572
+    },
+    "2026-11-19|after": {
+     "n": 13,
+     "first": "16:00",
+     "open": 1.11,
+     "high": 1.28,
+     "high_at": "16:03",
+     "low": 1.11,
+     "last": 1.18,
+     "last_at": "16:12",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-19|pre": {
+     "n": 271,
+     "first": "04:00",
+     "open": 0.7688,
+     "high": 0.96,
+     "high_at": "04:32",
+     "low": 0.7409,
+     "last": 0.8686,
+     "last_at": "09:29",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-19|reg": {
+     "n": 367,
+     "first": "09:30",
+     "open": 0.875,
+     "high": 1.1299999952316284,
+     "high_at": "14:49",
+     "low": 0.7839999794960022,
+     "last": 1.1150000095367432,
+     "last_at": "15:59",
+     "vol": 8186596.0,
+     "usd": 7678259.280267537
+    }
+   }
+  },
+  "INHD": {
+   "status": "ok",
+   "n": 1068,
+   "sessions": {
+    "2026-11-13|after": {
+     "n": 1,
+     "first": "16:00",
+     "open": 2.65,
+     "high": 2.65,
+     "high_at": "16:00",
+     "low": 2.65,
+     "last": 2.65,
+     "last_at": "16:00",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-13|reg": {
+     "n": 17,
+     "first": "09:46",
+     "open": 2.619999885559082,
+     "high": 2.859999895095825,
+     "high_at": "12:06",
+     "low": 2.5,
+     "last": 2.819999933242798,
+     "last_at": "15:22",
+     "vol": 9300.0,
+     "usd": 25358.56514120102
+    },
+    "2026-11-16|after": {
+     "n": 2,
+     "first": "16:00",
+     "open": 2.4,
+     "high": 2.44,
+     "high_at": "16:30",
+     "low": 2.4,
+     "last": 2.44,
+     "last_at": "16:30",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-16|pre": {
+     "n": 1,
+     "first": "04:27",
+     "open": 2.51,
+     "high": 2.51,
+     "high_at": "04:27",
+     "low": 2.51,
+     "last": 2.51,
+     "last_at": "04:27",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-16|reg": {
+     "n": 29,
+     "first": "09:42",
+     "open": 2.549999952316284,
+     "high": 2.7499001026153564,
+     "high_at": "09:45",
+     "low": 2.380000114440918,
+     "last": 2.4800000190734863,
+     "last_at": "15:59",
+     "vol": 43156.0,
+     "usd": 108415.52110242844
+    },
+    "2026-11-17|after": {
+     "n": 1,
+     "first": "16:00",
+     "open": 2.35,
+     "high": 2.35,
+     "high_at": "16:00",
+     "low": 2.35,
+     "last": 2.35,
+     "last_at": "16:00",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-17|pre": {
+     "n": 4,
+     "first": "05:25",
+     "open": 2.21,
+     "high": 2.68,
+     "high_at": "09:28",
+     "low": 2.21,
+     "last": 2.68,
+     "last_at": "09:28",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-17|reg": {
+     "n": 39,
+     "first": "09:30",
+     "open": 2.7149999141693115,
+     "high": 2.75,
+     "high_at": "09:33",
+     "low": 2.319999933242798,
+     "last": 2.3499999046325684,
+     "last_at": "15:58",
+     "vol": 32400.0,
+     "usd": 82428.92440128326
+    },
+    "2026-11-18|after": {
+     "n": 229,
+     "first": "16:00",
+     "open": 2.27,
+     "high": 4.08,
+     "high_at": "17:13",
+     "low": 2.27,
+     "last": 4.0302,
+     "last_at": "19:59",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-18|reg": {
+     "n": 20,
+     "first": "09:33",
+     "open": 2.3550000190734863,
+     "high": 2.384999990463257,
+     "high_at": "09:41",
+     "low": 2.140000104904175,
+     "last": 2.359999895095825,
+     "last_at": "15:48",
+     "vol": 17015.0,
+     "usd": 39279.12714982033
+    },
+    "2026-11-19|after": {
+     "n": 12,
+     "first": "16:00",
+     "open": 2.83,
+     "high": 3.09,
+     "high_at": "16:10",
+     "low": 2.82,
+     "last": 2.95,
+     "last_at": "16:12",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-19|pre": {
+     "n": 330,
+     "first": "04:00",
+     "open": 4.39,
+     "high": 4.74,
+     "high_at": "04:01",
+     "low": 2.9,
+     "last": 3.14,
+     "last_at": "09:29",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-19|reg": {
+     "n": 383,
+     "first": "09:30",
+     "open": 3.1600000858306885,
+     "high": 3.4600000381469727,
+     "high_at": "09:59",
+     "low": 2.759999990463257,
+     "last": 2.859999895095825,
+     "last_at": "15:59",
+     "vol": 24542647.0,
+     "usd": 76512236.58865952
+    }
+   }
+  },
+  "LGHL": {
+   "status": "ok",
+   "n": 1447,
+   "sessions": {
+    "2026-11-13|after": {
+     "n": 1,
+     "first": "16:00",
+     "open": 1.44,
+     "high": 1.44,
+     "high_at": "16:00",
+     "low": 1.44,
+     "last": 1.44,
+     "last_at": "16:00",
+     "vol": 10034871.0,
+     "usd": 14450214.24
+    },
+    "2026-11-13|pre": {
+     "n": 1,
+     "first": "09:29",
+     "open": 1.55,
+     "high": 1.55,
+     "high_at": "09:29",
+     "low": 1.55,
+     "last": 1.55,
+     "last_at": "09:29",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-13|reg": {
+     "n": 12,
+     "first": "09:30",
+     "open": 1.590000033378601,
+     "high": 1.590000033378601,
+     "high_at": "09:30",
+     "low": 1.3899999856948853,
+     "last": 1.4499000310897827,
+     "last_at": "15:59",
+     "vol": 9816.0,
+     "usd": 14566.554111599922
+    },
+    "2026-11-16|after": {
+     "n": 27,
+     "first": "16:00",
+     "open": 1.6,
+     "high": 1.61,
+     "high_at": "19:28",
+     "low": 1.42,
+     "last": 1.61,
+     "last_at": "19:28",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-16|pre": {
+     "n": 206,
+     "first": "06:00",
+     "open": 1.57,
+     "high": 3.22,
+     "high_at": "06:16",
+     "low": 1.2701,
+     "last": 1.35,
+     "last_at": "09:29",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-16|reg": {
+     "n": 312,
+     "first": "09:30",
+     "open": 1.3600000143051147,
+     "high": 1.649999976158142,
+     "high_at": "14:25",
+     "low": 1.2702000141143799,
+     "last": 1.5638999938964844,
+     "last_at": "15:59",
+     "vol": 11407022.0,
+     "usd": 15908162.848994613
+    },
+    "2026-11-17|after": {
+     "n": 12,
+     "first": "16:00",
+     "open": 1.08,
+     "high": 1.1,
+     "high_at": "19:12",
+     "low": 1.03,
+     "last": 1.0703,
+     "last_at": "19:59",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-17|pre": {
+     "n": 27,
+     "first": "04:01",
+     "open": 1.5,
+     "high": 1.5699,
+     "high_at": "07:22",
+     "low": 1.3,
+     "last": 1.32,
+     "last_at": "09:29",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-17|reg": {
+     "n": 106,
+     "first": "09:30",
+     "open": 1.2799999713897705,
+     "high": 1.440000057220459,
+     "high_at": "09:30",
+     "low": 0.9599999785423279,
+     "last": 1.0700000524520874,
+     "last_at": "15:59",
+     "vol": 285932.0,
+     "usd": 349002.2952798009
+    },
+    "2026-11-18|after": {
+     "n": 5,
+     "first": "16:00",
+     "open": 0.8601,
+     "high": 0.9109,
+     "high_at": "19:02",
+     "low": 0.8601,
+     "last": 0.9109,
+     "last_at": "19:02",
+     "vol": 22790068.0,
+     "usd": 19601737.4868
+    },
+    "2026-11-18|pre": {
+     "n": 9,
+     "first": "04:00",
+     "open": 1.06,
+     "high": 1.1,
+     "high_at": "04:00",
+     "low": 0.9681,
+     "last": 0.9681,
+     "last_at": "09:03",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-18|reg": {
+     "n": 67,
+     "first": "09:30",
+     "open": 0.9603999853134155,
+     "high": 1.0099999904632568,
+     "high_at": "14:58",
+     "low": 0.800000011920929,
+     "last": 0.9203000068664551,
+     "last_at": "15:59",
+     "vol": 128484.0,
+     "usd": 117942.26786577702
+    },
+    "2026-11-19|after": {
+     "n": 9,
+     "first": "16:00",
+     "open": 0.81,
+     "high": 0.8195,
+     "high_at": "16:01",
+     "low": 0.77,
+     "last": 0.77,
+     "last_at": "16:10",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-19|pre": {
+     "n": 318,
+     "first": "04:00",
+     "open": 1.09,
+     "high": 2.28,
+     "high_at": "04:04",
+     "low": 0.9033,
+     "last": 1.07,
+     "last_at": "09:29",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-19|reg": {
+     "n": 335,
+     "first": "09:30",
+     "open": 1.0618000030517578,
+     "high": 1.2200000286102295,
+     "high_at": "09:32",
+     "low": 0.6200000047683716,
+     "last": 0.7983999848365784,
+     "last_at": "15:59",
+     "vol": 29171917.0,
+     "usd": 29702625.922284722
+    }
+   }
+  },
+  "BRTX": {
+   "status": "ok",
+   "n": 70,
+   "sessions": {
+    "2026-11-13|after": {
+     "n": 1,
+     "first": "16:00",
+     "open": 1.49,
+     "high": 1.49,
+     "high_at": "16:00",
+     "low": 1.49,
+     "last": 1.49,
+     "last_at": "16:00",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-13|reg": {
+     "n": 16,
+     "first": "09:30",
+     "open": 1.559999942779541,
+     "high": 1.559999942779541,
+     "high_at": "09:30",
+     "low": 1.4510999917984009,
+     "last": 1.4700000286102295,
+     "last_at": "15:59",
+     "vol": 7679.0,
+     "usd": 11411.954820513725
+    },
+    "2026-11-16|after": {
+     "n": 1,
+     "first": "16:00",
+     "open": 1.42,
+     "high": 1.42,
+     "high_at": "16:00",
+     "low": 1.42,
+     "last": 1.42,
+     "last_at": "16:00",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-16|pre": {
+     "n": 1,
+     "first": "06:49",
+     "open": 1.4529,
+     "high": 1.4529,
+     "high_at": "06:49",
+     "low": 1.4529,
+     "last": 1.4529,
+     "last_at": "06:49",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-16|reg": {
+     "n": 11,
+     "first": "10:14",
+     "open": 1.5293999910354614,
+     "high": 1.5293999910354614,
+     "high_at": "10:14",
+     "low": 1.3700000047683716,
+     "last": 1.4149999618530273,
+     "last_at": "15:46",
+     "vol": 12011.0,
+     "usd": 17242.973237395287
+    },
+    "2026-11-17|after": {
+     "n": 5,
+     "first": "16:00",
+     "open": 1.34,
+     "high": 1.41,
+     "high_at": "19:47",
+     "low": 1.34,
+     "last": 1.41,
+     "last_at": "19:47",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-17|pre": {
+     "n": 1,
+     "first": "04:00",
+     "open": 1.42,
+     "high": 1.42,
+     "high_at": "04:00",
+     "low": 1.42,
+     "last": 1.42,
+     "last_at": "04:00",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-17|reg": {
+     "n": 7,
+     "first": "09:37",
+     "open": 1.3899999856948853,
+     "high": 1.3899999856948853,
+     "high_at": "09:37",
+     "low": 1.3393000364303589,
+     "last": 1.3600000143051147,
+     "last_at": "15:58",
+     "vol": 8846.0,
+     "usd": 11970.650130152702
+    },
+    "2026-11-18|after": {
+     "n": 1,
+     "first": "16:00",
+     "open": 1.325,
+     "high": 1.325,
+     "high_at": "16:00",
+     "low": 1.325,
+     "last": 1.325,
+     "last_at": "16:00",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-18|pre": {
+     "n": 1,
+     "first": "05:31",
+     "open": 1.3407,
+     "high": 1.3407,
+     "high_at": "05:31",
+     "low": 1.3407,
+     "last": 1.3407,
+     "last_at": "05:31",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-18|reg": {
+     "n": 13,
+     "first": "09:30",
+     "open": 1.350000023841858,
+     "high": 1.3799999952316284,
+     "high_at": "09:30",
+     "low": 1.3250000476837158,
+     "last": 1.3250000476837158,
+     "last_at": "15:59",
+     "vol": 22313.0,
+     "usd": 30164.469561576843
+    },
+    "2026-11-19|pre": {
+     "n": 1,
+     "first": "04:23",
+     "open": 1.35,
+     "high": 1.35,
+     "high_at": "04:23",
+     "low": 1.35,
+     "last": 1.35,
+     "last_at": "04:23",
+     "vol": 0.0,
+     "usd": 0.0
+    },
+    "2026-11-19|reg": {
+     "n": 11,
+     "first": "10:07",
+     "open": 1.3799999952316284,
+     "high": 1.3799999952316284,
+     "high_at": "10:07",
+     "low": 1.2799999713897705,
+     "last": 1.2999999523162842,
+     "last_at": "15:37",
+     "vol": 8784.0,
+     "usd": 11536.631088137627
+    }
+   }
+  }
+ }
+}
