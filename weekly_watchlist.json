@@ -867,7 +867,7 @@
    "hit": "t1",
    "hit_date": "2026-11-17",
    "max_gain_pct": 13.0,
-   "last_price": 0.52,
+   "last_price": 0.528,
    "borrow_hist": [
     [
      "2026-11-17",
@@ -900,7 +900,7 @@
     "close": 0.5024
    },
    "live_alert": {
-    "breakout": "2026-11-17",
+    "breakout": "2026-11-19",
     "buyzone": "2026-11-18"
    },
    "price_state": "VALID",
@@ -1757,7 +1757,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.62,
+   "last_price": 1.5704,
    "borrow_hist": [
     [
      "2026-11-19",
@@ -1781,7 +1781,9 @@
     "high": 1.775,
     "close": 1.54
    },
-   "live_alert": {}
+   "live_alert": {
+    "buyzone": "2026-11-19"
+   }
   },
   {
    "symbol": "KELYB",
@@ -2643,7 +2645,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 1.2,
-   "last_price": 3.25,
+   "last_price": 3.255,
    "borrow_hist": [
     [
      "2026-11-18",
@@ -3058,7 +3060,7 @@
    "hit": "t2",
    "hit_date": "2026-11-10",
    "max_gain_pct": 52.2,
-   "last_price": 0.7242,
+   "last_price": 0.6387,
    "borrow_hist": [
     [
      "2026-11-10",
@@ -3963,7 +3965,7 @@
    "hit": "t1",
    "hit_date": "2026-11-12",
    "max_gain_pct": 42.7,
-   "last_price": 2.08,
+   "last_price": 2.1,
    "live_alert": {},
    "price_state": "VALID",
    "price_bar": "2026-11-18",
@@ -4341,7 +4343,7 @@
    "hit": "t2",
    "hit_date": "2026-08-21",
    "max_gain_pct": 399.1,
-   "last_price": 3.61,
+   "last_price": 3.59,
    "live_alert": {
     "buyzone": "2026-08-17",
     "sweep": "2026-08-17",
@@ -5229,7 +5231,7 @@
    "hit": "t2",
    "hit_date": "2026-11-03",
    "max_gain_pct": 37.3,
-   "last_price": 4.6999,
+   "last_price": 4.27,
    "faisal_levels": "🧭 إغلاقات الهابطة $4.71 · $4.88 · $5.10 · جسم قبل الهبوط $6.19 · اختبار المقاومة $4.34 إلى $4.71",
    "live_alert": {
     "breakout": "2026-11-02",
@@ -5708,7 +5710,7 @@
    "hit": "t2",
    "hit_date": "2026-10-29",
    "max_gain_pct": 38.8,
-   "last_price": 11.87,
+   "last_price": 10.21,
    "borrow_hist": [
     [
      "2026-10-28",
