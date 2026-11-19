@@ -1,0 +1,30 @@
+name: "🔬🔢 النهج العلمي — عدُّ المستوى المخفّف (وصفٌ فقط)"
+
+# أمرُ المالك 2026-11-19 (البند ②): عدٌّ وأسماء لمن استوفى الشروطَ الستّة عدا تجاوزِ مستوى الدخول بهامشٍ صغير، لآخر 20 جلسة ·
+# قراءةٌ فقط · لا تلغرام · لا حالة · لا عائدَ ولا نتيجة · يدويٌّ حصرًا.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+
+jobs:
+  count:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 🔢 العدّ
+        env:
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          BARS_SOURCE: tradingview
+          PYTHONUNBUFFERED: "1"
+        run: python method_relaxed_count.py

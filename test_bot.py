@@ -73534,7 +73534,8 @@ check("📺 TVB8 فاشلٌ-آمن كلّيًّا: `tv_download` يرمي ⟵ ي
 try:
     _want9 = {"daily_screener.yml", "pullback_monitor.yml", "hand_digest.yml", "analyze.yml", "hand_check.yml",
               "split_hunter.yml", "split_filter.yml", "method_hunter.yml", "envelope_hunter.yml", "press_radar.yml",
-              "shadow_telegram.yml", "app_compare.yml", "tgtladder.yml"}
+              "shadow_telegram.yml", "app_compare.yml", "tgtladder.yml",
+              "method_relaxed.yml"}      # 🔬🔢 2026-11-19: عدُّ المخفّف يقرأ مصدرَ صيّاد النهج نفسَه (قراءةٌ فقط)
     _got9 = set()
     for _fn9 in sorted(_tvb_os.listdir(".github/workflows")):
         if not _fn9.endswith((".yml", ".yaml")):
@@ -105126,6 +105127,31 @@ try:
 except Exception as _e:                                          # noqa: BLE001
     check("📣 أقفالُ قناة المشتركين انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
+
+# 🔬🔢 MRC1-MRC2 — عدُّ «المخفّف» لصيّاد النهج العلمي (أمرُ المالك 2026-11-19 ②): وصفٌ فقط · لا تلغرام · لا حالة · والهامشُ موجبٌ حصرًا.
+try:
+    import ast as _mrc_ast
+    import method_relaxed_count as _MRC
+    import numpy as _mrc_np
+    import pandas as _mrc_pd
+    check("🔬🔢 MRC1: `bucket` — التجاوزُ الموجبُ وحدَه يدخل هوامشَه (0.4 ⟵ الأربعة · 1.0 ⟵ من 1 · 2.5 ⟵ 3 وحدَه · 3.01 وصفر وسالبٌ وتالفٌ ⟵ لا شيء)",
+          _MRC.bucket(0.4) == [0.5, 1.0, 2.0, 3.0] and _MRC.bucket(1.0) == [1.0, 2.0, 3.0] and _MRC.bucket(2.5) == [3.0]
+          and _MRC.bucket(3.01) == [] and _MRC.bucket(0) == [] and _MRC.bucket(-0.2) == [] and _MRC.bucket(None) == []
+          and _MRC.bucket(float("nan")) == [] and _MRC.MARGINS == (0.5, 1.0, 2.0, 3.0) and _MRC.SESSIONS == 20,
+          f"{_MRC.bucket(0.4)} {_MRC.bucket(2.5)}")
+    _mrc_ix = _mrc_pd.date_range("2026-11-02", periods=5, freq="B")
+    _mrc_df = _mrc_pd.DataFrame({"Close": _mrc_np.arange(5.0)}, index=_mrc_ix)
+    _mrc_tree = _mrc_ast.parse(open("method_relaxed_count.py", encoding="utf-8").read())
+    _mrc_calls = {getattr(c.func, "attr", getattr(c.func, "id", "")) for c in _mrc_ast.walk(_mrc_tree) if isinstance(c, _mrc_ast.Call)}
+    _mrc_wf = open(".github/workflows/method_relaxed.yml", encoding="utf-8").read()
+    check("🔬🔢 MRC2: القصُّ عند الجلسة بلا نظرٍ للمستقبل · والأداةُ بلا تلغرام ولا حفظ حالة · ويعيد دوالَّ الصيّاد بالاسم · والـworkflow يدويٌّ قارئٌ بلا سرّ تلغرام",
+          list(_MRC.cut(_mrc_df, _mrc_ix[2].date())["Close"]) == [0.0, 1.0, 2.0]
+          and not (_mrc_calls & {"send_telegram", "git_save", "send_owner_document", "subs_mirror", "open"})
+          and {"method_founding", "method_sequence", "falling_gap_candle", "_known_borrow"} <= _mrc_calls
+          and "schedule" not in _mrc_wf and "TELEGRAM" not in _mrc_wf and "contents: read" in _mrc_wf,
+          f"calls={sorted(_mrc_calls & {'send_telegram', 'git_save', 'open'})}")
+except Exception as _e:                                          # noqa: BLE001
+    check("🔬🔢 أقفالُ عدّ المخفّف انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
