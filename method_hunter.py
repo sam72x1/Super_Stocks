@@ -216,6 +216,17 @@ def run(now_utc=None) -> int:
             pass
         S.log("🟡 مخفّف: " + " · ".join(f"{r.get('symbol')} +{float(r.get('relaxed_over') or 0):.2f}%" for r in rel))
     _rel_block = ("\n\n" + S._rtl_join(S.method_relaxed_lines(rel))) if rel else ""
+    # 🏷️ «بلا هدف فجوة» (أمرُ المالك 2026-11-19 · `METHOD_NOGAP=0` ⟵ القائمةُ فارغة): قسمٌ منفصل واسمٌ مستقلّ في السجلّ الأماميّ.
+    nog = list(getattr(S, "_METHOD_NOGAP", []) or [])
+    if nog:
+        try:
+            LEDGER.record("method_nogap", sess, nog, log=S.log,
+                          ref_of=lambda _s: float(hist[_s]["Close"].iloc[-1]),
+                          src_of=lambda _s: LEDGER.frame_src(hist.get(_s)))
+        except Exception:                                        # noqa: BLE001
+            pass
+        S.log("🏷️ بلا هدف فجوة: " + " · ".join(str(r.get("symbol")) for r in nog))
+        _rel_block += "\n\n" + S._rtl_join(S.method_nogap_lines(nog))
     # 🎁 **إثراء الكماليّات الحيّة** (طلب المالك 2026-08-01: «نفس اللي أضفناها في
     #    أداة التقسيم»): تدفّق السيولة · شمعة 4س · اختبار القاع.
     #    🔒 **بعد `scan_method_hunter`** ⇒ يستحيل بنيويًّا أن يُدخل مرشّحًا أو يُخرجه

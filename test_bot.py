@@ -19344,10 +19344,14 @@ check("⚓ SEQ🔒 أرقام فيصل حرفيًّا: قاع 3.10 ⟹ دخول 
 #    كودٍ سليم. ⇒ بالـAST على **جسم الشرط** كما في قفل قطبيّة الطرح.
 def _gate_rejects(fn, key):
     import ast as _a, textwrap as _t
+    _hits = []
     for n in _a.walk(_a.parse(_t.dedent(_insp0.getsource(fn)))):
         if isinstance(n, _a.If) and key in _a.unparse(n.test):
-            return any(isinstance(x, _a.Continue) for x in _a.walk(n))
-    return False
+            _hits.append(n)
+    # 🏷️ 2026-11-19: الشرطُ يرد في الحلقة (رفضُه `continue`) وفي `_tail` للمخفّف وبلا-فجوة (رفضُه `return None`) ⟵ **كلُّ** ورودٍ
+    #    يجب أن يرفض، وواحدٌ على الأقلّ بـ`continue` (مسارُ المطابق الكامل) — تشديدٌ لا إرخاء.
+    return (bool(_hits) and any(any(isinstance(x, _a.Continue) for x in _a.walk(n)) for n in _hits)
+            and all(any(isinstance(x, (_a.Continue, _a.Return)) for x in _a.walk(n)) for n in _hits))
 
 
 check("🕵️ SEQ🔒 سقف الشورت 20 ألفًا **شرطٌ يرفض** (لا سياقًا يُعرَض)",
@@ -19373,11 +19377,15 @@ check("🪜 SEQ🔒 و`trigger_state` **لم تُمَسّ** (تبقى لقراء
 #    `continue` — والشرط الحقيقيّ أن **جسم الشرط يحوي رفضًا**، لا شكلَ السطر.
 def _offering_rejects(fn):
     import ast as _a, textwrap as _t
+    _hits = []
     for n in _a.walk(_a.parse(_t.dedent(_insp0.getsource(fn)))):
         if (isinstance(n, _a.If) and isinstance(n.test, _a.Call)
                 and isinstance(n.test.func, _a.Name) and n.test.func.id == "fo"):
-            return any(isinstance(x, _a.Continue) for x in _a.walk(n))
-    return False
+            _hits.append(n)
+    # 🏷️ 2026-11-19: الشرطُ يرد في الحلقة (رفضُه `continue`) وفي `_tail` للمخفّف وبلا-فجوة (رفضُه `return None`) ⟵ **كلُّ** ورودٍ
+    #    يجب أن يرفض، وواحدٌ على الأقلّ بـ`continue` (مسارُ المطابق الكامل) — تشديدٌ لا إرخاء.
+    return (bool(_hits) and any(any(isinstance(x, _a.Continue) for x in _a.walk(n)) for n in _hits)
+            and all(any(isinstance(x, (_a.Continue, _a.Return)) for x in _a.walk(n)) for n in _hits))
 
 
 check("🔬 NH🔒 الطرح **مانعٌ** هنا (يرفض) وهو **حدثٌ مؤسِّس** عند المقسّم — قطبيّةٌ معكوسة",
@@ -23308,7 +23316,7 @@ for _f in ("split_hunter.py", "method_hunter.py", "split_filter_hunter.py",
     # 🟡 2026-11-19 (أمرُ المالك «هامش 1%»): `method_hunter.py` صار نداءين — المطابقُ الكامل وسجلُّ المخفّف `method_relaxed` — وكلاهما
     #    داخل `try` ومُهمَلُ القيمة (العددُ يُعَدّ بالاسم فلا يمرّ نداءٌ ثالث).
     check(f"🌱 H1🔒 {_f}: نداءُ التسجيل **داخل `try` ومُهمَلُ القيمة** (لا يمسّ القرار)",
-          _lg_hook_safe(_f) == (2 if _f == "method_hunter.py" else 1))
+          _lg_hook_safe(_f) == (3 if _f == "method_hunter.py" else 1))   # + `method_nogap` (2026-11-19)
 
 check("🌱 H1🔒 وصيّادُ المقسّم **لم يُحذف منه سطر** (إضافةٌ محضة)",
       (lambda src: "scan_split_hunter" in src and "session_gate" in src
@@ -105190,7 +105198,7 @@ _mrx_b = _mrx_scan({"TEST": _mrx_df(3.25)})
 _mrx_c = _mrx_scan({"TEST": _mrx_df(3.16)})
 check("🟡 MRX1: تجاوزُ الدخول بنصف بالمئة ⟵ مخفّفٌ لا مطابقٌ كامل (ويبقى في القريبين بسببه) · وبـ1.6% ⟵ لا مخفّف · وداخل المنطقة ⟵ مطابقٌ كامل ولا مخفّف · والهامشُ 1",
       _mrx_a[0] == [] and [r["symbol"] for r in _mrx_a[1]] == ["TEST"]
-      and 0.4 < _mrx_a[1][0]["relaxed_over"] < 0.6 and abs(_mrx_a[1][0]["t1"] - 5.0) < 1e-6
+      and 0.4 < _mrx_a[1][0]["relaxed_over"] < 0.6 and abs((_mrx_a[1][0].get("t1") or 0) - 5.0) < 1e-6
       and len(_mrx_a[2]) == 1 and "تجاوز منطقة الدخول" in _mrx_a[2][0][1]
       and _mrx_b[0] == [] and _mrx_b[1] == [] and len(_mrx_b[2]) == 1
       and _mrx_c[0] == ["TEST"] and _mrx_c[1] == []
@@ -105236,7 +105244,7 @@ try:
                 if ln.startswith("|") and "METHOD_RELAX_OVER_PCT" in ln]
     _mrx4 = ("مخفّف: تجاوز الدخول بـ0.49%" in _mrx_lines and "ليس مطابقًا كاملًا" in _mrx_lines
              and S.method_relaxed_lines([]) == [] and S.method_relaxed_lines(None) == []
-             and _mrx_names == ["method", "method_relaxed"]
+             and _mrx_names == ["method", "method_nogap", "method_relaxed"]
              and len(_mrx_relrec) == 1 and getattr(_mrx_relrec[0].args[2], "id", None) == "rel"
              and len(_mrx_msgs) == 2 and all("_rel_block" in _mrx_ast.unparse(m.value) for m in _mrx_msgs)
              and len(_mrx_led) == 1 and "`engineering`" in _mrx_led[0])
@@ -105268,6 +105276,84 @@ except Exception as _e:                                          # noqa: BLE001
     _mrc3_ok, _mrc3_d = False, f"⛔ {type(_e).__name__}: {_e}"
 check("🏷️ MRC3: عدُّ «بلا هدف فجوة» — داخل المنطقة بلا فجوة ⟵ يُعَدّ موسومًا وتُكمَل شروطُ القروب والطرح والمتاح بعده · وداخل المنطقة بفجوة ⟵ ليس من العدّ (شأنُ المطابق الكامل)",
       _mrc3_ok, _mrc3_d[:140])
+_ = S.scan_method_hunter({}, today=None)          # تنظيفُ الحالة العامّة
+
+
+# 🏷️ MNG1-MNG4 — وسمُ «بلا هدف فجوة» في صيّاد «النهج العلمي» (أمرُ المالك 2026-11-19): غيابُ الفجوة وسمٌ في قسمٍ منفصل لا رفض ·
+#    والمطابقُ الكامل بشرطه الأصليّ والقريبون بت-بت · `METHOD_NOGAP=0` ⟵ صفرُ عمل.
+def _mng_scan(hist, on=True, nogap=True, pump=None, off=None, bor=None, calls=None):
+    _o, _g0 = S.CONFIG.get("METHOD_NOGAP"), S.falling_gap_candle
+    try:
+        S.CONFIG["METHOD_NOGAP"] = on
+        if nogap:
+            S.falling_gap_candle = lambda df, price=None: (None if float(df["Close"].values[-1]) < 3.17 or nogap == "all" else _g0(df, price=price))
+        def _off(sym, today=None):
+            if calls is not None:
+                calls.append(sym)
+            return bool(off and off(sym))
+        _rows = S.scan_method_hunter(
+            hist, today=list(hist.values())[0].index[-1].date(),
+            fetch_pump=pump or (lambda d: False), fetch_offering=_off,
+            fetch_borrow=bor or (lambda s: {"shares_available": 7_000, "borrow_fee": 120.0}),
+            fetch_splits=lambda s: None)
+        return ([r["symbol"] for r in _rows], [dict(r) for r in S._METHOD_NOGAP],
+                [(n["symbol"], n["why"]) for n in S._METHOD_NEAR], dict(S._METHOD_STAGE),
+                [r["symbol"] for r in S._METHOD_RELAXED])
+    except Exception as _e:                                      # noqa: BLE001
+        return ([f"⛔ {type(_e).__name__}"], [], [], {}, [])
+    finally:
+        S.CONFIG["METHOD_NOGAP"], S.falling_gap_candle = _o, _g0
+
+
+_mng_a = _mng_scan({"TEST": _mrx_df(3.16)})
+_mng_full = _mng_scan({"TEST": _mrx_df(3.16)}, nogap=False)
+_mng_over = _mng_scan({"TEST": _mrx_df(3.215)}, nogap="all")
+check("🏷️ MNG1: داخل المنطقة بلا فجوة ⟵ «بلا هدف فجوة» لا مطابقٌ كامل (وسببُه في القريبين كما كان) · وبفجوةٍ ⟵ مطابقٌ كامل ولا وسم · ومَن تجاوز الدخولَ بلا فجوة ⟵ لا هذا ولا المخفّف",
+      _mng_a[0] == [] and [r["symbol"] for r in _mng_a[1]] == ["TEST"] and _mng_a[1][0]["t1"] is None
+      and _mng_a[1][0]["nogap"] is True and _mng_a[1][0]["over_pct"] <= 0
+      and len(_mng_a[2]) == 1 and "لا فجوةَ هابطة" in _mng_a[2][0][1]
+      and _mng_full[0] == ["TEST"] and _mng_full[1] == []
+      and _mng_over[0] == [] and _mng_over[1] == [] and _mng_over[4] == []
+      and S.CONFIG["METHOD_NOGAP"] is True,
+      str((_mng_a[0], _mng_a[1][:1], _mng_full[:2], _mng_over[:2]))[:160])
+_mng_h = {"NG": _mrx_df(3.16), "FULL": _mrx_df(3.18), "REL": _mrx_df(3.215)}
+_mng_calls = []
+_mng_on = _mng_scan(_mng_h, on=True, calls=_mng_calls)
+_mng_off = _mng_scan(_mng_h, on=False)
+check("🏷️ MNG2: المفتاحُ مطفأً ⟵ لا وسم · والمطابقُ الكامل والقريبون وعدّاداتُ المراحل والمخفّف متطابقةٌ بين الوضعين · وفحصُ الطرح: الكامل ثمّ المخفّف ثمّ بلا فجوة",
+      _mng_off[1] == [] and [r["symbol"] for r in _mng_on[1]] == ["NG"]
+      and _mng_on[0] == _mng_off[0] == ["FULL"] and _mng_on[2] == _mng_off[2] and len(_mng_on[2]) == 2
+      and _mng_on[3] == _mng_off[3] and _mng_on[4] == _mng_off[4] == ["REL"]
+      and _mng_calls == ["FULL", "REL", "NG"],
+      str((_mng_on[0], _mng_off[1], _mng_calls, _mng_on[4]))[:160])
+_mng_fail = [_mng_scan({"TEST": _mrx_df(3.16)}, pump=lambda d: True),
+             _mng_scan({"TEST": _mrx_df(3.16)}, off=lambda s: True),
+             _mng_scan({"TEST": _mrx_df(3.16)}, bor=lambda s: {"shares_available": 20_001})]
+_mng_unk = _mng_scan({"TEST": _mrx_df(3.16)}, bor=lambda s: None)
+check("🏷️ MNG3: الوسمُ لا يُرخي شرطًا آخر — قروبٌ أو طرحٌ أو متاحٌ فوق 20 ألفًا ⟵ لا يظهر (والقريبون كما هم) · والمتاحُ المجهول يمرّ",
+      all(f[0] == [] and f[1] == [] and len(f[2]) == 1 and "لا فجوةَ هابطة" in f[2][0][1] for f in _mng_fail)
+      and len(_mng_unk[1]) == 1 and _mng_unk[1][0]["avail"] is None,
+      str([(f[0], len(f[1])) for f in _mng_fail])[:120])
+try:
+    _mng_lines = S.method_nogap_lines(_mng_a[1])
+    _mng_many = S.method_nogap_lines([dict(_mng_a[1][0], symbol=f"S{i}") for i in range(11)], cap=3)
+    _mng_src = open("method_hunter.py", encoding="utf-8").read()
+    _mng_tree = _mrx_ast.parse(_mng_src)
+    _mng_rec = [c for c in _mrx_ast.walk(_mng_tree) if isinstance(c, _mrx_ast.Call)
+                and getattr(c.func, "attr", None) == "record" and c.args
+                and getattr(c.args[0], "value", None) == "method_nogap"]
+    _mng_app = [n for n in _mrx_ast.walk(_mng_tree) if isinstance(n, _mrx_ast.AugAssign)
+                and getattr(n.target, "id", None) == "_rel_block" and "method_nogap_lines" in _mrx_ast.unparse(n.value)]
+    _mng4 = (any("بلا هدف فجوة · الدخول $3.20 · الوقف $3.01" in ln for ln in _mng_lines)
+             and "ليس مطابقًا كاملًا" in _mng_lines[0] and "الهدف $" not in "\n".join(_mng_lines)
+             and S.method_nogap_lines([]) == [] and S.method_nogap_lines(None) == []
+             and sum("•" in ln for ln in _mng_many) == 3 and "(11)" in _mng_many[0] and "<b>8</b> غيرهم" in _mng_many[-1]
+             and len(_mng_rec) == 1 and getattr(_mng_rec[0].args[2], "id", None) == "nog" and len(_mng_app) == 1)
+    _mng4d = str((_mng_lines[-1:], len(_mng_rec), len(_mng_app)))
+except Exception as _e:                                          # noqa: BLE001
+    _mng4, _mng4d = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🏷️ MNG4: القسمُ بوسمه منفصلًا وبلا سطر هدف · والزائدُ عن السقف يُعلَن عددُه · موصولٌ في كتلة الرسالة · والسجلُّ الأماميّ باسم `method_nogap` على قائمته وحدَها",
+      _mng4, _mng4d[:160])
 _ = S.scan_method_hunter({}, today=None)          # تنظيفُ الحالة العامّة
 
 
