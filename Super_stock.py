@@ -206,6 +206,10 @@ CONFIG = {
     "NW_XLSX": os.environ.get("NW_XLSX", "1").strip() != "0",
     # 📨 (2026-11-19 · عطلٌ مُثبَت) إكسلُ «تحت المتابعة» يذهب للمالك (`TELEGRAM_OWNER_ID` وإلّا أوّلُ رقم) بدليل وصولٍ في السجلّ · "0" ⟵ المُرسِلُ القديم بت-بت
     "NW_XLSX_OWNER": os.environ.get("NW_XLSX_OWNER", "1").strip() != "0",
+    # 📣 قناةُ المشتركين (أمرُ المالك 2026-11-19 · عرضٌ لا قياس): نسخةٌ **كما هي** من رسائل الفرز اليوميّ المسمّاة في `SUBS_CHANNEL_MSGS`
+    #    إلى `TELEGRAM_SUBS_CHAT_ID` · **مطفأٌ حتى يوافق المالكُ على القائمة** («قبل التفعيل اطبع لي») · وغيابُ السرّ ⟵ لا إرسال ·
+    #    والمطفأُ ⟵ `send_telegram` بت-بت · `SUB1`-`SUB4`.
+    "SUBS_CHANNEL": os.environ.get("SUBS_CHANNEL", "0").strip() == "1",
     # 📏 «الهامش بجانب كلّ ناقص» (أمرُ المالك 2026-11-18 · `T-GATECAL` ⑥ · عرضٌ لا قياس): كلُّ معيارٍ خارجٍ يُحفظ بقيمته وحدّه وهامشه % في
     #    `out_detail` ⟵ رسالةُ «تحت المتابعة» تطبع الهامش وترتّب كتلةَ 📱 بالهامش الأصغر أوّلًا · والإكسلُ يحمل «الشرط الناقص: قيمته والحد»
     #    و«الهامش %» · بلا عتبةٍ جديدة وبلا تغيير اختيار · `NW_MARGIN=0` (بيئةُ التشغيل) ⟵ بت-بت · `NMG1`-`NMG4`.
@@ -11922,6 +11926,90 @@ def _recipient_hint(body: str) -> str:
     return ""
 
 
+# 📣 ما يذهب لقناة المشتركين — **بالاسم وحدَه**: رسالةٌ بلا وسمٍ أو بوسمٍ خارج هذي القائمة لا تذهب أبدًا (إكسل · ملفّات · «تحرّك 30%» ·
+#    الظلّ · «شروطك الثلاثة» · دفترُ الصفقات · البطاقاتُ الحيّة · الأعطال — كلُّها بلا وسم). والوسومُ الموسومة خارجها (رسائلُ تجديد الجمعة)
+#    تنتظر قرارَ المالك ولا تذهب.
+SUBS_CHANNEL_MSGS = ("daily_report", "hand", "split_radar", "tracking", "press")
+SUBS_CHANNEL_NAMES = {
+    "daily_report": "📋 التقرير اليوميّ «قائمة الأسبوع» بكلّ أقسامه (الجاهز للدخول · شُطب اليوم · الارتداد الواصل · متابعة أسهم الصيّاد · 🏁 انفجر · 👀 تحت المتابعة · سطورُ التنبيه)",
+    "hand": "🕵️ رسالة «أسهم فيها علامات يد»",
+    "split_radar": "🎯 رسالة «رادار أسهم التقسيم»",
+    "tracking": "📡 «متابعة التنبيهات السابقة» (هدفٌ تحقّق · وقفٌ ضُرب · انتهت)",
+    "press": "🗜️ «رادار الضغط» (جوبُه المستقلّ)",
+    "renewal_list": "🔄 «القائمة الأسبوعية الجديدة» (الجمعة)",
+    "wrapup": "🧺 «حصاد الأسبوع» (الجمعة)",
+    "fate": "🔄 «مصير أسهم الأسبوع الماضي» (الجمعة)",
+    "weekly_report": "📊 «التقرير الأسبوعي» للأداء (الجمعة)",
+}
+
+
+def _parse_chat_ids(raw) -> list:
+    """مُحلِّلُ أرقام المحادثات المشترك (الفاصلةُ العربية والمنقوطة والسطرُ والمسافة) · يُسقط التكرارَ ويحفظ الترتيب."""
+    raw = (raw or "").replace(";", ",").replace("،", ",") \
+        .replace("؛", ",").replace("\n", ",") \
+        .replace("\r", ",").replace("\t", ",").replace(" ", ",")
+    out = []
+    for c in raw.split(","):
+        c = c.strip()
+        if c and c not in out:
+            out.append(c)
+    return out
+
+
+def _subs_targets(subs) -> list:
+    """📣 وجهاتُ قناة المشتركين لرسالةٍ موسومة — فارغةٌ ما لم يكن المفتاحُ مُشعَلًا **والوسمُ في القائمة** **والسرُّ حاضرًا**."""
+    if not subs or not CONFIG.get("SUBS_CHANNEL") or subs not in SUBS_CHANNEL_MSGS:
+        return []
+    return _parse_chat_ids(os.environ.get("TELEGRAM_SUBS_CHAT_ID", ""))
+
+
+def subs_manifest_lines() -> list:
+    """📣 ما سيذهب لقناة المشتركين وما لا يذهب — بالأسماء (للعرض على المالك قبل التفعيل)."""
+    on = [SUBS_CHANNEL_NAMES[k] for k in SUBS_CHANNEL_MSGS]
+    off = [v for k, v in SUBS_CHANNEL_NAMES.items() if k not in SUBS_CHANNEL_MSGS]
+    return (["📣 يذهب لقناة المشتركين:"] + ["  • " + x for x in on]
+            + ["⛔ موسومٌ ولا يذهب (قرارُك):"] + ["  • " + x for x in off])
+
+
+def _stamp_chunks(chunks: list) -> list:
+    """ختمُ الإصدار في كلّ جزء **بصيغة `send_telegram` حرفًا** (قناةُ المشتركين ترى الختمَ نفسَه · `SUB2` يقارن الأجزاء بأجزاء المالك)."""
+    stamp = f"\n🧾 إصدار {code_version()} · {dt.date.today().isoformat()}" + data_basis_suffix()
+    return [c + stamp for c in chunks]
+
+
+def subs_mirror(text: str, subs: str) -> int:
+    """📣 نسخةٌ **كما هي** (الأجزاءُ والختمُ نفسُها) من رسالةٍ مسمّاة إلى قناة المشتركين — تُنادى **بعد** `send_telegram` للمالك ·
+    صفرُ عملٍ ما لم يكن المفتاحُ مُشعَلًا والاسمُ في `SUBS_CHANNEL_MSGS` والسرُّ والتوكنُ حاضرَين · فشلُها لا يمسّ شيئًا ·
+    ولا رقمَ محادثةٍ في السجلّ."""
+    try:
+        targets = _subs_targets(subs)
+        if not targets or not TELEGRAM_TOKEN:
+            return 0
+        chunks = _stamp_chunks(_chunk_message(text))
+        url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+    except Exception as e:                                       # noqa: BLE001
+        log(f"⚠️ قناة المشتركين ({subs}): {type(e).__name__}")
+        return 0
+    sent = 0
+    for ch in chunks:
+        for cid in targets:
+            try:
+                r = requests.post(url, json={"chat_id": cid, "text": ch, "parse_mode": "HTML",
+                                             "disable_web_page_preview": True}, timeout=30)
+                if r.status_code != 200 and "can't parse entities" in (r.text or ""):
+                    r = requests.post(url, json={"chat_id": cid, "text": _strip_tags(ch),
+                                                 "disable_web_page_preview": True}, timeout=30)
+                if r.status_code == 200:
+                    sent += 1
+                else:
+                    log(f"⚠️ قناة المشتركين رفضت ({subs}): HTTP {r.status_code} · {_redact_secrets(r.text or '')[:120]}")
+            except Exception as e:                               # noqa: BLE001
+                log(f"⚠️ قناة المشتركين ({subs}): {type(e).__name__}")
+        time.sleep(1)
+    log(f"📣 قناة المشتركين ⟵ {subs}: وصل {sent} من {len(chunks) * len(targets)} جزءًا")
+    return sent
+
+
 def send_telegram(text: str, on_admin=None) -> bool:
     if not TELEGRAM_TOKEN or not TELEGRAM_CHAT:
         log("ℹ️ لا يوجد توكن تيليجرام — الطباعة على الشاشة فقط:")
@@ -11942,6 +12030,7 @@ def send_telegram(text: str, on_admin=None) -> bool:
     if not chunks:
         log("⚠️ تيليجرام: رسالة فارغة — لم يُرسَل شيء.")
         return False
+    # ختم الإصدار في كل رسالة (تعريف النسخة فورًا — ضمان ضد لبس الرسائل القديمة)
     # ختم الإصدار في كل رسالة (تعريف النسخة فورًا — ضمان ضد لبس الرسائل القديمة)
     stamp = f"\n🧾 إصدار {code_version()} · {dt.date.today().isoformat()}" + data_basis_suffix()
     chunks = [c + stamp for c in chunks]
@@ -12028,15 +12117,7 @@ def _chat_recipients() -> list:
     رقمًا واحدًا مشوّهًا **فيصمت البوت عنه كليًّا** (حالة 2026-08-18: «ما وصلني
     ولا شي») · ويُسقط التكرارَ **مع حفظ الترتيب** (‏**الأوّلُ هو المشرف**)
     فلا يصل الإشعارُ مرّتين لمن كُرّر رقمُه سهوًا."""
-    raw = (TELEGRAM_CHAT or "").replace(";", ",").replace("،", ",") \
-        .replace("؛", ",").replace("\n", ",") \
-        .replace("\r", ",").replace("\t", ",").replace(" ", ",")
-    out = []
-    for c in raw.split(","):
-        c = c.strip()
-        if c and c not in out:
-            out.append(c)
-    return out
+    return _parse_chat_ids(TELEGRAM_CHAT)
 
 
 def _admin_chat() -> list:
@@ -23540,6 +23621,7 @@ def run_weekly_renewal(wl: dict) -> None:
     wrap = build_wrapup_message(wl)
     if wrap:
         send_telegram(wrap)
+        subs_mirror(wrap, "wrapup")
     # 3) فرز جديد واختيار القائمة
     exclude = set()
     if CONFIG["EXCLUDE_STOPPED_FROM_RENEWAL"]:
@@ -23776,7 +23858,9 @@ def run_weekly_renewal(wl: dict) -> None:
     # 🔄 تقرير «مصير أسهم الأسبوع الماضي» (طلب المستخدم — لا يختفي سهم بصمت)
     if fate:
         try:
-            send_telegram(build_fate_report(fate) + "\n\n" + FOOTER)
+            _fr = build_fate_report(fate) + "\n\n" + FOOTER
+            send_telegram(_fr)
+            subs_mirror(_fr, "fate")
         except Exception as e:
             log(f"⚠️ تقرير المصير: {e}")
     # 5) رسالة القائمة الجديدة (بطاقات كاملة)
@@ -23804,6 +23888,7 @@ def run_weekly_renewal(wl: dict) -> None:
     msg = build_message(picks, splits, title=title, subnote=subnote)
     msg += "\n" + build_pullback_section(pull_entries)
     send_telegram(msg)
+    subs_mirror(msg, "renewal_list")
     # 5.5) 🔬 مساعد التطوير (تقرير مستقل) + تصدير CSV للمشرف — بعد الفرز
     #      (الفرص الفائتة _MISSED جاهزة الآن من scan_market أعلاه).
     alert_data = None
@@ -24366,9 +24451,11 @@ def run_daily_watchlist(wl: dict) -> None:
     # (شبكة/تيليجرام) لا تضيع الحالة المحسوبة (إصلاح 2026-06-24).
     save_watchlist(wl)
     send_telegram(msg)
+    subs_mirror(msg, "daily_report")              # 📣 قناةُ المشتركين بالاسم (`SUB3`) — مطفأٌ ⟵ صفرُ عمل
     # 🕵️ رسالة أسهم اليد المستقلة (منفصلة عن التقرير الطويل — لا تُدفن)
     if hand_msg:
         send_telegram(hand_msg + "\n\n" + FOOTER)
+        subs_mirror(hand_msg + "\n\n" + FOOTER, "hand")
     # 🎯 رادار أسهم التقسيم = رسالة تلغرام مستقلة (فيصل IMG_0151 — عرض/سياق فقط، خارج
     # الفرز): يرصد أي مقسّم عكسيًّا وصل قاع «القمة÷2» وطابق setup فيصل (فلوت<2م/شورت
     # <20ألف/ثبات 3ج/خالٍ من قروب) فلا يفوتك (JEM/WORX) — بلا لمس الاختيار الآلي.
@@ -24407,6 +24494,7 @@ def run_daily_watchlist(wl: dict) -> None:
         radar_msg = build_split_radar_section(radar_rows)
         if radar_msg:
             send_telegram(radar_msg + "\n\n" + FOOTER)
+            subs_mirror(radar_msg + "\n\n" + FOOTER, "split_radar")
     except Exception as e:
         log(f"⚠️ رادار التقسيم: {e}")
     write_csv([{
@@ -28588,13 +28676,16 @@ def run_performance_system(results, weekly_report_now=False):
     _prune_alerts(data)                  # 2.5) قلّم القديم (نمو محدود)
     save_alerts_file(data)               # 3) احفظ السجل محلياً
     if updates:
-        send_telegram(tracking_message(updates))
+        _trk = tracking_message(updates)
+        send_telegram(_trk)
+        subs_mirror(_trk, "tracking")
     # التقرير الأسبوعي يُرسَل مع التجديد (الجمعة بعد الإغلاق = أسبوع كامل)،
     # لا حسب يوم الأسبوع — فلا يُرسَل مبكرًا على إغلاق ناقص بمسار المتابعة.
     if weekly_report_now:
         rep = weekly_report(data)
         if rep:
             send_telegram(rep)
+            subs_mirror(rep, "weekly_report")
     # 4) ذاكرة دائمة في الـ repo (سجل التنبيهات + قائمة الأسبوع)
     # 🪝 + متابعة أسهم الصيّاد (أمر المالك 2026-08-08): حالتُها تتغيّر كلَّ يوم
     #    (سعر/سيولة/شطب) فلا بدّ من دفعها، وإلّا رُئيت مرّةً ثم رجعت لحالة أمس.

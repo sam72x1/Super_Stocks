@@ -104829,6 +104829,106 @@ except Exception as _e:                                          # noqa: BLE001
     check("📏🔒 قفلُ إغلاق `T-GATECAL` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
 
+# 📣 SUB1-SUB4 — قناةُ المشتركين (أمرُ المالك 2026-11-19 · عرضٌ لا قياس): نسخةٌ **كما هي** من رسائل الفرز اليوميّ المسمّاة وحدَها إلى
+#    `TELEGRAM_SUBS_CHAT_ID` · المفتاحُ `SUBS_CHANNEL` مطفأٌ حتى موافقة المالك ⟵ صفرُ عمل · وغيابُ السرّ ⟵ لا إرسال · و`send_telegram` بت-بت.
+try:
+    import ast as _sb_ast
+    import os as _sb_os
+
+    class _SbResp:
+        def __init__(self, code=200, text='{"ok":true}'):
+            self.status_code, self.text = code, text
+
+    _sb_posts, _sb_logs = [], []
+    _sb_post0, _sb_tok0, _sb_chat0, _sb_log0 = S.requests.post, S.TELEGRAM_TOKEN, S.TELEGRAM_CHAT, S.log
+    _sb_cfg0 = S.CONFIG.get("SUBS_CHANNEL")
+    _sb_env0 = _sb_os.environ.get("TELEGRAM_SUBS_CHAT_ID")
+    _sb_res = {}
+    try:
+        S.requests.post = lambda url, json=None, timeout=None, **k: (_sb_posts.append(dict(json or {})), _SbResp())[1]
+        S.TELEGRAM_TOKEN, S.TELEGRAM_CHAT = "T0K", "111,222"
+        S.log = lambda m="": _sb_logs.append(str(m))
+        _sb_os.environ["TELEGRAM_SUBS_CHAT_ID"] = "-100777، -100888"
+        _sb_text = "📋 <b>قائمة الأسبوع</b>\n" + ("سطر\n" * 1500)
+        # (أ) مطفأ ⟵ صفرُ عملٍ لكلّ اسمٍ ولو كان السرُّ والتوكنُ حاضرَين · وإرسالُ المالك نفسُه بالأجزاء والختم المعتادَين
+        S.CONFIG["SUBS_CHANNEL"] = False
+        _sb_res["off"] = [S.subs_mirror(_sb_text, k) for k in S.SUBS_CHANNEL_MSGS]
+        _sb_res["off_posts"] = len(_sb_posts)
+        S.send_telegram(_sb_text)
+        _sb_owner = [p for p in _sb_posts]
+        _sb_res["owner_ids"] = sorted({p["chat_id"] for p in _sb_owner})
+        _sb_res["owner_chunks"] = [p["text"] for p in _sb_owner if p["chat_id"] == "111"]
+        del _sb_posts[:]
+        # (ب) مُشعَل ⟵ الأجزاءُ نفسُها بختمها لكلّ رقمٍ في السرّ (والفاصلةُ العربية) · والاسمُ خارج القائمة أو بلا سرٍّ ⟵ لا شيء
+        S.CONFIG["SUBS_CHANNEL"] = True
+        _sb_res["on_n"] = S.subs_mirror(_sb_text, "daily_report")
+        _sb_res["on_ids"] = sorted({p["chat_id"] for p in _sb_posts})
+        _sb_res["on_chunks"] = [p["text"] for p in _sb_posts if p["chat_id"] == "-100777"]
+        del _sb_posts[:]
+        _sb_res["blocked"] = [S.subs_mirror("x", k) for k in ("renewal_list", "wrapup", "fate", "weekly_report", "x30", "shadow", "", None)]
+        _sb_res["blocked_posts"] = len(_sb_posts)
+        _sb_os.environ["TELEGRAM_SUBS_CHAT_ID"] = "  "
+        _sb_res["nosecret"] = S.subs_mirror("x", "daily_report")
+        _sb_os.environ.pop("TELEGRAM_SUBS_CHAT_ID", None)
+        _sb_res["nosecret2"] = S.subs_mirror("x", "daily_report")
+        _sb_res["nosecret_posts"] = len(_sb_posts)
+        # (ج) رفضُ القناة لا يرمي ولا يمسّ شيئًا · ولا رقمَ محادثةٍ في السجلّ
+        _sb_os.environ["TELEGRAM_SUBS_CHAT_ID"] = "-100999"
+        S.requests.post = lambda url, json=None, timeout=None, **k: _SbResp(400, "Bad Request: chat not found")
+        _sb_res["fail"] = S.subs_mirror("x", "hand")
+        S.requests.post = lambda *a, **k: (_ for _ in ()).throw(ConnectionError("net"))
+        _sb_res["raise"] = S.subs_mirror("x", "hand")
+    finally:
+        S.requests.post, S.TELEGRAM_TOKEN, S.TELEGRAM_CHAT, S.log = _sb_post0, _sb_tok0, _sb_chat0, _sb_log0
+        S.CONFIG["SUBS_CHANNEL"] = _sb_cfg0
+        if _sb_env0 is None:
+            _sb_os.environ.pop("TELEGRAM_SUBS_CHAT_ID", None)
+        else:
+            _sb_os.environ["TELEGRAM_SUBS_CHAT_ID"] = _sb_env0
+    check("📣 SUB1: قناةُ المشتركين مطفأةٌ ⟵ صفرُ إرسالٍ لكلّ اسمٍ ولو حضر السرُّ والتوكن · والمالكُ يتلقّى كعادته (مستلماه وحدَهما) · "
+          "والمفتاحُ مطفأٌ افتراضيًّا (موافقةُ المالك قبل التفعيل)",
+          _sb_res["off"] == [0] * len(S.SUBS_CHANNEL_MSGS) and _sb_res["off_posts"] == 0 and _sb_res["owner_ids"] == ["111", "222"]
+          and len(_sb_res["owner_chunks"]) >= 2 and _sb_cfg0 is False,
+          f"off={_sb_res['off']} owner={_sb_res['owner_ids']} cfg={_sb_cfg0}")
+    check("📣 SUB2: مُشعَلًا تصل القناةَ **الأجزاءُ نفسُها بختمها** كما للمالك لكلّ رقمٍ في السرّ · والاسمُ خارج القائمة (رسائلُ الجمعة · «تحرّك 30%» · الظلّ · "
+          "بلا اسم) أو السرُّ الغائب/الفارغ ⟵ صفر · ورفضُ القناة أو عطلُ الشبكة لا يرمي · ولا رقمَ محادثةٍ في السجلّ",
+          _sb_res["on_chunks"] == _sb_res["owner_chunks"] and _sb_res["on_ids"] == ["-100777", "-100888"]
+          and _sb_res["on_n"] == 2 * len(_sb_res["owner_chunks"]) and _sb_res["blocked"] == [0] * 8 and _sb_res["blocked_posts"] == 0
+          and _sb_res["nosecret"] == 0 and _sb_res["nosecret2"] == 0 and _sb_res["nosecret_posts"] == 0
+          and _sb_res["fail"] == 0 and _sb_res["raise"] == 0
+          and not any(x in "\n".join(_sb_logs) for x in ("-100777", "-100888", "-100999", "111", "222")),
+          f"on={_sb_res['on_n']} ids={_sb_res['on_ids']} blocked={_sb_res['blocked']} fail={_sb_res['fail']}")
+
+    def _sb_keys(path, fn=None):
+        _tr = _sb_ast.parse(open(path, encoding="utf-8").read())
+        _root = next((n for n in _sb_ast.walk(_tr) if isinstance(n, _sb_ast.FunctionDef) and n.name == fn), _tr) if fn else _tr
+        return sorted(c.args[1].value for c in _sb_ast.walk(_root) if isinstance(c, _sb_ast.Call)
+                      and (getattr(c.func, "id", None) == "subs_mirror" or getattr(c.func, "attr", None) == "subs_mirror")
+                      and len(c.args) == 2 and isinstance(c.args[1], _sb_ast.Constant))
+    _sb_here = _sb_os.path.dirname(_sb_os.path.abspath(__file__))
+    _sb_users = sorted(f for f in _sb_os.listdir(_sb_here) if f.endswith(".py") and f != "test_bot.py"
+                       and "subs_mirror" in open(_sb_os.path.join(_sb_here, f), encoding="utf-8").read())
+    check("📣 SUB3: الموصولُ بالاسم من نقطة النداء (AST): التقريرُ واليدُ ورادارُ التقسيم من `run_daily_watchlist` · المتابعةُ من `run_performance_system` · "
+          "رادارُ الضغط من `press_radar.run` · ورسائلُ الجمعة موسومةٌ خارج القائمة · ولا ملفَّ آخر ينادي `subs_mirror`",
+          _sb_keys("Super_stock.py", "run_daily_watchlist") == ["daily_report", "hand", "split_radar"]
+          and _sb_keys("Super_stock.py", "run_performance_system") == ["tracking", "weekly_report"]
+          and _sb_keys("press_radar.py", "run") == ["press"]
+          and _sb_keys("Super_stock.py", "run_weekly_renewal") == ["fate", "renewal_list", "wrapup"]
+          and set(_sb_keys("Super_stock.py")) <= set(S.SUBS_CHANNEL_NAMES)
+          and set(S.SUBS_CHANNEL_MSGS) == {"daily_report", "hand", "split_radar", "tracking", "press"}
+          and _sb_users == ["Super_stock.py", "press_radar.py"],
+          f"users={_sb_users} daily={_sb_keys('Super_stock.py', 'run_daily_watchlist')}")
+    _sb_wf = _sb_os.path.join(_sb_here, ".github", "workflows")
+    _sb_with = sorted(f for f in _sb_os.listdir(_sb_wf) if "TELEGRAM_SUBS_CHAT_ID" in open(_sb_os.path.join(_sb_wf, f), encoding="utf-8").read())
+    check("📣 SUB4: السرُّ `TELEGRAM_SUBS_CHAT_ID` في جوبَي الفرز اليوميّ ورادار الضغط وحدَهما · والمفتاحُ بلا بيئةٍ مطفأ",
+          _sb_with == ["daily_screener.yml", "press_radar.yml"] and not any(
+              _ln.strip().startswith("SUBS_CHANNEL:") for f in _sb_with
+              for _ln in open(_sb_os.path.join(_sb_wf, f), encoding="utf-8").read().splitlines()),
+          f"wf={_sb_with}")
+except Exception as _e:                                          # noqa: BLE001
+    check("📣 أقفالُ قناة المشتركين انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
