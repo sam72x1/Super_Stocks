@@ -279,5 +279,18 @@ def main(argv=None):
     return (mode_envelope if tool == "envelope" else mode_presession)(mode == "curve")
 
 
+# 🔒 «اقفل البوت» (أمرُ المالك 2026-11-19 بعد اكتمال الأدوات الستّ): المحورُ مُغلَقٌ مُنفَّذًا — سطرُ الأوامر يخرج CLOSED_RC قبل أيّ قراءة
+#    ما لم يكن `GATECAL_REOPEN` «1» حرفيًّا (إقرارٌ بشروط الفتح الثلاثة: محورٌ جديد · تسجيلٌ مسبقٌ جديد · إذنُ المالك) · `GTC21`.
+REOPEN_ENV = "GATECAL_REOPEN"
+CLOSED_RC = 6                 # غيرُ 0 · 1 · 2 · 5 · 7 · 8 · 9 · 11
+
+
+def cli(argv=None):
+    if (os.environ.get(REOPEN_ENV) or "") != "1":
+        log(f"🔒 `T-GATECAL` مُغلَقٌ بأمر المالك 2026-11-19 «اقفل البوت» — لا تشغيل (خروج {CLOSED_RC} · {REOPEN_ENV}=1 إقرارٌ بشروط الفتح)")
+        return CLOSED_RC
+    return main(argv)
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(cli())
