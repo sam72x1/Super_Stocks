@@ -98583,16 +98583,16 @@ try:
     def _mst_run(start, env="1", **kw):
         _c = _MstClock(start)
         _a = _MstApi(_c, **kw)
-        _keep = (_MST._sleep, _os_hc.environ.get(_MST.ENV))
+        _keep = (_MST._sleep, _os_hc.environ.get(_MST.ENV), _MST.SC.ON)
         try:
-            _MST._sleep = _c.sleep
+            _MST._sleep, _MST.SC.ON = _c.sleep, False          # 📣 القناةُ مُشعَلة منذ 2026-11-19 — نقاطُها تُقفَل في `SUB8` لا هنا
             if env is None:
                 _os_hc.environ.pop(_MST.ENV, None)
             else:
                 _os_hc.environ[_MST.ENV] = env
             _rc = _MST.main(now_fn=_c.now, api=_a, no_session=lambda d: _mst_dt.date.fromisoformat(d).weekday() >= 5)
         finally:
-            _MST._sleep = _keep[0]
+            _MST._sleep, _MST.SC.ON = _keep[0], _keep[2]
             if _keep[1] is None:
                 _os_hc.environ.pop(_MST.ENV, None)
             else:
