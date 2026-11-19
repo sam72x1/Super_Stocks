@@ -39,7 +39,7 @@ COVER_MAX_FAIL = 0.20
 SEEN_DAYS = 7
 BARS_N, INTERVAL = 5000, "15"
 CLOSED_RC = 8
-CLOSED = False           # يُقلب True عند الإقفال المُنفَّذ (والفتحُ إقرارُ المالك `NIGHT_REOPEN == "1"`)
+CLOSED = True            # 🔒 مُغلَقٌ مُنفَّذًا 2026-11-19: الاكتشافُ «لا مرشَّح» (`44630004707` · `T_NIGHT_RESULT.md`) · والفتحُ إقرارُ المالك `NIGHT_REOPEN == "1"`
 
 
 def prereg_sha16(path=PREREG):
