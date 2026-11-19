@@ -19344,10 +19344,14 @@ check("⚓ SEQ🔒 أرقام فيصل حرفيًّا: قاع 3.10 ⟹ دخول 
 #    كودٍ سليم. ⇒ بالـAST على **جسم الشرط** كما في قفل قطبيّة الطرح.
 def _gate_rejects(fn, key):
     import ast as _a, textwrap as _t
+    _hits = []
     for n in _a.walk(_a.parse(_t.dedent(_insp0.getsource(fn)))):
         if isinstance(n, _a.If) and key in _a.unparse(n.test):
-            return any(isinstance(x, _a.Continue) for x in _a.walk(n))
-    return False
+            _hits.append(n)
+    # 🏷️ 2026-11-19: الشرطُ يرد في الحلقة (رفضُه `continue`) وفي `_tail` للمخفّف وبلا-فجوة (رفضُه `return None`) ⟵ **كلُّ** ورودٍ
+    #    يجب أن يرفض، وواحدٌ على الأقلّ بـ`continue` (مسارُ المطابق الكامل) — تشديدٌ لا إرخاء.
+    return (bool(_hits) and any(any(isinstance(x, _a.Continue) for x in _a.walk(n)) for n in _hits)
+            and all(any(isinstance(x, (_a.Continue, _a.Return)) for x in _a.walk(n)) for n in _hits))
 
 
 check("🕵️ SEQ🔒 سقف الشورت 20 ألفًا **شرطٌ يرفض** (لا سياقًا يُعرَض)",
@@ -19373,11 +19377,15 @@ check("🪜 SEQ🔒 و`trigger_state` **لم تُمَسّ** (تبقى لقراء
 #    `continue` — والشرط الحقيقيّ أن **جسم الشرط يحوي رفضًا**، لا شكلَ السطر.
 def _offering_rejects(fn):
     import ast as _a, textwrap as _t
+    _hits = []
     for n in _a.walk(_a.parse(_t.dedent(_insp0.getsource(fn)))):
         if (isinstance(n, _a.If) and isinstance(n.test, _a.Call)
                 and isinstance(n.test.func, _a.Name) and n.test.func.id == "fo"):
-            return any(isinstance(x, _a.Continue) for x in _a.walk(n))
-    return False
+            _hits.append(n)
+    # 🏷️ 2026-11-19: الشرطُ يرد في الحلقة (رفضُه `continue`) وفي `_tail` للمخفّف وبلا-فجوة (رفضُه `return None`) ⟵ **كلُّ** ورودٍ
+    #    يجب أن يرفض، وواحدٌ على الأقلّ بـ`continue` (مسارُ المطابق الكامل) — تشديدٌ لا إرخاء.
+    return (bool(_hits) and any(any(isinstance(x, _a.Continue) for x in _a.walk(n)) for n in _hits)
+            and all(any(isinstance(x, (_a.Continue, _a.Return)) for x in _a.walk(n)) for n in _hits))
 
 
 check("🔬 NH🔒 الطرح **مانعٌ** هنا (يرفض) وهو **حدثٌ مؤسِّس** عند المقسّم — قطبيّةٌ معكوسة",
