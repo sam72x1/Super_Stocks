@@ -17,3 +17,65 @@
 {"cond": "band", "day": "2026-11-18", "edge": 13.0, "label": "الجلوس فوق قاع الضغط %", "margin": 29.1, "price": 1.07, "sym": "KIDZ", "tool": "press", "v": 16.8}
 {"cond": "band", "day": "2026-11-18", "edge": 13.0, "label": "الجلوس فوق قاع الضغط %", "margin": 86.1, "price": 7.29, "sym": "GRNQ", "tool": "press", "v": 24.2}
 {"cond": "band", "day": "2026-11-18", "edge": 13.0, "label": "الجلوس فوق قاع الضغط %", "margin": 6.2, "price": 2.06, "sym": "NWGL", "tool": "press", "v": 13.8}
+{"cond": "entry_zone", "day": "2026-11-18", "edge": null, "label": "تجاوز منطقة الطلبات ($0.90)", "margin": null, "price": 1.01, "sym": "UZX", "tool": "split_filter", "v": null}
+{"cond": "pump", "day": "2026-11-18", "edge": null, "label": "دخلته قروبات (الحراج)", "margin": null, "price": 1.02, "sym": "WFF", "tool": "split_filter", "v": null}
+{"cond": "entry_zone", "day": "2026-11-18", "edge": null, "label": "تجاوز منطقة الطلبات ($0.65)", "margin": null, "price": 1.03, "sym": "SKYE", "tool": "split_filter", "v": null}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 28% أوّل التقسيم (الحدّ 20%)", "margin": 40.0, "price": 1.11, "sym": "THH", "tool": "split_filter", "v": 28.0}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 30% أوّل التقسيم (الحدّ 20%)", "margin": 50.0, "price": 1.14, "sym": "DKI", "tool": "split_filter", "v": 30.0}
+{"cond": "entry_zone", "day": "2026-11-18", "edge": null, "label": "تجاوز منطقة الطلبات ($1.15)", "margin": null, "price": 1.17, "sym": "CALC", "tool": "split_filter", "v": null}
+{"cond": "seq", "day": "2026-11-18", "edge": null, "label": "لم يكتمل ثبات الدعم الثاني — لم يرتدّ 10% من القاع بعد", "margin": null, "price": 1.18, "sym": "IPW", "tool": "split_filter", "v": null}
+{"cond": "entry_zone", "day": "2026-11-18", "edge": null, "label": "تجاوز منطقة الطلبات ($1.15)", "margin": null, "price": 1.18, "sym": "SUGP", "tool": "split_filter", "v": null}
+{"cond": "seq", "day": "2026-11-18", "edge": null, "label": "لم يكتمل ثبات الدعم الثاني — لم يرتدّ 10% من القاع بعد", "margin": null, "price": 1.2, "sym": "CISS", "tool": "split_filter", "v": null}
+{"cond": "entry_zone", "day": "2026-11-18", "edge": null, "label": "تجاوز منطقة الطلبات ($1.15)", "margin": null, "price": 1.2, "sym": "ENLV", "tool": "split_filter", "v": null}
+{"cond": "seq", "day": "2026-11-18", "edge": null, "label": "لم يكتمل ثبات الدعم الثاني — لم يرتدّ 10% من القاع بعد", "margin": null, "price": 1.25, "sym": "DLXY", "tool": "split_filter", "v": null}
+{"cond": "seq", "day": "2026-11-18", "edge": null, "label": "لم يكتمل ثبات الدعم الثاني — لم يرتدّ 10% من القاع بعد", "margin": null, "price": 1.3, "sym": "NEXR", "tool": "split_filter", "v": null}
+{"cond": "seq", "day": "2026-11-18", "edge": null, "label": "لم يكتمل ثبات الدعم الثاني — لم يرتدّ 10% من القاع بعد", "margin": null, "price": 1.33, "sym": "HKPD", "tool": "split_filter", "v": null}
+{"cond": "seq", "day": "2026-11-18", "edge": null, "label": "لم يكتمل ثبات الدعم الثاني — لم يرتدّ 10% من القاع بعد", "margin": null, "price": 1.39, "sym": "MDCX", "tool": "split_filter", "v": null}
+{"cond": "seq", "day": "2026-11-18", "edge": null, "label": "لم يكتمل ثبات الدعم الثاني — لم يرتدّ 10% من القاع بعد", "margin": null, "price": 1.44, "sym": "SLXN", "tool": "split_filter", "v": null}
+{"cond": "seq", "day": "2026-11-18", "edge": null, "label": "لم يكتمل ثبات الدعم الثاني — لم يرتدّ 10% من القاع بعد (ارتداد 8%)", "margin": null, "price": 1.46, "sym": "EHGO", "tool": "split_filter", "v": null}
+{"cond": "seq", "day": "2026-11-18", "edge": null, "label": "لم يكتمل ثبات الدعم الثاني — لم يرتدّ 10% من القاع بعد", "margin": null, "price": 1.46, "sym": "STKH", "tool": "split_filter", "v": null}
+{"cond": "entry_zone", "day": "2026-11-18", "edge": null, "label": "تجاوز منطقة الطلبات ($1.55)", "margin": null, "price": 1.57, "sym": "ITOC", "tool": "split_filter", "v": null}
+{"cond": "seq", "day": "2026-11-18", "edge": null, "label": "لم يكتمل ثبات الدعم الثاني — لم يرتدّ 10% من القاع بعد", "margin": null, "price": 1.59, "sym": "CAPS", "tool": "split_filter", "v": null}
+{"cond": "entry_zone", "day": "2026-11-18", "edge": null, "label": "تجاوز منطقة الطلبات ($1.58)", "margin": null, "price": 1.65, "sym": "CTNT", "tool": "split_filter", "v": null}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 24% أوّل التقسيم (الحدّ 20%)", "margin": 20.0, "price": 1.68, "sym": "GAME", "tool": "split_filter", "v": 24.0}
+{"cond": "entry_zone", "day": "2026-11-18", "edge": null, "label": "تجاوز منطقة الطلبات ($1.63)", "margin": null, "price": 1.69, "sym": "AIXI", "tool": "split_filter", "v": null}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 42% أوّل التقسيم (الحدّ 20%)", "margin": 110.0, "price": 1.83, "sym": "BJDX", "tool": "split_filter", "v": 42.0}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 49% أوّل التقسيم (الحدّ 20%)", "margin": 145.0, "price": 1.85, "sym": "AGRZ", "tool": "split_filter", "v": 49.0}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 26% أوّل التقسيم (الحدّ 20%)", "margin": 30.0, "price": 1.86, "sym": "CYCU", "tool": "split_filter", "v": 26.0}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 20% أوّل التقسيم (الحدّ 20%)", "margin": 0.0, "price": 1.86, "sym": "GLE", "tool": "split_filter", "v": 20.0}
+{"cond": "entry_zone", "day": "2026-11-18", "edge": null, "label": "تجاوز منطقة الطلبات ($1.70)", "margin": null, "price": 1.87, "sym": "DFLI", "tool": "split_filter", "v": null}
+{"cond": "seq", "day": "2026-11-18", "edge": null, "label": "لم يكتمل ثبات الدعم الثاني — لم يرتدّ 10% من القاع بعد", "margin": null, "price": 1.9201, "sym": "NVX", "tool": "split_filter", "v": null}
+{"cond": "seq", "day": "2026-11-18", "edge": null, "label": "لم يكتمل ثبات الدعم الثاني — لم يرتدّ 10% من القاع بعد (ارتداد 6%)", "margin": null, "price": 1.93, "sym": "LHSW", "tool": "split_filter", "v": null}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 23% أوّل التقسيم (الحدّ 20%)", "margin": 15.0, "price": 1.98, "sym": "FBGL", "tool": "split_filter", "v": 23.0}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 28% أوّل التقسيم (الحدّ 20%)", "margin": 40.0, "price": 2.0354, "sym": "BDRX", "tool": "split_filter", "v": 28.0}
+{"cond": "entry_zone", "day": "2026-11-18", "edge": null, "label": "تجاوز منطقة الطلبات ($1.81)", "margin": null, "price": 2.11, "sym": "UFG", "tool": "split_filter", "v": null}
+{"cond": "borrow", "day": "2026-11-18", "edge": 20000.0, "label": "المتاح للاقتراض 75,000 — الحدّ أقلّ من 20,000", "margin": 275.0, "price": 2.1985, "sym": "EOCN", "tool": "split_filter", "v": 75000.0}
+{"cond": "seq", "day": "2026-11-18", "edge": null, "label": "لم يكتمل ثبات الدعم الثاني — لم يرتدّ 10% من القاع بعد (ارتداد 9%)", "margin": null, "price": 2.23, "sym": "TWG", "tool": "split_filter", "v": null}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 53% أوّل التقسيم (الحدّ 20%)", "margin": 165.0, "price": 2.29, "sym": "OFAL", "tool": "split_filter", "v": 53.0}
+{"cond": "seq", "day": "2026-11-18", "edge": null, "label": "لم يكتمل ثبات الدعم الثاني — لم يرتدّ 10% من القاع بعد", "margin": null, "price": 2.55, "sym": "SCNX", "tool": "split_filter", "v": null}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 94% أوّل التقسيم (الحدّ 20%)", "margin": 370.0, "price": 2.575, "sym": "CPOP", "tool": "split_filter", "v": 94.0}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 55% أوّل التقسيم (الحدّ 20%)", "margin": 175.0, "price": 2.66, "sym": "HCAI", "tool": "split_filter", "v": 55.0}
+{"cond": "seq", "day": "2026-11-18", "edge": null, "label": "لم يكتمل ثبات الدعم الثاني — لم يرتدّ 10% من القاع بعد", "margin": null, "price": 2.67, "sym": "KUST", "tool": "split_filter", "v": null}
+{"cond": "entry_zone", "day": "2026-11-18", "edge": null, "label": "تجاوز منطقة الطلبات ($2.55)", "margin": null, "price": 2.68, "sym": "LIMN", "tool": "split_filter", "v": null}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 103% أوّل التقسيم (الحدّ 20%)", "margin": 415.0, "price": 3.03, "sym": "VCIG", "tool": "split_filter", "v": 103.0}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 21% أوّل التقسيم (الحدّ 20%)", "margin": 5.0, "price": 3.065, "sym": "CMND", "tool": "split_filter", "v": 21.0}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 25% أوّل التقسيم (الحدّ 20%)", "margin": 25.0, "price": 3.15, "sym": "ONCO", "tool": "split_filter", "v": 25.0}
+{"cond": "seq", "day": "2026-11-18", "edge": null, "label": "لم يكتمل ثبات الدعم الثاني — لم يرتدّ 10% من القاع بعد", "margin": null, "price": 3.16, "sym": "HCTI", "tool": "split_filter", "v": null}
+{"cond": "entry_zone", "day": "2026-11-18", "edge": null, "label": "تجاوز منطقة الطلبات ($2.49)", "margin": null, "price": 3.21, "sym": "UCAR", "tool": "split_filter", "v": null}
+{"cond": "entry_zone", "day": "2026-11-18", "edge": null, "label": "تجاوز منطقة الطلبات ($2.75)", "margin": null, "price": 3.24, "sym": "EPOW", "tool": "split_filter", "v": null}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 21% أوّل التقسيم (الحدّ 20%)", "margin": 5.0, "price": 3.34, "sym": "XCH", "tool": "split_filter", "v": 21.0}
+{"cond": "entry_zone", "day": "2026-11-18", "edge": null, "label": "تجاوز منطقة الطلبات ($3.27)", "margin": null, "price": 3.49, "sym": "INCR", "tool": "split_filter", "v": null}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 26% أوّل التقسيم (الحدّ 20%)", "margin": 30.0, "price": 3.585, "sym": "VMAR", "tool": "split_filter", "v": 26.0}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 83% أوّل التقسيم (الحدّ 20%)", "margin": 315.0, "price": 3.605, "sym": "NXGL", "tool": "split_filter", "v": 83.0}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 341% أوّل التقسيم (الحدّ 20%)", "margin": 1605.0, "price": 3.76, "sym": "FTFT", "tool": "split_filter", "v": 341.0}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 124% أوّل التقسيم (الحدّ 20%)", "margin": 520.0, "price": 3.89, "sym": "NUWE", "tool": "split_filter", "v": 124.0}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 65% أوّل التقسيم (الحدّ 20%)", "margin": 225.0, "price": 4.08, "sym": "ATYR", "tool": "split_filter", "v": 65.0}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 222% أوّل التقسيم (الحدّ 20%)", "margin": 1010.0, "price": 4.15, "sym": "LCU", "tool": "split_filter", "v": 222.0}
+{"cond": "seq", "day": "2026-11-18", "edge": null, "label": "لم يكتمل ثبات الدعم الثاني — لم يرتدّ 10% من القاع بعد", "margin": null, "price": 4.31, "sym": "AIIO", "tool": "split_filter", "v": null}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 563% أوّل التقسيم (الحدّ 20%)", "margin": 2715.0, "price": 4.45, "sym": "VEEA", "tool": "split_filter", "v": 563.0}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 122% أوّل التقسيم (الحدّ 20%)", "margin": 510.0, "price": 4.87, "sym": "RETO", "tool": "split_filter", "v": 122.0}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 165% أوّل التقسيم (الحدّ 20%)", "margin": 725.0, "price": 5.11, "sym": "AEMD", "tool": "split_filter", "v": 165.0}
+{"cond": "entry_zone", "day": "2026-11-18", "edge": null, "label": "تجاوز منطقة الطلبات ($3.31)", "margin": null, "price": 5.6, "sym": "SFWL", "tool": "split_filter", "v": null}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 44% أوّل التقسيم (الحدّ 20%)", "margin": 120.0, "price": 5.825, "sym": "TRIB", "tool": "split_filter", "v": 44.0}
+{"cond": "rose", "day": "2026-11-18", "edge": 20.0, "label": "صعد 87% أوّل التقسيم (الحدّ 20%)", "margin": 335.0, "price": 6.62, "sym": "NCT", "tool": "split_filter", "v": 87.0}
+{"cond": "seq", "day": "2026-11-18", "edge": null, "label": "لم يكتمل ثبات الدعم الثاني — لم يرتدّ 10% من القاع بعد", "margin": null, "price": 7.54, "sym": "OMEX", "tool": "split_filter", "v": null}
