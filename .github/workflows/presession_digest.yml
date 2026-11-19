@@ -27,6 +27,10 @@ on:
         description: "يومُ الحصاد (YYYY-MM-DD) — فارغٌ = جلسةُ البوّابة"
         required: false
         default: ""
+      early:
+        description: "🌅 إطلاقٌ مبكّر من مُطلِق الصباح (1 = كالمجدول: بوّابةُ التوقيت والدِّدوب نافذتان)"
+        required: false
+        default: "0"
 jobs:
   presession-digest:
     runs-on: ubuntu-latest
@@ -57,5 +61,5 @@ jobs:
           PRESESSION_SOURCE: polygon
           # 🔓 التشغيلُ اليدويّ يتخطّى بوّابةَ التوقيت والدِدوب معًا — وإلّا خرج
           #    الفحصُ الفوريُّ نهارًا **أخضرَ بصفر عمل** (صنفُ «أخضرَ بلا رسالة»).
-          DIGEST_FORCE: ${{ github.event_name == 'workflow_dispatch' && '1' || '' }}
+          DIGEST_FORCE: ${{ github.event_name == 'workflow_dispatch' && inputs.early != '1' && '1' || '' }}
         run: python presession_digest.py

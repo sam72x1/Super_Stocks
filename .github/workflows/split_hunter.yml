@@ -29,7 +29,12 @@ on:
     # فلا يعيدنا داخل الافتر — والبوّابة تحرسه على أي حال).
     - cron: "13 0 * * 2-6"
     - cron: "13 1 * * 2-6"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      early:
+        description: "🌅 إطلاقٌ مبكّر من مُطلِق الصباح (1 = كالمجدول: بوّابةُ التوقيت والدِّدوب نافذتان)"
+        required: false
+        default: "0"
 jobs:
   split-hunter:
     runs-on: ubuntu-latest
@@ -74,5 +79,5 @@ jobs:
           # 🔓 التشغيل اليدويّ يتخطّى بوّابة التوقيت والدِدوب معًا. بدونه كان الفحص
           # الفوريّ نهارًا **يخرج صامتًا بصفر عمل** (البوّابة تُرجعه) — وهو بالضبط
           # صنفُ «أخضرَ بلا رسالة» الذي بُني كل حارسٍ هنا ضدّه.
-          HUNTER_FORCE: ${{ github.event_name == 'workflow_dispatch' && '1' || '' }}
+          HUNTER_FORCE: ${{ github.event_name == 'workflow_dispatch' && inputs.early != '1' && '1' || '' }}
         run: python split_hunter.py

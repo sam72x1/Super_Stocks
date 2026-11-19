@@ -273,6 +273,7 @@ def run(now_utc=None) -> int:
         S.log("⛔ النهج العلمي: تلغرام رفض الرسالة.")
         return 1
     S.log("✅ أُرسلت رسالة النهج العلمي.")
+    S.subs_mirror(msg, "method")                # 📣 قناةُ المشتركين بالاسم (`SUB3` · أمرُ المالك 2026-11-19) — مطفأةٌ ⟵ صفرُ عمل
     _write_stamp(S, sess)
     return 0
 
