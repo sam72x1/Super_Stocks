@@ -104781,6 +104781,54 @@ except Exception as _e:                                          # noqa: BLE001
     check("🧺🎯 قفلُ `T-ENV-LIMIT` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
 
+# 📏🔒 GTC21 — «اقفل البوت» (أمرُ المالك 2026-11-19): `T-GATECAL` مُغلَقٌ مُنفَّذًا — سطرُ أوامر الأداتين يخرج 6 قبل أيّ عمل ما لم يكن
+#    `GATECAL_REOPEN` «1» حرفيًّا · ونقطةُ الدخول `__main__` تنادي `cli` لا `main` (AST) · و`main` نفسُها للأقفال السابقة كما هي.
+try:
+    import ast as _gc_ast
+    import os as _gc_os
+    import importlib as _gc_il
+    import sys as _gc_sys
+    _gc_dir = _gc_os.path.join(_gc_os.path.dirname(_gc_os.path.abspath(__file__)), "fm_forensics", "gatecal")
+    if _gc_dir not in _gc_sys.path:
+        _gc_sys.path.insert(0, _gc_dir)
+    _gc_mods = [_gc_il.import_module("gatecal"), _gc_il.import_module("gatecal_ledger")]
+    _gc_env0 = _gc_os.environ.get("GATECAL_REOPEN")
+    _gc_res = []
+    try:
+        for _gc_m in _gc_mods:
+            _gc_main0, _gc_hit = _gc_m.main, []
+            try:
+                _gc_m.main = lambda argv=None, _h=_gc_hit: _h.append(list(argv or [])) or 77
+                _gc_os.environ.pop("GATECAL_REOPEN", None)
+                _gc_rc = [_gc_m.cli([md, "--tool", "ready"]) for md in ("prep", "feat", "count", "select", "confirm", "diag", "curve")]
+                _gc_os.environ["GATECAL_REOPEN"] = "0"
+                _gc_rc0 = _gc_m.cli(["count", "--tool", "ready"])
+                _gc_os.environ["GATECAL_REOPEN"] = "yes"
+                _gc_rcy = _gc_m.cli(["count", "--tool", "ready"])
+                _gc_closed_hits = len(_gc_hit)
+                _gc_os.environ["GATECAL_REOPEN"] = "1"
+                _gc_rc1 = _gc_m.cli(["count", "--tool", "ready"])
+            finally:
+                _gc_m.main = _gc_main0
+            _gc_tree = _gc_ast.parse(open(_gc_m.__file__, encoding="utf-8").read())
+            _gc_if = [n for n in _gc_tree.body if isinstance(n, _gc_ast.If) and "__main__" in _gc_ast.dump(n.test)]
+            _gc_entry = sorted({c.func.id for n in _gc_if for c in _gc_ast.walk(n) if isinstance(c, _gc_ast.Call) and isinstance(c.func, _gc_ast.Name)})
+            _gc_res.append((_gc_rc == [6] * 7 and _gc_rc0 == 6 and _gc_rcy == 6 and _gc_closed_hits == 0 and _gc_rc1 == 77
+                            and _gc_hit == [["count", "--tool", "ready"]] and _gc_entry == ["cli"] and _gc_m.CLOSED_RC == 6
+                            and _gc_m.CLOSED_RC not in (0, 1, 2, 5, 7, 8, 9, 11), (_gc_rc, _gc_rc0, _gc_rcy, _gc_rc1, _gc_entry)))
+    finally:
+        if _gc_env0 is None:
+            _gc_os.environ.pop("GATECAL_REOPEN", None)
+        else:
+            _gc_os.environ["GATECAL_REOPEN"] = _gc_env0
+    _gc_yml = open(_gc_os.path.join(_gc_os.path.dirname(_gc_os.path.abspath(__file__)), ".github", "workflows", "gatecal.yml"), encoding="utf-8").read()
+    check("📏🔒 GTC21 «اقفل البوت» مُنفَّذ: سطرُ أوامر `gatecal` و`gatecal_ledger` يخرج 6 في كلّ وضعٍ قبل أيّ عمل · «0» و«yes» لا يفتحان · «1» حرفيًّا يفتح · "
+          "ونقطةُ الدخول تنادي `cli` وحدَها · ولا مُدخَلَ workflow يمرّر المفتاح",
+          len(_gc_res) == 2 and all(r[0] for r in _gc_res) and "GATECAL_REOPEN" not in _gc_yml, f"{[r[1] for r in _gc_res]}")
+except Exception as _e:                                          # noqa: BLE001
+    check("📏🔒 قفلُ إغلاق `T-GATECAL` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
