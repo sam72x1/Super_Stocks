@@ -1,39 +1,7 @@
 {
- "run_id": "44288053466",
+ "run_id": "44508529589",
  "result": {
   "done": [
-   "HWH",
-   "IMCC",
-   "QMMM",
-   "RGC",
-   "SBDS",
-   "SCNI",
-   "SGRX",
-   "SLXN",
-   "SMX",
-   "SNAL",
-   "SNGX",
-   "AEHL",
-   "ANPA",
-   "BKYI",
-   "CPOP",
-   "CYCU",
-   "DAIC",
-   "FBGL",
-   "GMEX",
-   "ICMB",
-   "IPDN",
-   "IXIC",
-   "JAGX",
-   "JEM",
-   "KWM",
-   "LABT",
-   "LIMN",
-   "LNAI",
-   "MI",
-   "MNDR",
-   "MSGY",
-   "MTEX",
    "NAMM",
    "NCT",
    "NEXR",
@@ -108,50 +76,82 @@
    "XCUR",
    "YMT",
    "ZCMD",
-   "ZNB"
+   "ZNB",
+   "AEHL",
+   "ANPA",
+   "BKYI",
+   "CPOP",
+   "CYCU",
+   "DAIC",
+   "FBGL",
+   "GMEX",
+   "HWH",
+   "ICMB",
+   "IMCC",
+   "IPDN",
+   "IXIC",
+   "JAGX",
+   "JEM",
+   "KWM",
+   "LABT",
+   "LIMN",
+   "LNAI",
+   "MI",
+   "MNDR",
+   "MSGY",
+   "MTEX",
+   "QMMM",
+   "RGC",
+   "SBDS",
+   "SCNI",
+   "SGRX",
+   "SLXN",
+   "SMX",
+   "SNAL",
+   "SNGX"
   ],
   "skipped": [],
   "calendar_error": "",
   "ce_used": 48,
   "controls": {
    "done": [
-    "AZI",
-    "BENF",
-    "CSIQ",
-    "KEEL",
-    "RADX",
-    "SMXT",
-    "XTIA",
-    "GITS",
-    "BETR",
-    "ALMS",
-    "CGTL",
-    "BIOA",
-    "DGNX",
-    "BRUN",
-    "SWMR",
-    "YJ"
+    "ABTC",
+    "HIVE",
+    "MBRX",
+    "SHAZ",
+    "STFS",
+    "XHLD",
+    "MASK",
+    "FBLG",
+    "XPON",
+    "MTVA",
+    "NXH",
+    "MRLN",
+    "IMMP",
+    "NCNA",
+    "PONY",
+    "DGNX"
    ],
    "skipped": [],
    "calendar_error": "",
    "ce_used": 16,
-   "pool_date": "2026-11-18",
-   "pool_n": 464,
+   "pool_date": "2026-11-19",
+   "pool_n": 462,
    "status": "OK"
   }
  },
  "audit": {
-  "rows": 1286,
+  "rows": 1345,
   "by_status": {
-   "OK": 867,
-   "UNKNOWN": 250,
+   "OK": 941,
+   "UNKNOWN": 239,
    "NOT_ATTEMPTED": 159,
-   "FAILED": 10
+   "FAILED": 6
   },
   "by_category": {
-   "1": 526,
-   "2": 341,
-   "4": 419
+   "1": 530,
+   "2": 411,
+   "4": 404
   },
   "tickers": 123,
   "chain_problems": []
@@ -213,11 +213,6 @@
    "yahoo_info"
   ],
   [
-   "BETR",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "BKYI",
    "short_interest",
    "yahoo_info"
@@ -253,11 +248,6 @@
    "yahoo_splits"
   ],
   [
-   "BRUN",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
    "BTOC",
    "short_interest",
    "yahoo_info"
@@ -324,11 +314,6 @@
   ],
   [
    "CETX",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
-   "CGTL",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -401,6 +386,11 @@
    "DCOY",
    "reverse_split",
    "yahoo_splits"
+  ],
+  [
+   "DGNX",
+   "short_interest",
+   "yahoo_info"
   ],
   [
    "DGNX",
@@ -533,6 +523,11 @@
    "yahoo_splits"
   ],
   [
+   "FBLG",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
    "FIEE",
    "short_interest",
    "yahoo_info"
@@ -688,6 +683,16 @@
    "yahoo_splits"
   ],
   [
+   "IMMP",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "IMMP",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
    "IPDN",
    "short_interest",
    "yahoo_info"
@@ -743,11 +748,6 @@
    "yahoo_info"
   ],
   [
-   "LNAI",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "MI",
    "short_interest",
    "yahoo_info"
@@ -784,6 +784,11 @@
   ],
   [
    "MTEX",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "MTVA",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -793,6 +798,16 @@
    "yahoo_info"
   ],
   [
+   "NCNA",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "NCNA",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
    "NCT",
    "short_interest",
    "yahoo_info"
@@ -926,6 +941,11 @@
    "PIII",
    "reverse_split",
    "yahoo_splits"
+  ],
+  [
+   "PONY",
+   "short_interest",
+   "yahoo_info"
   ],
   [
    "PPBT",
@@ -985,7 +1005,7 @@
   [
    "SCNI",
    "reverse_split",
-   "yahoo_splits"
+   "nasdaq_calendar"
   ],
   [
    "SGRX",
@@ -1123,11 +1143,6 @@
    "yahoo_splits"
   ],
   [
-   "SWMR",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
    "SXTC",
    "short_interest",
    "yahoo_info"
@@ -1228,12 +1243,7 @@
    "yahoo_splits"
   ],
   [
-   "YJ",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "YJ",
+   "XPON",
    "reverse_split",
    "yahoo_splits"
   ],
