@@ -1,0 +1,44 @@
+name: "🌙 T-NIGHT · فحص الحقيقة (الجلسة الليلية · قراءةٌ فقط)"
+
+# 🌙 أمرُ المالك 2026-11-19 «T-NIGHT — الرفعة الليلية» · المرحلة 1: هل مصادرُ البوت (Polygon · TradingView · ياهو) تعطي شموعَ
+#    20:00–04:00 نيويورك ولأيّ عمق؟ وماذا فعلت SVRE/INHD/LGHL/BRTX في لياليها؟ وصفٌ بلا حكم ولا عتبة.
+#    🔒 يدويٌّ بلا كرون وبلا سرِّ تلغرام · `contents: read` · لا يكتب في المستودع.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      received:
+        description: "طابعُ وصول إشارة BRTX (UTC ISO) — اختياريّ"
+        required: false
+        default: ""
+
+concurrency:
+  group: super-stocks-night-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 🌙 المِجَسّ
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+          RECEIVED: ${{ inputs.received }}
+        run: python fm_forensics/night/night_probe.py --out night_probe.json --received "$RECEIVED"
+      - name: 📤 رفع
+        uses: actions/upload-artifact@v4
+        with:
+          name: night-probe
+          path: night_probe.json
+          retention-days: 30

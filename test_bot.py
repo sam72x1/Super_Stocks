@@ -105643,6 +105643,82 @@ except Exception as _e:                                          # noqa: BLE001
 check("🌅 DSD2: موصولٌ — `main` يسأل الدِّدوبَ ويخرج قبل الفرز · والختمُ يُكتب بعد إرسالٍ ناجحٍ للتقرير وحدَه خلف المفتاح",
       _dsd2, _dsd2d[:200])
 
+# 🧾 FSL1-FSL2 · 🌙 NGP1-NGP2 — أمرُ المالك 2026-11-19 «برومبت شامل»: 【أ】 سجلُّ إشارات فيصل (الرجعيُّ خارج النسبة · الأماميُّ بطابعٍ وسعر ·
+#    لا لقطات) و【ب】 مِجَسُّ T-NIGHT المرحلة 1 (تقسيمُ الجلسات · يدويٌّ بلا تلغرام). قراءةٌ فقط ولا إنتاج.
+import importlib.util as _fsl_ilu
+import json as _fsl_json
+try:
+    _fsl_sp = _fsl_ilu.spec_from_file_location("faisal_signals_mod", "faisal_signals/signals.py")
+    _FSL = _fsl_ilu.module_from_spec(_fsl_sp)
+    _fsl_sp.loader.exec_module(_FSL)
+    _fsl_rows = _FSL.load()
+    _fsl_live_bad = _FSL.problems(_fsl_rows)
+    _fsl_retro = {"id": "X1", "kind": "retro", "symbol": "AAA", "recorded_utc": "t", "reading": "r", "source": "s",
+                  "counts_in_hit_rate": False, "move_date": "d", "prev_close": 1.0, "reached": {}, "bot_state": {}}
+    _fsl_fw = {"id": "X2", "kind": "forward", "symbol": "BBB", "recorded_utc": "t", "reading": "r", "source": "s",
+               "counts_in_hit_rate": True, "received_utc": "t", "price_at_receipt": 1.5, "resolve_after_sessions": 20, "outcome": None}
+    _fsl_ok = _FSL.problems([_fsl_retro, _fsl_fw])
+    _fsl_b1 = _FSL.problems([dict(_fsl_retro, counts_in_hit_rate=True)])
+    _fsl_b2 = _FSL.problems([dict(_fsl_fw, price_at_receipt=None)])
+    _fsl_b3 = _FSL.problems([dict(_fsl_fw, received_utc="")])
+    _fsl_b4 = _FSL.problems([dict(_fsl_fw, image="x.jpg")])
+    _fsl_b5 = _FSL.problems([_fsl_fw, dict(_fsl_fw)])
+    _fsl_b6 = _FSL.problems([dict(_fsl_fw, resolve_after_sessions=10)])
+    _fsl_hr = _FSL.hit_rate([dict(_fsl_retro, outcome={"hit": True}),
+                             dict(_fsl_fw, id="a", outcome={"hit": True}), dict(_fsl_fw, id="b", outcome={"hit": False}),
+                             dict(_fsl_fw, id="c")])
+    _fsl_err = ""
+except Exception as _e:                      # noqa: BLE001
+    _fsl_rows, _fsl_live_bad, _fsl_ok, _fsl_b1, _fsl_b2, _fsl_b3, _fsl_b4, _fsl_b5, _fsl_b6, _fsl_hr = [], ["⛔"], ["⛔"], [], [], [], [], [], [], None
+    _fsl_err = f"⛔ {type(_e).__name__}: {_e}"
+check("🧾 FSL1: سجلُّ إشارات فيصل الحيّ سليم · والفاحصُ يرفض رجعيًّا محسوبًا · وأماميًّا بلا سعرٍ أو بلا طابع وصول · وحقلَ لقطة · "
+      "ومعرّفًا مكرّرًا · وأفقًا غيرَ 20",
+      _fsl_live_bad == [] and len(_fsl_rows) >= 3 and _fsl_ok == []
+      and any("رجعيٌّ محسوب" in x for x in _fsl_b1) and any("بلا سعر وصول" in x for x in _fsl_b2)
+      and any("بلا طابع وصول" in x for x in _fsl_b3) and any("لقطة" in x for x in _fsl_b4)
+      and any("مكرّر" in x for x in _fsl_b5) and any("أفقُ الحسم" in x for x in _fsl_b6),
+      _fsl_err or f"حيّ={_fsl_live_bad[:2]} سليم={_fsl_ok[:2]}")
+check("🧾 FSL2: نسبةُ الإصابة على الأماميّ المحسوم وحدَه — الرجعيُّ ولو حمل نتيجةً لا يُعَدّ · والمعلّقُ يُعَدّ معلّقًا",
+      _fsl_hr == (1, 2, 1), _fsl_err or str(_fsl_hr))
+try:
+    _ngp_sp = _fsl_ilu.spec_from_file_location("night_probe_mod", "fm_forensics/night/night_probe.py")
+    _NGP = _fsl_ilu.module_from_spec(_ngp_sp)
+    _ngp_sp.loader.exec_module(_NGP)
+    import datetime as _ngp_dt
+    _ngp_t = lambda s: _ngp_dt.datetime.fromisoformat(s).replace(tzinfo=_NGP.NY)       # noqa: E731
+    _ngp_ses = [_NGP.session_of(_ngp_t(x)) for x in ("2026-11-18 03:59", "2026-11-18 04:00", "2026-11-18 09:29", "2026-11-18 09:30",
+                                                      "2026-11-18 15:59", "2026-11-18 16:00", "2026-11-18 19:59", "2026-11-18 20:00")]
+    _ngp_nights = (_NGP.night_of(_ngp_t("2026-11-18 20:00")), _NGP.night_of(_ngp_t("2026-11-19 03:59")))
+    _ngp_b = _NGP.bucket([(int(_ngp_t("2026-11-18 19:59").timestamp()), 1.0, 1.0, 1.0, 1.0, 10),
+                          (int(_ngp_t("2026-11-18 21:00").timestamp()), 1.0, 1.1, 0.9, 1.05, 100),
+                          (int(_ngp_t("2026-11-19 02:00").timestamp()), 1.05, 1.3, 1.0, 1.2, 50),
+                          (int(_ngp_t("2026-11-19 04:00").timestamp()), 1.2, 1.5, 1.2, 1.4, 70)])
+    _ngp_err = ""
+except Exception as _e:                      # noqa: BLE001
+    _ngp_ses, _ngp_nights, _ngp_b = [], (), {}
+    _ngp_err = f"⛔ {type(_e).__name__}: {_e}"
+_ngp_n = _ngp_b.get("2026-11-19|night") or {}
+check("🌙 NGP1: مِجَسُّ T-NIGHT يقسم الجلسات بحدودها (04:00 · 09:30 · 16:00 · 20:00 نيويورك) · والليلةُ تُنسَب ليوم التداول التالي "
+      "وتجمع ما قبل منتصف الليل وما بعده · وشمعةُ 19:59 وشمعةُ 04:00 خارجها",
+      _ngp_ses == ["night", "pre", "pre", "reg", "reg", "after", "after", "night"] and _ngp_nights == ("2026-11-19", "2026-11-19")
+      and _ngp_n.get("n") == 2 and _ngp_n.get("high") == 1.3 and _ngp_n.get("high_at") == "02:00" and _ngp_n.get("vol") == 150
+      and (_ngp_b.get("2026-11-18|after") or {}).get("n") == 1 and (_ngp_b.get("2026-11-19|pre") or {}).get("n") == 1,
+      _ngp_err or f"{_ngp_ses} {_ngp_nights} {_ngp_n}")
+try:
+    import yaml as _ngp_yaml
+    _ngp_txt = open(".github/workflows/night_probe.yml", encoding="utf-8").read()
+    _ngp_wf = _ngp_yaml.safe_load(_ngp_txt)
+    _ngp_on = _ngp_wf.get(True) or _ngp_wf.get("on") or {}
+    _ngp_envs = _fsl_json.dumps(_ngp_wf.get("jobs") or {}, ensure_ascii=False)
+    _ngp_w = (set(_ngp_on) == {"workflow_dispatch"} and _ngp_wf.get("permissions") == {"contents": "read"}
+              and "TELEGRAM" not in _ngp_envs and "night_probe.py" in _ngp_envs)
+    _ngp_src = open("fm_forensics/night/night_probe.py", encoding="utf-8").read()
+    _ngp_w = _ngp_w and "send_telegram" not in _ngp_src and "git_save" not in _ngp_src and "import Super_stock" not in _ngp_src
+except Exception as _e:                      # noqa: BLE001
+    _ngp_w = False
+check("🌙 NGP2: `night_probe.yml` يدويٌّ وحدَه · `contents: read` · بلا سرِّ تلغرام · والمِجَسُّ لا يرسل ولا يحفظ ولا يستورد البوت", _ngp_w)
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
