@@ -94,6 +94,10 @@ on:
         description: "إعادة بناء القائمة كاملة على آخر كود (1=نعم)"
         required: false
         default: "0"
+      early:
+        description: "🌅 إطلاقٌ مبكّر من مُطلِق الصباح (1 = كالمجدول: دِدوبُ الجلسة نافذ)"
+        required: false
+        default: "0"
 jobs:
   screen:
     runs-on: ubuntu-latest
@@ -143,6 +147,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           SCREENER_MODE: FULL
           FORCE_RENEW: ${{ github.event.inputs.force_renew }}
+          # 🌅 دِدوبُ الجلسة (2026-11-19 · `DSD1`-`DSD3`): المجدولُ والإطلاقُ المبكّر يُدَدوَبان · واليدويُّ بلا `early` إعادةٌ مقصودة
+          DAILY_DEDUPE: ${{ (github.event_name == 'schedule' || inputs.early == '1') && '1' || '' }}
           # 🔄 إشارة التجديد الأسبوعي: تُرفع فقط في جوب كرون الجمعة 22:07 UTC
           #    (بعد إغلاق السوق). أي تشغيل آخر (متابعة يومية/يدوي) = 0.
           #    ⚠️ النص هنا يطابق سطر الكرون أعلاه حرفيًّا — غيّرهما معًا.

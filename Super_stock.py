@@ -655,6 +655,9 @@ CONFIG = {
     #    فيه يُطبع سطرًا واحدًا بعدد المفحوصين وسبب سقوط كلٍّ (لا فجوة · قروب · طرح · متاح فوق الحدّ) — عرضٌ لا قياس · المفتاحان أعلاه يحكمان
     #    ظهورَ القسم أصلًا · `METHOD_SHOW_EMPTY=0` ⟵ القسمُ الفارغ لا يُطبع (بت-بت · `MSE1`-`MSE3`).
     "METHOD_SHOW_EMPTY": os.environ.get("METHOD_SHOW_EMPTY", "1").strip() != "0",
+    # 🌅 **دِدوبُ الفرز اليوميّ بالجلسة** (أمرُ المالك 2026-11-19 «شغّل القناة بإطلاق مبكّر»): مُطلِقُ الصباح يُطلق الفرزَ بعد إغلاق الافتر
+    #    فيُرسَل التقريرُ ويُختم · والكرونُ المجدولُ المتأخّر للجلسة نفسِها يخرج بلا تكرار · `False` ⟵ بت-بت (لا ختمَ ولا دِدوب · `DSD1`-`DSD3`).
+    "DAILY_SESSION_DEDUPE": True,
     # 🕓 **الفريم: اليوميّ ثم 4 ساعات** (قرار المالك 2026-08-01: «نمشي بالتسلسل حسب
     #    اللي أعرفه من أبو بدر — لأن **الأهداف وغالبًا الشموع وحده**»). فالمستويات
     #    (‏القاع · الفجوة-الهدف) واحدةٌ عبر الفريمين، والتسلسل يُقرأ حيث يظهر.
@@ -24136,6 +24139,21 @@ def repair_stale_pullback(wl: dict, fetch=None) -> tuple:
     return (repaired, dropped)
 
 
+def daily_already_done(wl, env=None, now=None):
+    """🌅 دِدوبُ الفرز اليوميّ (أمرُ المالك 2026-11-19 «شغّل القناة بإطلاق مبكّر» · `DSD1`-`DSD3`): تشغيلةٌ مجدولةٌ أو مبكّرة
+    (`DAILY_DEDUPE=1` من الـworkflow) وختمُ `daily_session_done` = آخرُ جلسةٍ مكتملة ⟵ تلك الجلسة (فلا يُكرَّر التقرير) · وإلّا None.
+    اليدويُّ بلا `early` لا يُدَدوَب (إعادةٌ مقصودة) · و`DAILY_SESSION_DEDUPE=False` ⟵ None دائمًا (بت-بت) · فاشلةٌ-آمنة ⟵ None."""
+    try:
+        env = os.environ if env is None else env
+        if not CONFIG.get("DAILY_SESSION_DEDUPE") or str(env.get("DAILY_DEDUPE", "")).strip() != "1":
+            return None
+        sess = last_closed_session(now)
+        done = str((wl or {}).get("daily_session_done") or "")
+        return sess if sess and done == sess else None
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
 def run_daily_watchlist(wl: dict) -> None:
     """يومي (غير الجمعة): قائمة ثابتة دائمة — تُتابَع وتُضاف لها الجديد فقط.
     **الشطب بالستوب فقط**؛ الهدف المُحقَّق **لا يُنهي المتابعة** (يبقى نشطًا
@@ -24564,7 +24582,12 @@ def run_daily_watchlist(wl: dict) -> None:
     # احفظ حالة اليوم (ترقيات/تنبيهات/تحديثات) قبل الإرسال — لو فشل الإرسال
     # (شبكة/تيليجرام) لا تضيع الحالة المحسوبة (إصلاح 2026-06-24).
     save_watchlist(wl)
-    send_telegram(msg)
+    _daily_sent = send_telegram(msg)
+    if _daily_sent and CONFIG.get("DAILY_SESSION_DEDUPE"):
+        # 🌅 ختمُ «أُرسل تقريرُ هذي الجلسة» (أمرُ المالك 2026-11-19 «شغّل القناة بإطلاق مبكّر» · `DSD1`-`DSD3`): الإطلاقُ المبكّر
+        #    بعد إغلاق الافتر يختم ⟵ الكرونُ المتأخّر للجلسة نفسِها يقرؤه في `main` فلا يُكرّر · والختمُ بعد إرسالٍ ناجحٍ وحدَه
+        wl["daily_session_done"] = last_closed_session() or ""
+        save_watchlist(wl)
     subs_mirror(msg, "daily_report")              # 📣 قناةُ المشتركين بالاسم (`SUB3`) — مطفأٌ ⟵ صفرُ عمل
     # 🕵️ رسالة أسهم اليد المستقلة (منفصلة عن التقرير الطويل — لا تُدفن)
     if hand_msg:
@@ -27928,6 +27951,10 @@ def main():
                 send_telegram(_m + "\n\n" + FOOTER)
         except Exception as _e:                                  # noqa: BLE001
             log(f"⚠️ رصد تقادم التجديد: {_e}")
+        _dsd = daily_already_done(wl)
+        if _dsd:
+            log(f"🌅 تقريرُ جلسة {_dsd} أُرسل سلفًا (الإطلاقُ المبكّر) — لا تكرار · انتهى ✅")
+            return
         run_daily_watchlist(wl)
     log("انتهى الفحص ✅")
 

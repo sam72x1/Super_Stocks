@@ -98583,16 +98583,16 @@ try:
     def _mst_run(start, env="1", **kw):
         _c = _MstClock(start)
         _a = _MstApi(_c, **kw)
-        _keep = (_MST._sleep, _os_hc.environ.get(_MST.ENV))
+        _keep = (_MST._sleep, _os_hc.environ.get(_MST.ENV), _MST.SC.ON)
         try:
-            _MST._sleep = _c.sleep
+            _MST._sleep, _MST.SC.ON = _c.sleep, False          # 📣 القناةُ مُشعَلة منذ 2026-11-19 — نقاطُها تُقفَل في `SUB8` لا هنا
             if env is None:
                 _os_hc.environ.pop(_MST.ENV, None)
             else:
                 _os_hc.environ[_MST.ENV] = env
             _rc = _MST.main(now_fn=_c.now, api=_a, no_session=lambda d: _mst_dt.date.fromisoformat(d).weekday() >= 5)
         finally:
-            _MST._sleep = _keep[0]
+            _MST._sleep, _MST.SC.ON = _keep[0], _keep[2]
             if _keep[1] is None:
                 _os_hc.environ.pop(_MST.ENV, None)
             else:
@@ -104887,7 +104887,7 @@ try:
         S._chunk_message = _sb_count
         _sb_text = "📋 <b>قائمة الأسبوع</b> (فيصل · 3 مطابق)\n" + ("سطرٌ — داخلَ ظرف فيصل تمامًا\n" * 900)
         # (أ) SUB1 — مطفأ افتراضيًّا ⟵ «off» لكلّ اسم بلا تقطيعٍ ولا ملفٍّ ولا إرسال · والمالكُ يتلقّى كعادته
-        _sb_res["default_off"] = (_sb_on0 is False)
+        _sb_res["default_off"] = (_sb_on0 is True)          # 📣 مُشعَلٌ بأمر المالك 2026-11-19 «شغّل القناة بإطلاق مبكّر»
         _SC.ON = False
         _sb_res["off"] = [S.subs_mirror(_sb_text, k) for k in _SC.NAMES]
         _sb_res["off_chunks"], _sb_res["off_posts"], _sb_res["off_files"] = _sb_nchunk[0], len(_sb_posts), _sb_files()
@@ -105050,7 +105050,7 @@ try:
             else:
                 _sb_os.environ[_k] = _v
         _sb_sh.rmtree(_sb_tmp, ignore_errors=True)
-    check("📣 SUB1: قناةُ المشتركين مطفأةٌ افتراضيًّا (`subs_channel.ON = False`) ⟵ «off» لكلّ اسمٍ ولو حضر السرُّ والتوكن · بلا تقطيعٍ ولا ملفٍّ "
+    check("📣 SUB1: قناةُ المشتركين مُشعَلةٌ بأمر المالك (`subs_channel.ON = True`) · ومطفأةً ⟵ «off» لكلّ اسمٍ ولو حضر السرُّ والتوكن · بلا تقطيعٍ ولا ملفٍّ "
           "ولا إرسال · والمالكُ يتلقّى كعادته (مستلماه وحدَهما)",
           _sb_res["default_off"] and _sb_res["off"] == ["off"] * len(_SC.NAMES) and _sb_res["off_chunks"] == 0
           and _sb_res["off_posts"] == 0 and _sb_res["off_files"] == [] and _sb_res["owner_ids"] == ["111", "222"]
@@ -105086,16 +105086,17 @@ try:
           and _sb_keys("split_hunter.py", "run") == ["split_hunter", "split_hunter"] and _sb_keys("split_hunter.py", "_fail") == []
           and _sb_keys("split_filter_hunter.py", "run") == ["split_filter"] and _sb_keys("split_filter_hunter.py", "_fail") == []
           and _sb_keys("presession_digest.py") == ["presession"]
+          and _sb_keys("method_hunter.py", "run") == ["method"]
           and set(_sb_keys("Super_stock.py")) <= set(_SC.NAMES)
-          and _SC.ACTIVE == ("daily_report", "hand", "split_radar", "tracking", "split_hunter", "split_filter", "press", "presession")
-          and _sb_users == ["Super_stock.py", "presession_digest.py", "press_radar.py", "split_filter_hunter.py", "split_hunter.py"],
+          and _SC.ACTIVE == ("daily_report", "hand", "split_radar", "tracking", "split_hunter", "split_filter", "press", "presession", "method")
+          and _sb_users == ["Super_stock.py", "method_hunter.py", "presession_digest.py", "press_radar.py", "split_filter_hunter.py", "split_hunter.py"],
           f"users={_sb_users} sh={_sb_keys('split_hunter.py', 'run')}")
     _sb_wf = _sb_os.path.join(_sb_here, ".github", "workflows")
     _sb_with = sorted(f for f in _sb_os.listdir(_sb_wf) if "TELEGRAM_SUBS_CHAT_ID" in open(_sb_os.path.join(_sb_wf, f), encoding="utf-8").read())
     _sb_ss = open(_sb_os.path.join(_sb_wf, "subs_sender.yml"), encoding="utf-8").read()
     check("📣 SUB4: السرُّ `TELEGRAM_SUBS_CHAT_ID` في جوبات المنتجين الخمسة والمُرسِل وحدَها · والمُرسِلُ `flush --wait` بمجموعة تزامنٍ ثابتة "
           "وصلاحيةِ دفعٍ · ولا مفتاحَ بيئةٍ يُشعل القناة",
-          _sb_with == ["daily_screener.yml", "presession_digest.yml", "press_radar.yml", "split_filter.yml", "split_hunter.yml", "subs_sender.yml",
+          _sb_with == ["daily_screener.yml", "method_hunter.yml", "presession_digest.yml", "press_radar.yml", "split_filter.yml", "split_hunter.yml", "subs_sender.yml",
                        "subs_trial.yml"]          # 📣🧪 2026-11-19: تجربةُ العرض اليدويّة (قارئةٌ · بلا محادثة المالك · `SBT3`)
           and "python subs_channel.py flush --wait" in _sb_ss and "group: subs-sender" in _sb_ss and "contents: write" in _sb_ss
           and not any(_ln.strip().startswith(("SUBS_CHANNEL:", "SUBS_ON:")) for f in _sb_with
@@ -105489,7 +105490,7 @@ try:
           and "contents: read" in _sbt_code and "contents: write" not in _sbt_code and "schedule:" not in _sbt_code
           and "TELEGRAM_CHAT_ID" not in _sbt_code and "TELEGRAM_OWNER_ID" not in _sbt_code and "workflow_dispatch:" in _sbt_code
           and "SC.ON" not in _sbt_src and ".ON =" not in _sbt_src and _sbt.FIRST_LINE == "تجربة"
-          and "chunks[0] = FIRST_LINE" in _sbt_src and _sbt_SC.ON is False
+          and "chunks[0] = FIRST_LINE" in _sbt_src
           # 🩺 سببُ الرفض يُسجَّل بلا أيّ رقم (لا رقمَ محادثةٍ في السجلّ) — عطلُ أوّل تجربة: 15 جزءًا رُفضت بـ400 بلا سبب مقروء
           and _sbt_SC._why(type("R", (), {"json": lambda self: {"description": "Bad Request: chat -100123 not found"}})())
           == "Bad Request: chat -###### not found"
@@ -105498,6 +105499,149 @@ try:
 except Exception as _e:                                          # noqa: BLE001
     check("📣🧪 SBT0: كتلةُ تجربة قناة المشتركين لم تكتمل", False, f"⛔ {type(_e).__name__}: {_e}")
 
+
+# 🌅 ELN1-ELN3 · DSD1-DSD2 — «شغّل القناة بإطلاق مبكّر» (أمرُ المالك 2026-11-19): مُطلِقُ الصباح يُطلق الصيّادين الخمسة 20:05 نيويورك والفرزَ
+#    20:40 (جلساتُ الاثنين-الخميس) بـ`early=1` = كالمجدول (بوّابةُ التوقيت والدِّدوب نافذتان) · والفرزُ يُختم بجلسته بعد إرسالٍ ناجح فلا يُكرّره
+#    الكرونُ المتأخّر · ↩️ حذفُ `EARLY_LAUNCH` ⟵ لا إطلاق · `DAILY_SESSION_DEDUPE=False` ⟵ بت-بت.
+import base64 as _eln_b64
+import datetime as _eln_dt
+import morning_starter as _ELN
+import yaml as _eln_yaml
+_eln_utc = _eln_dt.timezone.utc
+_eln_D = lambda mo, d, h, m: _eln_dt.datetime(2026, mo, d, h, m, tzinfo=_eln_utc)       # noqa: E731
+_eln_ns = lambda d: _eln_dt.date.fromisoformat(d).weekday() >= 5 or d == "2026-11-26"   # noqa: E731
+try:
+    _e1 = _ELN.next_early_point(_eln_D(11, 9, 20, 0), set(), _eln_ns)                    # الاثنين 15:00 نيويورك (شتاء)
+    _e2 = _ELN.next_early_point(_eln_D(11, 10, 1, 6), {("2026-11-09", "hunters")}, _eln_ns)
+    _e3 = _ELN.next_early_point(_eln_D(11, 13, 20, 0), set(), _eln_ns)                   # الجمعة ⟵ الصيّادون وحدَهم ثمّ الاثنين
+    _e3b = _ELN.next_early_point(_eln_D(11, 14, 2, 0), {("2026-11-13", "hunters")}, _eln_ns)
+    _e4 = _ELN.next_early_point(_eln_D(11, 26, 12, 0), set(), _eln_ns)                   # عطلة ⟵ اليومُ التالي
+    _e5 = _ELN.next_early_point(_eln_D(10, 20, 20, 0), set(), _eln_ns)                   # صيفًا ⟵ 00:05 UTC
+    _e6 = _ELN.next_early_point(_eln_D(11, 10, 3, 20), set(), _eln_ns)                   # النقطتان فاتتا بأكثر من 90 د ⟵ تُتركان
+    _e7 = _ELN.next_early_point(_eln_D(11, 10, 2, 40), set(), _eln_ns)                   # الفرزُ فات بـ60 د ⟵ ما زال يُطلَق
+    _eln1 = (_e1 == (("2026-11-09", "hunters"), _eln_D(11, 10, 1, 5)) and _e2 == (("2026-11-09", "daily"), _eln_D(11, 10, 1, 40))
+             and _e3 == (("2026-11-13", "hunters"), _eln_D(11, 14, 1, 5)) and _e3b[0] == ("2026-11-16", "hunters")
+             and _e4[0] == ("2026-11-27", "hunters") and _e5 == (("2026-10-20", "hunters"), _eln_D(10, 21, 0, 5))
+             and _e6[0] == ("2026-11-10", "hunters") and _e7[0] == ("2026-11-09", "daily"))
+    _eln1d = str((_e1, _e2[0], _e3b[0], _e4[0], _e6[0]))
+except Exception as _e:                                          # noqa: BLE001
+    _eln1, _eln1d = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🌅 ELN1: نقاطُ الإطلاق المبكّر — الصيّادون 20:05 والفرزُ 20:40 نيويورك يومَ الجلسة (الفرزُ الاثنين-الخميس وحدَها) · العطلةُ لا نقطة · "
+      "الصيفُ 00:05 UTC والشتاء 01:05 · وما فات بأكثر من 90 دقيقة يُترك", _eln1, _eln1d[:200])
+
+
+class _ElnApi:
+    def __init__(s, clock, early=True, active=()):
+        s.c, s.early, s.active, s.posts = clock, early, set(active), []
+
+    def __call__(s, method, path, body=None):
+        if method == "POST":
+            s.posts.append((s.c[0].strftime("%a %H:%M"), path.split("/")[3], (body or {}).get("inputs")))
+            return {}
+        if path.startswith("/contents/.github/workflows"):
+            _y = "jobs:\n  watch:\n    steps:\n      - env:\n          MORNING_STARTER: \"1\"\n" + ('          EARLY_LAUNCH: "1"\n' if s.early else "")
+            return {"content": _eln_b64.b64encode(_y.encode()).decode()}
+        if path.startswith("/contents/"):
+            return {"content": _eln_b64.b64encode(b"{}").decode()}
+        _wf = path.split("/")[3] if path.startswith("/actions/workflows/") else ""
+        if _wf in s.active and "status=" not in path:
+            return {"workflow_runs": [{"id": 9, "status": "in_progress"}]}
+        return {"workflow_runs": []}
+
+
+def _eln_run(start, **kw):
+    _c = [start]
+    _a = _ElnApi(_c, **kw)
+    _keep = (_ELN._sleep, _os_hc.environ.get(_ELN.ENV), _ELN.SC.ON)
+
+    def _sl(x):
+        _c[0] += _eln_dt.timedelta(seconds=x + 0.004)
+    try:
+        _ELN._sleep, _ELN.SC.ON = _sl, False
+        _os_hc.environ[_ELN.ENV] = "1"
+        _ELN.main(now_fn=lambda: _c[0], api=_a, no_session=_eln_ns)
+    finally:
+        _ELN._sleep, _ELN.SC.ON = _keep[0], _keep[2]
+        if _keep[1] is None:
+            _os_hc.environ.pop(_ELN.ENV, None)
+        else:
+            _os_hc.environ[_ELN.ENV] = _keep[1]
+    return [p for p in _a.posts if p[1] in _ELN.EARLY_HUNTER_WFS + (_ELN.EARLY_DAILY_WF,)]
+
+
+try:
+    _el_on = _eln_run(_eln_D(11, 9, 23, 0))
+    _el_off = _eln_run(_eln_D(11, 9, 23, 0), early=False)
+    _el_act = _eln_run(_eln_D(11, 9, 23, 0), active=("method_hunter.yml",))
+    _el_fri = _eln_run(_eln_D(11, 13, 23, 0))
+    _eln2 = ([p[1] for p in _el_on] == list(_ELN.EARLY_HUNTER_WFS) + [_ELN.EARLY_DAILY_WF]
+             and all(p[2] == {"early": "1"} for p in _el_on)
+             and [p[0] for p in _el_on] == ["Tue 01:05"] * 5 + ["Tue 01:40"]
+             and _el_off == [] and "method_hunter.yml" not in [p[1] for p in _el_act] and len(_el_act) == 5
+             and [p[1] for p in _el_fri] == list(_ELN.EARLY_HUNTER_WFS))
+    _eln2d = str((_el_on[:2], len(_el_off), len(_el_act), len(_el_fri)))
+except Exception as _e:                                          # noqa: BLE001
+    _eln2, _eln2d = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🌅 ELN2: الحارسُ يُطلق الخمسةَ ثمّ الفرزَ بـ`early=1` في موعدهم · وبلا سطر `EARLY_LAUNCH` على main لا إطلاق · والتشغيلةُ القائمة لا تُكرَّر · "
+      "والجمعةُ صيّادون بلا فرز", _eln2, _eln2d[:200])
+try:
+    _el_ok = True
+    _el_bad = []
+    for _f in ("split_hunter", "split_filter", "press_radar", "method_hunter", "presession_digest"):
+        _t = open(f".github/workflows/{_f}.yml", encoding="utf-8").read()
+        _y = _eln_yaml.safe_load(_t)
+        _inp = (((_y.get(True) or _y.get("on") or {}).get("workflow_dispatch") or {}).get("inputs") or {})
+        if "early" not in _inp or "github.event_name == 'workflow_dispatch' && inputs.early != '1' && '1' || ''" not in _t:
+            _el_bad.append(_f)
+    _ds = open(".github/workflows/daily_screener.yml", encoding="utf-8").read()
+    _ms = _eln_yaml.safe_load(open(".github/workflows/morning_starter.yml", encoding="utf-8"))
+    _ms_env = ((_ms.get("jobs") or {}).get("watch") or {}).get("steps")[-1].get("env") or {}
+    _eln3 = (_el_bad == [] and "DAILY_DEDUPE: ${{ (github.event_name == 'schedule' || inputs.early == '1') && '1' || '' }}" in _ds
+             and "early:" in _ds and _ms_env.get("EARLY_LAUNCH") == "1"
+             and _ELN.EARLY_HUNTER_WFS == ("split_hunter.yml", "split_filter.yml", "press_radar.yml", "method_hunter.yml", "presession_digest.yml"))
+    _eln3d = str((_el_bad, _ms_env.get("EARLY_LAUNCH")))
+except Exception as _e:                                          # noqa: BLE001
+    _eln3, _eln3d = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🌅 ELN3: الـworkflows — مُدخَلُ `early` في الخمسة والتجاوزُ اليدويّ لا يسري معه · والفرزُ يُدَدوَب مجدولًا ومبكّرًا لا يدويًّا · و`EARLY_LAUNCH` في الحارس",
+      _eln3, _eln3d[:200])
+_dsd_sw = S.CONFIG.get("DAILY_SESSION_DEDUPE")
+try:
+    _dn = _eln_D(11, 18, 7, 0)                                    # الأربعاء 02:00 نيويورك ⟵ آخرُ جلسةٍ مكتملة 11-17
+    _dsd_s = S.last_closed_session(_dn)
+    S.CONFIG["DAILY_SESSION_DEDUPE"] = True
+    _d1 = S.daily_already_done({"daily_session_done": _dsd_s}, env={"DAILY_DEDUPE": "1"}, now=_dn)
+    _d2 = S.daily_already_done({"daily_session_done": "2026-11-16"}, env={"DAILY_DEDUPE": "1"}, now=_dn)
+    _d3 = S.daily_already_done({"daily_session_done": _dsd_s}, env={}, now=_dn)
+    _d4 = S.daily_already_done({}, env={"DAILY_DEDUPE": "1"}, now=_dn)
+    S.CONFIG["DAILY_SESSION_DEDUPE"] = False
+    _d5 = S.daily_already_done({"daily_session_done": _dsd_s}, env={"DAILY_DEDUPE": "1"}, now=_dn)
+    _dsd1 = (_dsd_s == "2026-11-17" and _d1 == "2026-11-17" and _d2 is None and _d3 is None and _d4 is None and _d5 is None
+             and _dsd_sw is True)
+    _dsd1d = str((_dsd_s, _d1, _d2, _d3, _d4, _d5))
+except Exception as _e:                                          # noqa: BLE001
+    _dsd1, _dsd1d = False, f"⛔ {type(_e).__name__}: {_e}"
+finally:
+    S.CONFIG["DAILY_SESSION_DEDUPE"] = _dsd_sw
+check("🌅 DSD1: دِدوبُ الفرز اليوميّ — ختمُ الجلسة نفسِها ⟵ لا تكرار · ختمُ جلسةٍ أقدم أو بلا ختم ⟵ يعمل · واليدويُّ (بلا `DAILY_DEDUPE`) يعمل · والمفتاحُ مطفأ ⟵ بت-بت",
+      _dsd1, _dsd1d[:200])
+try:
+    _dsd_t = _ast0.parse(_insp0.getsource(S.main))
+    _dsd_body = _ast0.unparse(_dsd_t)
+    _dsd_i = _dsd_body.find("daily_already_done(wl)")
+    _dsd_j = _dsd_body.find("run_daily_watchlist(wl)")
+    _dsd_k = _dsd_body.find("return", _dsd_i)
+    _dsd_rd = _ast0.unparse(_ast0.parse(_insp0.getsource(S.run_daily_watchlist)))
+    _dsd_ifs = [n for n in _ast0.walk(_ast0.parse(_insp0.getsource(S.run_daily_watchlist))) if isinstance(n, _ast0.If)
+                and "_daily_sent" in _ast0.unparse(n.test) and "daily_session_done" in _ast0.unparse(n)]
+    _dsd_ret = [n for n in _ast0.walk(_dsd_t) if isinstance(n, _ast0.If) and _ast0.unparse(n.test) == "_dsd"
+                and any(isinstance(x, _ast0.Return) for x in n.body)]
+    _dsd2 = (0 <= _dsd_i < _dsd_k < _dsd_j and len(_dsd_ret) == 1 and "_dsd = daily_already_done(wl)" in _dsd_body and "_daily_sent = send_telegram(msg)" in _dsd_rd and len(_dsd_ifs) == 1
+             and _dsd_rd.count("daily_session_done") == 1 and "DAILY_SESSION_DEDUPE" in _ast0.unparse(_dsd_ifs[0].test))
+    _dsd2d = str((_dsd_i, _dsd_k, _dsd_j, len(_dsd_ifs)))
+except Exception as _e:                                          # noqa: BLE001
+    _dsd2, _dsd2d = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🌅 DSD2: موصولٌ — `main` يسأل الدِّدوبَ ويخرج قبل الفرز · والختمُ يُكتب بعد إرسالٍ ناجحٍ للتقرير وحدَه خلف المفتاح",
+      _dsd2, _dsd2d[:200])
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

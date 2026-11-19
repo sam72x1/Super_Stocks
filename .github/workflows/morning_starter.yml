@@ -39,6 +39,8 @@ jobs:
       - name: 🌅 الحارس
         env:
           MORNING_STARTER: "1"
+          # 🌅 الإطلاقُ المبكّر بعد إغلاق الافتر (أمرُ المالك 2026-11-19 «شغّل القناة بإطلاق مبكّر» · `ELN1`-`ELN3`) — ↩️ احذف هذا السطر ⟵ لا إطلاقَ مبكّر
+          EARLY_LAUNCH: "1"
           GITHUB_TOKEN: ${{ github.token }}
           PYTHONUNBUFFERED: "1"
         run: python morning_starter.py

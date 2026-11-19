@@ -16,6 +16,11 @@
   والرسالةُ نفسُها وختمُها ودِدوبُها كما هي (الإطلاقُ المكرّر لا يُرسل مرّتين).
 - **قناةُ المشتركين (2026-11-19):** قبل موعدها (`subs_channel.SEND_AT` الرياض) بـ`SUBS_LEAD_MIN` ثمّ كلَّ ساعةٍ حتى المساء ⟵ إن كان في صندوق main
   رسالةٌ لم تُرسَل حلّ موعدُها ⟵ يُطلَق `subs_sender.yml` · والقناةُ مطفأة (`subs_channel.ON = False`) ⟵ لا نقطةَ أصلًا (بت-بت · `SUB8`).
+- **🌅 الإطلاقُ المبكّر (2026-11-19 · أمرُ المالك «شغّل القناة بإطلاق مبكّر»):** يومَ الجلسة بعد إغلاق الافتر — الصيّادون الخمسة
+  (`EARLY_HUNTER_WFS`) عند `EARLY_HUNTERS_NY` (20:05 نيويورك) والفرزُ اليوميّ عند `EARLY_DAILY_NY` (20:40 · جلساتُ الاثنين-الخميس كالكرون
+  `50 1 * * 2-5`) ⟵ `workflow_dispatch` بمُدخَل `early=1` (= كالمجدول: بوّابةُ التوقيت والدِّدوب نافذتان) ما لم تكن تشغيلتُه قائمة ·
+  فتجهز رسائلُ القناة قبل 06:00 الرياض · والكروناتُ المجدولةُ المتأخّرة تجد الختمَ فتخرج بلا تكرار · ↩️ حذفُ سطر `EARLY_LAUNCH: "1"` من
+  `morning_starter.yml` ⟵ لا إطلاقَ مبكّر (والكروناتُ كما كانت · `ELN1`-`ELN3`).
 🔒 **لا يُرسل تلغرامَ ولا يكتب حالةً ولا يمسّ قاعدةً** — إطلاقاتُ `workflow_dispatch` وقراءاتٌ من GitHub API وحدَها · وبلا مفتاح ⟵ صفرُ عمل ·
 وتعذّرُ الـAPI ⟵ سطرُ سجلٍّ ويمضي (الكروناتُ القديمةُ باقيةٌ احتياطًا).
 ↩️ **الرجوع: احذف سطرَ `MORNING_STARTER: "1"` من `morning_starter.yml`** ⟵ التشغيلةُ القائمة تقرأ الملفَّ من main عند كلّ استيقاظ فتتوقّف بلا
@@ -51,6 +56,13 @@ ACTIVE = ("queued", "in_progress", "waiting", "pending", "requested")
 SEARCH_DAYS = 4           # أبعدُ بحثٍ عن الفتحة/النقطة التالية (نهايةُ أسبوعٍ طويلة)
 SUBS_WF = "subs_sender.yml"
 SUBS_LEAD_MIN = 6         # إطلاقُ مُرسِل القناة قبل موعدها (ينتظره بـ`flush --wait`)
+EARLY_ENV = "EARLY_LAUNCH"
+EARLY_HUNTER_WFS = ("split_hunter.yml", "split_filter.yml", "press_radar.yml", "method_hunter.yml", "presession_digest.yml")
+EARLY_DAILY_WF = "daily_screener.yml"
+EARLY_HUNTERS_NY = 20 * 60 + 5      # بعد إغلاق الافتر (20:00 نيويورك) بخمس دقائق — بوّابةُ توقيت الصيّادين تقبل الجلسةَ نفسَها
+EARLY_DAILY_NY = 20 * 60 + 40       # الفرزُ بعدهم (‏≈23-36 دقيقة مقيسة للأدوات في تجربتَي القناة) — قبل 06:00 الرياض في الفصلين
+EARLY_DAILY_WEEKDAYS = (0, 1, 2, 3)  # جلساتُ الاثنين-الخميس = كرونُ الفرز `50 1 * * 2-5` (الجمعةُ للتجديد)
+EARLY_LATE_MIN = 90       # نقطةٌ مبكّرة فات موعدُها بأكثر من هذا ⟵ تُترك (والكرونُ المجدولُ يغطّي)
 _sleep = time.sleep
 
 
@@ -118,6 +130,43 @@ def next_subs_point(now, done, on=None, env=None):
                 continue
             return key, at
     return None, None
+
+
+def next_early_point(now, done, no_session=None):
+    """🔒 **نقيّة** (بحقن `no_session`): ((يومُ الجلسة، "hunters"|"daily")، لحظتُها UTC) لأقرب إطلاقٍ مبكّر يومَ جلسةٍ لم يُعالَج ولم يفُت
+    موعدُه بأكثر من `EARLY_LATE_MIN` ⟵ أو (None, None). الفرزُ لجلسات `EARLY_DAILY_WEEKDAYS` وحدَها."""
+    no_session = no_session or OE._no_session
+    d0 = now.astimezone(NY).date()
+    for k in range(-1, SEARCH_DAYS + 1):
+        d = d0 + dt.timedelta(days=k)
+        if no_session(d.isoformat()):
+            continue
+        pts = [("hunters", EARLY_HUNTERS_NY)] + ([("daily", EARLY_DAILY_NY)] if d.weekday() in EARLY_DAILY_WEEKDAYS else [])
+        for kind, m in pts:
+            at = dt.datetime(d.year, d.month, d.day, m // 60, m % 60, tzinfo=NY).astimezone(UTC)
+            key = (d.isoformat(), kind)
+            if key in done or at < now - dt.timedelta(minutes=EARLY_LATE_MIN):
+                continue
+            return key, at
+    return None, None
+
+
+def ensure_early(api, key):
+    """الإطلاقُ المبكّر: لكلّ workflow في النقطة ⟵ تشغيلتُه قائمة ⟵ لا شيء · وإلّا `workflow_dispatch` بـ`early=1` (كالمجدول)."""
+    wfs = EARLY_HUNTER_WFS if key[1] == "hunters" else (EARLY_DAILY_WF,)
+    out = {}
+    for wf in wfs:
+        try:
+            active = [r.get("id") for r in (_runs(api, wf) or []) if str(r.get("status") or "") in ACTIVE]
+        except Exception as e:                                   # noqa: BLE001
+            log(f"⚠️ فحصُ تشغيلات {wf}: {e}")
+            active = []
+        if active:
+            out[wf] = "قائمة"
+            continue
+        out[wf] = "أُطلق" if _dispatch(api, wf, {"early": "1"}) else "⛔ تعذّر"
+    log(f"🌅 إطلاقٌ مبكّر {key[0]} ({key[1]}): " + " · ".join(f"{w.replace('.yml', '')} {s}" for w, s in out.items()))
+    return out
 
 
 def _main_names(api, path):
@@ -192,22 +241,22 @@ def _dispatch(api, wf, inputs=None, tries=3):
     return False
 
 
-def switch_on(api):
-    """↩️ مفتاحُ الرجوع من main (لا من نسخة الإقلاع): السطرُ موجود ⟵ True · محذوف ⟵ False · وتعذّرُ القراءة ⟵ True (يمضي)."""
+def switch_on(api, env=ENV, on_error=True):
+    """↩️ مفتاحُ الرجوع من main (لا من نسخة الإقلاع): السطرُ موجود ⟵ True · محذوف ⟵ False · وتعذّرُ القراءة ⟵ `on_error`."""
     try:
         import yaml
         txt = _main_text(api, f".github/workflows/{SELF_WF}")
         if txt is None:
-            return True
+            return on_error
         y = yaml.safe_load(txt) or {}
         for j in (y.get("jobs") or {}).values():
             for s in (j or {}).get("steps") or []:
-                if str(((s or {}).get("env") or {}).get(ENV, "")) == "1":
+                if str(((s or {}).get("env") or {}).get(env, "")) == "1":
                     return True
         return False
     except Exception as e:                                       # noqa: BLE001
-        log(f"⚠️ قراءةُ مفتاح الرجوع: {e} — يمضي")
-        return True
+        log(f"⚠️ قراءةُ مفتاح الرجوع ({env}): {e}")
+        return on_error
 
 
 def ensure_monitor(api, now, slot):
@@ -262,13 +311,14 @@ def main(now_fn=None, api=None, no_session=None):
     t0 = now_fn()
     hop_at = t0 + dt.timedelta(minutes=BUDGET_MIN - HOP_LEFT_MIN)
     log(f"🌅 مُطلِقُ الصباح: ميزانيّة {BUDGET_MIN} دقيقة · الخلَفُ عند {hop_at.strftime('%a %H:%M')} UTC")
-    done_m, done_s, done_c, shadow_last = set(), set(), set(), None
+    done_m, done_s, done_c, done_e, shadow_last = set(), set(), set(), set(), None
     while True:
         now = now_fn()
         slot, at_m = next_monitor_point(now, done_m)
         key, at_s = next_shadow_point(now, done_s, no_session)
         ckey, at_c = next_subs_point(now, done_c)
-        wake = min(x for x in (at_m, at_s, at_c, hop_at) if x is not None)
+        ekey, at_e = next_early_point(now, done_e, no_session)
+        wake = min(x for x in (at_m, at_s, at_c, at_e, hop_at) if x is not None)
         if wake > now:
             _sleep((wake - now).total_seconds())
             now = now_fn()
@@ -286,6 +336,12 @@ def main(now_fn=None, api=None, no_session=None):
         if ckey is not None and at_c <= now:
             done_c.add(ckey)
             ensure_subs(api, now, ckey)
+        if ekey is not None and at_e <= now:
+            done_e.add(ekey)
+            if switch_on(api, EARLY_ENV, on_error=False):       # ↩️ السطرُ محذوف أو تعذّرت القراءة ⟵ لا إطلاقَ مبكّر (الكروناتُ تغطّي)
+                ensure_early(api, ekey)
+            else:
+                log(f"↩️ `{EARLY_ENV}` غائب — لا إطلاقَ مبكّر ({ekey[0]} {ekey[1]})")
         if now >= hop_at:
             ok = _dispatch(api, SELF_WF)
             log(f"🔗 {'أُطلق الخلَف' if ok else '⛔ تعذّر إطلاقُ الخلَف — الكروناتُ الاحتياطيّة شبكةُ أمان'} — خروج")

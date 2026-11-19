@@ -16,7 +16,12 @@ on:
     # ودقيقةٌ **مُزاحة عن الصيّادين** (‏13 و37) فلا يتزاحم ثلاثتُهم على ياهو.
     - cron: "51 0 * * 2-6"
     - cron: "51 1 * * 2-6"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      early:
+        description: "🌅 إطلاقٌ مبكّر من مُطلِق الصباح (1 = كالمجدول: بوّابةُ التوقيت والدِّدوب نافذتان)"
+        required: false
+        default: "0"
 
 jobs:
   split-filter:
@@ -47,5 +52,5 @@ jobs:
           # 🔓 التشغيل اليدويّ يتخطّى بوّابة التوقيت والدِدوب معًا — وإلّا خرج
           # الزرّ **أخضر بلا رسالة**، وهو صنفُ العطل غير المرئيّ.
           SPLIT_FILTER_FORCE: >-
-            ${{ github.event_name == 'workflow_dispatch' && '1' || '' }}
+            ${{ github.event_name == 'workflow_dispatch' && inputs.early != '1' && '1' || '' }}
         run: python split_filter_hunter.py
