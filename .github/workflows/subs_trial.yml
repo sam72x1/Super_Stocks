@@ -1,0 +1,46 @@
+name: "📣🧪 قناة المشتركين — تجربةُ عرض (يدويّ)"
+
+# أمرُ المالك 2026-11-19 «تجربة للقناة الآن، عرض فقط»: نسخةُ القناة من رسائل أدوات الأسهم لآخر جلسةٍ مكتملة ⟵ `TELEGRAM_SUBS_CHAT_ID` وحدَه.
+# 🔒 قارئٌ (`contents: read`) ولا `TELEGRAM_CHAT_ID` في بيئته ⟵ لا ختمَ ولا صفَّ سجلٍّ يصل المستودع ولا رسالةَ لمحادثة المالك.
+#    لا كرون · ومجموعةُ تزامنٍ خاصّة فلا يمنع تشغيلًا مجدولًا.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry:
+        description: "1 = التقاطٌ وعدٌّ بلا إرسال"
+        required: false
+        default: "0"
+
+concurrency:
+  group: subs-trial
+  cancel-in-progress: false
+
+jobs:
+  trial:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 📣🧪 التجربة
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_SUBS_CHAT_ID: ${{ secrets.TELEGRAM_SUBS_CHAT_ID }}
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          BARS_SOURCE: tradingview
+          EXACT_HOLD_SOURCE: polygon
+          PRESESSION_SOURCE: polygon
+          SUBS_TRIAL_DRY: ${{ inputs.dry }}
+          PYTHONUNBUFFERED: "1"
+        run: python subs_trial.py
