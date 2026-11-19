@@ -60,14 +60,16 @@ def classify(S, sym, df, day, h4_of=None, borrow_known=None, offering=None, pump
         return None
     entry = bot * (1.0 + S.CONFIG["METHOD_ENTRY_PCT"] / 100.0)
     over = (price / entry - 1.0) * 100.0
-    if not bucket(over):
-        return None                                   # داخل المنطقة (شأنُ المطابق الكامل) أو أبعدُ من أوسع هامش
-    out = {"over": over, "frame": frame, "price": price, "entry": entry, "fail": None}
+    if over > 0 and not bucket(over):
+        return None                                   # أبعدُ من أوسع هامش
+    out = {"over": over, "frame": frame, "price": price, "entry": entry, "fail": None, "nogap": False}
     gap = S.falling_gap_candle(df, price=entry)
     t1 = float((gap or {}).get("head") or 0)
     if not t1 or t1 <= entry:
-        out["fail"] = "لا فجوة هابطة"
-        return out
+        # 🏷️ «بلا هدف فجوة» (أمرُ المالك 2026-11-19 · عدٌّ قبل البناء): غيابُ الفجوة **وسمٌ** في هذا العدّ لا رفض ⟵ تُكمَل الشروطُ بعده
+        out["nogap"] = True
+    elif over <= 0:
+        return None                                   # داخل المنطقة وله فجوة = شأنُ المطابق الكامل
     if (pump or S.group_pump_scar)(df):
         out["fail"] = "قروب"
         return out
@@ -118,16 +120,18 @@ def main():
                 r.update(sym=sym, day=day.isoformat())
                 rows.append(r)
                 n += 1
-        S.log(f"   {day}: تجاوزوا الدخول بـ3% أو أقلّ بعد التسلسل {n}")
+        S.log(f"   {day}: مرشَّحو العدّ بعد التسلسل {n}")
     S.log(f"🔢 الجلسات {days[0]} … {days[-1]} ({len(days)}) · جلباتُ 4س {H4_CAP - h4_left[0]}"
           + (" · ⚠️ بلغ السقف" if h4_left[0] <= 0 else ""))
+    allrows, rows = rows, [r for r in rows if r["over"] > 0]
     fails = {}
     for r in rows:
-        if r["fail"]:
-            fails[r["fail"]] = fails.get(r["fail"], 0) + 1
+        k = "لا فجوة هابطة" if r["nogap"] else r["fail"]
+        if k:
+            fails[k] = fails.get(k, 0) + 1
     S.log(f"🔢 ضمن 3% بعد التسلسل: {len(rows)} سهم-جلسة · سقط منهم على شرطٍ آخر: "
           + (" · ".join(f"{k} {v}" for k, v in sorted(fails.items(), key=lambda x: -x[1])) or "لا أحد"))
-    ok = [r for r in rows if not r["fail"]]
+    ok = [r for r in rows if not r["fail"] and not r["nogap"]]
     for m in MARGINS:
         sel = [r for r in ok if m in bucket(r["over"])]
         names = sorted({r["sym"] for r in sel})
@@ -137,6 +141,23 @@ def main():
     for r in sorted(ok, key=lambda x: (x["day"], x["over"])):
         S.log(f"   {r['day']} {r['sym']} ${r['price']:.2f} تجاوز {r['over']:.2f}% (الدخول ${r['entry']:.2f} · {r['frame']} · "
               f"المتاح {'مجهول' if r.get('avail') is None else int(r['avail'])})")
+    # 🏷️ «بلا هدف فجوة»: داخل منطقة الدخول · استوفى كلَّ شيء عدا «فجوة هابطة فوقه» · بعد القروب والطرح والاقتراض
+    ng = [r for r in allrows if r["nogap"] and r["over"] <= 0]
+    nf = {}
+    for r in ng:
+        if r["fail"]:
+            nf[r["fail"]] = nf.get(r["fail"], 0) + 1
+    ngok = [r for r in ng if not r["fail"]]
+    S.log(f"🏷️ بلا هدف فجوة (داخل منطقة الدخول): {len(ng)} سهم-جلسة · سقط منهم: "
+          + (" · ".join(f"{k} {v}" for k, v in sorted(nf.items(), key=lambda x: -x[1])) or "لا أحد")
+          + f" · كان سيظهر {len(ngok)} سهم-جلسة · {len({r['sym'] for r in ngok})} سهمًا · في {len({r['day'] for r in ngok})} جلسة من {len(days)}")
+    S.log("   الأسماء: " + (" · ".join(sorted({r["sym"] for r in ngok})) or "—"))
+    for r in sorted(ngok, key=lambda x: (x["day"], x["sym"])):
+        S.log(f"   {r['day']} {r['sym']} ${r['price']:.2f} (الدخول ${r['entry']:.2f} · {r['frame']} · "
+              f"المتاح {'مجهول' if r.get('avail') is None else int(r['avail'])})")
+    both = [r for r in allrows if r["nogap"] and not r["fail"] and 0 < r["over"] <= 1.0]
+    S.log(f"🏷️ ومعًا (بلا فجوة ∧ تجاوز الدخول بـ1% أو أقلّ): {len(both)} سهم-جلسة: "
+          + (" · ".join(f"{r['day']} {r['sym']}" for r in sorted(both, key=lambda x: (x['day'], x['sym']))) or "—"))
     S.log("⚠️ حدودُ الصدق: المتاحُ من ملفّات البوت خلال 7 أيّام قبل الجلسة وإلّا مجهولٌ يمرّ · 4س ‏≈60 يومًا · عدٌّ بلا أيّ نتيجةٍ بعد الجلسة.")
     return 0
 
