@@ -23305,8 +23305,10 @@ def _lg_hook_safe(path):
 
 for _f in ("split_hunter.py", "method_hunter.py", "split_filter_hunter.py",
            "envelope_hunter.py"):
+    # 🟡 2026-11-19 (أمرُ المالك «هامش 1%»): `method_hunter.py` صار نداءين — المطابقُ الكامل وسجلُّ المخفّف `method_relaxed` — وكلاهما
+    #    داخل `try` ومُهمَلُ القيمة (العددُ يُعَدّ بالاسم فلا يمرّ نداءٌ ثالث).
     check(f"🌱 H1🔒 {_f}: نداءُ التسجيل **داخل `try` ومُهمَلُ القيمة** (لا يمسّ القرار)",
-          _lg_hook_safe(_f) == 1)
+          _lg_hook_safe(_f) == (2 if _f == "method_hunter.py" else 1))
 
 check("🌱 H1🔒 وصيّادُ المقسّم **لم يُحذف منه سطر** (إضافةٌ محضة)",
       (lambda src: "scan_split_hunter" in src and "session_gate" in src
