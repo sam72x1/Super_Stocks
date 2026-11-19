@@ -105421,12 +105421,13 @@ except Exception as _e:                                          # noqa: BLE001
     _mse3, _mse3d = False, f"⛔ {type(_e).__name__}: {_e}"
 check("👁️ MSE3: موصولٌ في رسالة الصيّاد — القسمان يُمرَّر لهما عدّادُ آخر مسح · وكتلةُ «بلا هدف فجوة» خارج «إن وُجد» فتظهر فارغةً",
       _mse3, _mse3d[:160])
+import os as _sbt4_os
+_sbt4_o = _sbt4_os.environ.get("SUBS_TRIAL_ONLY")
 try:
     import subs_trial as _sbt4
-    _sbt4_o = _os.environ.get("SUBS_TRIAL_ONLY")
     _sbt4_r = []
     for _v in ("method", " method , press ", "", "nope", "method,nope"):
-        _os.environ["SUBS_TRIAL_ONLY"] = _v
+        _sbt4_os.environ["SUBS_TRIAL_ONLY"] = _v
         _sbt4_r.append(sorted(_sbt4.selected()))
     _sbt4_src = open("subs_trial.py", encoding="utf-8").read()
     _sbt4_ok = (_sbt4_r == [["method"], ["method", "press"], [], [], ["method"]]
@@ -105437,9 +105438,9 @@ except Exception as _e:                                          # noqa: BLE001
     _sbt4_ok, _sbt4_r = False, f"⛔ {type(_e).__name__}"
 finally:
     if _sbt4_o is None:
-        _os.environ.pop("SUBS_TRIAL_ONLY", None)
+        _sbt4_os.environ.pop("SUBS_TRIAL_ONLY", None)
     else:
-        _os.environ["SUBS_TRIAL_ONLY"] = _sbt4_o
+        _sbt4_os.environ["SUBS_TRIAL_ONLY"] = _sbt4_o
 check("📣🧪 SBT4: «أداةٌ بعينها» في التجربة — `SUBS_TRIAL_ONLY` يقبل المعروفَ وحدَه (فارغٌ أو مجهولٌ ⟵ الكلّ) · ولا تُشغَّل غيرُها ولا يُرسَل",
       _sbt4_ok, str(_sbt4_r)[:160])
 _ = S.scan_method_hunter({}, today=None)          # تنظيفُ الحالة العامّة
