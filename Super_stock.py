@@ -651,6 +651,10 @@ CONFIG = {
     #    مثالٍ لا رفضٌ لمن بلا فجوة ⟵ مَن استوفى الكلَّ **داخل منطقة الدخول** عدا «فجوة هابطة فوقه» يُعرَض منفصلًا بوسمه وباسمٍ مستقلّ
     #    في السجلّ (`method_nogap`) · **والمطابقُ الكامل بشرطه الأصليّ وقائمةُ القريبين بت-بت** · `METHOD_NOGAP=0` ⟵ صفرُ عمل (`MNG1`-`MNG4`).
     "METHOD_NOGAP": os.environ.get("METHOD_NOGAP", "1").strip() != "0",
+    # 👁️ **القسمان يظهران حتى فارغَين** (أمرُ المالك 2026-11-19 «أظهر القسمين حتى لو فاضيين»): قسمُ المخفّف وقسمُ «بلا هدف فجوة» حين لا سهمَ
+    #    فيه يُطبع سطرًا واحدًا بعدد المفحوصين وسبب سقوط كلٍّ (لا فجوة · قروب · طرح · متاح فوق الحدّ) — عرضٌ لا قياس · المفتاحان أعلاه يحكمان
+    #    ظهورَ القسم أصلًا · `METHOD_SHOW_EMPTY=0` ⟵ القسمُ الفارغ لا يُطبع (بت-بت · `MSE1`-`MSE3`).
+    "METHOD_SHOW_EMPTY": os.environ.get("METHOD_SHOW_EMPTY", "1").strip() != "0",
     # 🕓 **الفريم: اليوميّ ثم 4 ساعات** (قرار المالك 2026-08-01: «نمشي بالتسلسل حسب
     #    اللي أعرفه من أبو بدر — لأن **الأهداف وغالبًا الشموع وحده**»). فالمستويات
     #    (‏القاع · الفجوة-الهدف) واحدةٌ عبر الفريمين، والتسلسل يُقرأ حيث يظهر.
@@ -9354,6 +9358,7 @@ _METHOD_FOUNDING = []
 #    **عددُ القريبين لا عددُ مَن بلغ التسلسل** — يتساويان **فقط** حين لا مطابق
 #    كامل. فأوّلُ يومٍ يُنتج مطابقًا كانت المقارنة ستُطبَع **مبخوسة بصمت**.
 _METHOD_STAGE = {}
+_METHOD_TIER_STAT = {}     # 👁️ لكلّ قسم ("rel" · "ng") عددُ المفحوصين وأسبابُ السقوط في آخر مسح — يُملأ حين يكون مفتاحُه مُشعَلًا وحدَه
 _METHOD_NOGAP = []         # 🏷️ «بلا هدف فجوة» لآخر مسح (`METHOD_NOGAP`) — منفصلٌ عن المطابق الكامل وعن المخفّف
 _METHOD_RELAXED = []       # 🟡 المستوى المخفّف لآخر مسح (`METHOD_RELAXED`) — منفصلٌ عن المطابق الكامل
 # كم يُعرَض منهم — **وما زاد يُعلَن عددُه لا يُقصّ صامتًا**.
@@ -9771,11 +9776,37 @@ def method_near_lines(near, cap=None):
     return out
 
 
-def method_relaxed_lines(rel):
-    """🟡 قسمُ «المستوى المخفّف» في رسالة النهج العلمي — **منفصلٌ عن المطابق الكامل** (أمرُ المالك 2026-11-19). نقيّة · لا شيء ⟵ `[]`."""
+def method_tier_drops_text(drops):
+    """👁️ نقيّة: « (سقط: قروب 2 · طرح 1)» من عدّاد أسباب السقوط · فارغٌ أو تالف ⟵ ""."""
+    try:
+        items = [(str(k), int(v)) for k, v in dict(drops or {}).items() if int(v) > 0]
+    except Exception:                                            # noqa: BLE001
+        return ""
+    if not items:
+        return ""
+    items.sort(key=lambda kv: (-kv[1], kv[0]))
+    return " (سقط: " + " · ".join(f"{k} {v}" for k, v in items) + ")"
+
+
+def method_tier_empty_line(kind, stat):
+    """👁️ سطرُ القسم الفارغ (أمرُ المالك 2026-11-19 «أظهر القسمين حتى لو فاضيين») · `stat` = {"checked", "drops"} · بلا `stat` أو المفتاحُ مطفأ ⟵ `[]`."""
+    if stat is None or not CONFIG.get("METHOD_SHOW_EMPTY"):
+        return []
+    head = ("🟡 <b>مستوى مخفّف</b>" if kind == "rel" else "🏷️ <b>بلا هدف فجوة</b>")
+    n = int((stat or {}).get("checked") or 0)
+    if n <= 0:
+        why = ("لا سهمَ تجاوز الدخولَ بـ" + f"{float(CONFIG.get('METHOD_RELAX_OVER_PCT') or 0):g}% أو أقلّ"
+               if kind == "rel" else "لا سهمَ داخل منطقة الدخول بلا فجوةٍ هابطة")
+        return [f"{head}: لا يوجد اليوم — {why}."]
+    return [f"{head}: لا يوجد اليوم — فُحِص {n}" + (method_tier_drops_text((stat or {}).get("drops")) or " (سقطوا)") + "."]
+
+
+def method_relaxed_lines(rel, stat=None):
+    """🟡 قسمُ «المستوى المخفّف» في رسالة النهج العلمي — **منفصلٌ عن المطابق الكامل** (أمرُ المالك 2026-11-19). نقيّة · لا شيء ⟵ `[]`
+    إلّا مع `stat` و`METHOD_SHOW_EMPTY` ⟵ سطرُ «لا يوجد اليوم» بعدد المفحوصين وأسباب السقوط."""
     rows = list(rel or [])
     if not rows:
-        return []
+        return method_tier_empty_line("rel", stat)
     out = [f"🟡 <b>مستوى مخفّف — ليس مطابقًا كاملًا</b> ({len(rows)}):",
            "<i>استوفى الشروطَ كلَّها عدا أن سعره فوق مستوى الدخول بهامشٍ صغير.</i>"]
     for r in rows:
@@ -9794,11 +9825,12 @@ def method_relaxed_lines(rel):
     return out
 
 
-def method_nogap_lines(ng, cap=None):
-    """🏷️ قسمُ «بلا هدف فجوة» في رسالة النهج العلمي — **منفصلٌ عن المطابق الكامل وعن المخفّف** · والزائدُ عن السقف يُعلَن عددُه. نقيّة · لا شيء ⟵ `[]`."""
+def method_nogap_lines(ng, cap=None, stat=None):
+    """🏷️ قسمُ «بلا هدف فجوة» في رسالة النهج العلمي — **منفصلٌ عن المطابق الكامل وعن المخفّف** · والزائدُ عن السقف يُعلَن عددُه. نقيّة · لا شيء ⟵ `[]`
+    إلّا مع `stat` و`METHOD_SHOW_EMPTY` ⟵ سطرُ «لا يوجد اليوم»."""
     rows = list(ng or [])
     if not rows:
-        return []
+        return method_tier_empty_line("ng", stat)
     cap = int(CONFIG["METHOD_MAX"] if cap is None else cap)
     out = [f"🏷️ <b>بلا هدف فجوة — ليس مطابقًا كاملًا</b> ({len(rows)}):",
            "<i>استوفى الشروطَ كلَّها داخل منطقة الدخول عدا «فجوة هابطة فوقه» — فلا هدفَ منصوصًا له.</i>"]
@@ -9857,6 +9889,7 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
     _rel_cap = float(CONFIG.get("METHOD_RELAX_OVER_PCT") or 0) if CONFIG.get("METHOD_RELAXED") else 0.0
     _rel_pending = []
     _METHOD_NOGAP.clear()
+    _METHOD_TIER_STAT.clear()
     _ng_on, _ng_pending = bool(CONFIG.get("METHOD_NOGAP")), []
     for sym, df in (history or {}).items():
         try:
@@ -10014,22 +10047,26 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
                       is not None else 1e9)
     # 🟡 **المستوى المخفّف** — الشروطُ ③-⑥ نفسُها بدوالّها نفسِها على مَن تجاوز الدخولَ بالهامش وحدَه · بعد الحلقة ⟵ ميزانيّةُ
     #    الطرح تُصرف للمطابق الكامل أوّلًا · وسقوطُه هنا صامت (سببُه في «القريبين» سلفًا: «تجاوز منطقة الدخول»).
-    def _tail(_s, _d, _e, need_gap):
-        """الشروط ③-⑥ بدوالّها — ⟵ None (سقط) أو (t1, المتاح, الرسوم, فُحِص الطرح)."""
+    def _drop(_dr, _why):
+        _dr[_why] = _dr.get(_why, 0) + 1                  # 👁️ سببُ السقوط يُعَدّ (`METHOD_SHOW_EMPTY`) — والقرارُ نفسُه بلا تغيير
+        return None
+
+    def _tail(_s, _d, _e, need_gap, _dr):
+        """الشروط ③-⑥ بدوالّها — ⟵ None (سقط · وسببُه في `_dr`) أو (t1, المتاح, الرسوم, فُحِص الطرح)."""
         _t1 = None
         if need_gap:
             _g = falling_gap_candle(_d, price=_e)
             _t1 = float((_g or {}).get("head") or 0)
             if not _t1 or _t1 <= _e:
-                return None
+                return _drop(_dr, "لا فجوة هابطة")
         if fp(_d):
-            return None
+            return _drop(_dr, "قروب")
         _oc = False
         if off_budget[0] > 0:
             off_budget[0] -= 1
             try:
                 if fo(_s, today=today):
-                    return None
+                    return _drop(_dr, "طرح")
                 _oc = True
             except Exception:                                    # noqa: BLE001
                 pass
@@ -10040,15 +10077,18 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
         _a = (_bo or {}).get("shares_available")
         try:
             if _a is not None and float(_a) > float(CONFIG["METHOD_SHORT_MAX"]):
-                return None
+                return _drop(_dr, "متاح فوق الحدّ")
         except (TypeError, ValueError):
             pass
         return _t1, _a, (_bo or {}).get("borrow_fee"), _oc
 
     for _kind, _pend, _out in (("rel", _rel_pending, _METHOD_RELAXED), ("ng", _ng_pending, _METHOD_NOGAP)):
+        _dr = {}
+        if (_kind == "rel" and _rel_cap > 0) or (_kind == "ng" and _ng_on):
+            _METHOD_TIER_STAT[_kind] = {"checked": len(_pend), "drops": _dr}
         for (_s, _d, _p, _b, _e, _st, _fr, _f, _t) in _pend:
             try:
-                _r = _tail(_s, _d, _e, need_gap=(_kind == "rel"))
+                _r = _tail(_s, _d, _e, need_gap=(_kind == "rel"), _dr=_dr)
                 if _r is None:
                     continue
                 _row = {"symbol": _s, "price": _p, "bottom": _b, "entry": _e, "stop": _st, "t1": _r[0],
@@ -10061,14 +10101,17 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
                     _row["nogap"] = True
                 _out.append(_row)
             except Exception as e:                               # noqa: BLE001
+                _drop(_dr, "خطأ")
                 log(f"⚠️ النهج العلمي·{_kind}·{_s}: {e}")
     _METHOD_NOGAP.sort(key=lambda r: -r["over_pct"])            # الأقربُ إلى مستوى الدخول أوّلًا
     if _ng_on:
-        log(f"🏷️ النهج العلمي·بلا هدف فجوة: فُحِص {len(_ng_pending)} → {len(_METHOD_NOGAP)}")
+        log(f"🏷️ النهج العلمي·بلا هدف فجوة: فُحِص {len(_ng_pending)} → {len(_METHOD_NOGAP)}"
+            + method_tier_drops_text((_METHOD_TIER_STAT.get("ng") or {}).get("drops")))
     _METHOD_RELAXED.sort(key=lambda r: r["relaxed_over"])
     del _METHOD_RELAXED[int(CONFIG["METHOD_MAX"]):]
     if _rel_cap > 0:
-        log(f"🟡 النهج العلمي·مخفّف (تجاوز الدخول بـ{_rel_cap:g}% أو أقلّ): فُحِص {len(_rel_pending)} → {len(_METHOD_RELAXED)}")
+        log(f"🟡 النهج العلمي·مخفّف (تجاوز الدخول بـ{_rel_cap:g}% أو أقلّ): فُحِص {len(_rel_pending)} → {len(_METHOD_RELAXED)}"
+            + method_tier_drops_text((_METHOD_TIER_STAT.get("rel") or {}).get("drops")))
     _METHOD_STAGE.clear()
     _METHOD_STAGE.update(stage, matched=len(rows))
     # 🔴 النافذةُ **من `CONFIG`** لا مغروسةً نصًّا: رقمٌ مكتوبٌ في سطرِ عرضٍ
