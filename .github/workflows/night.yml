@@ -1,0 +1,49 @@
+name: "🌙 T-NIGHT (الرفعة الليلية · قياسٌ على العقد · قراءةٌ فقط)"
+
+# 🌙 العقد `fm_forensics/night/T_NIGHT_prereg.md` (أمرُ المالك 2026-11-19 · مدموجٌ قبل أيّ رقم): `discover` جزءُ الاكتشاف وحدَه ⟵ ذراعٌ واحدة أو
+#    «لا مرشَّح» · `confirm` جزءُ التأكيد للذراع المثبَّتة مرّةً واحدة. الشموعُ من TradingView (`BOATS:` لليل · `NASDAQ:` الممتدّة).
+#    🔒 يدويٌّ بلا كرون وبلا سرِّ تلغرام · `contents: read` · لا يكتب في المستودع.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "discover أو confirm"
+        required: true
+        default: "discover"
+        type: choice
+        options: [discover, confirm]
+
+concurrency:
+  group: super-stocks-night
+  cancel-in-progress: false
+
+jobs:
+  night:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0              # تاريخُ near_watch.json (الكونُ لكلّ ليلة)
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 🌙 القياس
+        env:
+          PYTHONUNBUFFERED: "1"
+          MODE: ${{ inputs.mode }}
+        run: python fm_forensics/night/night.py --mode "$MODE" --out night_out.json
+      - name: 📤 رفع
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: night-${{ inputs.mode }}
+          path: night_out.json
+          retention-days: 30
+          if-no-files-found: ignore
