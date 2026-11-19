@@ -1780,7 +1780,8 @@
     "date": "2026-11-18",
     "high": 1.775,
     "close": 1.54
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "KELYB",
