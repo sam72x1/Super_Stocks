@@ -105834,6 +105834,7 @@ try:
     _NGT.RESULT = _ngt_os.path.join(_ngt_td, "R.md")
     _NGT.FREEZE = _ngt_os.path.join(_ngt_td, "F.json")
     _ngt_out = _ngt_os.path.join(_ngt_td, "o.json")
+    _NGT.CLOSED = False                                   # بوّاباتُ ما قبل الإقفال تُفحَص والمحورُ مفتوحٌ داخل الاختبار وحدَه
     _ngt_rc_d = _NGT.main(["--mode", "discover", "--out", _ngt_out])
     _ngt_days_d = list(_ngt_seen_days)
     _ngt_rc_nofreeze = _NGT.main(["--mode", "confirm", "--out", _ngt_out])
@@ -105928,6 +105929,45 @@ check("🌙🔧 NGT6: جلبُ T-NIGHT — مقبسٌ يُعاد استعمال�
       _ngt6_ok and _ngt6_rows[2] == 3 and _ngt6_rows[3] == 1 and _ngt6_rows[1].get("رمزٌ غيرُ مُدرَج") == 1
       and _ngt6_rows[1].get("بلا مرجع") == 1 and "ch=None" in _ngt6_src,
       _ngt6_err or f"{_ngt6_st} made={len(_ngt6_made)} rows={_ngt6_rows[1:]}")
+
+
+# 🌙🔒 NGT7 — `T-NIGHT` مُغلَقٌ مُنفَّذًا (2026-11-19 · الاكتشافُ «لا مرشَّح» · العقد §⑤): الوضعان يخرجان 8 قبل أيّ جلب · والفتحُ `NIGHT_REOPEN == "1"` حرفيًّا
+#    (إقرارُ المالك) ولا مُدخَلَ في الـworkflow يُمرِّره · ووثيقةُ النتيجة قائمة.
+try:
+    _ngt7_fetch = []
+    _ngt7_save = (_NGT.fetch_all, _NGT.universe_at, _ngt_os.environ.get("NIGHT_REOPEN"))
+    _NGT.fetch_all = lambda syms, **k: (_ngt7_fetch.append(1) or {s: (None, "symbol_error", None, "symbol_error") for s in syms})
+    _NGT.universe_at = lambda prev, day: ["AAA"]
+    _ngt_os.environ.pop("NIGHT_REOPEN", None)
+    _ngt7_o = _ngt_os.path.join(_ngt_tmp.mkdtemp(), "o.json")
+    _ngt7_rc = [_NGT.main(["--mode", m, "--out", _ngt7_o]) for m in ("discover", "confirm")]
+    _ngt7_rc0 = []
+    for _v in ("0", "true", " 1"):
+        _ngt_os.environ["NIGHT_REOPEN"] = _v
+        _ngt7_rc0.append(_NGT.main(["--mode", "discover", "--out", _ngt7_o]))
+    _ngt7_before = len(_ngt7_fetch)
+    _ngt_os.environ["NIGHT_REOPEN"] = "1"
+    _ngt7_open = _NGT.main(["--mode", "discover", "--out", _ngt7_o])
+    _ngt7_wf = open(".github/workflows/night.yml", encoding="utf-8").read()
+    _ngt7_res = open("fm_forensics/night/T_NIGHT_RESULT.md", encoding="utf-8").read()
+    _ngt7_err = ""
+except Exception as _e:                      # noqa: BLE001
+    _ngt7_rc, _ngt7_rc0, _ngt7_before, _ngt7_open, _ngt7_wf, _ngt7_res = [], [], -1, None, "NIGHT_REOPEN", ""
+    _ngt7_err = f"⛔ {type(_e).__name__}: {_e}"
+finally:
+    try:
+        _NGT.fetch_all, _NGT.universe_at = _ngt7_save[0], _ngt7_save[1]
+        if _ngt7_save[2] is None:
+            _ngt_os.environ.pop("NIGHT_REOPEN", None)
+        else:
+            _ngt_os.environ["NIGHT_REOPEN"] = _ngt7_save[2]
+    except Exception:                        # noqa: BLE001
+        pass
+check("🌙🔒 NGT7: `T-NIGHT` مُغلَقٌ مُنفَّذًا — `CLOSED` قائمٌ والوضعان يخرجان 8 بلا أيّ جلب · و«0» و«true» ومسافةٌ قبل 1 لا تفتح · و«1» حرفيًّا يفتح · "
+      "ولا مُدخَلَ في الـworkflow يُمرِّر المفتاح · ووثيقةُ النتيجة تحمل الحكم ورقمَ التشغيلة",
+      _NGT.CLOSED is True and _ngt7_rc == [8, 8] and _ngt7_rc0 == [8, 8, 8] and _ngt7_before == 0 and _ngt7_open == 0
+      and "NIGHT_REOPEN" not in _ngt7_wf and "النتيجة: **«لا مرشَّح»**" in _ngt7_res.split("\n")[0] and "44630004707" in _ngt7_res,
+      _ngt7_err or f"{_ngt7_rc} {_ngt7_rc0} fetch={_ngt7_before} open={_ngt7_open}")
 
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
