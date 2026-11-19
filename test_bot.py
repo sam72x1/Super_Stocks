@@ -104567,6 +104567,21 @@ except Exception as _e:                                          # noqa: BLE001
     check("📏 قفلُ الملحقين 5 و6 `T-GATECAL` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
 
+# 📏 GTC20 — رادارُ الضغط: الاختيارُ على فترة البوت وصفٌ (الملحق 4 §④) — يعبر حارسَ الجزء ولا يكتب تثبيتًا ولا يُفتح له تأكيد
+try:
+    _g20_T = _GT.TOOLS["press"]
+    _g20_fn = next(n for n in _gt_ast.walk(_gt_tree) if isinstance(n, _gt_ast.FunctionDef) and n.name == "mode_select")
+    _g20_ifs = [n for n in _gt_ast.walk(_g20_fn) if isinstance(n, _gt_ast.If) and "desc_only" in _gt_ast.dump(n.test)]
+    _g20_ret = bool(_g20_ifs) and any(isinstance(x, _gt_ast.Return) for x in _g20_ifs[0].body)
+    _g20_src = _insp0.getsource(_GT.mode_select)
+    check("📏 GTC20: رادارُ الضغط وصفٌ — `era` بفترة البوت و`desc_only` · الاختيارُ يخرج قبل سطر التثبيت · والتأكيدُ مغلقٌ بلا ملفّ تثبيت · والملحقُ لم يُمَسّ",
+          _g20_T.get("era") == {"sel_from": "2026-08-14", "desc_only": True} and _g20_ret
+          and 0 < _g20_src.find("desc_only") < _g20_src.find("GATECAL_FREEZE")
+          and "press" not in _GT.FREEZE_SHA and _GT.mode_confirm("press", "_no_such_dir_") == _GT.RC_FREEZE and _GT.contract_ok("press"),
+          f"era={_g20_T.get('era')} ret={_g20_ret}")
+except Exception as _e:                                          # noqa: BLE001
+    check("📏 قفلُ وصفيّة رادار الضغط `T-GATECAL` انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
 # 🗂️ GCF4-GCF5 — `T-GATECAL` ⑦ لبقيّة الأدوات: رادارُ الضغط يسجّل من أسقطه الجلوسُ وحدَه · وفلترُ التقسيم يسجّل «القريبين» بشرطهم وهامشهم ·
 # خلف `GATECAL_FWD` نفسِه (مطفأ ⟵ صفرُ عمل) · رصدٌ لا يمسّ مطابقًا
 try:

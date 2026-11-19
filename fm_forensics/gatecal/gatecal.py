@@ -93,6 +93,7 @@ TOOLS["ready"] = {
 TOOLS["press"] = {
     "addendum": "T_GATECAL_A4_press.md", "addendum_sha": "a1df751c8d53bca68dd53b35dc50a8fb59d55b8210a990f9fa9fcb6e541e0f6e",
     "built": "2026-08-14", "ledger_hunter": (), "ledger_file": "press_radar_ledger.jsonl",
+    "era": {"sel_from": "2026-08-14", "desc_only": True},        # الملحق 4 §④: المنحنياتُ على فترة البوت وصفًا — لا تثبيتَ ولا تأكيد
     "current": {"drop": 30.0, "band": 13.0, "hold": 3, "window": 40},
     "ladders": {"drop": [40.0, 30.0, 25.0, 20.0], "band": [7.0, 10.0, 13.0, 20.0, 25.0], "hold": [5, 4, 3, 2, 1, 0], "window": [20, 40, 60]},
     "loose_dir": {"drop": -1, "band": 1, "hold": -1, "window": 1},
@@ -1241,6 +1242,9 @@ def mode_select(tool, d_in):
     log(f"- **عددُ كلّ ما جُرِّب: {tried}** (شرط × قيمة)")
     for c, v in props.items():
         log(f"- {t['label'][c]}: {'يبقى الرقم' if v is None else f'مرشَّح ⟵ {_fmt(v)}'}")
+    if era and era.get("desc_only"):
+        log("⚖️ «وصفٌ لم يُؤكَّد» بنصّ ملحق الأداة — لا ملفَّ تثبيتٍ ولا تأكيد ولا تغييرَ يُقترح.")
+        return RC_OK
     fz = {"tool": tool, "contract_sha": CONTRACT_SHA, "addendum_sha": t["addendum_sha"], "part": ([era["sel_from"], b] if era else list(HIST_SEL)), "tried": tried,
           "proposals": {c: v for c, v in props.items() if v is not None},
           "stats": {c: {str(v): {k: (round(q, 6) if isinstance(q, float) else q) for k, q in p.items() if k != "ent"}
