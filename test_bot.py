@@ -105719,6 +105719,168 @@ except Exception as _e:                      # noqa: BLE001
 check("🌙 NGP2: `night_probe.yml` يدويٌّ وحدَه · `contents: read` · بلا سرِّ تلغرام · والمِجَسُّ لا يرسل ولا يحفظ ولا يستورد البوت", _ngp_w)
 
 
+# 🌙 NGT1-NGT5 — `T-NIGHT` المرحلة 2 (العقد `fm_forensics/night/T_NIGHT_prereg.md` · مدموجٌ قبل أيّ رقم): تعريفاتُ الوحدة · الشرائحُ وأرضيّةُ
+#    السيولة والضابط · قاعدةُ الاكتشاف وحكمُ التأكيد · البوّابات (بصمة · تثبيت · مرّةً واحدة · الاكتشافُ لا يبني صفًّا من التأكيد) · والـworkflow.
+try:
+    _ngt_sp = _fsl_ilu.spec_from_file_location("night_tool_mod", "fm_forensics/night/night.py")
+    _NGT = _fsl_ilu.module_from_spec(_ngt_sp)
+    _ngt_sp.loader.exec_module(_NGT)
+    import datetime as _ngt_dt
+
+    def _ngt_ts(s):
+        return int(_ngt_dt.datetime.fromisoformat(s).replace(tzinfo=_NGT.NY).timestamp())
+
+    _ngt_ext = [(_ngt_ts("2026-09-01 15:45"), 1.0, 1.0, 1.0, 1.00, 100),      # D⁻⁻ نظاميّة ⟵ إغلاق 1.00
+                (_ngt_ts("2026-09-02 15:45"), 1.0, 1.1, 1.0, 1.05, 100),      # D⁻ نظاميّة
+                (_ngt_ts("2026-09-02 19:30"), 1.05, 1.12, 1.05, 1.10, 100),   # D⁻ أفتر ⟵ ref = 1.10
+                (_ngt_ts("2026-09-03 04:15"), 1.20, 1.50, 1.20, 1.40, 100),   # D بري ⟵ الدخول 1.20
+                (_ngt_ts("2026-09-03 09:30"), 1.40, 1.45, 1.20, 1.25, 100),
+                (_ngt_ts("2026-09-03 15:45"), 1.25, 1.30, 1.25, 1.32, 100),   # الخروج 1.32
+                (_ngt_ts("2026-09-03 16:15"), 1.32, 9.00, 1.32, 9.00, 100)]   # أفتر D ⟵ خارج اللمس والخروج
+    _ngt_boats = [(_ngt_ts("2026-09-02 19:45"), 5.0, 5.0, 5.0, 5.0, 999999),  # قبل 20:00 ⟵ خارج الليلة
+                  (_ngt_ts("2026-09-02 20:00"), 1.10, 1.15, 1.10, 1.12, 5000),
+                  (_ngt_ts("2026-09-03 03:45"), 1.12, 1.20, 1.12, 1.155, 6000),
+                  (_ngt_ts("2026-09-03 04:00"), 7.0, 7.0, 7.0, 7.0, 999999)]  # 04:00 ⟵ خارج الليلة
+    _ngt_days = _NGT.by_day(_ngt_ext)
+    _ngt_r = _NGT.unit_row("AAA", "2026-09-03", "2026-09-02", "2026-09-01", _ngt_days, _ngt_boats)
+    _ngt_noref = _NGT.unit_row("AAA", "2026-09-03", "2026-08-31", "2026-09-01", _ngt_days, _ngt_boats)
+    _ngt_nopre = _NGT.unit_row("AAA", "2026-09-03", "2026-09-02", "2026-09-01", _NGT.by_day([b for b in _ngt_ext if b[0] != _ngt_ts("2026-09-03 04:15")]), _ngt_boats)
+    _ngt_noreg = _NGT.unit_row("AAA", "2026-09-03", "2026-09-02", "2026-09-01", _NGT.by_day(_ngt_ext[:4]), _ngt_boats)
+    _ngt_nonight = _NGT.unit_row("AAA", "2026-09-03", "2026-09-02", "2026-09-01", _ngt_days, [])
+    _ngt_err = ""
+except Exception as _e:                      # noqa: BLE001
+    _ngt_r, _ngt_noref, _ngt_nopre, _ngt_noreg, _ngt_nonight = {}, {}, {}, {}, {}
+    _ngt_err = f"⛔ {type(_e).__name__}: {_e}"
+check("🌙 NGT1: وحدةُ T-NIGHT على تعريفات العقد — المرجعُ آخرُ صفقةٍ قبل 20:00 · الليلةُ [20:00، 04:00) وحدَها · الرفعةُ من آخر شمعةٍ ليليّة · "
+      "الدخولُ افتتاحُ أوّل شمعة بري والخروجُ إغلاقُ آخر شمعةٍ نظاميّة والصافي بعد 1.8% · واللمسُ بين 04:00 و16:00 · والغائبُ يُستبعد بسببه",
+      bool(_ngt_r) and abs(_ngt_r.get("ref", 0) - 1.10) < 1e-9 and abs((_ngt_r.get("r_night") or 0) - 0.05) < 1e-9
+      and _ngt_r.get("night_bars") == 2 and abs(_ngt_r.get("night_usd", 0) - (1.12 * 5000 + 1.155 * 6000)) < 1e-6
+      and abs((_ngt_r.get("r_mom") or 0) - 0.10) < 1e-9 and _ngt_r.get("entry") == 1.20 and _ngt_r.get("exit") == 1.32
+      and abs(_ngt_r.get("net", 0) - ((1.32 / 1.20 - 1) * 100 - 1.8)) < 1e-9
+      and _ngt_r.get("touch_ref") is True and _ngt_r.get("touch_entry") is False
+      and _ngt_noref == {"skip": "بلا مرجع"} and _ngt_nopre == {"skip": "لا دخول"} and _ngt_noreg == {"skip": "لا خروج"}
+      and _ngt_nonight.get("r_night") is None and _ngt_nonight.get("night_usd") == 0,
+      _ngt_err or str(_ngt_r)[:200])
+
+
+def _ngt_row(rn, usd=50_000.0, rm=None, net=1.0, day="2026-09-03", sym="A"):
+    return {"sym": sym, "day": day, "ref": 1.0, "r_night": rn, "night_usd": usd, "night_bars": 1, "r_mom": rm, "entry": 1.0, "exit": 1.0,
+            "net": net, "touch_ref": False, "touch_entry": False}
+
+
+try:
+    _ngt_lab = [_NGT.label(_ngt_row(x, u)) for x, u in ((None, 0), (0.0199, 9e9), (0.02, 10_000), (0.0499, 10_000), (0.05, 10_000),
+                                                        (0.0999, 10_000), (0.10, 10_000), (0.1999, 10_000), (0.20, 10_000), (0.07, 9_999.99))]
+    _ngt_arm = (_NGT.in_arm(_ngt_row(0.07), 0.05, 0.10), _NGT.in_arm(_ngt_row(0.07, 9_999.0), 0.05, 0.10), _NGT.in_arm(_ngt_row(0.10), 0.05, 0.10),
+                _NGT.in_arm(_ngt_row(None), 0.02, 0.20))
+    _ngt_ctl = (_NGT.in_ctl(_ngt_row(None, 0, 0.07), 0.05, 0.10), _NGT.in_ctl(_ngt_row(0.01, 9e9, 0.07), 0.05, 0.10),
+                _NGT.in_ctl(_ngt_row(0.03, 9e9, 0.07), 0.05, 0.10), _NGT.in_ctl(_ngt_row(None, 0, None), 0.05, 0.10),
+                _NGT.in_ctl(_ngt_row(None, 0, 0.10), 0.05, 0.10))
+    _ngt_const = (_NGT.COST_PCT, _NGT.NIGHT_USD_MIN, _NGT.MIN_ARM, _NGT.MIN_CTL, _NGT.SPLIT_LAST_DISCOVER, _NGT.FIRST_DAY, _NGT.BOOT_N,
+                  [(n, lo, hi) for n, lo, hi in _NGT.ARMS])
+    _ngt_err2 = ""
+except Exception as _e:                      # noqa: BLE001
+    _ngt_lab, _ngt_arm, _ngt_ctl, _ngt_const = [], (), (), ()
+    _ngt_err2 = f"⛔ {type(_e).__name__}: {_e}"
+check("🌙 NGT2: الشرائحُ بحدودها (2 · 5 · 10 · 20) وأرضيّةُ دولار الليل 10,000 (دونها THIN ولا تدخل ذراعًا) · والضابطُ من «لم ترتفع» بزخم "
+      "اليوم السابق في نطاق الشريحة · وثوابتُ العقد مثبَّتة",
+      _ngt_lab == ["Z", "Z", "B2_5", "B2_5", "B5_10", "B5_10", "B10_20", "B10_20", "B20P", "THIN"]
+      and _ngt_arm == (True, False, False, False) and _ngt_ctl == (True, True, False, False, False)
+      and _ngt_const == (1.8, 10_000.0, 30, 20, "2026-09-30", "2026-08-18", 2000,
+                         [("B2_5", 0.02, 0.05), ("B5_10", 0.05, 0.10), ("B10_20", 0.10, 0.20), ("P2_20", 0.02, 0.20)]),
+      _ngt_err2 or f"{_ngt_lab} {_ngt_arm} {_ngt_ctl}")
+try:
+    def _ngt_set(n_arm, arm_net, n_ctl, ctl_net, rn=0.07, spread=0.0):
+        _a = [_ngt_row(rn, net=arm_net + (spread if i % 2 else -spread), day=f"2026-10-{1 + i % 20:02d}", sym=f"A{i}") for i in range(n_arm)]
+        _c = [_ngt_row(None, 0, rn, net=ctl_net, day=f"2026-10-{1 + i % 20:02d}", sym=f"C{i}") for i in range(n_ctl)]
+        return _a + _c
+    _ngt_p1 = _NGT.discover_pick(_ngt_set(30, 2.0, 20, 1.0))[0]            # B5_10 وP2_20 متأهّلتان بالمتوسّط نفسِه ⟵ الأولى ترتيبًا
+    _ngt_p2 = _NGT.discover_pick(_ngt_set(29, 2.0, 20, 1.0))[0]            # دون أرضيّة الذراع
+    _ngt_p3 = _NGT.discover_pick(_ngt_set(30, 2.0, 19, 1.0))[0]            # دون أرضيّة الضابط
+    _ngt_p4 = _NGT.discover_pick(_ngt_set(30, -0.1, 20, -5.0))[0]          # متوسّطٌ غيرُ موجب
+    _ngt_p5 = _NGT.discover_pick(_ngt_set(30, 2.0, 20, 3.0))[0]            # دون الضابط
+    _ngt_p6 = _NGT.discover_pick(_ngt_set(30, 2.0, 20, 1.0) + _ngt_set(30, 5.0, 20, 1.0, rn=0.15))[0]   # الأعلى متوسّطًا يغلب ولو جاء متأخّرًا في الترتيب
+    _ngt_v1 = _NGT.confirm_verdict(_ngt_set(40, 3.0, 30, 0.5, spread=0.5), "B5_10")
+    _ngt_v2 = _NGT.confirm_verdict(_ngt_set(40, 3.0, 30, 3.5, spread=0.5), "B5_10")          # الفرقُ سالب
+    _ngt_v3 = _NGT.confirm_verdict(_ngt_set(40, -1.0, 30, -4.0, spread=0.5), "B5_10")        # الذراعُ سالبة ولو فاقت الضابط
+    _ngt_v4 = _NGT.confirm_verdict(_ngt_set(29, 3.0, 30, 0.5), "B5_10")
+    _ngt_v5 = _NGT.confirm_verdict(_ngt_set(40, 3.0, 19, 0.5), "B5_10")
+    _ngt_ba = [_ngt_row(0.07, net=((i * 7919) % 1013) / 53.0 - 6.0, day=f"2026-10-{1 + i % 23:02d}", sym=f"A{i}") for i in range(90)]
+    _ngt_bc = [_ngt_row(None, 0, 0.07, net=((i * 104729) % 997) / 61.0 - 9.0, day=f"2026-10-{1 + i % 23:02d}", sym=f"C{i}") for i in range(70)]
+    _ngt_bt = (_NGT.boot(_ngt_ba, _ngt_bc), _NGT.boot(_ngt_ba, _ngt_bc))
+    _ngt_err3 = ""
+except Exception as _e:                      # noqa: BLE001
+    _ngt_p1 = _ngt_p2 = _ngt_p3 = _ngt_p4 = _ngt_p5 = _ngt_p6 = "⛔"
+    _ngt_v1 = _ngt_v2 = _ngt_v3 = _ngt_v4 = _ngt_v5 = {}
+    _ngt_bt = (None, 1)
+    _ngt_err3 = f"⛔ {type(_e).__name__}: {_e}"
+check("🌙 NGT3: قاعدةُ الاكتشاف (30 للذراع · 20 للضابط · متوسّطٌ فوق الصفر وفوق الضابط · الأعلى يغلب) وحكمُ التأكيد (الفاصلان كلاهما فوق "
+      "الصفر ⟵ «تعبر» · وإلّا «لا تعبر» · ودون العدد «لا قياس») · والبوتستراب حتميٌّ بالبذرة",
+      _ngt_p1 == "B5_10" and _ngt_p2 is None and _ngt_p3 is None and _ngt_p4 is None and _ngt_p5 is None and _ngt_p6 == "B10_20"
+      and _ngt_v1.get("verdict") == "تعبر" and _ngt_v2.get("verdict") == "لا تعبر" and _ngt_v3.get("verdict") == "لا تعبر"
+      and _ngt_v4.get("verdict") == "لا قياس" and _ngt_v5.get("verdict") == "لا قياس"
+      and _ngt_bt[0] is not None and _ngt_bt[0] == _ngt_bt[1]
+      and _ngt_bt[0]["mean_ci"][0] < _ngt_bt[0]["mean_ci"][1] and _ngt_bt[0]["diff_ci"][0] < _ngt_bt[0]["diff_ci"][1],
+      _ngt_err3 or f"{_ngt_p1} {_ngt_p2} {_ngt_p3} {_ngt_p4} {_ngt_p5} {_ngt_p6} {[v.get('verdict') for v in (_ngt_v1, _ngt_v2, _ngt_v3, _ngt_v4, _ngt_v5)]}")
+import tempfile as _ngt_tmp
+import os as _ngt_os
+try:
+    _ngt_seen_days = []
+    _ngt_save = (_NGT.fetch_all, _NGT.universe_at, _NGT.last_complete_day, _NGT.FREEZE, _NGT.RESULT, _NGT.PREREG_SHA16, _NGT.CLOSED)
+    _ngt_td = _ngt_tmp.mkdtemp()
+    _NGT.fetch_all = lambda syms, workers=8: {s: (None, "symbol_error", None, "symbol_error") for s in syms}
+    _NGT.universe_at = lambda prev, day: (_ngt_seen_days.append(day) or ["AAA"])
+    _NGT.last_complete_day = lambda now=None: "2026-10-09"
+    _NGT.RESULT = _ngt_os.path.join(_ngt_td, "R.md")
+    _NGT.FREEZE = _ngt_os.path.join(_ngt_td, "F.json")
+    _ngt_out = _ngt_os.path.join(_ngt_td, "o.json")
+    _ngt_rc_d = _NGT.main(["--mode", "discover", "--out", _ngt_out])
+    _ngt_days_d = list(_ngt_seen_days)
+    _ngt_rc_nofreeze = _NGT.main(["--mode", "confirm", "--out", _ngt_out])
+    open(_NGT.FREEZE, "w", encoding="utf-8").write(_fsl_json.dumps({"arm": "B5_10", "prereg_sha16": "0" * 16}))
+    _ngt_rc_badfreeze = _NGT.main(["--mode", "confirm", "--out", _ngt_out])
+    open(_NGT.FREEZE, "w", encoding="utf-8").write(_fsl_json.dumps({"arm": "B5_10", "prereg_sha16": _NGT.PREREG_SHA16}))
+    del _ngt_seen_days[:]
+    _ngt_rc_c = _NGT.main(["--mode", "confirm", "--out", _ngt_out])
+    _ngt_days_c = list(_ngt_seen_days)
+    open(_NGT.RESULT, "w").write("x")
+    _ngt_rc_once = _NGT.main(["--mode", "confirm", "--out", _ngt_out])
+    _NGT.PREREG_SHA16 = "f" * 16
+    _ngt_rc_sha = _NGT.main(["--mode", "discover", "--out", _ngt_out])
+    _NGT.PREREG_SHA16 = _ngt_save[5]
+    _NGT.CLOSED = True
+    _ngt_rc_closed = _NGT.main(["--mode", "discover", "--out", _ngt_out])
+    _ngt_live_sha = _NGT.prereg_sha16() == _ngt_save[5]
+    _ngt_err4 = ""
+except Exception as _e:                      # noqa: BLE001
+    _ngt_rc_d = _ngt_rc_nofreeze = _ngt_rc_badfreeze = _ngt_rc_c = _ngt_rc_once = _ngt_rc_sha = _ngt_rc_closed = "⛔"
+    _ngt_days_d, _ngt_days_c, _ngt_live_sha = [], [], False
+    _ngt_err4 = f"⛔ {type(_e).__name__}: {_e}"
+finally:
+    try:
+        (_NGT.fetch_all, _NGT.universe_at, _NGT.last_complete_day, _NGT.FREEZE, _NGT.RESULT, _NGT.PREREG_SHA16, _NGT.CLOSED) = _ngt_save
+    except Exception:                        # noqa: BLE001
+        pass
+check("🌙 NGT4: بوّاباتُ T-NIGHT — بصمةُ العقد الحيّ = المثبَّتة وتغيّرُها خروج 11 · الاكتشافُ لا يبني يومًا بعد 2026-09-30 والتأكيدُ لا يبني يومًا "
+      "قبل 2026-10-01 · التأكيدُ بلا تثبيتٍ ببصمة العقد خروج 9 · والنتيجةُ الصادرة خروج 7 · والمحورُ المُغلَق خروج 8",
+      _ngt_live_sha and _ngt_rc_d == 0 and bool(_ngt_days_d) and max(_ngt_days_d) <= "2026-09-30" and min(_ngt_days_d) >= "2026-08-18"
+      and _ngt_rc_nofreeze == 9 and _ngt_rc_badfreeze == 9 and _ngt_rc_c == 0 and bool(_ngt_days_c) and min(_ngt_days_c) >= "2026-10-01"
+      and _ngt_rc_once == 7 and _ngt_rc_sha == 11 and _ngt_rc_closed == 8,
+      _ngt_err4 or f"{_ngt_live_sha} {_ngt_rc_d} {_ngt_rc_nofreeze} {_ngt_rc_badfreeze} {_ngt_rc_c} {_ngt_rc_once} {_ngt_rc_sha} {_ngt_rc_closed} "
+                   f"{_ngt_days_d[-1:]} {_ngt_days_c[:1]}")
+try:
+    _ngt_wf = _ngp_yaml.safe_load(open(".github/workflows/night.yml", encoding="utf-8").read())
+    _ngt_on = _ngt_wf.get(True) or _ngt_wf.get("on") or {}
+    _ngt_jobs = _fsl_json.dumps(_ngt_wf.get("jobs") or {}, ensure_ascii=False)
+    _ngt_src = open("fm_forensics/night/night.py", encoding="utf-8").read()
+    _ngt_w = (set(_ngt_on) == {"workflow_dispatch"} and _ngt_wf.get("permissions") == {"contents": "read"} and "TELEGRAM" not in _ngt_jobs
+              and "secrets." not in _ngt_jobs and "night.py" in _ngt_jobs
+              and "send_telegram" not in _ngt_src and "git_save" not in _ngt_src and "import Super_stock" not in _ngt_src)
+except Exception:                            # noqa: BLE001
+    _ngt_w = False
+check("🌙 NGT5: `night.yml` يدويٌّ وحدَه · `contents: read` · بلا أيّ سرّ · والأداةُ لا ترسل ولا تحفظ ولا تستورد البوت", _ngt_w)
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
