@@ -105344,8 +105344,12 @@ try:
     _mng_rec = [c for c in _mrx_ast.walk(_mng_tree) if isinstance(c, _mrx_ast.Call)
                 and getattr(c.func, "attr", None) == "record" and c.args
                 and getattr(c.args[0], "value", None) == "method_nogap"]
+    _mng_call = [c for c in _mrx_ast.walk(_mng_tree) if isinstance(c, _mrx_ast.Call)
+                 and getattr(c.func, "attr", None) == "method_nogap_lines"]
     _mng_app = [n for n in _mrx_ast.walk(_mng_tree) if isinstance(n, _mrx_ast.AugAssign)
-                and getattr(n.target, "id", None) == "_rel_block" and "method_nogap_lines" in _mrx_ast.unparse(n.value)]
+                and getattr(n.target, "id", None) == "_rel_block"
+                and len(_mng_call) == 1 and getattr(_mng_call[0].args[0], "id", None) == "nog"
+                and _mrx_ast.unparse(n.value).endswith("_rtl_join(_ngl)")]
     _mng4 = (any("بلا هدف فجوة · الدخول $3.20 · الوقف $3.01" in ln for ln in _mng_lines)
              and "ليس مطابقًا كاملًا" in _mng_lines[0] and "الهدف $" not in "\n".join(_mng_lines)
              and S.method_nogap_lines([]) == [] and S.method_nogap_lines(None) == []
@@ -105356,6 +105360,88 @@ except Exception as _e:                                          # noqa: BLE001
     _mng4, _mng4d = False, f"⛔ {type(_e).__name__}: {_e}"
 check("🏷️ MNG4: القسمُ بوسمه منفصلًا وبلا سطر هدف · والزائدُ عن السقف يُعلَن عددُه · موصولٌ في كتلة الرسالة · والسجلُّ الأماميّ باسم `method_nogap` على قائمته وحدَها",
       _mng4, _mng4d[:160])
+_ = S.scan_method_hunter({}, today=None)          # تنظيفُ الحالة العامّة
+
+
+# 👁️ MSE1-MSE3 — «أظهر القسمين حتى لو فاضيين» (أمرُ المالك 2026-11-19): القسمُ الفارغ سطرٌ بعدد المفحوصين وسبب سقوط كلٍّ ·
+#    عرضٌ لا قياس (القرارُ بت-بت) · `METHOD_SHOW_EMPTY=0` ⟵ القسمُ الفارغ لا يُطبع.
+def _mse_stat(hist, **kw):
+    _r = _mng_scan(hist, **kw)
+    return _r, {k: {"checked": v["checked"], "drops": dict(v["drops"])} for k, v in S._METHOD_TIER_STAT.items()}
+
+
+_mse_p = _mse_stat({"TEST": _mrx_df(3.16)}, pump=lambda d: True)
+_mse_o = _mse_stat({"TEST": _mrx_df(3.16)}, off=lambda s: True)
+_mse_b = _mse_stat({"TEST": _mrx_df(3.16)}, bor=lambda s: {"shares_available": 20_001})
+_mse_ok = _mse_stat({"TEST": _mrx_df(3.16)})
+_mse_g = _mse_stat({"TEST": _mrx_df(3.215)}, nogap="all")
+_mse_x = _mse_stat({"TEST": _mrx_df(3.16)}, on=False)
+check("👁️ MSE1: سببُ السقوط يُعَدّ لكلّ قسم — قروب · طرح · متاحٌ فوق الحدّ · ولا فجوةَ هابطة للمخفّف · والناجي لا يُعَدّ ساقطًا · والقسمُ المطفأ بلا عدّاد",
+      _mse_p[1].get("ng") == {"checked": 1, "drops": {"قروب": 1}}
+      and _mse_o[1].get("ng") == {"checked": 1, "drops": {"طرح": 1}}
+      and _mse_b[1].get("ng") == {"checked": 1, "drops": {"متاح فوق الحدّ": 1}}
+      and _mse_ok[1].get("ng") == {"checked": 1, "drops": {}} and len(_mse_ok[0][1]) == 1
+      and _mse_g[1].get("rel") == {"checked": 1, "drops": {"لا فجوة هابطة": 1}}
+      and "ng" not in _mse_x[1] and _mse_p[1].get("rel") == {"checked": 0, "drops": {}},
+      str((_mse_p[1], _mse_g[1].get("rel"), sorted(_mse_x[1])))[:160])
+_mse_sw = S.CONFIG.get("METHOD_SHOW_EMPTY")
+try:
+    S.CONFIG["METHOD_SHOW_EMPTY"] = True
+    _mse_l1 = S.method_nogap_lines([], stat={"checked": 3, "drops": {"قروب": 1, "متاح فوق الحدّ": 2}})
+    _mse_l2 = S.method_relaxed_lines([], stat={"checked": 0, "drops": {}})
+    _mse_l3 = S.method_nogap_lines([], stat=None)
+    _mse_l4 = S.method_relaxed_lines(_mrx_a[1], stat={"checked": 9, "drops": {"قروب": 9}})
+    S.CONFIG["METHOD_SHOW_EMPTY"] = False
+    _mse_l5 = S.method_nogap_lines([], stat={"checked": 3, "drops": {"قروب": 3}})
+    _mse_l6 = S.method_relaxed_lines([], stat={"checked": 0, "drops": {}})
+except Exception as _e:                                          # noqa: BLE001
+    _mse_l1 = _mse_l2 = _mse_l3 = _mse_l4 = _mse_l5 = _mse_l6 = [f"⛔ {type(_e).__name__}"]
+finally:
+    S.CONFIG["METHOD_SHOW_EMPTY"] = _mse_sw
+check("👁️ MSE2: القسمُ الفارغ سطرٌ واحد «لا يوجد اليوم — فُحِص N (سقط: …)» بالأكثر أوّلًا · وبلا مفحوصٍ يقول لماذا · وبلا عدّادٍ أو المفتاحُ مطفأ ⟵ لا سطر · والقسمُ غيرُ الفارغ كما كان",
+      _mse_l1 == ["🏷️ <b>بلا هدف فجوة</b>: لا يوجد اليوم — فُحِص 3 (سقط: متاح فوق الحدّ 2 · قروب 1)."]
+      and len(_mse_l2) == 1 and "مستوى مخفّف" in _mse_l2[0] and "لا سهمَ تجاوز الدخولَ بـ1% أو أقلّ" in _mse_l2[0]
+      and _mse_l3 == [] and _mse_l5 == [] and _mse_l6 == []
+      and _mse_l4 == S.method_relaxed_lines(_mrx_a[1]) and _mse_sw is True,
+      str((_mse_l1, _mse_l2, _mse_l5))[:160])
+try:
+    _mse_src = open("method_hunter.py", encoding="utf-8").read()
+    _mse_t = _mrx_ast.parse(_mse_src)
+    _mse_calls = {getattr(c.func, "attr", None): c for c in _mrx_ast.walk(_mse_t) if isinstance(c, _mrx_ast.Call)
+                  and getattr(c.func, "attr", None) in ("method_relaxed_lines", "method_nogap_lines")}
+    _mse_kw = {k: [_mrx_ast.unparse(x.value) for x in c.keywords if x.arg == "stat"] for k, c in _mse_calls.items()}
+    _mse_ifnog = [n for n in _mrx_ast.walk(_mse_t) if isinstance(n, _mrx_ast.If) and _mrx_ast.unparse(n.test) == "nog"]
+    _mse_inside = any(isinstance(x, _mrx_ast.AugAssign) and getattr(x.target, "id", None) == "_rel_block"
+                      for n in _mse_ifnog for x in _mrx_ast.walk(n))
+    _mse3 = (_mse_kw.get("method_relaxed_lines") == ["_tier_st.get('rel')"]
+             and _mse_kw.get("method_nogap_lines") == ["_tier_st.get('ng')"]
+             and "_METHOD_TIER_STAT" in _mse_src and len(_mse_ifnog) == 1 and not _mse_inside)
+    _mse3d = str((_mse_kw, len(_mse_ifnog), _mse_inside))
+except Exception as _e:                                          # noqa: BLE001
+    _mse3, _mse3d = False, f"⛔ {type(_e).__name__}: {_e}"
+check("👁️ MSE3: موصولٌ في رسالة الصيّاد — القسمان يُمرَّر لهما عدّادُ آخر مسح · وكتلةُ «بلا هدف فجوة» خارج «إن وُجد» فتظهر فارغةً",
+      _mse3, _mse3d[:160])
+try:
+    import subs_trial as _sbt4
+    _sbt4_o = _os.environ.get("SUBS_TRIAL_ONLY")
+    _sbt4_r = []
+    for _v in ("method", " method , press ", "", "nope", "method,nope"):
+        _os.environ["SUBS_TRIAL_ONLY"] = _v
+        _sbt4_r.append(sorted(_sbt4.selected()))
+    _sbt4_src = open("subs_trial.py", encoding="utf-8").read()
+    _sbt4_ok = (_sbt4_r == [["method"], ["method", "press"], [], [], ["method"]]
+                and "key in SILENT or (only and key not in only)" in _sbt4_src
+                and "todo = [(k, t) for k, t in todo if k in only]" in _sbt4_src
+                and "SUBS_TRIAL_ONLY: ${{ inputs.only }}" in open(".github/workflows/subs_trial.yml", encoding="utf-8").read())
+except Exception as _e:                                          # noqa: BLE001
+    _sbt4_ok, _sbt4_r = False, f"⛔ {type(_e).__name__}"
+finally:
+    if _sbt4_o is None:
+        _os.environ.pop("SUBS_TRIAL_ONLY", None)
+    else:
+        _os.environ["SUBS_TRIAL_ONLY"] = _sbt4_o
+check("📣🧪 SBT4: «أداةٌ بعينها» في التجربة — `SUBS_TRIAL_ONLY` يقبل المعروفَ وحدَه (فارغٌ أو مجهولٌ ⟵ الكلّ) · ولا تُشغَّل غيرُها ولا يُرسَل",
+      _sbt4_ok, str(_sbt4_r)[:160])
 _ = S.scan_method_hunter({}, today=None)          # تنظيفُ الحالة العامّة
 
 

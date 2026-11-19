@@ -17,6 +17,10 @@ on:
         description: "1 = فحصُ اتّصالٍ فقط (رسالةٌ واحدة للقناة وسببُ الرفض)"
         required: false
         default: "0"
+      only:
+        description: "أدواتٌ بعينها بفاصلة (مثلًا method) — فارغ = الكلّ"
+        required: false
+        default: ""
 
 concurrency:
   group: subs-trial
@@ -47,5 +51,6 @@ jobs:
           PRESESSION_SOURCE: polygon
           SUBS_TRIAL_DRY: ${{ inputs.dry }}
           SUBS_TRIAL_PING: ${{ inputs.ping }}
+          SUBS_TRIAL_ONLY: ${{ inputs.only }}
           PYTHONUNBUFFERED: "1"
         run: python subs_trial.py

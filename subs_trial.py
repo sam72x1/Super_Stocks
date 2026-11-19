@@ -74,6 +74,13 @@ def plan(captured, rcs):
     return out, rep
 
 
+def selected():
+    """🎯 نقيّة على البيئة: مجموعةُ مفاتيح `SUBS_TRIAL_ONLY` المعروفة (فاصلة) · فارغ أو مجهول كلُّه ⟵ مجموعةٌ فارغة = الكلّ."""
+    raw = os.environ.get("SUBS_TRIAL_ONLY", "")
+    keys = {k for k, _n in TOOLS}
+    return {x.strip() for x in raw.split(",") if x.strip() in keys}
+
+
 def _runner(key):
     if key == "daily":
         import Super_stock as S
@@ -134,8 +141,9 @@ def main():
     S.send_owner_document = lambda *a, **k: True
     S.download_history = lambda *a, **k: cut_hist(_dl(*a, **k), cutoff)
     rcs = {}
+    only = selected()                                            # 🎯 `SUBS_TRIAL_ONLY` (مثلًا «method») ⟵ هذه الأدواتُ وحدَها · فارغ ⟵ الكلّ
     for key, name in TOOLS:
-        if key in SILENT:
+        if key in SILENT or (only and key not in only):
             continue
         cur[0] = key
         S.log(f"━━━ 📣🧪 {name} ━━━")
@@ -149,6 +157,8 @@ def main():
             traceback.print_exc()
     cur[0] = None
     todo, rep = plan(captured, rcs)
+    if only:
+        todo = [(k, t) for k, t in todo if k in only]
     dry = os.environ.get("SUBS_TRIAL_DRY", "").strip() == "1"
     first, parts_by = True, {}
     for key, text in todo:
@@ -159,11 +169,15 @@ def main():
             chunks[0] = FIRST_LINE + "\n\n" + chunks[0]
             first = False
         ok = True if dry else SC._send(chunks)
+        for c in chunks:                                         # 👁️ أوّلُ سطرٍ من كلّ جزء — ليُطابَق بما وصل القناة
+            S.log(f"   {'✅' if ok else '❌'} [{key}] " + SC._strip_tags(c).strip().split(chr(10))[0][:90])
         d = parts_by.setdefault(key, {"parts": 0, "fail": 0})
         d["parts" if ok else "fail"] += len(chunks)
     S.log("━━━ 📣🧪 الحصيلة ━━━" + (" (جافّ — لا إرسال)" if dry else ""))
     total = 0
     for key, name in TOOLS:
+        if only and key not in only:
+            continue
         r, p = rep[key], parts_by.get(key, {"parts": 0, "fail": 0})
         c = captured.get(key) or {"sent": [], "mirror": []}
         total += p["parts"]
