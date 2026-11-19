@@ -97,6 +97,11 @@ def _runner(key):
 
 
 def main():
+    if os.environ.get("SUBS_TRIAL_PING", "").strip() == "1":       # 🩺 فحصُ اتّصالٍ سريع: رسالةٌ واحدة للقناة وسببُ الرفض إن رُفضت
+        import subs_channel as _SC
+        ok = _SC._send([FIRST_LINE + " — فحصُ اتّصال القناة"])
+        print("🩺 فحصُ الاتّصال: " + ("✅ وصلت" if ok else f"❌ رُفضت — {_SC.LAST_ERR[0] or 'لا رقمَ قناةٍ أو لا رمز'}"), flush=True)
+        return 0 if ok else 1
     os.environ.pop("TELEGRAM_CHAT_ID", None)                     # 🔒 لا محادثةَ مالكٍ في هذا التشغيل مهما كانت البيئة
     os.environ.pop("TELEGRAM_OWNER_ID", None)
     os.environ["SCREENER_MODE"] = "FULL"
@@ -155,16 +160,15 @@ def main():
             first = False
         ok = True if dry else SC._send(chunks)
         d = parts_by.setdefault(key, {"parts": 0, "fail": 0})
-        d["parts"] += len(chunks)
-        d["fail"] += 0 if ok else 1
+        d["parts" if ok else "fail"] += len(chunks)
     S.log("━━━ 📣🧪 الحصيلة ━━━" + (" (جافّ — لا إرسال)" if dry else ""))
     total = 0
     for key, name in TOOLS:
         r, p = rep[key], parts_by.get(key, {"parts": 0, "fail": 0})
         c = captured.get(key) or {"sent": [], "mirror": []}
         total += p["parts"]
-        S.log(f"{name}: رسائل {r['sent']} · أجزاءٌ مُرسَلة {p['parts']}"
-              + (f" · ⚠️ تعذّر إرسالُ {p['fail']}" if p["fail"] else "")
+        S.log(f"{name}: رسائل {r['sent']} · أجزاءٌ وصلت القناة {p['parts']}"
+              + (f" · ⚠️ أجزاءٌ رفضها تلغرام {p['fail']} ({SC.LAST_ERR[0]})" if p["fail"] else "")
               + f" · «فيصل/kisar» قبل الحذف {r['name_hits']} مرّة"
               + (f" · لم تُرسَل: {r['why']}" if r["why"] else "")
               + f" · (التُقط {len(c['sent'])} رسالةً إجمالًا)")
@@ -174,7 +178,7 @@ def main():
         for t in c["sent"]:
             if c["mirror"] and t not in _mir:
                 S.log("   ↳ خارج قائمة القناة (لم تُرسَل): " + SC._strip_tags(t).strip().split("\n")[0][:80])
-    S.log(f"📣🧪 المجموع: {total} جزءًا إلى القناة · ولا شيء لمحادثة المالك · ولا حفظ.")
+    S.log(f"📣🧪 المجموع: {total} جزءًا وصل القناة · ولا شيء لمحادثة المالك · ولا حفظ.")
     return 0
 
 

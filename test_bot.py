@@ -105402,7 +105402,11 @@ try:
           and "contents: read" in _sbt_code and "contents: write" not in _sbt_code and "schedule:" not in _sbt_code
           and "TELEGRAM_CHAT_ID" not in _sbt_code and "TELEGRAM_OWNER_ID" not in _sbt_code and "workflow_dispatch:" in _sbt_code
           and "SC.ON" not in _sbt_src and ".ON =" not in _sbt_src and _sbt.FIRST_LINE == "تجربة"
-          and "chunks[0] = FIRST_LINE" in _sbt_src and _sbt_SC.ON is False,
+          and "chunks[0] = FIRST_LINE" in _sbt_src and _sbt_SC.ON is False
+          # 🩺 سببُ الرفض يُسجَّل بلا أيّ رقم (لا رقمَ محادثةٍ في السجلّ) — عطلُ أوّل تجربة: 15 جزءًا رُفضت بـ400 بلا سبب مقروء
+          and _sbt_SC._why(type("R", (), {"json": lambda self: {"description": "Bad Request: chat -100123 not found"}})())
+          == "Bad Request: chat -###### not found"
+          and _sbt_SC._why(None) == "؟",
           str(sorted(_sbt_asg))[:160])
 except Exception as _e:                                          # noqa: BLE001
     check("📣🧪 SBT0: كتلةُ تجربة قناة المشتركين لم تكتمل", False, f"⛔ {type(_e).__name__}: {_e}")

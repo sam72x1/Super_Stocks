@@ -232,6 +232,22 @@ def _strip_tags(t):
     return re.sub(r"</?(?:b|i|u|s|code|pre|a)(?: [^>]*)?>", "", t or "")
 
 
+LAST_ERR = [""]                             # سببُ آخر رفضٍ من تلغرام (وصفُه بلا أرقام) — للتشخيص وحدَه
+
+
+def _why(r):
+    """🔒 وصفُ تلغرام لسبب الرفض **بلا أيّ رقم** (فلا رقمَ محادثةٍ ولا رمزَ بوتٍ في السجلّ) · فاشلةٌ-آمنة ⟵ «؟»."""
+    try:
+        d = ""
+        try:
+            d = str((r.json() or {}).get("description") or "")
+        except Exception:                           # noqa: BLE001
+            d = str(getattr(r, "text", "") or "")
+        return re.sub(r"\d", "#", d)[:160] or "؟"
+    except Exception:                               # noqa: BLE001
+        return "؟"
+
+
 def _send(chunks, env=None, post=None, late=False):
     """`sendMessage` لكلّ رقمٍ في السرّ · ⟵ True إن وصلت كلُّ الأجزاء لكلّ رقم · ولا رقمَ محادثةٍ في السجلّ."""
     env = os.environ if env is None else env
@@ -260,7 +276,8 @@ def _send(chunks, env=None, post=None, late=False):
                                         "disable_web_page_preview": True}, timeout=30)
                 if r.status_code != 200:
                     ok = False
-                    log(f"⚠️ قناة المشتركين رفضت: HTTP {r.status_code}")
+                    LAST_ERR[0] = _why(r)
+                    log(f"⚠️ قناة المشتركين رفضت: HTTP {r.status_code} — {LAST_ERR[0]}")
             except Exception as e:                  # noqa: BLE001
                 ok = False
                 log(f"⚠️ قناة المشتركين: {type(e).__name__}")

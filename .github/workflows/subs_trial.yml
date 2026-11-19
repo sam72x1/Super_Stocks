@@ -13,6 +13,10 @@ on:
         description: "1 = التقاطٌ وعدٌّ بلا إرسال"
         required: false
         default: "0"
+      ping:
+        description: "1 = فحصُ اتّصالٍ فقط (رسالةٌ واحدة للقناة وسببُ الرفض)"
+        required: false
+        default: "0"
 
 concurrency:
   group: subs-trial
@@ -42,5 +46,6 @@ jobs:
           EXACT_HOLD_SOURCE: polygon
           PRESESSION_SOURCE: polygon
           SUBS_TRIAL_DRY: ${{ inputs.dry }}
+          SUBS_TRIAL_PING: ${{ inputs.ping }}
           PYTHONUNBUFFERED: "1"
         run: python subs_trial.py
