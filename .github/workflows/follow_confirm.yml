@@ -1,0 +1,41 @@
+name: "🔎✅ أداة تأكيد المتابعة"
+
+# أمرُ المالك 2026-11-20: «اكتب فيها أيّ سهم ويتأكّد لو ارتكاز ولا لا ويرسلي في البوت، ولو ارتكاز يرسل البيانات كاملة».
+# الحكمُ = الفحصُ اليدويّ `analyze_one.main` نفسُه (مطابقٌ للفرز) · رسالةٌ مختصرة لكلّ رمز · عرضٌ فقط بلا كتابة حالة (`FCF1`-`FCF3`).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      ticker:
+        description: "الرمز (أو حتى 5 رموز بفاصلة · مثل SXTC,YMT)"
+        required: true
+        type: string
+
+jobs:
+  confirm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🔎✅ تأكيد المتابعة
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          FOLLOW_CONFIRM: ${{ github.event.inputs.ticker }}
+          # شموعُ TradingView كالفرز والفحص اليدويّ (`analyze.yml`)
+          BARS_SOURCE: tradingview
+        run: python follow_confirm.py
