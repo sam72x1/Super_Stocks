@@ -865,7 +865,7 @@
    "hit": "t1",
    "hit_date": "2026-11-17",
    "max_gain_pct": 13.0,
-   "last_price": 0.4975,
+   "last_price": 0.4947,
    "borrow_hist": [
     [
      "2026-11-17",
@@ -1270,7 +1270,7 @@
    "hit": "t2",
    "hit_date": "2026-09-04",
    "max_gain_pct": 100.4,
-   "last_price": 13.08,
+   "last_price": 12.33,
    "live_alert": {
     "breakout": "2026-11-18",
     "dump": "2026-10-16",
@@ -2565,7 +2565,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.565,
+   "last_price": 1.52,
    "borrow_hist": [
     [
      "2026-11-20",
@@ -2964,7 +2964,7 @@
    "hit": "t2",
    "hit_date": "2026-11-10",
    "max_gain_pct": 52.2,
-   "last_price": 0.6305,
+   "last_price": 0.63,
    "borrow_hist": [
     [
      "2026-11-10",
@@ -3825,7 +3825,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.35,
+   "last_price": 1.36,
    "borrow_hist": [
     [
      "2026-11-20",
@@ -4250,7 +4250,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 1.2,
-   "last_price": 3.0993,
+   "last_price": 3.11,
    "borrow_hist": [
     [
      "2026-11-18",
@@ -4687,7 +4687,7 @@
    "hit": "t1",
    "hit_date": "2026-11-12",
    "max_gain_pct": 42.7,
-   "last_price": 1.815,
+   "last_price": 1.75,
    "live_alert": {
     "sweep": "2026-11-19",
     "dump": "2026-11-19"
@@ -5947,7 +5947,7 @@
    "hit": "t2",
    "hit_date": "2026-10-29",
    "max_gain_pct": 68.7,
-   "last_price": 10.15,
+   "last_price": 10.18,
    "borrow_hist": [
     [
      "2026-10-29",
@@ -6787,7 +6787,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 5.11,
+   "last_price": 5.29,
    "borrow_hist": [
     [
      "2026-11-20",
@@ -7159,10 +7159,10 @@
    "hit": "t2",
    "hit_date": "2026-11-03",
    "max_gain_pct": 37.3,
-   "last_price": 4.69,
+   "last_price": 4.75,
    "faisal_levels": "🧭 إغلاقات الهابطة $4.58 · $4.62 · $4.63 · جسم قبل الهبوط $6.19 · اختبار المقاومة $4.34 إلى $4.71",
    "live_alert": {
-    "breakout": "2026-11-02",
+    "breakout": "2026-11-20",
     "dump": "2026-11-13",
     "sweep": "2026-11-19"
    },
