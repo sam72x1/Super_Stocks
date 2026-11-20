@@ -798,3 +798,22 @@
 {"day": "2026-11-18", "fired": false, "fired_ok": true, "fired_why": "fresh", "mv": 5.8496, "n_pre": 2, "n_reg": 23, "open930": 14.36, "pm_raw": 4016.58, "pm_usd": "<100k", "prev_close": 14.21, "reg_hi": 15.2, "short_cover": true, "sym": "SVRN"}
 {"day": "2026-11-18", "fired": false, "fired_ok": true, "fired_why": "fresh", "mv": 1.9769, "n_pre": 0, "n_reg": 6, "open930": 6.07, "pm_raw": 0, "pm_usd": null, "prev_close": 5.69, "reg_hi": 6.19, "short_cover": true, "sym": "TVGN"}
 {"day": "2026-11-18", "fired": false, "fired_ok": true, "fired_why": "fresh", "mv": 1.2498, "n_pre": 15, "n_reg": 85, "open930": 0.5521, "pm_raw": 4462.28, "pm_usd": "<100k", "prev_close": 0.5434, "reg_hi": 0.559, "short_cover": true, "sym": "VBIO"}
+{"day": "2026-11-19", "fired": false, "fired_ok": true, "fired_why": "fresh", "mv": 13.5093, "n_pre": 0, "n_reg": 57, "open930": 3.22, "pm_raw": 0, "pm_usd": null, "prev_close": 3.31, "reg_hi": 3.655, "short_cover": true, "sym": "BANL"}
+{"day": "2026-11-19", "fired": false, "fired_ok": true, "fired_why": "fresh", "mv": 0.0152, "n_pre": 0, "n_reg": 80, "open930": 3.2995, "pm_raw": 0, "pm_usd": null, "prev_close": 3.28, "reg_hi": 3.3, "short_cover": true, "sym": "BCTX"}
+{"day": "2026-11-19", "fired": false, "fired_ok": true, "fired_why": "fresh", "mv": 5.3756, "n_pre": 0, "n_reg": 32, "open930": 13.58, "pm_raw": 0, "pm_usd": null, "prev_close": null, "reg_hi": 14.31, "short_cover": true, "sym": "BNR"}
+{"absent": "no_bars", "day": "2026-11-19", "fired": false, "fired_ok": true, "fired_why": "fresh", "short_cover": true, "sym": "CDNL"}
+{"absent": "no_bars", "day": "2026-11-19", "fired": false, "fired_ok": true, "fired_why": "fresh", "short_cover": true, "sym": "CHSN"}
+{"absent": "no_bars", "day": "2026-11-19", "fired": false, "fired_ok": true, "fired_why": "fresh", "short_cover": true, "sym": "CURX"}
+{"absent": "no_bars", "day": "2026-11-19", "fired": false, "fired_ok": true, "fired_why": "fresh", "short_cover": true, "sym": "KELYB"}
+{"absent": "no_bars", "day": "2026-11-19", "fired": false, "fired_ok": true, "fired_why": "fresh", "short_cover": true, "sym": "KMRK"}
+{"absent": "no_bars", "day": "2026-11-19", "fired": false, "fired_ok": true, "fired_why": "fresh", "short_cover": true, "sym": "LNKS"}
+{"absent": "no_bars", "day": "2026-11-19", "fired": false, "fired_ok": true, "fired_why": "fresh", "short_cover": true, "sym": "OBAI"}
+{"absent": "no_bars", "day": "2026-11-19", "fired": false, "fired_ok": true, "fired_why": "fresh", "short_cover": true, "sym": "PHOE"}
+{"absent": "no_bars", "day": "2026-11-19", "fired": false, "fired_ok": true, "fired_why": "fresh", "short_cover": true, "sym": "PSIG"}
+{"absent": "no_bars", "day": "2026-11-19", "fired": false, "fired_ok": true, "fired_why": "fresh", "short_cover": true, "sym": "PTLE"}
+{"absent": "no_bars", "day": "2026-11-19", "fired": false, "fired_ok": true, "fired_why": "fresh", "short_cover": true, "sym": "RENT"}
+{"absent": "no_bars", "day": "2026-11-19", "fired": false, "fired_ok": true, "fired_why": "fresh", "short_cover": true, "sym": "SLBT"}
+{"absent": "no_bars", "day": "2026-11-19", "fired": false, "fired_ok": true, "fired_why": "fresh", "short_cover": true, "sym": "SVRN"}
+{"absent": "no_bars", "day": "2026-11-19", "fired": false, "fired_ok": true, "fired_why": "fresh", "short_cover": true, "sym": "TVGN"}
+{"absent": "no_bars", "day": "2026-11-19", "fired": false, "fired_ok": true, "fired_why": "fresh", "short_cover": true, "sym": "VBIO"}
+{"absent": "no_bars", "day": "2026-11-19", "fired": false, "fired_ok": true, "fired_why": "fresh", "short_cover": true, "sym": "ZURA"}
