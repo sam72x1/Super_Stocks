@@ -31,6 +31,7 @@
 # 🌱 ذاكرةُ الصيّادين — **على مستوى الوحدة** لأن `git_save` في ختم الجلسة يحتاج
 #    اسمَ الملفّ. والوحدةُ stdlib-only (‏`json`/`os`) ⇒ صفر أثرٍ جانبيّ وقت الاستيراد.
 import hunter_ledger as LEDGER
+import tool_levels as TL
 
 
 
@@ -344,7 +345,9 @@ def run(fetch_ext=None, now_utc=None):
             "\n" + S._rtl_join([
                 f"{AH_UNVERIFIED_TAG} لـ: {S.esc(' · '.join(unverified))} — "
                 "قد يكون تحرّك بعد الإغلاق ولم نتمكّن من قراءته."])
-            if unverified else "") + "\n\n" + S.FOOTER
+            if unverified else "")
+        # 🎯 الأهداف والمقاومات لكلّ مطابق (أمرُ المالك 2026-11-20 · `TOOL_LEVELS=0` ⟵ بت-بت · `TLV2`)
+        msg = TL.with_levels(msg, [r.get("symbol") for r in rows], hist) + "\n\n" + S.FOOTER
     except Exception as e:                                       # noqa: BLE001
         return _fail(S, f"تعذّر بناء التنبيه رغم وجود {len(rows)} مطابق ({e}).")
     # ⚠️ **نتيجة الإرسال كانت مُهمَلة** والسجلّ يطبع «✅ أُرسل» بلا شرط: رفضُ تلغرام

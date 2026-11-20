@@ -106,6 +106,9 @@ _os_hc.environ["FAISAL_ONLY"] = "0"
 #    والبوّابةُ مُفعَّلة **يُبطل معنى الفِكستشر** (كلُّها «قديمة») ولا يكشف عيبًا. ⇒ البوّابةُ تأخذ أقفالَها الخاصّة (`DQ*` قبل `LEAK0`)
 #    **بجالبين محقونين وتشغيلٍ صريح** — وأوّلُها أن الافتراضَ في الإنتاج **مُفعَّل** (غيابُ المتغيّر = 1) فلا يُنسى مُطفأً.
 _os_hc.environ["DQ_GATE"] = "0"
+# 🎯 **و`TOOL_LEVELS=0` للسبب نفسِه** (2026-11-20 · الأهداف والمقاومات في رسائل الأدوات): القسمُ يُعيد الفحصَ اليدويّ لكلّ مطابق
+#    وفيه جلبُ شموع 4س (شبكة) ⇒ الفِكستشراتُ التوصيفيّة للأدوات تبقى بت-بت · وأقفالُه `TLV*` قبل `LEAK0` تُشعله صراحةً بمحلّلٍ محقون.
+_os_hc.environ["TOOL_LEVELS"] = "0"
 import types as _ty0
 import numpy as np
 import pandas as pd
@@ -106226,6 +106229,120 @@ except Exception as _e:                                              # noqa: BLE
     _v_fcf6, _v_fcf6w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🧰 FCF6 مطابقُ أداةٍ ليس ارتكازًا ⟵ كرتُ البوت الكامل في رسالة الأدوات (بذيلٍ واحد) · وبلا مطابقة أو كرتٍ ظاهرٍ سلفًا لا تكرار",
       _v_fcf6, _v_fcf6w)
+
+# 🎯 TLV1-TLV4 — الأهداف والمقاومات في رسائل الأدوات (أمرُ المالك 2026-11-20 «تضيف الأهداف و المقاومات للجميع الأسهم الجاهزة لكل الأدوات»)
+import tool_levels as _TLV                                        # noqa: E402
+import ast as _tlv_ast                                            # noqa: E402
+_tlv_env0 = _os_hc.environ.get("TOOL_LEVELS")
+_tlv_dl0, _tlv_f40 = S.download_history, S.fetch_4h
+try:
+    # TLV1 — شموعُ الأداة تذهب إلى الفحص اليدويّ (لا جلبَ ثانٍ) والجالبُ الأصليّ يُستعاد ولو رمى · والمفاتيحُ من نتيجة الفحص الحقيقيّ
+    _tlv_seen = []
+
+    def _tlv_an(sym):
+        _tlv_seen.append(S.download_history([sym]))
+        return ({"t1": 1.5, "t2": 2.0, "t3": 3.0, "targets_kind": ["⚫", "🔵", "🔵"],
+                 "key_levels": {"res_minor": 1.5, "res_major": 2.6}}, [], None)
+    _tlv_df = object()
+    _tlv_a = _TLV.levels_for("abc", _tlv_df, analyze=_tlv_an)
+    _tlv_ok1 = bool(_tlv_seen and _tlv_seen[0].get("ABC") is _tlv_df and S.download_history is _tlv_dl0
+                    and _tlv_a == {"t1": 1.5, "t2": 2.0, "t3": 3.0, "kind": ["⚫", "🔵", "🔵"],
+                                   "res_minor": 1.5, "res_major": 2.6})
+
+    def _tlv_boom(sym):
+        raise RuntimeError("x")
+    _tlv_b = _TLV.levels_for("ABC", _tlv_df, analyze=_tlv_boom)
+    _tlv_ok1 = _tlv_ok1 and _tlv_b is None and S.download_history is _tlv_dl0
+    _tlv_ok1 = _tlv_ok1 and _TLV.levels_for("ABC", None, analyze=lambda s: (None, "تعذّر", None)) is None
+    # والفحصُ الحقيقيّ على شموعٍ مصطنعة (4س محقونةٌ فارغة — بلا شبكة): المفاتيحُ التي يقرؤها القسمُ موجودة
+    _tlv_rng = np.random.default_rng(7)
+    _tlv_c = 3.0 * np.exp(np.cumsum(_tlv_rng.normal(0, 0.04, 320)))
+    _tlv_idx = pd.bdate_range("2025-06-02", periods=320)
+    _tlv_real = pd.DataFrame({"Open": _tlv_c, "High": _tlv_c * 1.03, "Low": _tlv_c * 0.97, "Close": _tlv_c,
+                              "Volume": np.full(320, 2e6)}, index=_tlv_idx)
+    S.fetch_4h = lambda *a, **k: (None, None) if k.get("with_h1") else None
+    try:
+        _tlv_r = _TLV.levels_for("ZZTL", _tlv_real)
+    except Exception as _e:                                       # noqa: BLE001
+        _tlv_r = f"⛔ {type(_e).__name__}"
+    S.fetch_4h = _tlv_f40
+    _tlv_ok1 = (_tlv_ok1 and isinstance(_tlv_r, dict)
+                and all(k in _tlv_r for k in ("t1", "t2", "t3", "kind", "res_minor", "res_major"))
+                and isinstance(_tlv_r.get("t1"), (int, float)) and S.download_history is _tlv_dl0)
+    check("🎯 TLV1 الأهداف والمقاومات: شموعُ الأداة تذهب للفحص اليدويّ والجالبُ يُستعاد (ولو رمى) · والمفاتيحُ من نتيجته الحقيقيّة",
+          bool(_tlv_ok1), str(_tlv_r)[:120])
+
+    # TLV2 — موصولةٌ من نقطة النداء في الأدوات الستّ (AST) · ولكلّ نداءٍ رموزُ المطابقين
+    _tlv_sites = {"split_hunter.py": "run", "split_filter_hunter.py": "run", "method_hunter.py": "run",
+                  "press_radar.py": "run", "three_cond_daily.py": "stage_send", "Super_stock.py": "run_daily_watchlist"}
+    _tlv_bad = []
+    for _f, _fn in _tlv_sites.items():
+        try:
+            _t = _tlv_ast.parse(open(_f, encoding="utf-8").read())
+            _fd = [n for n in _tlv_ast.walk(_t) if isinstance(n, _tlv_ast.FunctionDef) and n.name == _fn]
+            _calls = [c for d in _fd for c in _tlv_ast.walk(d) if isinstance(c, _tlv_ast.Call)
+                      and getattr(c.func, "attr", None) == "with_levels" and len(c.args) >= 2]
+            if not _calls:
+                _tlv_bad.append(f"{_f}:{_fn}")
+        except Exception as _e:                                   # noqa: BLE001
+            _tlv_bad.append(f"{_f} ⛔ {type(_e).__name__}")
+    check("🎯 TLV2 الأهداف والمقاومات موصولةٌ في الأدوات الستّ (صيّاد التقسيم · الفلترة · النهج العلمي · الضغط · الشروط الثلاثة · رادار التقسيم)",
+          not _tlv_bad, str(_tlv_bad))
+
+    # TLV3 — القسم: سطرٌ لكلّ رمزٍ بأهدافه وألوانها ومقاومتيه · بلا تكرار · القصُّ والتعذّرُ يُعلنان · والمفتاحُ 0 ⟵ لا قسم
+    _os_hc.environ["TOOL_LEVELS"] = "1"
+    _tlv_calls = []
+
+    def _tlv_an2(sym):
+        _tlv_calls.append(sym)
+        if sym == "BAD":
+            return None, "x", None
+        return ({"t1": 0.5, "t2": 2.0, "t3": 3.25, "targets_kind": ["⚫", "🔵", "🔵"],
+                 "key_levels": {"res_minor": 0.62, "res_major": 4.1}}, [], None)
+    _tlv_sec = _TLV.levels_section(["aaa", "AAA", "BAD", "bbb"], analyze=_tlv_an2)
+    _tlv_m0 = _TLV.LEVELS_MAX
+    _TLV.LEVELS_MAX = 2
+    _tlv_cut = _TLV.levels_section(["A1", "A2", "A3", "A4"], analyze=_tlv_an2)
+    _TLV.LEVELS_MAX = _tlv_m0
+    _os_hc.environ["TOOL_LEVELS"] = "0"
+    _tlv_off = _TLV.levels_section(["AAA"], analyze=_tlv_an2)
+    _os_hc.environ["TOOL_LEVELS"] = "1"
+    _tlv_ok3 = ("$AAA" in _tlv_sec and "$BBB" in _tlv_sec and _tlv_sec.count("$AAA") == 1
+                and "$0.5 ⚫ · $2.00 🔵 · $3.25 🔵" in _tlv_sec and "مقاومة فرعية $0.62 · أساسية $4.10" in _tlv_sec
+                and "تعذّر حسابُها لـ1" in _tlv_sec and "$BAD" not in _tlv_sec
+                and _tlv_calls[:3] == ["AAA", "BAD", "BBB"] and "قُصّ 2" in _tlv_cut and "$A3" not in _tlv_cut
+                and _tlv_off == "" and _TLV.levels_section([], analyze=_tlv_an2) == "")
+    check("🎯 TLV3 قسمُ الأهداف والمقاومات: سطرٌ لكلّ رمز بلا تكرار · الألوان والمقاومتان · القصُّ والتعذّرُ يُعلنان · TOOL_LEVELS=0 ⟵ لا قسم",
+          bool(_tlv_ok3), _tlv_sec[-300:])
+
+    # TLV4 — فاشلٌ-آمن: كلُّ رمزٍ تعذّر ⟵ الرسالةُ كما هي · ورميُ القسم كلِّه ⟵ الرسالةُ كما هي · والقسمُ بعد النصّ
+    _tlv_body = "نصُّ الأداة"
+    _tlv_w1 = _TLV.with_levels(_tlv_body, ["BAD"], analyze=_tlv_an2)
+    _tlv_ls0 = _TLV.levels_section
+
+    def _tlv_raise(*a, **k):
+        raise RuntimeError("x")
+    _TLV.levels_section = _tlv_raise
+    try:
+        _tlv_w2 = _TLV.with_levels(_tlv_body, ["AAA"], analyze=_tlv_an2)
+    except Exception as _e:                                       # noqa: BLE001
+        _tlv_w2 = f"⛔ {type(_e).__name__}"
+    _TLV.levels_section = _tlv_ls0
+    _tlv_w3 = _TLV.with_levels(_tlv_body, ["AAA"], analyze=_tlv_an2)
+    check("🎯 TLV4 الأهداف والمقاومات فاشلةٌ-آمنة: التعذّرُ أو الرميُ ⟵ رسالةُ الأداة كما هي · والقسمُ يُلحق بعدها",
+          _tlv_w1 == _tlv_body and _tlv_w2 == _tlv_body and _tlv_w3.startswith(_tlv_body + "\n\n") and "$AAA" in _tlv_w3,
+          f"{_tlv_w1[:30]} | {_tlv_w2[:30]}")
+finally:
+    S.download_history, S.fetch_4h = _tlv_dl0, _tlv_f40
+    if _tlv_env0 is None:
+        _os_hc.environ.pop("TOOL_LEVELS", None)
+    else:
+        _os_hc.environ["TOOL_LEVELS"] = _tlv_env0
+    try:
+        _TLV.levels_section = _tlv_ls0
+    except NameError:
+        pass
+
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

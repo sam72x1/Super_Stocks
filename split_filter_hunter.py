@@ -21,6 +21,7 @@
 # 🌱 ذاكرةُ الصيّادين — **على مستوى الوحدة** لأن `git_save` في ختم الجلسة يحتاج
 #    اسمَ الملفّ. والوحدةُ stdlib-only (‏`json`/`os`) ⇒ صفر أثرٍ جانبيّ وقت الاستيراد.
 import hunter_ledger as LEDGER
+import tool_levels as TL
 
 G2_SOFT_HUNTER = "split_filter_g2soft"     # 🔸 اسمُ صفوف G2 اللين في السجلّ (أمرُ المالك 2026-10-31)
 
@@ -213,7 +214,8 @@ def run(now_utc=None) -> int:
             + "\n\n" + S.FOOTER
     else:
         try:
-            msg = S.build_split_filter_alert(rows, today=sess) + "\n\n" + S.FOOTER
+            msg = TL.with_levels(S.build_split_filter_alert(rows, today=sess),   # 🎯 `TLV2`
+                                 [r.get("symbol") for r in rows], hist) + "\n\n" + S.FOOTER
         except Exception as e:                                   # noqa: BLE001
             return _fail(S, f"تعذّر بناء التنبيه رغم {len(rows)} مطابق ({e}).")
     if not S.send_telegram(msg):

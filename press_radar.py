@@ -46,6 +46,8 @@ import json
 import os
 import sys
 
+import tool_levels as TL
+
 STATE_FILE = "press_radar_state.json"      # ذاكرة البِركة + دِدوب التنبيه + ختم الجلسة
 LEDGER_FILE = "press_radar_ledger.jsonl"   # حصاد أمامي (يُلحَق بعد الإرسال حصرًا)
 W = 20                    # نافذة القمة الحديثة (نافذة نموذج الضغط المقيسة في T-PRESS)
@@ -1055,6 +1057,8 @@ def run(now_utc=None, fetch_hist=None, sender=None, state_path=STATE_FILE,
          f"VA3={grid['VA3']} من {len(pool) - failed} مفحوصًا.")
     if rows:
         msg = build_alert(rows, session_iso)
+        # 🎯 الأهداف والمقاومات لكلّ مطابق (أمرُ المالك 2026-11-20 · `TOOL_LEVELS=0` ⟵ بت-بت · `TLV2`)
+        msg = TL.with_levels(msg, [r["symbol"] for r in rows], hist)
         send = sender or S.send_telegram
         if not send(msg):
             _log("⛔ إرسال تلغرام فشل — لا ختم ولا سجل (الكرون الثاني يعيد).")
