@@ -70950,15 +70950,15 @@ try:
     _env37 = {j: [st.get("env") or {} for st in (_y37["jobs"][j].get("steps") or []) if st.get("run")] for j in _y37["jobs"]}
     _scan37 = next((e for e in _env37["scan"] if "TC_STAGE" in e), {})
     _req37 = open("requirements.txt", encoding="utf-8").read()
-    _v37 = (str(_in37.get("default")) == "polygon" and "inputs.source" in str(_scan37.get("TC_SOURCE"))
-            and "|| 'polygon'" in str(_scan37.get("TC_SOURCE"))
+    _v37 = (str(_in37.get("default")) == "tv" and "inputs.source" in str(_scan37.get("TC_SOURCE"))   # 🔄 2026-11-20: «tv» بأمر المالك
+            and "|| 'tv'" in str(_scan37.get("TC_SOURCE"))
             and "POLYGON_API_KEY" in str(_scan37) and not any("TC_SOURCE" in e for j in ("borrow", "send") for e in _env37[j])
             and __import__("re").search(r"(?m)^websocket-client==\S+", _req37) is not None
             and not _tv_os.path.exists("tv_probe.py") and not _tv_os.path.exists(".github/workflows/tv_probe.yml"))
     _v37w = f"مُدخَل={_in37} · مسح={sorted(_scan37)} · مِجَسٌّ باقٍ={_tv_os.path.exists('tv_probe.py')}"
 except Exception as _e:                                              # noqa: BLE001
     _v37, _v37w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("📺 TCD37 `three_cond_daily.yml` (‏2026-10-27): مُدخَلُ `source` افتراضُه «polygon» والكرونُ يمرّر «polygon» صراحةً إلى المسح وحدَه · ومفتاحُ Polygon في المسح · "
+check("📺 TCD37 `three_cond_daily.yml` (‏2026-11-20): مُدخَلُ `source` افتراضُه «tv» والكرونُ يمرّر «tv» صراحةً إلى المسح وحدَه · ومفتاحُ Polygon في المسح · "
       "و`websocket-client` مثبَّت · ولا مِجَسَّ `tv_probe` باقيًا", _v37, _v37w)
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -72285,13 +72285,13 @@ try:
     _env7 = (_st7[0].get("env") or {}) if len(_st7) == 1 else {}
     _v7t = (_wpp_os.environ.get("PERIOD_SOURCE") is None and _WPP.SOURCE == "polygon"
             and '(os.environ.get("PERIOD_SOURCE") or "polygon")' in _src7
-            and (_in7.get("source") or {}).get("default") == "polygon"
+            and (_in7.get("source") or {}).get("default") == "tradingview"   # 🔄 2026-11-20: أمرُ المالك
             and _env7.get("PERIOD_SOURCE") == "${{ github.event.inputs.source }}"
             and _wpt_ok[0] == 0 and "Traceback" not in _wpt_ok[1])
     _v7tw = f"SOURCE={_WPP.SOURCE} · default={(_in7.get('source') or {}).get('default')}"
 except Exception as _e:                                              # noqa: BLE001
     _v7t, _v7tw = False, f"⛔ رمى: {type(_e).__name__}"
-check("📺 WPT7 ⑭ المفتاح: بلا `PERIOD_SOURCE` المسارُ Polygon بت-بت · والـworkflow يمرّر `source` بافتراض polygon (‏2026-10-27) · والمسارُ ⑭ "
+check("📺 WPT7 ⑭ المفتاح: بلا `PERIOD_SOURCE` المسارُ Polygon بت-بت · والـworkflow يمرّر `source` بافتراض tradingview (‏2026-11-20) · والمسارُ ⑭ "
       "لا ينادي جوالبَ Polygon (محقونةٌ None فتنهار لو نوديت)", _v7t, _v7tw)
 
 # WPT8 — ⑭-أ/د الجوالبُ الحقيقيّة بالاسم (AST): `tv_daily` ⟵ `TC.fetch_tv` · `tv_ext` ⟵ `TV.fetch_many` بفاصل `TV_EXT_INTERVAL`
@@ -74656,12 +74656,12 @@ try:
                                for _st in (_jb or {}).get("steps") or []
                                if ((_st or {}).get("env") or {}).get("BARS_SOURCE") == "tradingview")
     _w10 = (len(_aht_env10) == 2
-            and all(_h == [] and _o == [] for _h, _o in _aht_env10.values())
+            and all(len(_h) == 1 and len(_o) == 1 for _h, _o in _aht_env10.values())   # 🔄 2026-11-20: مُشعَلٌ في خطوة BARS_SOURCE وحدَها (أمرُ المالك)
             and all(n == 1 for n in _aht_bars10.values()))
     _w10w = f"{_aht_env10} · خطوةُ BARS_SOURCE={_aht_bars10}"
 except Exception as _e:                                              # noqa: BLE001
     _w10, _w10w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("🌙 AHT10 (‏2026-10-27) حارسُ الافتر رجع إلى Polygon: لا `AH_GUARD_TV` في أيّ موضعٍ من split_hunter.yml وdaily_screener.yml · وخطوةُ `BARS_SOURCE: tradingview` باقيةٌ في كلٍّ منهما", _w10, _w10w)
+check("🌙 AHT10 (‏2026-11-20) حارسُ الافتر على TradingView: `AH_GUARD_TV`=«1» في خطوة `BARS_SOURCE: tradingview` وحدَها من split_hunter.yml وdaily_screener.yml", _w10, _w10w)
 
 # 🌙 AHL1 (‏2026-10-29 · أمرُ المالك «أضف سطر حارس الافتر»): مسارُ Polygon كان صامتًا في السجلّ بالتصميم ⟵ «قُرئ N من M» غيرُ مقروء ·
 #    سلوكيًّا: بلا جالبٍ وبلا `BARS_SOURCE` ⟵ سطرٌ واحدٌ بالعدّادات (قُرئ 2 من 3 · لم يُتحقّق 1 · كُتم 1) · والقرارُ (المُبقى/«لم يُتحقّق») كما هو ·
@@ -90798,13 +90798,15 @@ try:
                      if _run in str((_st or {}).get("run") or "")]
     import presession_radar as _psr_pr
     _psr_f = _psr_pr.fetchers("polygon")
-    _v_psr1 = (all(v == ["polygon"] for v in _psr.values()) and len(_psr) == 3
+    # 🔄 2026-11-20 (أمرُ المالك «حول مصدر البيانات على trading view»): السطرُ محذوفٌ من الخطوات الثلاث ⟵ افتراضُ الكود TradingView
+    _v_psr1 = (all(v == [None] for v in _psr.values()) and len(_psr) == 3
+               and _psr_pr.fetchers(None) == (_psr_pr.tv_grouped, _psr_pr.tv_minutes)
                and _psr_f == (_psr_pr.polygon_grouped, _psr_pr.polygon_minutes))
     _v_psr1w = f"{_psr}"
 except Exception as _e:                                              # noqa: BLE001
     _v_psr1, _v_psr1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("🔄 PSR1 (‏2026-10-27) قائمةُ البري وحصادُها على Polygon: `PRESESSION_SOURCE: polygon` في خطوات التشغيل الثلاث · "
-      "و«polygon» يُرجع جالبَي Polygon", _v_psr1, _v_psr1w)
+check("🔄 PSR1 (‏2026-11-20) قائمةُ البري وحصادُها على TradingView: لا `PRESESSION_SOURCE` في خطوات التشغيل الثلاث والافتراضُ جالبا TradingView · "
+      "و«polygon» يُرجع جالبَي Polygon (مفتاحُ الرجوع)", _v_psr1, _v_psr1w)
 
 # EHS1 — الثبات الدقيق: `BARS_SOURCE=tradingview` ‏+ `EXACT_HOLD_SOURCE=polygon` ⟵ صفرُ `tv_hour_fetcher` و`polygon_hour_bars`
 #    يُنادى (والعدّاداتُ بلا `src`) · وبلا المفتاح ⟵ TradingView بت-بت (`EHT2`) · وdaily_screener.yml يضبطه في خطوة BARS_SOURCE.
@@ -90840,12 +90842,12 @@ try:
                for _jb in ((_ehs_y or {}).get("jobs") or {}).values() for _st in (_jb or {}).get("steps") or []
                if ((_st or {}).get("env") or {}).get("BARS_SOURCE") == "tradingview"]
     _v_ehs1 = (_ehs_tv1 == [] and _ehs_pg1 == ["AAA"] and "src" not in _ehs_n1 and _ehs_n1.get("ok") == 1
-               and _ehs_tv == [["AAA"]] and _ehs_n2.get("src") == "tradingview" and _ehs_wf == ["polygon"])
+               and _ehs_tv == [["AAA"]] and _ehs_n2.get("src") == "tradingview" and _ehs_wf == [None])   # 🔄 2026-11-20: السطرُ محذوف ⟵ TradingView
     _v_ehs1w = f"tv={_ehs_tv1}→{_ehs_tv} · polygon={_ehs_pg1} · n1={_ehs_n1} · n2={_ehs_n2} · wf={_ehs_wf}"
 except Exception as _e:                                              # noqa: BLE001
     _v_ehs1, _v_ehs1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("🧱🔄 EHS1 (‏2026-10-27) الثبات الدقيق على Polygon بمفتاح `EXACT_HOLD_SOURCE=polygon` مع بقاء BARS_SOURCE=tradingview · "
-      "وبلاه TradingView بت-بت · وdaily_screener.yml يضبطه", _v_ehs1, _v_ehs1w)
+check("🧱🔄 EHS1 (‏2026-11-20) الثبات الدقيق: مفتاحُ `EXACT_HOLD_SOURCE=polygon` يعمل مع BARS_SOURCE=tradingview · "
+      "وبلاه TradingView بت-بت · وdaily_screener.yml لا يضبطه (TradingView)", _v_ehs1, _v_ehs1w)
 
 # 🧪 V4PB1 (‏2026-10-28 · أمرُ المالك «أضف إعادة بناء المرحلة ب لـ V4»): وضعُ run في `faisal_v41.yml` يُعيد بناءَ المرحلة ب بعد
 #    write البروتوكول والوثائق (عطلٌ مُثبَت: تشغيلُ `40674079524` بحالاتٍ جديدة بلا إعادتها جعل PHB1 أحمرَ على main عند `960ad80`)
