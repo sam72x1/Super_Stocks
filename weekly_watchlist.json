@@ -408,7 +408,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 5.0,
-   "last_price": 5.72,
+   "last_price": 6.05,
    "live_alert": {
     "breakout": "2026-11-19"
    },
@@ -1270,7 +1270,7 @@
    "hit": "t2",
    "hit_date": "2026-09-04",
    "max_gain_pct": 100.4,
-   "last_price": 13.13,
+   "last_price": 13.23,
    "live_alert": {
     "breakout": "2026-11-18",
     "dump": "2026-10-16",
@@ -2166,7 +2166,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.74,
+   "last_price": 0.7201,
    "borrow_hist": [
     [
      "2026-11-20",
@@ -2565,7 +2565,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.55,
+   "last_price": 1.56,
    "borrow_hist": [
     [
      "2026-11-20",
@@ -3825,7 +3825,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.35,
+   "last_price": 1.3575,
    "borrow_hist": [
     [
      "2026-11-20",
@@ -3840,7 +3840,8 @@
     "close": 1.42
    },
    "live_alert": {
-    "buyzone": "2026-11-20"
+    "buyzone": "2026-11-20",
+    "breakout": "2026-11-20"
    }
   },
   {
@@ -4249,7 +4250,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 1.2,
-   "last_price": 3.15,
+   "last_price": 3.14,
    "borrow_hist": [
     [
      "2026-11-18",
@@ -4686,7 +4687,7 @@
    "hit": "t1",
    "hit_date": "2026-11-12",
    "max_gain_pct": 42.7,
-   "last_price": 1.87,
+   "last_price": 1.86,
    "live_alert": {
     "sweep": "2026-11-19",
     "dump": "2026-11-19"
@@ -5060,7 +5061,7 @@
    "hit": "t2",
    "hit_date": "2026-08-21",
    "max_gain_pct": 399.1,
-   "last_price": 3.83,
+   "last_price": 3.82,
    "live_alert": {
     "buyzone": "2026-08-17",
     "sweep": "2026-08-17",
@@ -5946,7 +5947,7 @@
    "hit": "t2",
    "hit_date": "2026-10-29",
    "max_gain_pct": 68.7,
-   "last_price": 10.14,
+   "last_price": 10.13,
    "borrow_hist": [
     [
      "2026-10-29",
@@ -6400,7 +6401,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.49,
+   "last_price": 4.45,
    "borrow_hist": [
     [
      "2026-11-20",
@@ -6786,7 +6787,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 5.525,
+   "last_price": 5.36,
    "borrow_hist": [
     [
      "2026-11-20",
