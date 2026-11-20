@@ -1,11 +1,11 @@
 {
- "last_sent": "2026-11-19",
+ "last_sent": "2026-11-20",
  "first_sent": "2026-11-06",
  "built_ny": "09:25",
  "n_s": 0,
  "n_anchors": 0,
  "skipped": {
-  "bars": 4,
+  "bars": 0,
   "base": 0
  },
  "symbols": []
