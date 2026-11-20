@@ -10,9 +10,13 @@ on:
   workflow_dispatch:
     inputs:
       stage:
-        description: "verify (⓪ التحقّق من القائمة وإكمالُها وأنواعُ الانفجار)"
+        description: "verify (⓪) · collect (الجمع ثمّ السمات ثمّ ملفّاتُ الأسهم ①②) · armA (الذراع أ: المرصود ثمّ 1,000 خلطة ثمّ التجميع)"
         required: true
         default: "verify"
+      src_run:
+        description: "armA: رقمُ تشغيلة collect التي تُقرأ سماتُها"
+        required: false
+        default: ""
 
 concurrency:
   group: super-stocks-case31
@@ -60,3 +64,211 @@ jobs:
             sleep 5
           done
           exit 1
+
+  # ══ collect: جلبُ المادّة مرّةً ⟵ السمات (20 شريحة) ⟵ ملفّاتُ الأسهم ①② ══
+  collect:
+    if: ${{ inputs.stage == 'collect' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: 🧺 الجمع
+        env:
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/case31/case31_build.py collect
+      - uses: actions/upload-artifact@v4
+        with:
+          name: case31-data
+          path: case31_data/
+          retention-days: 90
+          compression-level: 0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: case31-coverage
+          path: fm_forensics/case31/out/collect_coverage.json
+          retention-days: 90
+
+  feat:
+    if: ${{ inputs.stage == 'collect' }}
+    needs: collect
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        k: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: case31-data
+          path: case31_data
+      - name: 🧮 السمات — الشريحة ${{ matrix.k }}
+        env:
+          PYTHONUNBUFFERED: "1"
+          FAISAL_ONLY: "1"
+        run: python fm_forensics/case31/case31_build.py feat ${{ matrix.k }} 20 --dir case31_data
+      - uses: actions/upload-artifact@v4
+        with:
+          name: case31-feat-${{ matrix.k }}
+          path: case31_feat/
+          retention-days: 90
+
+  dossier:
+    if: ${{ inputs.stage == 'collect' }}
+    needs: feat
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: case31-data
+          path: case31_data
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: case31-feat-*
+          path: case31_feat
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: case31-coverage
+          path: fm_forensics/case31/out
+      - name: 🗂️ ملفّاتُ الأسهم ①②
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/case31/case31_dossier.py dossier --data case31_data --feat case31_feat
+      - name: 💾 إيداعُ المخرجات (بياناتٌ لا كود)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f fm_forensics/case31/out
+          if git diff --cached --quiet; then echo "لا جديد"; exit 0; fi
+          git commit -q -m "🗂️ T-CASE31 بيانات: الجمع وملفّات الأسهم"
+          for i in 1 2 3 4 5; do
+            if git push; then exit 0; fi
+            git fetch origin "$GITHUB_REF_NAME" && git rebase "origin/$GITHUB_REF_NAME" || git rebase --abort || true
+            sleep 5
+          done
+          exit 1
+
+  # ══ armA: المرصود ⟵ 1,000 خلطة (20 شريحة) ⟵ التجميع (مرّةً واحدة) ══
+  observe_a:
+    if: ${{ inputs.stage == 'armA' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: ⛔ لا محاولةَ ثانية
+        run: if [ -f fm_forensics/case31/out/ARM_A.md ]; then echo "نتيجةُ الذراع أ صادرة"; exit 7; fi
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: case31-feat-*
+          path: case31_feat
+          merge-multiple: true
+          run-id: ${{ inputs.src_run }}
+          github-token: ${{ github.token }}
+      - name: ⚖️ المرصود
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/case31/case31_arm.py observe A --dir case31_feat
+      - uses: actions/upload-artifact@v4
+        with:
+          name: case31-obs-A
+          path: case31_arm/
+          retention-days: 90
+
+  shuffle_a:
+    if: ${{ inputs.stage == 'armA' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix:
+        k: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: ⛔ لا محاولةَ ثانية
+        run: if [ -f fm_forensics/case31/out/ARM_A.md ]; then echo "نتيجةُ الذراع أ صادرة"; exit 7; fi
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: case31-feat-*
+          path: case31_feat
+          merge-multiple: true
+          run-id: ${{ inputs.src_run }}
+          github-token: ${{ github.token }}
+      - name: 🔀 الخلط — الشريحة ${{ matrix.k }}
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/case31/case31_arm.py shuffle A ${{ matrix.k }} 20 --dir case31_feat
+      - uses: actions/upload-artifact@v4
+        with:
+          name: case31-shuf-A-${{ matrix.k }}
+          path: case31_arm/
+          retention-days: 90
+
+  assemble_a:
+    if: ${{ inputs.stage == 'armA' }}
+    needs: [observe_a, shuffle_a]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: case31-*-A*
+          path: case31_arm
+          merge-multiple: true
+      - name: 🧾 التجميع (مرّةً واحدة)
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/case31/case31_arm.py assemble A --dir case31_arm
+      - name: 💾 إيداعُ المخرجات (بياناتٌ لا كود)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f fm_forensics/case31/out
+          if git diff --cached --quiet; then echo "لا جديد"; exit 0; fi
+          git commit -q -m "🗂️ T-CASE31 بيانات: الذراع أ"
+          for i in 1 2 3 4 5; do
+            if git push; then exit 0; fi
+            git fetch origin "$GITHUB_REF_NAME" && git rebase "origin/$GITHUB_REF_NAME" || git rebase --abort || true
+            sleep 5
+          done
+          exit 1
+
