@@ -139,10 +139,12 @@ jobs:
           BARS_SOURCE: tradingview
           # 🧱🔄 شموعُ الساعة للثبات الدقيق **رجعت إلى Polygon** (‏2026-10-27 · أمرُ المالك «ومفاتيحُ المصدر تُرجَع إلى Polygon حيث كان»):
           #    كانت Polygon حتى 2026-09-30 ثمّ تبعت `BARS_SOURCE` · وحذفُ السطر = TradingView بت-بت (`EHS1`).
-          EXACT_HOLD_SOURCE: polygon
+          # 📺 (2026-11-20 · أمرُ المالك «حول مصدر البيانات على trading view» (Polygon يرفض منذ 11-19)): حُذف `EXACT_HOLD_SOURCE: polygon` ⟵ الثباتُ الدقيق يتبع `BARS_SOURCE` (TradingView) · والرجوعُ إعادةُ السطر (`EHS1`).
           # 🌙 حارسُ الافتر **رجع إلى Polygon** (‏2026-10-27 · أمرُ المالك «ومفاتيحُ المصدر تُرجَع إلى Polygon حيث كان»):
           #    كان `AH_GUARD_TV: "1"` منذ 2026-10-02 لأن Polygon انتهى 09-29 · والاشتراكُ عاد (`polygon_health` 40583402044 ✅)
           #    ⇒ حُذف السطر = المسارُ السابق بت-بت (`AHT9`) · وإعادتُه سطرٌ واحد (`AHT10`).
+          # 📺 (2026-11-20 · أمرُ المالك «حول مصدر البيانات على trading view» (Polygon يرفض منذ 11-19)): أُعيد السطر ⟵ حارسُ الافتر على TradingView · وحذفُه = Polygon بت-بت.
+          AH_GUARD_TV: "1"
           # ⏳ «الانتظارُ الأخضر» (2026-10-29): رمزُ الجوب لقراءة الـPRs والتشغيلات (`green_wait.py` · `actions`/`pull-requests: read` أعلاه)
           GITHUB_TOKEN: ${{ github.token }}
           SCREENER_MODE: FULL

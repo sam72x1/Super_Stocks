@@ -40,9 +40,9 @@ on:
         required: false
         default: ""
       source:
-        description: "مصدرُ البيانات: polygon (الافتراضيّ منذ 2026-10-27 — الاشتراكُ عاد) أو tv (TradingView · مسارُ فترة الانقطاع)"
+        description: "مصدرُ البيانات: tv (TradingView · الافتراضيّ منذ 2026-11-20 بأمر المالك) أو polygon (المسارُ السابق بت-بت)"
         required: false
-        default: "polygon"
+        default: "tv"
   schedule:
     - cron: "43 1 * * 2-6"
 
@@ -73,7 +73,8 @@ jobs:
           TC_STAGE: scan
           # 🔄 (‏2026-10-27 · أمرُ المالك «ومفاتيحُ المصدر تُرجَع إلى Polygon حيث كان»): الكرونُ بلا مُدخَلات ⟵ «polygon» صراحةً
           #    (كان فارغًا ⟵ افتراضُ الكود «tv» منذ 2026-09-29) · والمُدخَلُ اليدويّ «tv» = مسارُ TradingView كما هو (`TCD37`).
-          TC_SOURCE: ${{ github.event.inputs.source || 'polygon' }}
+          # 📺 (2026-11-20 · أمرُ المالك «حول مصدر البيانات على trading view» (Polygon يرفض منذ 11-19)): الكرونُ ⟵ «tv» · والرجوعُ إعادةُ 'polygon' في السطر والافتراض (`TCD37`).
+          TC_SOURCE: ${{ github.event.inputs.source || 'tv' }}
           TC_FORCE: ${{ github.event.inputs.force }}
           TC_TRACE: ${{ github.event.inputs.trace }}
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
