@@ -36,6 +36,7 @@
 # 🌱 ذاكرةُ الصيّادين — **على مستوى الوحدة** لأن `git_save` في ختم الجلسة يحتاج
 #    اسمَ الملفّ. والوحدةُ stdlib-only (‏`json`/`os`) ⇒ صفر أثرٍ جانبيّ وقت الاستيراد.
 import hunter_ledger as LEDGER
+import tool_levels as TL
 
 
 MIN_COVERAGE_PCT = 60.0        # 🩺 أرضية تغطية المسح (أقلّ منها = لم نفحص السوق)
@@ -263,12 +264,14 @@ def run(now_utc=None) -> int:
             "لا يوجد سهم يطابق الشروط اليوم.",
             f"🩺 فُحِص {len(hist)} من {len(uni)} رمزًا ({cov:.0f}% تغطية)"
             + (f" · جلسة {S.esc(str(sess))}" if sess else ""),
-        ] + ([""] + S.method_near_lines(_near) if _near else [])) + _rel_block + "\n\n" + S.FOOTER
+        ] + ([""] + S.method_near_lines(_near) if _near else [])) + _rel_block
     else:
         try:
-            msg = S.build_method_alert(rows, today=sess) + _rel_block + "\n\n" + S.FOOTER
+            msg = S.build_method_alert(rows, today=sess) + _rel_block
         except Exception as e:                                   # noqa: BLE001
             return _fail(S, f"تعذّر بناء التنبيه رغم {len(rows)} مطابق ({e}).")
+    # 🎯 الأهداف والمقاومات للمطابق الكامل والمخفّف وبلا هدف فجوة (أمرُ المالك 2026-11-20 · `TLV2`)
+    msg += TL.with_levels("", [r.get("symbol") for r in list(rows) + rel + nog], hist) + "\n\n" + S.FOOTER
     if not S.send_telegram(msg):
         S.log("⛔ النهج العلمي: تلغرام رفض الرسالة.")
         return 1

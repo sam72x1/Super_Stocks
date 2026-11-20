@@ -24677,6 +24677,9 @@ def run_daily_watchlist(wl: dict) -> None:
                 f"({', '.join(_ah_unv[:6])}) — تُعرَض بفائدة الشك")
         radar_msg = build_split_radar_section(radar_rows)
         if radar_msg:
+            # 🎯 الأهداف والمقاومات لكلّ جاهز (أمرُ المالك 2026-11-20 · `TOOL_LEVELS=0` ⟵ بت-بت · `TLV2`)
+            import tool_levels as _TL                                    # noqa: PLC0415 — كسولٌ (لا دورةَ استيراد)
+            radar_msg = _TL.with_levels(radar_msg, [r.get("symbol") for r in split_radar_ready(radar_rows)], hist)
             send_telegram(radar_msg + "\n\n" + FOOTER)
             subs_mirror(radar_msg + "\n\n" + FOOTER, "split_radar")
     except Exception as e:

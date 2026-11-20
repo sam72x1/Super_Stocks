@@ -79,6 +79,7 @@ import opentry_link_probe as OPL                                     # حدود�
 import prelink_probe as P                                            # ticker_daily_adj بالاسم
 import prelink_px as PX                                              # PX_MIN بالاسم
 import tv_data as TV                                                 # 📺 TradingView: الماسح والمِقبس (أمرُ المالك 2026-09-29)
+import tool_levels as TL                                         # 🎯 الأهداف والمقاومات (`TLV2`)
 import watch_week_probe as WW                                        # flags · conj · rsi_at · close_at بالاسم
 from kasih_scan import NY
 
@@ -1057,6 +1058,9 @@ def stage_send(st, parts, send=None):
             log(f"🔎 تتبّع {t}: البوّابة {r.get('gate')} · الحكم {r.get('v')} · مشكوك {r.get('doubt')} · فلوت "
                 f"{_num_txt(r.get('fl'))} ({r.get('fl_src') or '—'}) · متاح {r.get('av')} ({r.get('av_src') or '—'})")
     msg = build_message(st, rows)
+    # 🎯 الأهداف والمقاومات لكلّ مطابقٍ مذكور (أمرُ المالك 2026-11-20 · `TOOL_LEVELS=0` ⟵ بت-بت · `TLV2`)
+    _dol, _pen = listed(rows)
+    msg = TL.with_levels(msg, _dol + _pen)
     log(msg)
     if DRY:
         log("🧪 TC_DRY=1 — طُبعت ولم تُرسل")
