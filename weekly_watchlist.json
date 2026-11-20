@@ -408,7 +408,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 5.0,
-   "last_price": 5.92,
+   "last_price": 6.28,
    "live_alert": {
     "breakout": "2026-11-19"
    },
@@ -865,7 +865,7 @@
    "hit": "t1",
    "hit_date": "2026-11-17",
    "max_gain_pct": 13.0,
-   "last_price": 0.5,
+   "last_price": 0.4801,
    "borrow_hist": [
     [
      "2026-11-17",
@@ -2964,7 +2964,7 @@
    "hit": "t2",
    "hit_date": "2026-11-10",
    "max_gain_pct": 52.2,
-   "last_price": 0.5878,
+   "last_price": 0.5871,
    "borrow_hist": [
     [
      "2026-11-10",
@@ -3408,7 +3408,7 @@
    "hit": "t1",
    "hit_date": "2026-11-13",
    "max_gain_pct": 25.2,
-   "last_price": 3.38,
+   "last_price": 3.405,
    "borrow_hist": [
     [
      "2026-11-13",
@@ -3826,7 +3826,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.11,
+   "last_price": 1.12,
    "borrow_hist": [
     [
      "2026-11-20",
@@ -4253,7 +4253,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 1.2,
-   "last_price": 3.11,
+   "last_price": 3.045,
    "borrow_hist": [
     [
      "2026-11-18",
@@ -5064,7 +5064,7 @@
    "hit": "t2",
    "hit_date": "2026-08-21",
    "max_gain_pct": 399.1,
-   "last_price": 3.815,
+   "last_price": 3.84,
    "live_alert": {
     "buyzone": "2026-08-17",
     "sweep": "2026-08-17",
@@ -5950,7 +5950,7 @@
    "hit": "t2",
    "hit_date": "2026-10-29",
    "max_gain_pct": 68.7,
-   "last_price": 10.13,
+   "last_price": 10.0,
    "borrow_hist": [
     [
      "2026-10-29",
@@ -6404,7 +6404,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.36,
+   "last_price": 4.29,
    "borrow_hist": [
     [
      "2026-11-20",
@@ -6419,7 +6419,8 @@
     "close": 4.48
    },
    "live_alert": {
-    "buyzone": "2026-11-20"
+    "buyzone": "2026-11-20",
+    "break": "2026-11-20"
    }
   },
   {
@@ -6790,7 +6791,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 5.28,
+   "last_price": 5.31,
    "borrow_hist": [
     [
      "2026-11-20",
@@ -7162,7 +7163,7 @@
    "hit": "t2",
    "hit_date": "2026-11-03",
    "max_gain_pct": 37.3,
-   "last_price": 4.44,
+   "last_price": 4.4104,
    "faisal_levels": "🧭 إغلاقات الهابطة $4.58 · $4.62 · $4.63 · جسم قبل الهبوط $6.19 · اختبار المقاومة $4.34 إلى $4.71",
    "live_alert": {
     "breakout": "2026-11-20",
