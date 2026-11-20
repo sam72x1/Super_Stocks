@@ -1,39 +1,7 @@
 {
- "run_id": "44508529589",
+ "run_id": "44719608100",
  "result": {
   "done": [
-   "NAMM",
-   "NCT",
-   "NEXR",
-   "NIVF",
-   "NRSN",
-   "SPHL",
-   "SPPL",
-   "SPRC",
-   "STKH",
-   "SUGP",
-   "SVRE",
-   "BRAI",
-   "BTOC",
-   "BTOG",
-   "CANF",
-   "CDIO",
-   "CDT",
-   "CETX",
-   "CIIT",
-   "CRE",
-   "CUPR",
-   "DCOY",
-   "DKI",
-   "DRMA",
-   "DSY",
-   "DXST",
-   "EDBL",
-   "EHGO",
-   "ELAB",
-   "ELPW",
-   "ENPH",
-   "ENVB",
    "NTCL",
    "NUWE",
    "NXTT",
@@ -108,50 +76,82 @@
    "SLXN",
    "SMX",
    "SNAL",
-   "SNGX"
+   "SNGX",
+   "BRAI",
+   "BTOC",
+   "BTOG",
+   "CANF",
+   "CDIO",
+   "CDT",
+   "CETX",
+   "CIIT",
+   "CRE",
+   "CUPR",
+   "DCOY",
+   "DKI",
+   "DRMA",
+   "DSY",
+   "DXST",
+   "EDBL",
+   "EHGO",
+   "ELAB",
+   "ELPW",
+   "ENPH",
+   "ENVB",
+   "NAMM",
+   "NCT",
+   "NEXR",
+   "NIVF",
+   "NRSN",
+   "SPHL",
+   "SPPL",
+   "SPRC",
+   "STKH",
+   "SUGP",
+   "SVRE"
   ],
   "skipped": [],
   "calendar_error": "",
   "ce_used": 48,
   "controls": {
    "done": [
-    "ABTC",
-    "HIVE",
-    "MBRX",
-    "SHAZ",
-    "STFS",
-    "XHLD",
-    "MASK",
-    "FBLG",
-    "XPON",
-    "MTVA",
-    "NXH",
-    "MRLN",
-    "IMMP",
-    "NCNA",
-    "PONY",
-    "DGNX"
+    "ALPS",
+    "BLRX",
+    "BYND",
+    "BYSI",
+    "CNTN",
+    "HTCO",
+    "MGN",
+    "PTN",
+    "QS",
+    "RMCF",
+    "RNTZ",
+    "SDOT",
+    "VIP",
+    "BEEM",
+    "CRVO",
+    "HTZ"
    ],
    "skipped": [],
    "calendar_error": "",
    "ce_used": 16,
-   "pool_date": "2026-11-19",
-   "pool_n": 462,
+   "pool_date": "2026-11-20",
+   "pool_n": 453,
    "status": "OK"
   }
  },
  "audit": {
-  "rows": 1345,
+  "rows": 1459,
   "by_status": {
-   "OK": 941,
-   "UNKNOWN": 239,
+   "UNKNOWN": 240,
+   "OK": 1050,
    "NOT_ATTEMPTED": 159,
-   "FAILED": 6
+   "FAILED": 10
   },
   "by_category": {
-   "1": 530,
-   "2": 411,
-   "4": 404
+   "4": 409,
+   "1": 522,
+   "2": 528
   },
   "tickers": 123,
   "chain_problems": []
@@ -204,6 +204,11 @@
   ],
   [
    "ATPC",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "BEEM",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -348,6 +353,11 @@
    "yahoo_splits"
   ],
   [
+   "CRVO",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
    "CUPR",
    "short_interest",
    "yahoo_info"
@@ -384,16 +394,6 @@
   ],
   [
    "DCOY",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
-   "DGNX",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "DGNX",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -519,11 +519,6 @@
   ],
   [
    "FBGL",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
-   "FBLG",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -683,16 +678,6 @@
    "yahoo_splits"
   ],
   [
-   "IMMP",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "IMMP",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "IPDN",
    "short_interest",
    "yahoo_info"
@@ -788,26 +773,11 @@
    "yahoo_splits"
   ],
   [
-   "MTVA",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "NAMM",
    "short_interest",
    "yahoo_info"
   ],
   [
-   "NCNA",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "NCNA",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "NCT",
    "short_interest",
    "yahoo_info"
@@ -866,11 +836,6 @@
    "NTCL",
    "short_interest",
    "yahoo_info"
-  ],
-  [
-   "NTCL",
-   "reverse_split",
-   "yahoo_splits"
   ],
   [
    "NUWE",
@@ -941,11 +906,6 @@
    "PIII",
    "reverse_split",
    "yahoo_splits"
-  ],
-  [
-   "PONY",
-   "short_interest",
-   "yahoo_info"
   ],
   [
    "PPBT",
@@ -1005,6 +965,11 @@
   [
    "SCNI",
    "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "SCNI",
+   "reverse_split",
    "nasdaq_calendar"
   ],
   [
@@ -1239,11 +1204,6 @@
   ],
   [
    "XCUR",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
-   "XPON",
    "reverse_split",
    "yahoo_splits"
   ],
