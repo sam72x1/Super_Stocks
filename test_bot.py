@@ -106204,6 +106204,29 @@ except Exception as _e:                                              # noqa: BLE
 check("🧰 FCF5 `tools_check` فاشلٌ-آمن لكلّ أداة · الرسالةُ تحمل كروتَ المطابِقة وحدَها · و`main` يرسل الارتكازَ ثمّ الأدوات · والأدواتُ السبع",
       _v_fcf5, _v_fcf5w)
 
+# FCF6 — «بيانات السهم كاملة لو مطابق احد الأدوات» (أمرُ المالك 2026-11-20): مطابقُ أداةٍ لم تحمل الرسالةُ الأولى كرتَه ⟵ كرتُ البوت
+#        الكامل (`build_message`) مُلحَقٌ برسالة الأدوات · وبلا مطابقة أو والكرتُ ظهر سلفًا (ارتكاز/ارتداد) ⟵ لا تكرار · و`main` يمرّر
+#        «ظهر سلفًا» من `official`/`pull` الملتقَطَين.
+try:
+    _fcf6_bm0 = S.build_message
+    S.build_message = lambda res, sp, title="": "FULL-CARD" + S.FOOTER
+    try:
+        _r_hit = [("أ", True, "مطابق", ""), ("ب", False, "لا", "")]
+        _r_miss = [("أ", False, "لا", ""), ("ب", None, "تعذّر", "")]
+        _m6a = _FCF.build_tools_message("ZZZ", _r_hit, card={"symbol": "ZZZ"}, card_shown=False)
+        _m6b = _FCF.build_tools_message("ZZZ", _r_miss, card={"symbol": "ZZZ"}, card_shown=False)
+        _m6c = _FCF.build_tools_message("ZZZ", _r_hit, card={"symbol": "ZZZ"}, card_shown=True)
+    finally:
+        S.build_message = _fcf6_bm0
+    _src6 = _fcf_insp.getsource(_FCF.main)
+    _v_fcf6 = ("FULL-CARD" in _m6a and _m6a.count(S.FOOTER) == 1 and "FULL-CARD" not in _m6b and "FULL-CARD" not in _m6c
+               and "card_shown=_shown" in _src6 and "_args[2] is not None or _args[4] is not None" in _src6)
+    _v_fcf6w = f"a={'FULL-CARD' in _m6a} · b={'FULL-CARD' in _m6b} · c={'FULL-CARD' in _m6c} · footers={_m6a.count(S.FOOTER)}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_fcf6, _v_fcf6w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧰 FCF6 مطابقُ أداةٍ ليس ارتكازًا ⟵ كرتُ البوت الكامل في رسالة الأدوات (بذيلٍ واحد) · وبلا مطابقة أو كرتٍ ظاهرٍ سلفًا لا تكرار",
+      _v_fcf6, _v_fcf6w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
