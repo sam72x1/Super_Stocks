@@ -73546,7 +73546,8 @@ try:
               "split_hunter.yml", "split_filter.yml", "method_hunter.yml", "envelope_hunter.yml", "press_radar.yml",
               "shadow_telegram.yml", "app_compare.yml", "tgtladder.yml",
               "subs_trial.yml",          # 📣🧪 2026-11-19: تجربةُ القناة تشغّل الأدواتِ بمصدرها (قارئة)
-              "method_relaxed.yml"}      # 🔬🔢 2026-11-19: عدُّ المخفّف يقرأ مصدرَ صيّاد النهج نفسَه (قراءةٌ فقط)
+              "method_relaxed.yml",      # 🔬🔢 2026-11-19: عدُّ المخفّف يقرأ مصدرَ صيّاد النهج نفسَه (قراءةٌ فقط)
+              "follow_confirm.yml"}      # 🔎✅ 2026-11-20: أداةُ تأكيد المتابعة = الفحصُ اليدويّ نفسُه (`analyze.yml` · FCF3)
     _got9 = set()
     for _fn9 in sorted(_tvb_os.listdir(".github/workflows")):
         if not _fn9.endswith((".yml", ".yaml")):
@@ -106055,6 +106056,84 @@ check("🌙🔒 NGT7: `T-NIGHT` مُغلَقٌ مُنفَّذًا — `CLOSED` �
       and "NIGHT_REOPEN" not in _ngt7_wf and "النتيجة: **«لا مرشَّح»**" in _ngt7_res.split("\n")[0] and "44630004707" in _ngt7_res,
       _ngt7_err or f"{_ngt7_rc} {_ngt7_rc0} fetch={_ngt7_before} open={_ngt7_open}")
 
+
+# 🔎✅ FCF1-FCF3 — «أداة تأكيد المتابعة» (أمرُ المالك 2026-11-20): الحكمُ من `analyze_one.main` نفسِه بالتقاط مُدخَلات
+#    `render_ondemand` بلا إرسال · ثمّ رسالةٌ مختصرة: مؤهّل ⟵ الكرتُ الكامل · ارتداد ⟵ سعرُ الرجوع · مرفوض ⟵ السببُ بلا كرت.
+import follow_confirm as _FCF                                       # noqa: E402
+import ast as _fcf_ast                                               # noqa: E402
+import inspect as _fcf_insp                                          # noqa: E402
+try:
+    _fcf_sent0 = []
+    _fcf_snd0 = S.send_telegram
+    _fcf_card = {"symbol": "ZZZ", "price": 1.0, "readiness": 60, "score": 70, "entry": (0.9, 0.95, 1.0),
+                "stop": 0.85, "targets": [1.2, 1.4, 1.6]}
+
+    def _fcf_run_ok():
+        _FCF.AO.render_ondemand(dict(_fcf_card), [("بوّابة", True, "", "hard")], {"soft_fails": []}, None, None, None)
+        S.send_telegram("لا يجب أن يصل")
+
+    def _fcf_run_rej():
+        _FCF.AO.render_ondemand(dict(_fcf_card), [("M2 الهبوط", False, "", "hard"), ("لين", False, "", "soft")],
+                                None, "M2 هبوط فوق 97", None, None)
+
+    def _fcf_run_err():
+        S.send_telegram("⚠️ لا بيانات كافية")
+    S.send_telegram = lambda t, *a, **k: _fcf_sent0.append(t)
+    _r0 = _FCF.AO.render_ondemand
+    _c1 = _FCF.capture("ZZZ", run=_fcf_run_ok)
+    _c2 = _FCF.capture("ZZZ", run=_fcf_run_rej)
+    _c3 = _FCF.capture("ZZZ", run=_fcf_run_err)
+    _restored = (_FCF.AO.render_ondemand is _r0) and (S.send_telegram is not _fcf_snd0)
+    S.send_telegram = _fcf_snd0
+    _bm_calls = []
+    _bm0 = S.build_message
+    S.build_message = lambda res, sp, title="": (_bm_calls.append(res[0]["symbol"]), "CARD-BODY")[1]
+    try:
+        _m1 = _FCF.build_confirm_message("ZZZ", _c1, "📌 m")
+        _m2 = _FCF.build_confirm_message("ZZZ", _c2, "")
+        _m3 = _FCF.build_confirm_message("ZZZ", _c3, "")
+    finally:
+        S.build_message = _bm0
+    _v_fcf1 = (_c1["args"] is not None and _c1["args"][2] == {"soft_fails": []} and _c1["sent"] == ["لا يجب أن يصل"]
+               and _fcf_sent0 == [] and _restored
+               and "✅" in _m1 and "CARD-BODY" in _m1 and "📌 m" in _m1
+               and "❌" in _m2 and "M2 هبوط فوق 97" in _m2 and "CARD-BODY" not in _m2 and "لين" not in _m2.split("البوّابات الصلبة الساقطة")[-1]
+               and _c3["args"] is None and "لا بيانات كافية" in _m3 and _bm_calls == ["ZZZ"])
+    _v_fcf1w = f"m1={_m1[:60]!r} · m2={_m2[:80]!r} · m3={_m3[-40:]!r} · bm={_bm_calls} · leak={_fcf_sent0}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_fcf1, _v_fcf1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎✅ FCF1 أداةُ تأكيد المتابعة: تلتقط مُدخَلات `render_ondemand` بلا إرسال وتعيد الأصليّ · المؤهّلُ ⟵ الكرتُ الكامل · "
+      "المرفوضُ ⟵ السببُ والصلبةُ وحدَها بلا كرت · تعذّرُ التحليل ⟵ رسالتُه", _v_fcf1, _v_fcf1w)
+
+# FCF2 — عقدُ الالتقاط: `analyze_one.main` ينادي `render_ondemand` مرّةً بالمُدخَلات الستّ ثمّ `bot.send_telegram` (AST) ·
+#        والرموزُ تُحلَّل بلا تكرار وبسقف 5.
+try:
+    _fcf_t = _fcf_ast.parse(_fcf_insp.getsource(_FCF.AO.main))
+    _fcf_calls = [c for c in _fcf_ast.walk(_fcf_t) if isinstance(c, _fcf_ast.Call) and getattr(c.func, "id", None) == "render_ondemand"]
+    _fcf_ps = _FCF.parse_symbols(" $sxtc, ymt ،sxtc a b c d e")
+    _v_fcf2 = (len(_fcf_calls) == 1 and len(_fcf_calls[0].args) == 6
+               and _fcf_ps == ["SXTC", "YMT", "A", "B", "C"] and _FCF.parse_symbols("") == [])
+    _v_fcf2w = f"calls={len(_fcf_calls)} · args={[len(c.args) for c in _fcf_calls]} · ps={_fcf_ps}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_fcf2, _v_fcf2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎✅ FCF2 عقدُ الالتقاط: `analyze_one.main` ينادي `render_ondemand` مرّةً بستّة مُدخَلات · والرموزُ بلا تكرار وحتى 5",
+      _v_fcf2, _v_fcf2w)
+
+# FCF3 — الـworkflow: يدويٌّ بمُدخَل ticker · يشغّل follow_confirm.py بـFOLLOW_CONFIRM · شموعُ TradingView · قراءةٌ فقط بلا جدولة.
+try:
+    _fcf_y = __import__("yaml").safe_load(open(".github/workflows/follow_confirm.yml", encoding="utf-8"))
+    _fcf_on = _fcf_y.get(True) or _fcf_y.get("on") or {}
+    _fcf_st = [st for st in _fcf_y["jobs"]["confirm"]["steps"] if "follow_confirm.py" in str(st.get("run") or "")]
+    _fcf_env = (_fcf_st[0].get("env") or {}) if len(_fcf_st) == 1 else {}
+    _v_fcf3 = ("ticker" in ((_fcf_on.get("workflow_dispatch") or {}).get("inputs") or {}) and "schedule" not in _fcf_on
+               and _fcf_y.get("permissions") == {"contents": "read"}
+               and "inputs.ticker" in str(_fcf_env.get("FOLLOW_CONFIRM")) and _fcf_env.get("BARS_SOURCE") == "tradingview"
+               and "TELEGRAM_BOT_TOKEN" in _fcf_env)
+    _v_fcf3w = f"on={list(_fcf_on)} · env={sorted(_fcf_env)}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_fcf3, _v_fcf3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎✅ FCF3 `follow_confirm.yml` يدويٌّ بمُدخَل ticker بلا جدولة · قراءةٌ فقط · يمرّر الرمزَ إلى FOLLOW_CONFIRM على شموع TradingView",
+      _v_fcf3, _v_fcf3w)
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
