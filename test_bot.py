@@ -106242,12 +106242,12 @@ try:
     def _tlv_an(sym):
         _tlv_seen.append(S.download_history([sym]))
         return ({"t1": 1.5, "t2": 2.0, "t3": 3.0, "targets_kind": ["⚫", "🔵", "🔵"],
-                 "key_levels": {"res_minor": 1.5, "res_major": 2.6}}, [], None)
+                 "key_levels": {"res_minor": 1.5, "res_major": 2.6}, "stop": (0.9, 0.95)}, [], None)
     _tlv_df = object()
     _tlv_a = _TLV.levels_for("abc", _tlv_df, analyze=_tlv_an)
     _tlv_ok1 = bool(_tlv_seen and _tlv_seen[0].get("ABC") is _tlv_df and S.download_history is _tlv_dl0
                     and _tlv_a == {"t1": 1.5, "t2": 2.0, "t3": 3.0, "kind": ["⚫", "🔵", "🔵"],
-                                   "res_minor": 1.5, "res_major": 2.6})
+                                   "res_minor": 1.5, "res_major": 2.6, "stop": 0.9})
 
     def _tlv_boom(sym):
         raise RuntimeError("x")
@@ -106267,7 +106267,8 @@ try:
         _tlv_r = f"⛔ {type(_e).__name__}"
     S.fetch_4h = _tlv_f40
     _tlv_ok1 = (_tlv_ok1 and isinstance(_tlv_r, dict)
-                and all(k in _tlv_r for k in ("t1", "t2", "t3", "kind", "res_minor", "res_major"))
+                and all(k in _tlv_r for k in ("t1", "t2", "t3", "kind", "res_minor", "res_major", "stop"))
+                and isinstance(_tlv_r.get("stop"), (int, float))
                 and isinstance(_tlv_r.get("t1"), (int, float)) and S.download_history is _tlv_dl0)
     check("🎯 TLV1 الأهداف والمقاومات: شموعُ الأداة تذهب للفحص اليدويّ والجالبُ يُستعاد (ولو رمى) · والمفاتيحُ من نتيجته الحقيقيّة",
           bool(_tlv_ok1), str(_tlv_r)[:120])
@@ -106298,7 +106299,7 @@ try:
         if sym == "BAD":
             return None, "x", None
         return ({"t1": 0.5, "t2": 2.0, "t3": 3.25, "targets_kind": ["⚫", "🔵", "🔵"],
-                 "key_levels": {"res_minor": 0.62, "res_major": 4.1}}, [], None)
+                 "key_levels": {"res_minor": 0.62, "res_major": 4.1}, "stop": (0.41, 0.43)}, [], None)
     _tlv_sec = _TLV.levels_section(["aaa", "AAA", "BAD", "bbb"], analyze=_tlv_an2)
     _tlv_m0 = _TLV.LEVELS_MAX
     _TLV.LEVELS_MAX = 2
@@ -106308,11 +106309,11 @@ try:
     _tlv_off = _TLV.levels_section(["AAA"], analyze=_tlv_an2)
     _os_hc.environ["TOOL_LEVELS"] = "1"
     _tlv_ok3 = ("$AAA" in _tlv_sec and "$BBB" in _tlv_sec and _tlv_sec.count("$AAA") == 1
-                and "$0.5 ⚫ · $2.00 🔵 · $3.25 🔵" in _tlv_sec and "مقاومة فرعية $0.62 · أساسية $4.10" in _tlv_sec
+                and "$0.5 ⚫ · $2.00 🔵 · $3.25 🔵" in _tlv_sec and "مقاومة فرعية $0.62 · أساسية $4.10 · ⛔ وقف $0.41" in _tlv_sec
                 and "تعذّر حسابُها لـ1" in _tlv_sec and "$BAD" not in _tlv_sec
                 and _tlv_calls[:3] == ["AAA", "BAD", "BBB"] and "قُصّ 2" in _tlv_cut and "$A3" not in _tlv_cut
                 and _tlv_off == "" and _TLV.levels_section([], analyze=_tlv_an2) == "")
-    check("🎯 TLV3 قسمُ الأهداف والمقاومات: سطرٌ لكلّ رمز بلا تكرار · الألوان والمقاومتان · القصُّ والتعذّرُ يُعلنان · TOOL_LEVELS=0 ⟵ لا قسم",
+    check("🎯 TLV3 قسمُ الأهداف والمقاومات: سطرٌ لكلّ رمز بلا تكرار · الألوان والمقاومتان والوقف · القصُّ والتعذّرُ يُعلنان · TOOL_LEVELS=0 ⟵ لا قسم",
           bool(_tlv_ok3), _tlv_sec[-300:])
 
     # TLV4 — فاشلٌ-آمن: كلُّ رمزٍ تعذّر ⟵ الرسالةُ كما هي · ورميُ القسم كلِّه ⟵ الرسالةُ كما هي · والقسمُ بعد النصّ

@@ -3,7 +3,7 @@
 «تضيف الأهداف و المقاومات للجميع الأسهم الجاهزة لكل الأدوات صياد التقسيم و النهج العلمي و الشروط الثلاثة الخ»).
 
 الأرقامُ **ليست جديدة**: تُحسب بالفحص اليدويّ نفسِه (`analyze_one.analyze_on_demand` — مرآةُ `analyze_ticker`:
-الأهدافُ الثلاثة وألوانُها · المقاومةُ الفرعيّة والأساسيّة من `key_levels`) على شموع الأداة نفسِها إن مُرِّرت ·
+الأهدافُ الثلاثة وألوانُها · المقاومةُ الفرعيّة والأساسيّة من `key_levels` · والوقفُ `stop[0]` كما في الكرت) على شموع الأداة نفسِها إن مُرِّرت ·
 ثمّ قسمٌ واحد في آخر الرسالة قبل التذييل: سطرٌ لكلّ سهم.
 عرضٌ فقط: بعد اختيار الأداة (لا يُدخل سهمًا ولا يُخرجه) · فاشلٌ-آمن لكلّ سهمٍ على حدة (تعذّرُه ⟵ سطرُه يغيب ويُعَدّ) ·
 سقفُ `LEVELS_MAX` سهمًا ويُعلَن القصّ · `TOOL_LEVELS=0` ⟵ الرسائلُ بت-بت · `TLV1`-`TLV4`.
@@ -16,7 +16,7 @@ def _bot():
     return Super_stock
 
 LEVELS_MAX = 12                     # engineering — يحدّ زمنَ الحساب وطولَ الرسالة · والقصُّ يُعلَن
-TITLE = "🎯 <b>الأهداف والمقاومات</b> — بحساب فارز الارتكاز (مستقلّةٌ عن هدف الأداة ووقفها)"
+TITLE = "🎯 <b>الأهداف والمقاومات والوقف</b> — بحساب فارز الارتكاز (مستقلّةٌ عن هدف الأداة ووقفها)"
 
 
 def enabled() -> bool:
@@ -24,7 +24,7 @@ def enabled() -> bool:
 
 
 def levels_for(sym, df=None, analyze=None):
-    """{t1,t2,t3,kind,res_minor,res_major} من الفحص اليدويّ · `df` شموعُ الأداة (لا جلبَ ثانٍ) · تعذّرٌ ⟵ None."""
+    """{t1,t2,t3,kind,res_minor,res_major,stop} من الفحص اليدويّ · `df` شموعُ الأداة (لا جلبَ ثانٍ) · تعذّرٌ ⟵ None."""
     import analyze_one as AO
     bot = _bot()
     _dl = bot.download_history
@@ -40,8 +40,14 @@ def levels_for(sym, df=None, analyze=None):
     if not isinstance(res, dict) or res.get("t1") is None:
         return None
     kl = res.get("key_levels") or {}
+    st = res.get("stop")
+    try:                                         # 🛑 الوقفُ المعروض في كرت البوت = الطرفُ الأدنى (`stop[0]` · أمرُ المالك «و الوقف»)
+        st = st[0] if isinstance(st, (tuple, list)) else st
+    except (IndexError, TypeError):
+        st = None
     return {"t1": res.get("t1"), "t2": res.get("t2"), "t3": res.get("t3"),
-            "kind": res.get("targets_kind"), "res_minor": kl.get("res_minor"), "res_major": kl.get("res_major")}
+            "kind": res.get("targets_kind"), "res_minor": kl.get("res_minor"), "res_major": kl.get("res_major"),
+            "stop": st}
 
 
 def _px(v):
@@ -55,7 +61,7 @@ def _px(v):
 
 
 def levels_line(sym, lv) -> str:
-    """«$SYM — 🎯 الأهداف: $1 · $2 · $3 · 🔴 مقاومة فرعية $x · أساسية $y» — نقيّة."""
+    """«$SYM — 🎯 الأهداف: $1 · $2 · $3 · 🔴 مقاومة فرعية $x · أساسية $y · ⛔ وقف $z» — نقيّة."""
     bot = _bot()
     kind = lv.get("kind") or [None, None, None]
     tg = []
@@ -73,6 +79,9 @@ def levels_line(sym, lv) -> str:
         if rM and rM != rm:
             rs.append(f"أساسية {rM}")
         parts.append("🔴 مقاومة " + " · ".join(rs))
+    sp = _px(lv.get("stop"))
+    if sp:
+        parts.append(f"⛔ وقف {sp}")
     return " · ".join(parts)
 
 
