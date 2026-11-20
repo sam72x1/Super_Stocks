@@ -249,8 +249,23 @@ def _why(r):
         return "؟"
 
 
-def _send(chunks, env=None, post=None, late=False):
-    """`sendMessage` لكلّ رقمٍ في السرّ · ⟵ True إن وصلت كلُّ الأجزاء لكلّ رقم · ولا رقمَ محادثةٍ في السجلّ."""
+RETRY_429 = 4                               # محاولاتُ إعادة الجزء الواحد بعد «Too Many Requests» (عطلُ 2026-11-20: أُرسل 2 من 13)
+RETRY_AFTER_MAX = 60                        # سقفُ الانتظار الواحد بالثواني (تلغرام يحدّد المدّة في `retry_after`)
+
+
+def _retry_after(r):
+    """ثواني الانتظار التي طلبها تلغرام عند 429 (`parameters.retry_after`) محصورةً في [1، `RETRY_AFTER_MAX`] · فاشلةٌ-آمنة ⟵ 5."""
+    try:
+        v = int(((r.json() or {}).get("parameters") or {}).get("retry_after"))
+        return max(1, min(RETRY_AFTER_MAX, v))
+    except Exception:                               # noqa: BLE001
+        return 5
+
+
+def _send(chunks, env=None, post=None, late=False, sleep=None):
+    """`sendMessage` لكلّ رقمٍ في السرّ · ⟵ True إن وصلت كلُّ الأجزاء لكلّ رقم · ولا رقمَ محادثةٍ في السجلّ.
+    🔧 (`SUB11` · عطلُ 2026-11-20) رفضُ 429 يُنتظَر مدّتَه ويُعاد الجزءُ نفسُه حتى `RETRY_429` مرّات بدل القفز إلى الجزء التالي."""
+    sleep = sleep or time.sleep
     env = os.environ if env is None else env
     ids, tok = targets(env), str(env.get("TELEGRAM_BOT_TOKEN") or "").strip()
     if not ids or not tok:
@@ -270,8 +285,14 @@ def _send(chunks, env=None, post=None, late=False):
             continue
         for cid in ids:
             try:
-                r = post(url, json={"chat_id": cid, "text": ch, "parse_mode": "HTML",
-                                    "disable_web_page_preview": True}, timeout=30)
+                for _try in range(RETRY_429 + 1):
+                    r = post(url, json={"chat_id": cid, "text": ch, "parse_mode": "HTML",
+                                        "disable_web_page_preview": True}, timeout=30)
+                    if r.status_code != 429 or _try == RETRY_429:
+                        break
+                    _w = _retry_after(r)
+                    log(f"⏳ قناة المشتركين: تلغرام طلب الانتظار {_w} ث — إعادةُ الجزء ({_try + 1} من {RETRY_429})")
+                    sleep(_w)
                 if r.status_code != 200 and "can't parse entities" in (r.text or ""):
                     r = post(url, json={"chat_id": cid, "text": _strip_tags(ch),
                                         "disable_web_page_preview": True}, timeout=30)
@@ -282,7 +303,7 @@ def _send(chunks, env=None, post=None, late=False):
             except Exception as e:                  # noqa: BLE001
                 ok = False
                 log(f"⚠️ قناة المشتركين: {type(e).__name__}")
-        time.sleep(1)
+        sleep(1)
     return ok
 
 

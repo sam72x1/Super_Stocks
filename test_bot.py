@@ -105695,6 +105695,38 @@ try:
 except Exception as _e:                                          # noqa: BLE001
     check("📣🔧 قفلُ حافظ صندوق القناة انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
+# 📣🔧 SUB11 — عطلٌ مُثبَت 2026-11-20 (`44664006379`): تلغرام رفض بـ429 فقفز المُرسِلُ إلى الجزء التالي ⟵ «أُرسل 2 من 13». الآن يُنتظَر
+#    `retry_after` ويُعاد الجزءُ نفسُه · والسقفُ `RETRY_429` ⟵ بعده يفشل الجزءُ كما كان.
+try:
+    import subs_channel as _s11_SC
+
+    class _S11R:
+        def __init__(self, code, ra=None):
+            self.status_code, self._ra, self.text = code, ra, ""
+
+        def json(self):
+            return {"description": "Too Many Requests", "parameters": {"retry_after": self._ra}} if self.status_code == 429 else {"ok": True}
+
+    def _s11_run(script):
+        _calls, _sleeps, _it = [], [], iter(script)
+
+        def _post(_url, json=None, timeout=None):
+            _calls.append(json["text"])
+            return next(_it)
+        _ok = _s11_SC._send(["A", "B"], env={"TELEGRAM_SUBS_CHAT_ID": "-1001", "TELEGRAM_BOT_TOKEN": "t"}, post=_post, sleep=_sleeps.append)
+        return _ok, _calls, _sleeps
+    _s11_a = _s11_run([_S11R(429, 7), _S11R(429, 500), _S11R(200), _S11R(200)])
+    _s11_b = _s11_run([_S11R(429, 3)] * (_s11_SC.RETRY_429 + 1) + [_S11R(200)])
+    _s11_c = _s11_SC._retry_after(_S11R(429, None))
+    check("📣🔧 SUB11: 429 ⟵ يُنتظَر `retry_after` (مسقوفًا) ويُعاد الجزءُ نفسُه ثمّ يمضي · وبعد `RETRY_429` إعادةً يفشل الجزءُ ولا يُعاد أكثر · "
+          "وبلا مدّةٍ ⟵ 5 ثوانٍ",
+          _s11_a == (True, ["A", "A", "A", "B"], [7, _s11_SC.RETRY_AFTER_MAX, 1, 1])
+          and _s11_b[0] is False and _s11_b[1] == ["A"] * (_s11_SC.RETRY_429 + 1) + ["B"]
+          and _s11_b[2] == [3] * _s11_SC.RETRY_429 + [1, 1] and _s11_c == 5,
+          f"a={_s11_a} b={_s11_b} c={_s11_c}")
+except Exception as _e:                                          # noqa: BLE001
+    check("📣🔧 قفلُ إعادة 429 في قناة المشتركين انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
 # 🧾 FSL1-FSL2 · 🌙 NGP1-NGP2 — أمرُ المالك 2026-11-19 «برومبت شامل»: 【أ】 سجلُّ إشارات فيصل (الرجعيُّ خارج النسبة · الأماميُّ بطابعٍ وسعر ·
 #    لا لقطات) و【ب】 مِجَسُّ T-NIGHT المرحلة 1 (تقسيمُ الجلسات · يدويٌّ بلا تلغرام). قراءةٌ فقط ولا إنتاج.
 import importlib.util as _fsl_ilu
