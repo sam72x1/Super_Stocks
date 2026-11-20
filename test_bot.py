@@ -73546,7 +73546,8 @@ try:
               "split_hunter.yml", "split_filter.yml", "method_hunter.yml", "envelope_hunter.yml", "press_radar.yml",
               "shadow_telegram.yml", "app_compare.yml", "tgtladder.yml",
               "subs_trial.yml",          # 📣🧪 2026-11-19: تجربةُ القناة تشغّل الأدواتِ بمصدرها (قارئة)
-              "method_relaxed.yml"}      # 🔬🔢 2026-11-19: عدُّ المخفّف يقرأ مصدرَ صيّاد النهج نفسَه (قراءةٌ فقط)
+              "method_relaxed.yml",      # 🔬🔢 2026-11-19: عدُّ المخفّف يقرأ مصدرَ صيّاد النهج نفسَه (قراءةٌ فقط)
+              "follow_confirm.yml"}      # 🔎✅ 2026-11-20: أداةُ تأكيد المتابعة = الفحصُ اليدويّ نفسُه (`analyze.yml` · FCF3)
     _got9 = set()
     for _fn9 in sorted(_tvb_os.listdir(".github/workflows")):
         if not _fn9.endswith((".yml", ".yaml")):
