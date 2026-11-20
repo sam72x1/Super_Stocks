@@ -106461,6 +106461,213 @@ except Exception as _e:                                           # noqa: BLE001
 check("🗂️ CSA4 T-CASE31 قراءةٌ فقط: لا تلغرام ولا إسنادَ CONFIG ولا Polygon · workflow يدويٌّ بلا كرون · والمحفّزُ في نافذته وحدَها و«غير مقيس» غيرُ «بلا خبر»",
       bool(_csa4), _csa4d)
 
+# 🗂️🔬 CSB1-CSB5 — `T-CASE31` الجمعُ والسماتُ والخلطُ وملفّاتُ الأسهم (أدواتُ ①-④ · قراءةٌ فقط)
+import tempfile as _csb_tmp                                       # noqa: E402
+import shutil as _csb_sh                                          # noqa: E402
+import gzip as _csb_gz                                            # noqa: E402
+import json as _csb_json                                          # noqa: E402
+import inspect as _csb_inspect                                    # noqa: E402
+try:
+    import numpy as _csb_np
+    import pandas as _csb_pd
+    import importlib as _csb_imp                                 # وحداتٌ محلّيّة في مجلّدٍ فرعيّ ⟵ بالاسم بعد إضافة المسار (DEP1 يحرس الخارجيّة وحدَها)
+    _CSB_C = _csb_imp.import_module("case31")
+    _CSB_F = _csb_imp.import_module("case31_feat")
+    _CSB_ST = _csb_imp.import_module("case31_stats")
+    _CSB_B = _csb_imp.import_module("case31_build")
+    _CSB_A = _csb_imp.import_module("case31_arm")
+    _CSB_D = _csb_imp.import_module("case31_dossier")
+    _CSB_CAT = _csb_imp.import_module("case31_catalog")
+    _csb_err = ""
+except Exception as _e:                                           # noqa: BLE001
+    _CSB_F = _CSB_ST = _CSB_B = _CSB_A = _CSB_D = None
+    _csb_err = f"⛔ {type(_e).__name__}: {_e}"
+
+
+def _csb_bars(n, seed, start="2023-01-02", freq=None):
+    r = _csb_np.random.default_rng(seed)
+    c = 3 * _csb_np.exp(_csb_np.cumsum(r.normal(0, 0.05, n)))
+    o = _csb_np.roll(c, 1)
+    o[0] = c[0]
+    h = _csb_np.maximum(o, c) * (1 + _csb_np.abs(r.normal(0, 0.03, n)))
+    lo = _csb_np.minimum(o, c) * (1 - _csb_np.abs(r.normal(0, 0.03, n)))
+    ix = _csb_pd.bdate_range(start, periods=n) if freq is None else freq
+    return _csb_pd.DataFrame({"Open": o, "High": h, "Low": lo, "Close": c, "Volume": r.integers(10_000, 1_000_000, n).astype(float)}, index=ix)
+
+
+def _csb_rows(plant, seed=7, days=6, per=100, npos=2):
+    r = _csb_np.random.default_rng(seed)
+    nums = [n for n, k, a in _CSB_CAT.expanded() if k == "num" and a == "AB"][:24]
+    out = []
+    for d in range(days):
+        for i in range(per):
+            y = int(i < npos)
+            f = {nm: float(r.normal()) for nm in nums}
+            f["px.ret5"] = float(r.normal())
+            if plant and y:
+                f[nums[0]] = 5.0 + float(r.random())
+            out.append({"sym": f"S{d}_{i}", "day": f"2026-10-{20 + d:02d}", "y": y, "f": f})
+    return out, nums
+
+
+# CSB1 — السماتُ = الفهرس حرفًا · ولا نظرَ للمستقبل · والأنواعُ كما في الفهرس
+try:
+    _csb_D = _csb_bars(700, 3)
+    _csb_hix = _csb_pd.DatetimeIndex([_csb_pd.Timestamp(d) + _csb_pd.Timedelta(hours=h) for d in _csb_D.index[-330:] for h in (4, 8, 12, 16)])
+    _csb_H = _csb_bars(len(_csb_hix), 4, freq=_csb_hix)
+    _csb_day = _csb_D.index[-12].strftime("%Y-%m-%d")
+    _csb_f = _CSB_F.with_deltas(_csb_D, _csb_H, _csb_day)
+    _csb_want = {n for n, _k, a in _CSB_CAT.expanded() if a == "AB" and not n.startswith("sh.")}
+    _csb_D2 = _csb_D.copy()
+    _csb_D2.iloc[-11:] = _csb_D2.iloc[-11:] * 7.0                  # المستقبلُ يتغيّر كلُّه
+    _csb_H2 = _csb_H.copy()
+    _csb_H2.loc[_csb_H2.index.strftime("%Y-%m-%d") > _csb_day] *= 7.0
+    _csb_f2 = _CSB_F.with_deltas(_csb_D2, _csb_H2, _csb_day)
+    _csb_kinds = {n: k for n, k, _a in _CSB_CAT.expanded()}
+    _csb_bad = [n for n, v in _csb_f.items() if v is not None and (isinstance(v, bool) != (_csb_kinds.get(n) == "bool"))]
+    _csb_same = [n for n in _csb_f if not (_csb_f[n] == _csb_f2[n] or (_csb_f[n] != _csb_f[n] and _csb_f2[n] != _csb_f2[n]))]
+    _csb1 = (set(_csb_f) == _csb_want and not _csb_same and not _csb_bad and sum(v is not None for v in _csb_f.values()) > 0.8 * len(_csb_f)
+             and _CSB_F.features_asof(_csb_D, _csb_H, _csb_D.index[-1].strftime("%Y-%m-%d"))["px.close"] != _csb_f["px.close"])
+    _csb1d = f"سمات={len(_csb_f)} مطلوب={len(_csb_want)} تغيّر={_csb_same[:3]} نوع={_csb_bad[:3]}"
+except Exception as _e:                                           # noqa: BLE001
+    _csb1, _csb1d = False, _csb_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🗂️ CSB1 T-CASE31 ②: أسماءُ السمات المحسوبة = الفهرس حرفًا · وتغييرُ كلّ شمعةٍ بعد يوم القرار (يوميّ و4 ساعات) لا يغيّر سمةً · والأنواعُ كما في الفهرس",
+      bool(_csb1), _csb1d)
+
+# CSB2 — الخلط: داخل اليوم وعددُ الموجبين ثابت · المرصودُ والخلطةُ من `search` نفسِها · حتميٌّ بالبذرة · والتعادلُ ليس عبورًا · والإشارةُ المزروعة تعبر
+try:
+    _csb_r1, _csb_nums = _csb_rows(True)
+    _csb_P = _CSB_ST.prepare(_csb_r1, "A", 8)
+    _csb_ys = [_CSB_ST.shuffle_labels(_csb_P, _csb_np.random.default_rng(s)) for s in (1, 2)]
+    _csb_cnt = lambda y: [int(y[_csb_P["day_ix"] == d].sum()) for d in range(len(_csb_P["days"]))]   # noqa: E731
+    _csb_obs = _CSB_ST.search(_csb_P, _csb_P["y"])
+    _csb_sh1 = _CSB_ST.shuffle_block(_csb_P, 0, 12)
+    _csb_sh2 = _CSB_ST.shuffle_block(_csb_P, 0, 12)
+    _csb_thr, _csb_fr, _csb_ok = _CSB_ST.beats(_csb_obs["best_single"], _csb_sh1, "best_single")
+    _csb_src_st = _csb_inspect.getsource(_CSB_ST.shuffle_block)
+    _csb_tree_a = _csa_ast.parse(_csb_inspect.getsource(_CSB_A))
+    _csb_fn = {f.name: {getattr(c.func, "attr", getattr(c.func, "id", "")) for c in _csa_ast.walk(f) if isinstance(c, _csa_ast.Call)}
+               for f in _csa_ast.walk(_csb_tree_a) if isinstance(f, _csa_ast.FunctionDef)}
+    _csb2 = (all(_csb_cnt(y) == _csb_cnt(_csb_P["y"]) for y in _csb_ys) and not (_csb_ys[0] == _csb_ys[1]).all()
+             and not (_csb_ys[0] == _csb_P["y"]).all() and _csb_json.dumps(_csb_sh1) == _csb_json.dumps(_csb_sh2) and len({s["best_single"] for s in _csb_sh1}) > 1
+             and _csb_ok and _csb_obs["best_single"] > _csb_thr and _csb_obs["tree_auc"] > 0.9
+             and _CSB_ST.beats(3.0, [{"k": 3.0}] * 20, "k")[2] is False and _CSB_ST.beats(3.01, [{"k": 3.0}] * 20, "k")[2] is True
+             and _CSB_ST.beats(None, [{"k": 3.0}], "k")[2] is False and _CSB_ST.beats(1.0, [], "k")[2] is False
+             and "search(P, shuffle_labels(P, rng)" in _csb_src_st and "search" in _csb_fn["mode_observe"] and "shuffle_block" in _csb_fn["mode_shuffle"]
+             and _CSB_A.N_SHUFFLE == 1000 and _CSB_A.MIN_K == {"A": 8, "B": 30} and _CSB_ST.MAX_K == 3)
+    _csb2d = f"z={_csb_obs['best_single']:.2f} p95={_csb_thr:.2f} auc={_csb_obs['tree_auc']:.2f} عدّ={_csb_cnt(_csb_ys[0])}"
+except Exception as _e:                                           # noqa: BLE001
+    _csb2, _csb2d = False, _csb_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🗂️ CSB2 T-CASE31 ④ الخلط: الوسمُ يُخلط داخل يوم القرار وعددُ موجبيه ثابت · المرصودُ والخلطةُ من البحث نفسِه · حتميٌّ بالبذرة · التعادلُ مع المئين 95 ليس عبورًا · والمزروعُ يعبر",
+      bool(_csb2), _csb2d)
+
+# CSB3 — المجتمع: اللقطةُ الأولى بعد إغلاق يوم القرار خلال 3 أيّام · المقيسُ وحدَه · الوسمُ من D+1…D+20 · والرماديُّ وذراعُ ‏+50% ليسا ضابطة
+try:
+    _csb_sn = [("2026-11-17T09:30:00+00:00", "z"), ("2026-11-18T00:30:00+00:00", "y"), ("2026-11-19T09:44:00+00:00", "b"), ("2026-11-20T09:00:00+00:00", "c")]
+    _csb_sn2 = [("2026-11-14T02:37:00+00:00", "f"), ("2026-11-17T09:30:00+00:00", "z")]
+    _csb_lr = [("d%02d" % i, 1.0, 1.05, 0.95, 1.0, 10.0) for i in range(30)]
+    _csb_l1 = list(_csb_lr)
+    _csb_l1[21] = ("d21", 1.0, 2.6, 1.0, 1.0, 10.0)               # انفجارٌ في الجلسة 21 بعد d00 ⟵ خارج النافذة
+    _csb_l2 = list(_csb_lr)
+    _csb_l2[20] = ("d20", 1.0, 2.6, 1.0, 1.0, 10.0)               # في الجلسة 20 ⟵ داخلها
+    _csb_l3 = list(_csb_lr)
+    _csb_l3[0] = ("d00", 1.0, 9.0, 1.0, 1.0, 10.0)                # أعلى يوم القرار نفسِه لا يُحسب
+    _csb_mk = lambda s, d, **kw: dict({"sym": s, "D": d, "ok": True, "x20": False, "after": 20, "ret": 0.0, "ev": None, "in_pool": True, "f": {}}, **kw)   # noqa: E731
+    _csb_feat = [_csb_mk("P1", "d1", x20=True, ev=("x100", "الشهر")), _csb_mk("P2", "d1", x20=True, ev=("x100", "الشهر"), in_pool=False),
+                 _csb_mk("C1", "d1"), _csb_mk("G1", "d1", x20=True), _csb_mk("U1", "d1", x20=None), _csb_mk("H1", "d1", ev=("x50", "الشهر")),
+                 _csb_mk("O1", "d1", ev=("x100", "قبل الشهر"), x20=True), _csb_mk("N1", "d1", in_pool=False), _csb_mk("B1", "d1", ok=False),
+                 _csb_mk("P3", "d2", x20=True, ev=("x100", "الشهر"), in_pool=False), _csb_mk("C9", "d3")]
+    _csb_br, _csb_stt = _CSB_A.build_rows(_csb_feat, "الشهر")
+    _csb3 = (_CSB_B.snap_for(_csb_sn, "2026-11-18") == _csb_sn[2] and _CSB_B.snap_for(_csb_sn, "2026-11-17") == _csb_sn[2]      # لقطةُ 00:30 UTC قبل نهاية الأفتر ليست «بعد الإغلاق»
+             and _CSB_B.snap_for(_csb_sn2, "2026-11-13") == _csb_sn2[0] and _CSB_B.snap_for(_csb_sn2, "2026-11-14") == _csb_sn2[1]
+             and _CSB_B.snap_for(_csb_sn, "2026-11-10") is None and _CSB_B.snap_for(_csb_sn, "2026-11-20") is None
+             and sorted(_CSB_B.measured_rows({"A": {"last_seen": "2026-11-20"}, "B": {"last_seen": "2026-11-19"}, "meta": 1})) == ["A"]
+             and _CSB_B.label(_csb_l1, "d00")[0] is False and _CSB_B.label(_csb_l2, "d00")[0] is True and _CSB_B.label(_csb_l3, "d00")[0] is False
+             and _CSB_B.label(_csb_lr, "d29") == (None, 0, None) and _CSB_B.label(_csb_lr, "d25")[1] == 4
+             and sorted((r["sym"], r["y"]) for r in _csb_br) == [("C1", 0), ("P1", 1), ("P2", 1)]
+             and _csb_stt["grey"] == 1 and _csb_stt["unlabeled"] == 1 and _csb_stt["pos_untracked"] == 1 and _csb_stt["days_no_pool"] == 1
+             and _CSB_B.SNAP_MAX_GAP == 3 and _CSB_B.WIN == 20)
+    _csb3d = f"{sorted((r['sym'], r['y']) for r in _csb_br)} {_csb_stt}"
+except Exception as _e:                                           # noqa: BLE001
+    _csb3, _csb3d = False, _csb_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🗂️ CSB3 T-CASE31 ② المجتمع: لقطةُ «تحت المتابعة» الأولى بعد إغلاق يوم القرار خلال 3 أيّام · الوسمُ من أعلى D+1…D+20 وحدَها · والرماديُّ وذراعُ ‏+50% وحدثُ نافذةٍ أخرى ليست ضابطة",
+      bool(_csb3), _csb3d)
+
+# CSB4 — الأبواب: التجميعُ مرّةً واحدة (7) · خلطاتٌ ناقصة (5) · الذراع ب عمياء (8) · والأدواتُ الخمس قراءةٌ فقط بنيويًّا
+_csb_td = _csb_tmp.mkdtemp(prefix="csb4_")
+_csb_keep = None
+try:
+    _csb_keep = (_CSB_C.OUT, _CSB_A.N_SHUFFLE)
+    _CSB_C.OUT, _CSB_A.N_SHUFFLE = _csb_td + "/out", 6
+    _csb_o = {"arm": "A", "window": "الشهر", "stat": {"days": 1, "days_no_pool": 0, "pos": 8, "pos_untracked": 0, "ctrl": 90, "grey": 0, "unlabeled": 0,
+                                                         "bad": 0, "open_window": 0},
+              "n": 98, "p": 5, "n_elig": 5, "n_conds": 9, "tried": {"features": 5, "eligible_features": 5, "conditions": 9, "valid_singles": 9, "combos": 4,
+                                                                   "models": 2, "folds": 1},
+              "peaks": {k: 1.0 for k in _CSB_ST.SHUFFLE_KEYS}, "top_singles": [], "top_combos": [], "exclusions": [], "table": [], "neighbours": [],
+              "lead": {}, "x50": {"n": 0}, "thresholds": {}, "positives": [], "ctrl_ret": [], "types": {}}
+    with _csb_gz.open(_csb_td + "/obs_A.json.gz", "wt", encoding="utf-8") as _fh:
+        _csb_json.dump(_csb_o, _fh)
+    with open(_csb_td + "/shuf_A_0.json", "w", encoding="utf-8") as _fh:
+        _csb_json.dump({"shuffles": [{k: 2.0 for k in _CSB_ST.SHUFFLE_KEYS}] * 5, "types": {}}, _fh)
+    _csb_rc_short = _CSB_A.mode_assemble("A", _csb_td)
+    with open(_csb_td + "/shuf_A_1.json", "w", encoding="utf-8") as _fh:
+        _csb_json.dump({"shuffles": [{k: 2.0 for k in _CSB_ST.SHUFFLE_KEYS}], "types": {}}, _fh)
+    _csb_rc_ok = _CSB_A.mode_assemble("A", _csb_td)
+    _csb_md = open(_csb_td + "/out/ARM_A.md", encoding="utf-8").read()
+    _csb_rc_again = _CSB_A.mode_assemble("A", _csb_td)
+    _csb_rc_b = _CSB_A.main(["x", "observe", "B", "--dir", _csb_td])
+    _csb_ro = True
+    for _m in ("case31_feat", "case31_build", "case31_stats", "case31_arm", "case31_dossier"):
+        _t = _csa_ast.parse(open(f"fm_forensics/case31/{_m}.py", encoding="utf-8").read())
+        _calls = {getattr(c.func, "attr", getattr(c.func, "id", "")) for c in _csa_ast.walk(_t) if isinstance(c, _csa_ast.Call)}
+        _strs = [c.value for c in _csa_ast.walk(_t) if isinstance(c, _csa_ast.Constant) and isinstance(c.value, str)]
+        _asg = [1 for n in _csa_ast.walk(_t) if isinstance(n, (_csa_ast.Assign, _csa_ast.AugAssign))
+                for tg in (n.targets if isinstance(n, _csa_ast.Assign) else [n.target])
+                if isinstance(tg, _csa_ast.Subscript) and getattr(tg.value, "attr", getattr(tg.value, "id", "")) == "CONFIG"]
+        _csb_ro = _csb_ro and not ({"send_telegram", "send_owner_document", "subs_mirror", "git_save", "save_watchlist"} & _calls) and not _asg \
+            and not any("api.polygon.io" in s or "polygon.io" in s for s in _strs)
+    _csb_wf = __import__("yaml").safe_load(open(".github/workflows/case31.yml", encoding="utf-8"))["jobs"]
+    _csb4 = (_csb_rc_short == _CSB_C.RC_DATA and _csb_rc_ok == _CSB_C.RC_OK and _csb_rc_again == _CSB_C.RC_ONCE == 7 and _csb_rc_b == _CSB_C.RC_BLIND == 8
+             and "في حدود الصدفة" in _csb_md and "✅ يعبر" not in _csb_md and _csb_ro
+             and set(_csb_wf["assemble_a"]["needs"]) == {"observe_a", "shuffle_a"} and len(_csb_wf["shuffle_a"]["strategy"]["matrix"]["k"]) == 20
+             and all("exit 7" in str(_csb_wf[j]["steps"]) for j in ("observe_a", "shuffle_a")))
+    _csb4d = f"{_csb_rc_short} {_csb_rc_ok} {_csb_rc_again} {_csb_rc_b} ro={_csb_ro}"
+except Exception as _e:                                           # noqa: BLE001
+    _csb4, _csb4d = False, _csb_err or f"⛔ {type(_e).__name__}: {_e}"
+finally:
+    if _csb_keep:
+        _CSB_C.OUT, _CSB_A.N_SHUFFLE = _csb_keep
+    _csb_sh.rmtree(_csb_td, ignore_errors=True)
+check("🗂️ CSB4 T-CASE31 الأبواب: التجميعُ مرّةً واحدة (خروج 7) · خلطاتٌ دون العدد لا تُحكم (5) · الذراع ب لا تُفتح قبل التثبيت (8) · والمرصودُ دون الخلطات «في حدود الصدفة» · والأدواتُ قراءةٌ فقط",
+      bool(_csb4), _csb4d)
+
+# CSB5 — ملفُّ السهم: التوقيتُ اللحظيّ بأدقّ فريم وجلسته · «غير مقيس» لما لا شموعَ له · والصفُّ المضغوط يطابق القاموس
+try:
+    _csb_t0 = 1794000000                                           # 2026-11-06 16:20 نيويورك
+    _csb_d0 = _CSB_D.ny_parts(_csb_t0)[0]
+    _csb_pre = [(_csb_t0 - 12 * 3600 + 300 * i, 1, 1 + 0.03 * i, 1, 1 + 0.03 * i, 100.0) for i in range(30)]      # 04:20 فصاعدًا
+    _csb_tm = _CSB_D.intraday_timing({"5": _csb_pre, "1": [], "60": _csb_pre[:3]}, _csb_d0, 1.0)
+    _csb_reg = [(_csb_t0 - 6 * 3600 + 900 * i, 1, 1 + 0.05 * i, 1, 1, 100.0) for i in range(8)]                   # 10:20 فصاعدًا
+    _csb_tr = _CSB_D.intraday_timing({"15": _csb_reg}, _csb_d0, 1.0)
+    _csb_rr, _ = _csb_rows(False, seed=5, days=2, per=20)
+    _csb_fv = [dict(r, f=_CSB_ST.FV(r["f"])) for r in _csb_rr]
+    _csb_Xa, _csb_Xb = _CSB_ST.prepare(_csb_rr, "B", 2)["X"], _CSB_ST.prepare(_csb_fv, "B", 2)["X"]
+    _csb_Xc, _csb_Xd = _CSB_ST.prepare(_csb_rr, "A", 2)["X"], _CSB_ST.prepare(_csb_fv, "A", 2)["X"]
+    _csb5 = (_CSB_D.ny_parts(_csb_t0) == ("2026-11-06", 980) and _CSB_D.ny_parts(1790000000) == ("2026-09-21", 613)
+             and _csb_tm["frame"] == "5" and _csb_tm["session"] == "قبل الافتتاح" and _csb_tm["start_min"] == 285 and _csb_tm["usd_before"] > 0
+             and _csb_tr["frame"] == "15" and _csb_tr["session"] == "الجلسة النظاميّة" and _csb_tr["pre_share"] == 0.0
+             and _CSB_D.intraday_timing({}, _csb_d0, 1.0) is None and _CSB_D.intraday_timing({"5": _csb_pre}, "2026-01-01", 1.0) is None
+             and _CSB_D.session_of(960) == "بعد الإغلاق" and _CSB_D._n(None) == "غير مقيس"
+             and _csb_np.array_equal(_csb_Xa, _csb_Xb, equal_nan=True) and _csb_np.array_equal(_csb_Xc, _csb_Xd, equal_nan=True)
+             and _csb_Xa.shape[1] < _csb_Xc.shape[1] and int((~_csb_np.isnan(_csb_Xa)).sum()) == 40 * 25 and _csb_fv[0]["f"].get("px.ret5") is not None
+             and _csb_fv[0]["f"].get("bot.readiness") is None)
+    _csb5d = f"{_csb_tm} | {_csb_tr and _csb_tr['session']}"
+except Exception as _e:                                           # noqa: BLE001
+    _csb5, _csb5d = False, _csb_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🗂️ CSB5 T-CASE31 ①: التوقيتُ اللحظيّ بأدقّ فريمٍ يغطّي يومَ البداية وجلستُه (قبل الافتتاح · النظاميّة · بعد الإغلاق) · وما لا شموعَ له «غير مقيس» · والصفُّ المضغوط = القاموس",
+      bool(_csb5), _csb5d)
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
