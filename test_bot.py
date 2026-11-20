@@ -106345,6 +106345,122 @@ finally:
         pass
 
 
+# 🗂️🔬 CSA1-CSA4 — `T-CASE31` «الملف الجنائي لمنفجري الشهر» (أمرُ المالك 2026-11-20 · العقدُ والفهرسُ وأداةُ ⓪ قبل أيّ رقم)
+import ast as _csa_ast                                            # noqa: E402
+import datetime as _csa_dt                                        # noqa: E402
+import importlib.util as _csa_ilu                                 # noqa: E402
+import sys as _csa_sys                                            # noqa: E402
+try:
+    _csa_dir = "fm_forensics/case31"
+    if _csa_dir not in _csa_sys.path:
+        _csa_sys.path.insert(0, _csa_dir)
+    _csa_sp = _csa_ilu.spec_from_file_location("case31_lock", _csa_dir + "/case31.py")
+    _CSA = _csa_ilu.module_from_spec(_csa_sp)
+    _csa_sp.loader.exec_module(_CSA)
+    _csa_err = ""
+except Exception as _e:                                           # noqa: BLE001
+    _CSA, _csa_err = None, f"⛔ {type(_e).__name__}: {_e}"
+
+
+def _csa_mk(closes, start="2026-08-03", hi=None, op=None):
+    d, rows, k = _csa_dt.date.fromisoformat(start), [], 0
+    while len(rows) < len(closes):
+        if d.weekday() < 5:
+            c = closes[k]
+            o = (op or {}).get(k, closes[k - 1] if k else c)
+            rows.append((d.isoformat(), o, (hi or {}).get(k, max(o, c) * 1.01), min(o, c) * 0.99, c, 1e6))
+            k += 1
+        d += _csa_dt.timedelta(days=1)
+    return rows
+
+
+# CSA1 — العقدُ والفهرسُ ببصمتيهما · وأعدادُ الفهرس مكتوبةٌ في العقد · والأسماءُ فريدة
+try:
+    _csa_sum = _CSA.CAT.summary()
+    _csa_doc = open(_CSA.CONTRACT, encoding="utf-8").read()
+    _csa_names = [n for n, _k, _a in _CSA.CAT.expanded()]
+    _csa1 = (_CSA.contract_ok() and _CSA.CAT.sha() == _CSA.CATALOG_SHA and _CSA.CATALOG_SHA in _csa_doc
+             and f"{_csa_sum['base']:,} سمةً أساسيّة" in _csa_doc and f"{_csa_sum['features']:,} بعد إضافة" in _csa_doc
+             and f"{_csa_sum['conditions']:,} شرطًا ثنائيًّا" in _csa_doc and len(set(_csa_names)) == len(_csa_names)
+             and all(a in ("A", "AB") for _n, _k, a in _CSA.CAT.expanded()))
+    _csa1d = str(_csa_sum)[:120]
+except Exception as _e:                                           # noqa: BLE001
+    _csa1, _csa1d = False, _csa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🗂️ CSA1 T-CASE31: العقدُ والفهرسُ يطابقان بصمتَيهما · وأعدادُ الفهرس (الأساسيّة · الموسَّعة · الشروط) مكتوبةٌ في العقد · والأسماءُ فريدة",
+      bool(_csa1), _csa1d)
+
+# CSA2 — تعريفُ الحركة: يومُ القرار قبل البداية · الحاكمةُ من إغلاقه · لا نظرَ للمستقبل · والحركةُ نفسُها لا تُعَدّ مرّتين
+try:
+    _csa_base = [1.0] * 45
+    _csa_r1 = _csa_mk(_csa_base + [2.0, 1.8, 1.7, 1.6] + [1.5] * 8, hi={45: 2.5})
+    _csa_e2, _csa_e15 = _CSA.pick_events(_csa_r1)
+    _csa_ev = _csa_e2[0]
+    _csa_more = _csa_r1[:57] + [(r[0], 50.0, 60.0, 40.0, 50.0, 1e6) for r in _csa_mk([1.0] * 80)[57:70]]
+    _csa_ev2 = _CSA.pick_events(_csa_more)[0][0]
+    _csa_r2 = _csa_mk(_csa_base + [1.08, 1.16, 1.25, 1.5, 1.8, 2.2, 2.0] + [1.9] * 8)
+    _csa_g = _CSA.pick_events(_csa_r2)[0][0]
+    _csa2 = (len(_csa_e2) == 1 and not _csa_e15 and _csa_ev["s"] == _csa_r1[45][0] and _csa_ev["D"] == _csa_r1[44][0]
+             and abs(_csa_ev["gov"] - 1.5) < 1e-9 and _CSA.event_class(_csa_ev) == "x100" and _CSA.one_day(_csa_ev, _csa_r1)
+             and _csa_ev["one_candle"] and _CSA.window_of(_csa_ev) == "قبل الشهر"
+             and all(_csa_ev2[k] == _csa_ev[k] for k in ("D", "s", "b", "close_D"))            # شموعٌ لاحقة لا تغيّر يومَ القرار
+             and _csa_g["D"] == _csa_r2[47][0] and _csa_g["s"] == _csa_r2[48][0] and _CSA.event_class(_csa_g) == "x50"
+             and abs(_csa_g["gov"] - (2.2 * 1.01 / 1.25 - 1)) < 1e-9 and not _CSA.one_day(_csa_g, _csa_r2) and _csa_g["sessions"] == 3)
+    _csa2d = f"{_csa_ev['D']} {_csa_ev['s']} {_csa_ev['gov']:.2f} | {_csa_g['D']} {_csa_g['gov']:.2f}"
+except Exception as _e:                                           # noqa: BLE001
+    _csa2, _csa2d = False, _csa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🗂️ CSA2 T-CASE31 ⓪: يومُ القرار = الجلسةُ قبل بداية الحركة · الحاكمةُ من إغلاقه (‏+100% / ذراع ‏+50%) · شموعٌ لاحقة لا تغيّره · والحركةُ نفسُها حدثٌ واحد",
+      bool(_csa2), _csa2d)
+
+# CSA3 — الإسقاط: تقسيمٌ غيرُ مسوّى يُسقَط · المسوّى الحقيقيّ يبقى · المصدرُ الثاني دون 50% يُسقَط · وغيابُه «مصدرٌ واحد»
+try:
+    _csa_f = _csa_mk(_csa_base + [10.0] * 12, op={45: 10.0})
+    _csa_fe = _CSA.pick_events(_csa_f)[0][0]
+    _csa_day = _csa_f[45][0]
+    _csa_d1 = _CSA.drop_reason(_csa_fe, "x100", _csa_f, None, [(_csa_day, 0.1)])
+    _csa_t = _csa_mk([10.0] * 45 + [25.0] + [20.0] * 12, op={45: 10.0}, hi={45: 26.0})
+    _csa_te = _CSA.pick_events(_csa_t)[0][0]
+    _csa_d2 = _CSA.drop_reason(_csa_te, "x100", _csa_t, _csa_t, [(_csa_t[45][0], 0.1)])
+    _csa_d3 = _CSA.drop_reason(_csa_te, "x100", _csa_t, [(r[0], r[1], r[2] * 0.4, r[3], r[4], r[5]) for r in _csa_t], [])
+    _csa_d4 = _CSA.drop_reason(_csa_te, "x100", _csa_t, None, [])
+    _csa_d5 = _CSA.drop_reason(_csa_te, "x100", _csa_t, [(r[0], r[1] * 2, r[2] * 2, r[3] * 2, r[4] * 2, r[5]) for r in _csa_t], [])
+    _csa_d6 = _CSA.drop_reason(_csa_te, "x100", _csa_t, [(r[0], r[1] * .5, r[2] * .5, r[3] * .5, r[4] * .5, r[5]) for r in _csa_t], [])
+    _csa3 = (str(_csa_d1[0]).startswith("(أ)") and str(_csa_d6[0]).startswith("(ب)") and _csa_d2 == (None, "مصدران") and str(_csa_d3[0]).startswith("(ج)")
+             and _csa_d4 == (None, "مصدرٌ واحد") and str(_csa_d5[0]).startswith("(ب)")
+             and _CSA.rs_recent([("2026-09-01", 0.05), ("2026-01-01", 0.1), ("2026-09-20", 2.0)], "2026-10-02") == ("2026-09-01", 0.05)
+             and _CSA.rs_recent([("2026-01-01", 0.1)], "2026-10-02") is None)
+    _csa3d = str((_csa_d1, _csa_d2, _csa_d3, _csa_d4, _csa_d5))[:200]
+except Exception as _e:                                           # noqa: BLE001
+    _csa3, _csa3d = False, _csa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🗂️ CSA3 T-CASE31 ⓪ الإسقاط: تقسيمٌ غيرُ مسوّى (أ) · اختلافُ المصدرين (ب) · حاكمةُ المصدر الثاني دون 50% (ج) · والحقيقيُّ المسوّى يبقى · وغيابُ الثاني «مصدرٌ واحد»",
+      bool(_csa3), _csa3d)
+
+# CSA4 — قراءةٌ فقط بنيويًّا: لا تلغرام · لا إسنادَ CONFIG · لا Polygon · والـworkflow يدويٌّ بلا كرون ولا أسرار تلغرام/Polygon · والمحفّزُ يفرّق «غير مقيس» عن «بلا خبر»
+try:
+    _csa_src = open(_csa_dir + "/case31.py", encoding="utf-8").read()
+    _csa_tree = _csa_ast.parse(_csa_src)
+    _csa_calls = {getattr(c.func, "attr", getattr(c.func, "id", "")) for c in _csa_ast.walk(_csa_tree) if isinstance(c, _csa_ast.Call)}
+    _csa_strs = [c.value for c in _csa_ast.walk(_csa_tree) if isinstance(c, _csa_ast.Constant) and isinstance(c.value, str)]
+    _csa_asg = [t for n in _csa_ast.walk(_csa_tree) if isinstance(n, (_csa_ast.Assign, _csa_ast.AugAssign))
+                for t in (n.targets if isinstance(n, _csa_ast.Assign) else [n.target])
+                if isinstance(t, _csa_ast.Subscript) and getattr(t.value, "attr", getattr(t.value, "id", "")) == "CONFIG"]
+    _csa_wf = __import__("yaml").safe_load(open(".github/workflows/case31.yml", encoding="utf-8"))
+    _csa_wft = open(".github/workflows/case31.yml", encoding="utf-8").read()
+    _csa_days = [r[0] for r in _csa_t]
+    _csa4 = (not ({"send_telegram", "send_owner_document", "subs_mirror", "git_save"} & _csa_calls) and not _csa_asg
+             and not any("api.polygon.io" in s for s in _csa_strs)
+             and list((_csa_wf.get(True) or {}).keys()) == ["workflow_dispatch"]
+             and "secrets.TELEGRAM" not in _csa_wft and "secrets.POLYGON" not in _csa_wft
+             and _CSA.catalyst(None, None, _csa_days, 45)["status"] == "غير مقيس" and _CSA.catalyst([], [], _csa_days, 45)["status"] == "بلا خبر"
+             and _CSA.catalyst([(_csa_days[44], "8-K", "1.01", "x")], None, _csa_days, 45)["status"] == "بخبر"
+             and _CSA.catalyst([(_csa_days[30], "8-K", "1.01", "x")], [], _csa_days, 45)["status"] == "بلا خبر"
+             and _CSA.catalyst([(_csa_days[50], "424B5", "", "")], [], _csa_days, 45)["offer_after"] == [{"d": _csa_days[50], "form": "424B5"}]
+             and _CSA.catalyst([(_csa_days[44], "424B5", "", "")], [], _csa_days, 45)["offer_after"] == [])
+    _csa4d = str(sorted(_csa_calls & {"send_telegram", "git_save"}))
+except Exception as _e:                                           # noqa: BLE001
+    _csa4, _csa4d = False, _csa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🗂️ CSA4 T-CASE31 قراءةٌ فقط: لا تلغرام ولا إسنادَ CONFIG ولا Polygon · workflow يدويٌّ بلا كرون · والمحفّزُ في نافذته وحدَها و«غير مقيس» غيرُ «بلا خبر»",
+      bool(_csa4), _csa4d)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
