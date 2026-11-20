@@ -49,6 +49,22 @@ def load_feat(d_in):
     return rows
 
 
+B_LAST_DAY = "2025-12-31"        # الذراع ب: لا صفَّ بيوم قرارٍ بعد 2025 قبل ملفّ التثبيت (العقد §⑧)
+
+
+def b_blind_ok(d_in):
+    """الذراع ب عمياءُ عن 2026: كلُّ شريحةٍ موسومةٌ `arm=B` ولا صفَّ فيها بيوم قرارٍ بعد `B_LAST_DAY` · ومجلّدٌ بلا شرائح ⟵ لا."""
+    files = sorted(glob.glob(os.path.join(d_in, "**", "feat_*.json.gz"), recursive=True))
+    if not files:
+        return False
+    for p in files:
+        with gzip.open(p, "rt", encoding="utf-8") as fh:
+            js = json.load(fh)
+        if js.get("arm") != "B" or any(str(r.get("D") or "9") > B_LAST_DAY for r in js.get("rows") or []):
+            return False
+    return True
+
+
 def build_rows(feat, window, events=None):
     """(نقيّة) صفوفُ الشرائح ⟵ (صفوفُ الذراع [{sym, day, y, f, …}]، إحصاءُ ما استُبعد) لنافذة `window` («الشهر» أو «قبل الشهر»)."""
     ev = {(r["sym"], r["D"]): r for r in feat if r.get("ok") and r.get("ev") and r["ev"][0] == "x100" and r["ev"][1] == window}
@@ -335,13 +351,14 @@ def main(argv):
     if arm not in ("A", "B"):
         log("الاستعمال: case31_arm.py observe|shuffle|assemble A|B …")
         return 2
-    if arm == "B":
-        log(f"⛔ الذراع ب لا تقرأ صفوفَ 2026 قبل ملفّ التثبيت — ومجتمعُها (شرائح 2023-2025) يُبنى في مرحلته · خروج {C.RC_BLIND}")
+    window = "الشهر" if arm == "A" else "B"
+    if arm == "B" and mode in ("observe", "shuffle") and not b_blind_ok(d_in):
+        log(f"⛔ الذراع ب لا تقرأ صفوفَ 2026 قبل ملفّ التثبيت (مجتمعُها شرائح 2023-2025 وحدَها) · خروج {C.RC_BLIND}")
         return C.RC_BLIND
     if mode == "observe":
-        return mode_observe(arm, d_in)
+        return mode_observe(arm, d_in, window)
     if mode == "shuffle":
-        return mode_shuffle(arm, int(argv[3]), int(argv[4]), d_in)
+        return mode_shuffle(arm, int(argv[3]), int(argv[4]), d_in, window)
     if mode == "assemble":
         return mode_assemble(arm, d_in)
     return 2
