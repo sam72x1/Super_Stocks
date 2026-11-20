@@ -285,8 +285,25 @@ def tools_check(sym, card=None, hist=None, checks=None):
     return out
 
 
-def build_tools_message(sym, res) -> str:
-    """رسالةُ الأدوات: سطرٌ لكلّ أداة ثمّ كروتُ المطابِقة كلٌّ بشكل أداتها — نقيّة."""
+def full_card(card) -> str:
+    """📊 البياناتُ كاملة بحساب البوت (الدفعات · الدعم · الوقف · الأهداف · المقاومات) من كرت الفحص اليدويّ — فاشلٌ-آمن ⟵ ""."""
+    if not card:
+        return ""
+    try:
+        card["interp"] = bot.build_interpretation(card)
+    except Exception:                                            # noqa: BLE001
+        pass
+    try:
+        return bot.build_message([card], [], title="📊 <b>البيانات كاملة</b> (بحساب البوت)")
+    except Exception as e:                                       # noqa: BLE001
+        bot.log(f"⚠️ تأكيد المتابعة: تعذّر بناء البيانات الكاملة ({type(e).__name__}: {e}) — رسالةُ الأدوات بلاها.")
+        return ""
+
+
+def build_tools_message(sym, res, card=None, card_shown=True) -> str:
+    """رسالةُ الأدوات: سطرٌ لكلّ أداة ثمّ كروتُ المطابِقة كلٌّ بشكل أداتها — ومتى طابق السهمُ أداةً **ولم تحمل الرسالةُ الأولى
+    كرتَه** (ليس ارتكازًا ولا ارتدادًا) يُلحق كرتُ البوت الكامل (أمرُ المالك 2026-11-20 «يعطيني بيانات السهم كاملة لو مطابق احد
+    الأدوات») — نقيّة."""
     icon = {True: "✅", False: "❌", None: "⚠️"}
     lines = [f"🧰 <b>${bot.esc(sym)} على بقيّة الأدوات</b>", ""]
     lines += [f"{icon[ok]} {n}: {bot.esc(t)}" for n, ok, t, _b in res]
@@ -294,6 +311,12 @@ def build_tools_message(sym, res) -> str:
     for n, ok, _t, b in res:
         if ok and b:
             out += f"\n\n{bot.DAILY_CARD_SEP}\n{b}"
+    if not card_shown and any(ok is True for _n, ok, _t, _b in res):
+        fc = full_card(card)
+        if fc:
+            bot.log(f"📊 تأكيد المتابعة: {sym} طابق أداةً ⟵ أُلحقت البياناتُ الكاملة.")
+            out += f"\n\n{bot.DAILY_CARD_SEP}\n{fc}"
+            return out
     return out + "\n\n" + bot.FOOTER
 
 
@@ -307,8 +330,9 @@ def main():
         cap = capture(sym)
         msg = build_confirm_message(sym, cap, membership(sym))
         bot.send_telegram(msg)
-        _card = (cap.get("args") or [None])[0]
-        bot.send_telegram(build_tools_message(sym, tools_check(sym, card=_card)))
+        _args = cap.get("args") or (None, None, None, None, None, None)
+        _card, _shown = _args[0], (_args[2] is not None or _args[4] is not None)
+        bot.send_telegram(build_tools_message(sym, tools_check(sym, card=_card), card=_card, card_shown=_shown))
     bot.log(f"✅ أُرسل {len(syms)} تأكيد.")
 
 
