@@ -106135,6 +106135,75 @@ except Exception as _e:                                              # noqa: BLE
 check("🔎✅ FCF3 `follow_confirm.yml` يدويٌّ بمُدخَل ticker بلا جدولة · قراءةٌ فقط · يمرّر الرمزَ إلى FOLLOW_CONFIRM على شموع TradingView",
       _v_fcf3, _v_fcf3w)
 
+# FCF4 — 🧰 «كل الأدوات» (أمرُ المالك 2026-11-20): كلُّ فاحصٍ يمرّر شموعَ الرمز إلى دالّة مسح الأداة ويعيد كرتَها عند المطابقة ·
+#        وعند عدمها مرحلةَ السقوط: صيّادُ التقسيم من ترتيب نداء الجالبات · فلترةُ التقسيم والنهجُ من أوّل عدّادٍ صفر.
+try:
+    _fcf4_df = pd.DataFrame({"Open": [1.0] * 30, "High": [1.1] * 30, "Low": [0.9] * 30, "Close": [1.0] * 30,
+                             "Volume": [1e5] * 30}, index=pd.date_range("2026-10-01", periods=30, freq="B"))
+    _fcf4_h = {"ZZZ": _fcf4_df}
+
+    def _fcf4_sh_float(h, fetch_splits=None, fetch_float=None, fetch_pump=None):
+        fetch_splits("ZZZ")
+        fetch_float("ZZZ")
+        return []
+
+    def _fcf4_sh_pre(h, **k):
+        return []
+
+    def _fcf4_sh_split(h, fetch_splits=None, **k):
+        fetch_splits("ZZZ")
+        return [{"symbol": "OTHER"}]
+    _fcf4_b0 = (S._fetch_splits, S._yahoo_float, S.build_split_hunter_alert, S.build_split_filter_alert)
+    S._fetch_splits, S._yahoo_float = (lambda s: None), (lambda s, strict=False: None)
+    S.build_split_hunter_alert = lambda rows, today=None: "SH-CARD"
+    S.build_split_filter_alert = lambda rows, today=None: "SF-CARD"
+    try:
+        _a = _FCF.chk_split_hunter("ZZZ", _fcf4_h, None, scan=lambda h, **k: [{"symbol": "ZZZ"}])
+        _b = _FCF.chk_split_hunter("ZZZ", _fcf4_h, None, scan=_fcf4_sh_pre)
+        _c = _FCF.chk_split_hunter("ZZZ", _fcf4_h, None, scan=_fcf4_sh_float)
+        _c2 = _FCF.chk_split_hunter("ZZZ", _fcf4_h, None, scan=_fcf4_sh_split)
+        S._SPLIT_FILTER_STAGE.clear()
+        S._SPLIT_FILTER_STAGE.update({"price": 1, "split_setup": 1, "didnt_rise": 0})
+        _d = _FCF.chk_split_filter("ZZZ", _fcf4_h, None, scan=lambda h, today=None: [])
+        _e = _FCF.chk_split_filter("ZZZ", _fcf4_h, None, scan=lambda h, today=None: [{"symbol": "ZZZ"}])
+        _f = _FCF.chk_split_filter("ZZZ", _fcf4_h, None, scan=lambda h, today=None: [{"symbol": "OTHER"}])
+    finally:
+        S._fetch_splits, S._yahoo_float, S.build_split_hunter_alert, S.build_split_filter_alert = _fcf4_b0
+    _v_fcf4 = (_a == (True, "مطابق كامل", "SH-CARD") and _b[0] is False and "المرشّحَ الأوّل" in _b[1]
+               and _c[0] is False and "الفلوت" in _c[1]
+               and _c2[0] is False and "القمّة÷2" in _c2[1]
+               and _d[0] is False and "لم يصعد أوّل التقسيم" in _d[1] and _e[0] is True and _e[2] == "SF-CARD"
+               and _f[0] is False)
+    _v_fcf4w = f"a={_a} · b={_b[1][:30]} · c={_c[1][:30]} · d={_d[1][:40]} · e={_e[:2]} · f={_f[:2]}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_fcf4, _v_fcf4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧰 FCF4 فاحصو الأدوات: المطابقُ ⟵ كرتُ أداته · وغيرُه ⟵ مرحلةُ السقوط (ترتيبُ نداء جالبات الصيّاد · أوّلُ عدّادٍ صفر في الفلترة) · "
+      "وصفُّ رمزٍ آخر لا يُعدّ مطابقة", _v_fcf4, _v_fcf4w)
+
+# FCF5 — `tools_check` فاشلٌ-آمن لكلّ أداةٍ على حدة (رميُ أداةٍ ⟵ ⚠️ لا يُسقط الباقي) · والرسالةُ سطرٌ لكلّ أداة وكروتُ المطابِقة وحدَها ·
+#        و`main` يرسل رسالتين لكلّ رمز (الارتكاز ثمّ الأدوات) · وقائمةُ الأدوات السبع كاملة.
+try:
+    def _fcf5_boom(sym, h, sess):
+        raise RuntimeError("x")
+    _res5 = _FCF.tools_check("ZZZ", hist={"ZZZ": _fcf4_df}, checks=(
+        ("أ", lambda sym, h, sess: (True, "مطابق", "CARD-A")), ("ب", _fcf5_boom),
+        ("ج", lambda sym, h, sess: (False, "توقّف", "CARD-C"))))
+    _m5 = _FCF.build_tools_message("ZZZ", _res5)
+    _nm5 = _FCF.tools_check("ZZZ", hist={})
+    _src5 = _fcf_ast.parse(_fcf_insp.getsource(_FCF.main))
+    _snd5 = [c for c in _fcf_ast.walk(_src5) if isinstance(c, _fcf_ast.Call)
+             and getattr(c.func, "attr", None) == "send_telegram"]
+    _v_fcf5 = ([r[1] for r in _res5] == [True, None, False] and "CARD-A" in _m5 and "CARD-C" not in _m5
+               and "تعذّر الفحص" in _m5 and _nm5[0][1] is None and len(_snd5) == 2
+               and [n for n, _f in _FCF.TOOL_CHECKS] == ["🪝 صيّاد التقسيم", "🧮 فلترة التقسيم", "🔬 النهج العلمي",
+                                                         "📐 صيّاد الظرف", "🎯 رادار التقسيم", "🗜️ رادار الضغط",
+                                                         "🔎 شروطك الثلاثة"])
+    _v_fcf5w = f"res={[r[1] for r in _res5]} · sends={len(_snd5)} · nm={_nm5}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_fcf5, _v_fcf5w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧰 FCF5 `tools_check` فاشلٌ-آمن لكلّ أداة · الرسالةُ تحمل كروتَ المطابِقة وحدَها · و`main` يرسل الارتكازَ ثمّ الأدوات · والأدواتُ السبع",
+      _v_fcf5, _v_fcf5w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

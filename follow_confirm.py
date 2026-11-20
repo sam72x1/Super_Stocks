@@ -11,7 +11,9 @@
   👁️ ارتكازٌ ارتفع عن دخوله ⟵ سعرُ الرجوع المنتظَر ‏+ الكرت
   ❌ ليس ارتكازًا بشروط البوت ⟵ السببُ والبوّاباتُ الصلبة الساقطة
 ومعه سطرٌ: هل السهمُ في قائمة البوت أو «تحت المتابعة» الآن.
-عرضٌ فقط: لا يكتب حالةً ولا يمسّ عتبةً ولا جذرًا · `FCF1`-`FCF3`.
+🧰 **ثمّ على بقيّة الأدوات** (أمرُ المالك 2026-11-20 «ابي الاداة تكون تفحص السهم على كل الأدوات»): كلُّ أداةٍ بدالّة مسحها
+الإنتاجيّة نفسِها على شموع هذا الرمز وحدَه (`tools_check`) ⟵ ✅ مع كرتها هي · أو ❌ ومرحلةُ السقوط من عدّادات المسح نفسِه.
+عرضٌ فقط: لا يكتب حالةً ولا سجلًّا ولا يمسّ عتبةً ولا جذرًا · `FCF1`-`FCF5`.
 
 التشغيل: `FOLLOW_CONFIRM=SXTC,YMT python follow_confirm.py` (حتى 5 رموز · رسالةٌ لكلّ رمز).
 """
@@ -125,6 +127,176 @@ def build_confirm_message(sym: str, cap: dict, member: str = "") -> str:
     return bot._rtl_join(head) + "\n\n" + body
 
 
+# ─────────────────────────── 🧰 بقيّةُ الأدوات ───────────────────────────
+# أسماءُ مراحل العدّادات بترتيبها في دالّة المسح (`stage` في `scan_split_filter` و`scan_method_hunter`) ⟵ أوّلُ صفرٍ = مكانُ السقوط.
+SF_STAGES = (("price", "أرضية السعر"), ("split_setup", "setup تقسيم (القمّة÷2)"), ("didnt_rise", "لم يصعد أوّل التقسيم"),
+             ("seq", "ثبات الدعم الثاني"), ("entry_zone", "داخل الطلبات"), ("short_ok", "الشورت"))
+MH_STAGES = (("price", "أرضية السعر"), ("window_ok", "نافذة الهبوط بعد الصعود"), ("founding", "الحدث المؤسِّس"),
+             ("seq", "التسلسل (قاع ⟵ اختبار مقاومة ⟵ رجوع ⟵ ثبات)"), ("entry_zone", "منطقة الدخول"))
+
+
+def first_fail(stage: dict, order) -> str:
+    """أوّلُ مرحلةٍ عدّادُها صفر ⟵ اسمُها · وكلُّها عابرة ⟵ «بعد المراحل كلِّها» — نقيّة."""
+    for k, name in order:
+        if not int((stage or {}).get(k) or 0):
+            return name
+    return "بعد المراحل كلِّها (شرطٌ أخير)"
+
+
+def _spy(fn, calls: set, key: str):
+    def _w(*a, **k):
+        calls.add(key)
+        return fn(*a, **k)
+    return _w
+
+
+def _near_why(lst, sym):
+    for n in lst or []:
+        if (n or {}).get("symbol") == sym:
+            return (n.get("why") or "").strip()
+    return ""
+
+
+def chk_split_hunter(sym, hist, sess, scan=None):
+    """🪝 صيّادُ التقسيم: `scan_split_hunter` بالجالبات الإنتاجيّة نفسِها ملفوفةً بعدّاد نداء ⟵ ترتيبُ النداء يكشف مرحلةَ السقوط."""
+    calls = set()
+    rows = (scan or bot.scan_split_hunter)(
+        hist, fetch_splits=_spy(bot._fetch_splits, calls, "splits"), fetch_float=_spy(bot._yahoo_float, calls, "float"),
+        fetch_pump=_spy(bot.group_pump_scar, calls, "pump"))
+    rows = [r for r in rows or [] if r.get("symbol") == sym]
+    if rows:
+        return True, "مطابق كامل", bot.build_split_hunter_alert(rows, today=sess)
+    C = bot.CONFIG
+    if "splits" not in calls:
+        why = (f"لم يمرّ المرشّحَ الأوّل (سعرٌ بين ${C['SPLIT_RADAR_PRICE_MIN']:g} و${C['SPLIT_RADAR_PRICE_MAX']:g} "
+               f"وهبوطُ يومٍ واحد {C['SPLIT_CLIFF_PCT']:g}% فأكثر في آخر {int(C['SPLIT_LOOKBACK_DAYS'])} جلسة)")
+    elif "float" not in calls:
+        nm = [n for n in (getattr(bot, "_SPLIT_NEAR_MISS", []) or []) if n.get("symbol") == sym]
+        why = (f"صعد {nm[0]['rose_pct']:.0f}% بعد الحدث (الحدّ {C['SPLIT_ROSE_MAX_PCT']:g}%)" if nm else
+               "لا تقسيم/طرح حديث، أو لم يصل قاع القمّة÷2، أو لم يحافظ 3 جلسات، أو صعد بعد الحدث")
+    elif "pump" not in calls:
+        why = f"الفلوت فوق {C['SPLIT_RADAR_FLOAT_MAX'] / 1e6:g} مليون أو مجهول"
+    else:
+        why = "عليه أثرُ قروب (رفعة ثمّ كسر)"
+    return False, why, ""
+
+
+def chk_split_filter(sym, hist, sess, scan=None):
+    rows = [r for r in ((scan or bot.scan_split_filter)(hist, today=sess) or []) if r.get("symbol") == sym]
+    if rows:
+        tag = " (🔸 ثباتُ الدعم الثاني ناقصٌ لين)" if rows[0].get("g2_soft") else ""
+        return True, "مطابق" + tag, bot.build_split_filter_alert(rows, today=sess)
+    why = "توقّف عند: " + first_fail(getattr(bot, "_SPLIT_FILTER_STAGE", {}), SF_STAGES)
+    nw = _near_why(getattr(bot, "_SPLIT_FILTER_NEAR", []), sym)
+    return False, why + (f" — {nw}" if nw else ""), ""
+
+
+def chk_method(sym, hist, sess, scan=None):
+    rows = [r for r in ((scan or bot.scan_method_hunter)(hist, today=sess, fetch_h4=bot.fetch_4h) or [])
+            if r.get("symbol") == sym]
+    if rows:
+        return True, "مطابق كامل", bot.build_method_alert(rows, today=sess)
+    rel = [r for r in (getattr(bot, "_METHOD_RELAXED", []) or []) if r.get("symbol") == sym]
+    ng = [r for r in (getattr(bot, "_METHOD_NOGAP", []) or []) if r.get("symbol") == sym]
+    if rel or ng:
+        body = bot._rtl_join(bot.method_relaxed_lines(rel) if rel else bot.method_nogap_lines(ng))
+        return True, ("🟡 مستوى مخفّف (تجاوز الدخول قليلًا)" if rel else "🏷️ بلا هدف فجوة"), body
+    why = "توقّف عند: " + first_fail(getattr(bot, "_METHOD_STAGE", {}), MH_STAGES)
+    nw = _near_why(getattr(bot, "_METHOD_NEAR", []), sym)
+    return False, why + (f" — {nw}" if nw else ""), ""
+
+
+def chk_envelope(sym, hist, sess, decide=None, float_of=None):
+    import envelope_scan as ES
+    import envelope_hunter as EH
+    edges = ES.load_edges()
+    if not edges:
+        return None, "حوافُّ الظرف غائبة — لا قرار", ""
+    good, why, vals = (decide or ES.decide)(bot, sym, hist[sym], edges)
+    if not good:
+        return False, why, ""
+    fl = (float_of or EH._float_of)(bot, sym, [1])
+    if bot._float_too_big(fl):
+        return False, f"M14 فلوت {fl:,.0f}", ""
+    return True, "داخل ظرف كاتالوج فيصل" + ("" if fl is not None else " (الفلوت مجهول — يمرّ بفائدة الشك)"), ""
+
+
+def chk_split_radar(sym, hist, sess, scan=None):
+    rows = [r for r in ((scan or bot.scan_split_radar)(hist) or []) if r.get("symbol") == sym]
+    sec = bot.build_split_radar_section(rows) if rows else ""
+    if sec:
+        return True, "مطابق كامل", sec
+    return False, ("setup جزئيّ (لم تكتمل الشروط الستّ)" if rows else "ليس مقسّمًا عند قاع القمّة÷2"), ""
+
+
+def chk_press(sym, hist, sess, read=None):
+    import press_radar as PR
+    df = hist[sym]
+    r = (read or PR.press_read)(df, w=PR.ALERT_W)
+    if not r:
+        return False, f"لا ضغطَ عند القاع بقراءة الرادار (نافذة {PR.ALERT_W})", ""
+    row = {"symbol": sym, "read": r, "plan": None, "src": "تأكيد المتابعة", "bars_src": PR._bars_src_of(df)}
+    return True, "مطابق (الرادارُ اليوميّ يفحص بِركتَه وحدَها · هنا قراءةٌ مباشرة)", PR.build_alert([row], str(sess))
+
+
+def chk_three(sym, hist, sess, card=None):
+    import three_cond_daily as TCD
+    try:
+        rsi = float(bot.rsi(hist[sym]["Close"]).iloc[-1])
+    except Exception:                                            # noqa: BLE001
+        rsi = None
+    card = card or {}
+    r = {"rsi": rsi, "px": float(hist[sym]["Close"].iloc[-1]), "fl": card.get("float"), "av": card.get("shares_available")}
+    f = TCD.flags3(r)
+    v = TCD.WW.conj(f)
+
+    def _t(x):
+        return "✅" if x else ("❌" if x is False else "❔")
+    txt = (f"RSI {('—' if rsi is None else f'{rsi:.1f}')} {_t(f[0])} · فلوت {_t(f[1])} · المتاح {_t(f[2])}"
+           " (وثباتُ 5 جلسات والانفجارُ يُفحصان في رسالتها اليوميّة)")
+    return v, txt, ""
+
+
+TOOL_CHECKS = (("🪝 صيّاد التقسيم", chk_split_hunter), ("🧮 فلترة التقسيم", chk_split_filter),
+               ("🔬 النهج العلمي", chk_method), ("📐 صيّاد الظرف", chk_envelope),
+               ("🎯 رادار التقسيم", chk_split_radar), ("🗜️ رادار الضغط", chk_press), ("🔎 شروطك الثلاثة", chk_three))
+
+
+def tools_check(sym, card=None, hist=None, checks=None):
+    """كلُّ أداةٍ على شموع الرمز وحدَه ⟵ [(الأداة، True/False/None، النصّ، الكرت)] · كلُّ أداةٍ فاشلةٌ-آمنة على حدة."""
+    if hist is None:
+        try:
+            hist = bot.download_history([sym]) or {}
+        except Exception:                                        # noqa: BLE001
+            hist = {}
+    if sym not in hist:
+        return [("🧰 بقيّة الأدوات", None, "تعذّر جلبُ الشموع", "")]
+    try:
+        sess = hist[sym].index[-1].date()
+    except Exception:                                            # noqa: BLE001
+        sess = None
+    out = []
+    for name, fn in (checks or TOOL_CHECKS):
+        try:
+            ok, txt, body = (fn(sym, hist, sess, card=card) if fn is chk_three else fn(sym, hist, sess))
+        except Exception as e:                                   # noqa: BLE001
+            ok, txt, body = None, f"تعذّر الفحص ({type(e).__name__})", ""
+        out.append((name, ok, txt, body or ""))
+    return out
+
+
+def build_tools_message(sym, res) -> str:
+    """رسالةُ الأدوات: سطرٌ لكلّ أداة ثمّ كروتُ المطابِقة كلٌّ بشكل أداتها — نقيّة."""
+    icon = {True: "✅", False: "❌", None: "⚠️"}
+    lines = [f"🧰 <b>${bot.esc(sym)} على بقيّة الأدوات</b>", ""]
+    lines += [f"{icon[ok]} {n}: {bot.esc(t)}" for n, ok, t, _b in res]
+    out = bot._rtl_join(lines)
+    for n, ok, _t, b in res:
+        if ok and b:
+            out += f"\n\n{bot.DAILY_CARD_SEP}\n{b}"
+    return out + "\n\n" + bot.FOOTER
+
+
 def main():
     syms = parse_symbols(os.environ.get("FOLLOW_CONFIRM") or os.environ.get("ANALYZE"))
     if not syms:
@@ -135,6 +307,8 @@ def main():
         cap = capture(sym)
         msg = build_confirm_message(sym, cap, membership(sym))
         bot.send_telegram(msg)
+        _card = (cap.get("args") or [None])[0]
+        bot.send_telegram(build_tools_message(sym, tools_check(sym, card=_card)))
     bot.log(f"✅ أُرسل {len(syms)} تأكيد.")
 
 
