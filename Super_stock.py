@@ -12112,6 +12112,53 @@ def _stamp_chunks(chunks: list) -> list:
     return [c + stamp for c in chunks]
 
 
+def _dirty_tracked():
+    """الملفّاتُ المتتبَّعة المعدَّلة ولم تُدفَع بعد (قراءةٌ فقط) — وتحت الاختبار أو عند العطل ⟵ []."""
+    if os.environ.get("SUPER_STOCKS_TESTING") == "1":
+        return []
+    try:
+        import subprocess
+        out = subprocess.run(["git", "diff", "--name-only", "HEAD"], capture_output=True, text=True, timeout=30).stdout
+        return [x.strip() for x in out.splitlines() if x.strip()]
+    except Exception:                                            # noqa: BLE001
+        return []
+
+
+def _subs_git_save(paths, saver=None, lister=None):
+    """📣🔧 حافظُ صندوق القناة (عطلٌ مُثبَت 2026-11-20 · `SUB10`): `git_save` وسط التشغيلة على شجرةٍ فيها حالةٌ لم تُدفَع بعد يفشل
+    فيه الـrebase فيمضي إلى `reset --hard` ويعيد **ملفّاتِه وحدَها** ⟵ القائمةُ وختمُ الجلسة و«تحت المتابعة» تُمحى صامتةً (تشغيلتا الفرز
+    `44655266548` و`44657016795`: القائمةُ لم تُدفَع والتقريرُ تكرّر). ⟵ تُقرأ الملفّاتُ المعدَّلة قبل الحفظ وتُعاد بعده كما كانت ·
+    و`git_save` نفسُه بلا تغيير · وعطلُ القراءة ⟵ الحفظُ كما كان."""
+    saver = saver or git_save
+    keep = {}
+    try:
+        _own = {os.path.normpath(str(p)) for p in (paths or [])}
+        for fn in (lister or _dirty_tracked)():
+            if os.path.normpath(fn) not in _own and os.path.isfile(fn):
+                with open(fn, "rb") as f:
+                    keep[fn] = f.read()
+    except Exception:                                            # noqa: BLE001
+        keep = {}
+    try:
+        saver(paths)
+    finally:
+        back = 0
+        for fn, b in keep.items():
+            try:
+                cur = None
+                if os.path.isfile(fn):
+                    with open(fn, "rb") as f:
+                        cur = f.read()
+                if cur != b:
+                    with open(fn, "wb") as f:
+                        f.write(b)
+                    back += 1
+            except Exception as e:                               # noqa: BLE001
+                log(f"⚠️ قناة المشتركين: تعذّرت إعادةُ {fn} ({type(e).__name__})")
+        if back:
+            log(f"📣🔧 قناة المشتركين: أُعيدت {back} ملفًّا من حالة التشغيلة بعد حفظ الصندوق")
+
+
 def subs_mirror(text: str, subs: str) -> str:
     """📣 قناةُ المشتركين (أمرا المالك 2026-11-19 · عرضٌ وتوقيتٌ لا قياس): تُنادى **بعد** `send_telegram` للمالك برسالةٍ **مسمّاة** ⟵
     `subs_channel.enqueue` — الأجزاءُ نفسُها بختمها ⟵ تنظيفُ اسم فيصل في نسخة القناة وحدَها ⟵ صندوقٌ مشفّرٌ لموعد القناة (06:00 الرياض) أو
@@ -12121,7 +12168,7 @@ def subs_mirror(text: str, subs: str) -> str:
         import subs_channel as _SC
         if not _SC.active(subs):
             return "off"
-        return _SC.enqueue(subs, _stamp_chunks(_chunk_message(text)), saver=git_save)
+        return _SC.enqueue(subs, _stamp_chunks(_chunk_message(text)), saver=_subs_git_save)
     except Exception as e:                                       # noqa: BLE001
         log(f"⚠️ قناة المشتركين ({subs}): {type(e).__name__}")
         return "error"

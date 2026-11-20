@@ -105643,6 +105643,58 @@ except Exception as _e:                                          # noqa: BLE001
 check("🌅 DSD2: موصولٌ — `main` يسأل الدِّدوبَ ويخرج قبل الفرز · والختمُ يُكتب بعد إرسالٍ ناجحٍ للتقرير وحدَه خلف المفتاح",
       _dsd2, _dsd2d[:200])
 
+# 📣🔧 SUB10 — عطلٌ مُثبَت 2026-11-20 (أوّلُ إطلاقٍ مبكّر): حفظُ صندوق القناة وسط الفرز مسح حالةَ التشغيلة غيرَ المدفوعة (`reset --hard` في
+#    `git_save`) ⟵ القائمةُ وختمُ الجلسة لم يُدفَعا والتقريرُ تكرّر. الحافظُ `_subs_git_save` يعيد الملفّاتِ المعدَّلة بعد الحفظ كما كانت.
+try:
+    import ast as _s10_ast
+    import inspect as _s10_inspect
+    import os as _s10_os
+    import tempfile as _s10_tmp
+    _s10_d = _s10_tmp.mkdtemp(prefix="sub10_")
+    _s10_state = _s10_os.path.join(_s10_d, "state.json")
+    _s10_other = _s10_os.path.join(_s10_d, "other.json")
+    _s10_vault = _s10_os.path.join(_s10_d, "x.vault")
+    for _p, _t in ((_s10_state, "LOCAL-STATE"), (_s10_other, "LOCAL-OTHER"), (_s10_vault, "VAULT")):
+        with open(_p, "w", encoding="utf-8") as _f:
+            _f.write(_t)
+    _s10_calls = []
+
+    def _s10_saver(paths, _boom=False):
+        _s10_calls.append(list(paths))
+        with open(_s10_state, "w", encoding="utf-8") as _f:      # محاكاةُ `reset --hard`: الحالةُ تعود لنسخة الريموت
+            _f.write("REMOTE")
+        if _s10_os.path.exists(_s10_other):
+            _s10_os.remove(_s10_other)
+        with open(_s10_vault, "w", encoding="utf-8") as _f:      # ملفُّ الحافظ نفسُه يكتبه الحفظُ — لا يُعاد فوقه
+            _f.write("VAULT-SAVED")
+        if _boom:
+            raise RuntimeError("x")
+    _s10_rd = lambda _p: open(_p, encoding="utf-8").read() if _s10_os.path.exists(_p) else None   # noqa: E731
+    S._subs_git_save([_s10_vault], saver=_s10_saver, lister=lambda: [_s10_state, _s10_other, _s10_vault, _s10_os.path.join(_s10_d, "gone")])
+    _s10_a = (_s10_rd(_s10_state), _s10_rd(_s10_other), _s10_rd(_s10_vault), list(_s10_calls))
+    try:
+        S._subs_git_save([_s10_vault], saver=lambda _ps: _s10_saver(_ps, True), lister=lambda: [_s10_state])
+        _s10_raised = False
+    except RuntimeError:
+        _s10_raised = True
+    _s10_b = _s10_rd(_s10_state)
+
+    def _s10_badlist():
+        raise OSError("x")
+    S._subs_git_save([_s10_vault], saver=_s10_saver, lister=_s10_badlist)
+    _s10_c = (len(_s10_calls), _s10_rd(_s10_state))
+    _s10_kw = [k.value.id for n in _s10_ast.walk(_s10_ast.parse(_s10_inspect.getsource(S.subs_mirror)))
+               if isinstance(n, _s10_ast.Call) and getattr(n.func, "attr", None) == "enqueue"
+               for k in n.keywords if k.arg == "saver" and isinstance(k.value, _s10_ast.Name)]
+    check("📣🔧 SUB10: حفظُ صندوق القناة لا يمسح حالةَ التشغيلة — المعدَّلُ يُعاد بعد الحفظ (والمحذوفُ يُعاد · وملفُّ الصندوق نفسُه لا يُدهَس) · "
+          "ولو رمى الحفظُ · وعطلُ الجرد ⟵ الحفظُ كما كان · و`subs_mirror` يمرّر الحافظَ بالاسم",
+          _s10_a == ("LOCAL-STATE", "LOCAL-OTHER", "VAULT-SAVED", [[_s10_vault]])
+          and _s10_raised and _s10_b == "LOCAL-STATE"
+          and _s10_c == (3, "REMOTE") and _s10_kw == ["_subs_git_save"],
+          f"a={_s10_a} raised={_s10_raised} b={_s10_b} c={_s10_c} kw={_s10_kw}")
+except Exception as _e:                                          # noqa: BLE001
+    check("📣🔧 SUB10: حافظُ صندوق القناة", False, f"⛔ {type(_e).__name__}: {_e}")
+
 # 🧾 FSL1-FSL2 · 🌙 NGP1-NGP2 — أمرُ المالك 2026-11-19 «برومبت شامل»: 【أ】 سجلُّ إشارات فيصل (الرجعيُّ خارج النسبة · الأماميُّ بطابعٍ وسعر ·
 #    لا لقطات) و【ب】 مِجَسُّ T-NIGHT المرحلة 1 (تقسيمُ الجلسات · يدويٌّ بلا تلغرام). قراءةٌ فقط ولا إنتاج.
 import importlib.util as _fsl_ilu
