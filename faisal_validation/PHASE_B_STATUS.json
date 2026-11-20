@@ -5,24 +5,24 @@
  "collector": {
   "last_run": {
    "conclusion": "success",
-   "created_utc": "2026-11-13T01:03:52Z",
+   "created_utc": "2026-11-20T07:14:14Z",
    "event": "schedule",
-   "id": 43341998338
+   "id": 44693472987
   },
   "last_run_updates": 0,
-  "last_run_updates_evidence": "run 43341998338 job 131612282450: commit 48a7cff «📥 صور التلغرام: 0 ملفًا + تحديث سجلّ التغطية» (FAISAL_IMAGE_AUDIT.md only) · all 152 runs success (21 since the 2026-11-06T09:30:00Z observation: 20 schedule + 1 dispatch) · new images since that observation: 7 in two collector commits (9fabb8d 4 files · d92f40c 3 files) — faisal_images/ now 899 · LIVE_PENDING_IMAGES 0 (sealed through the intake loop) · meta_v 2 rows 401 · X (x.com) from the session: the agent proxy refused the connection (connect_rejected) — recorded, not worked around · previous observation 2026-11-06T09:30:00Z: 131 runs, last 42176154376 with 0 updates",
-  "observed_utc": "2026-11-13T09:30:00Z",
+  "last_run_updates_evidence": "run 44693472987 (schedule, success): collector commit 3f710ad «📥 صور التلغرام: 0 ملفًا + تحديث سجلّ التغطية» · all 172 runs success (20 since the 2026-11-13T09:30:00Z observation, runs 153-172, all schedule) · new images since that observation: 0 — faisal_images/ still 899 · LIVE_PENDING_IMAGES 0 · meta_v 2 rows 414 (401 at the previous observation: 13 non-image rows) · X (x.com) not re-tried this week: the session proxy refused it on every earlier attempt (connect_rejected) — recorded, not worked around · previous observation 2026-11-13T09:30:00Z: 152 runs, last 43341998338 with 0 updates",
+  "observed_utc": "2026-11-20T09:50:00Z",
   "runs_by_event": {
-   "schedule": 122,
+   "schedule": 142,
    "workflow_dispatch": 30
   },
-  "runs_total": 152,
+  "runs_total": 172,
   "schedule": "17 */4 * * *",
   "schedule_added_utc": "2026-10-07T21:39:54Z",
   "source": "GitHub Actions REST API (actions/workflows/telegram_collect.yml/runs) read from the session — CI has no network, so the observation is recorded with its time and goes stale until re-recorded",
   "workflow": ".github/workflows/telegram_collect.yml"
  },
- "collector_status": "PASS · SCHEDULED_ACTIVE (152 runs: schedule 122 · workflow_dispatch 30 · schedule `17 */4 * * *` fired 122 time(s) · last run 43341998338 success · 0 update(s) · observed 2026-11-13T09:30:00Z)",
+ "collector_status": "PASS · SCHEDULED_ACTIVE (172 runs: schedule 142 · workflow_dispatch 30 · schedule `17 */4 * * *` fired 142 time(s) · last run 44693472987 success · 0 update(s) · observed 2026-11-20T09:50:00Z)",
  "contract": "faisal_validation/PHASE_B_prereg.md",
  "counts": {
   "EXCLUDED": 120,
