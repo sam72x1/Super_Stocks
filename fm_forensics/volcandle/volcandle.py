@@ -22,7 +22,7 @@ CONTRACT = os.path.join(HERE, "T_VOLCANDLE_prereg.md")
 CONTRACT_SHA = "8b36b4c831b2b3987c7830baa7c29d4e4daede0c974233dd313e1f22535cfec2"                                                # يُملأ قبل الدمج · فارغٌ أو مخالف ⟵ خروج 11
 OUT = os.path.join(HERE, "out")
 RC_OK, RC_DATA, RC_ONCE, RC_CLOSED, RC_CONTRACT = 0, 5, 7, 8, 11
-CLOSED = False
+CLOSED = True                                                      # 2026-11-21: «التعريف لا يُعاد إنتاجه» (`T_VOLCANDLE_RESULT.md`) ⟵ مُغلَقٌ مُنفَّذًا
 
 BAR_S = 4 * 3600                                                   # شمعةُ 4 ساعات
 AVG_N = 20                                                         # متوسّطُ حجم الشموع العشرين قبل الشمعة — العقد §③

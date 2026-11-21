@@ -108016,6 +108016,47 @@ check("🔒 VCD5 T-VOLCANDLE: قياسٌ فقط بلا تلغرام ولا Polyg
       _vcd[0], _vcd[1])
 
 
+# 🔒 VCD6 — `T-VOLCANDLE` صدر «التعريف لا يُعاد إنتاجه» ⟵ مُغلَقٌ مُنفَّذًا (2026-11-21): `zero` يخرج 8 بلا أيّ نداء و«1» حرفيًّا يفتح · والمُخرَجُ المودَع يُعاد بايتًا من `ZERO.json` · وأرقامُ وثيقة النتيجة منه
+def _vcd6():
+    calls = []
+    keep = (_VCD.mode_zero, _vcd_os.environ.get("VOLCANDLE_REOPEN"))
+    try:
+        _VCD.mode_zero = lambda *a, **k: (calls.append(a) or 0)            # جذعٌ يُسجَّل ولا يُنفَّذ
+        _vcd_os.environ.pop("VOLCANDLE_REOPEN", None)
+        shut = [_VCD.main(["x", "zero"])]
+        for val in ("0", "true", " 1", ""):
+            _vcd_os.environ["VOLCANDLE_REOPEN"] = val
+            shut.append(_VCD.main(["x", "zero"]))
+        n_shut = len(calls)
+        _vcd_os.environ["VOLCANDLE_REOPEN"] = "1"
+        opened = _VCD.main(["x", "zero"])
+    finally:
+        _VCD.mode_zero = keep[0]
+        if keep[1] is None:
+            _vcd_os.environ.pop("VOLCANDLE_REOPEN", None)
+        else:
+            _vcd_os.environ["VOLCANDLE_REOPEN"] = keep[1]
+    import json as _j
+    js = _j.load(open("fm_forensics/volcandle/out/ZERO.json", encoding="utf-8"))
+    regen = _VCD.render(js) == open("fm_forensics/volcandle/out/ZERO.md", encoding="utf-8").read()
+    res = open("fm_forensics/volcandle/T_VOLCANDLE_RESULT.md", encoding="utf-8").read()
+    w = {x["sym"]: x for x in js["witnesses"]}
+    cnt = {s: (w[s]["rows"][0]["n_vol"], w[s]["rows"][4]["n_vol"], sum(r["n"] for r in w[s]["rows"])) for s in w}
+    nums = (cnt.get("ELAB", (0, 0, -1))[2] == 0 and cnt.get("ZCMD", (0, 0, -1))[2] == 0
+            and f"{cnt['ELAB'][0]} · {cnt['ELAB'][1]}" in res and f"{cnt['ZCMD'][0]} · {cnt['ZCMD'][1]}" in res
+            and f"{w['ELAB']['price']:.3f}" in res and js["gate"]["verdict"] == "التعريف لا يُعاد إنتاجه" and js["gate"]["reachable"] is False
+            and js["contract_sha"] == _VCD.CONTRACT_SHA)
+    wf = "\n".join(ln.split("#", 1)[0] for ln in open(".github/workflows/volcandle.yml", encoding="utf-8").read().splitlines())
+    ok = ("VOLCANDLE_REOPEN" not in wf and _VCD.CLOSED is True and shut == [8] * 5 and n_shut == 0 and opened == 0 and len(calls) == 1 and regen and nums
+          and "**«التعريف لا يُعاد إنتاجه»**" in res and "VOLCANDLE_REOPEN" in res and "مُغلَقٌ مُنفَّذًا" in res)
+    return ok, f"CLOSED={_VCD.CLOSED} مغلق={shut} نداءات={n_shut}/{len(calls)} فتح={opened} توليد={regen} أعداد={cnt}"
+
+
+_vcd = _vcd_try(_vcd6)
+check("🔒 VCD6 T-VOLCANDLE مُغلَقٌ مُنفَّذًا («التعريف لا يُعاد إنتاجه»): `zero` يخرج 8 بلا نداء و«1» حرفيًّا يفتح · والمُخرَجُ يُعاد بايتًا من `ZERO.json` · وأعدادُ النتيجة منه",
+      _vcd[0], _vcd[1])
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
