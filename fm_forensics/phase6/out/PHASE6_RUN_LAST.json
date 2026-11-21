@@ -1,39 +1,7 @@
 {
- "run_id": "44719608100",
+ "run_id": "44893231536",
  "result": {
   "done": [
-   "NTCL",
-   "NUWE",
-   "NXTT",
-   "OMH",
-   "ONCO",
-   "SXTC",
-   "THH",
-   "TRUG",
-   "UPC",
-   "VEEE",
-   "VMAR",
-   "ADIL",
-   "ADVB",
-   "AMIX",
-   "ATPC",
-   "BETA",
-   "BNAI",
-   "BRTX",
-   "EZRA",
-   "FGF",
-   "FIEE",
-   "FRSX",
-   "FUBO",
-   "FULC",
-   "GCTK",
-   "GNPX",
-   "GRI",
-   "GWAV",
-   "HAO",
-   "HCAI",
-   "HCWB",
-   "HUBC",
    "PAVS",
    "PIII",
    "PPBT",
@@ -108,50 +76,82 @@
    "SPRC",
    "STKH",
    "SUGP",
-   "SVRE"
+   "SVRE",
+   "ADIL",
+   "ADVB",
+   "AMIX",
+   "ATPC",
+   "BETA",
+   "BNAI",
+   "BRTX",
+   "EZRA",
+   "FGF",
+   "FIEE",
+   "FRSX",
+   "FUBO",
+   "FULC",
+   "GCTK",
+   "GNPX",
+   "GRI",
+   "GWAV",
+   "HAO",
+   "HCAI",
+   "HCWB",
+   "HUBC",
+   "NTCL",
+   "NUWE",
+   "NXTT",
+   "OMH",
+   "ONCO",
+   "SXTC",
+   "THH",
+   "TRUG",
+   "UPC",
+   "VEEE",
+   "VMAR"
   ],
   "skipped": [],
   "calendar_error": "",
   "ce_used": 48,
   "controls": {
    "done": [
-    "ALPS",
-    "BLRX",
-    "BYND",
-    "BYSI",
-    "CNTN",
-    "HTCO",
-    "MGN",
-    "PTN",
-    "QS",
-    "RMCF",
-    "RNTZ",
-    "SDOT",
-    "VIP",
-    "BEEM",
-    "CRVO",
-    "HTZ"
+    "CABA",
+    "CGC",
+    "DLXY",
+    "FBYD",
+    "PSIX",
+    "RGTI",
+    "VUZI",
+    "EPSM",
+    "GUTS",
+    "HTCR",
+    "OIO",
+    "BODI",
+    "IBIO",
+    "KEEL",
+    "HIVE",
+    "BEEM"
    ],
    "skipped": [],
    "calendar_error": "",
    "ce_used": 16,
-   "pool_date": "2026-11-20",
-   "pool_n": 453,
+   "pool_date": "2026-11-21",
+   "pool_n": 486,
    "status": "OK"
   }
  },
  "audit": {
-  "rows": 1459,
+  "rows": 1220,
   "by_status": {
-   "UNKNOWN": 240,
-   "OK": 1050,
+   "OK": 814,
+   "UNKNOWN": 239,
    "NOT_ATTEMPTED": 159,
-   "FAILED": 10
+   "FAILED": 8
   },
   "by_category": {
-   "4": 409,
-   "1": 522,
-   "2": 528
+   "1": 527,
+   "2": 287,
+   "4": 406
   },
   "tickers": 123,
   "chain_problems": []
@@ -209,6 +209,11 @@
   ],
   [
    "BEEM",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "BEEM",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -234,6 +239,11 @@
   ],
   [
    "BNAI",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "BODI",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -349,11 +359,6 @@
   ],
   [
    "CRE",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
-   "CRVO",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -598,6 +603,11 @@
    "yahoo_splits"
   ],
   [
+   "GUTS",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
    "GWAV",
    "short_interest",
    "yahoo_info"
@@ -639,6 +649,21 @@
   ],
   [
    "HCWB",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "HIVE",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "HIVE",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "HTCR",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -661,6 +686,16 @@
    "HWH",
    "short_interest",
    "yahoo_info"
+  ],
+  [
+   "IBIO",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "IBIO",
+   "reverse_split",
+   "yahoo_splits"
   ],
   [
    "ICMB",
@@ -706,6 +741,11 @@
    "JEM",
    "reverse_split",
    "yahoo_splits"
+  ],
+  [
+   "KEEL",
+   "short_interest",
+   "yahoo_info"
   ],
   [
    "LABT",
@@ -838,6 +878,16 @@
    "yahoo_info"
   ],
   [
+   "NTCL",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "NTCL",
+   "reverse_split",
+   "nasdaq_calendar"
+  ],
+  [
    "NUWE",
    "short_interest",
    "yahoo_info"
@@ -859,6 +909,11 @@
   ],
   [
    "NXTT",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "OIO",
    "reverse_split",
    "yahoo_splits"
   ],
