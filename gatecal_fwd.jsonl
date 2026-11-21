@@ -691,3 +691,18 @@
 {"cond": "drop_pct", "day": "2026-11-20", "edge": 99.949983, "label": "M2 الهبوط من قمة 52أ (فوق السقف)", "margin": 0.01, "price": 0.4122, "sym": "ZNB", "tool": "near_watch", "v": 99.957417, "wall": "M2_هبوط_فوق_97", "wall_margin": null}
 {"cond": "price", "day": "2026-11-20", "edge": 0.4, "label": "M1 السعر (دون الحدّ)", "margin": 22.25, "price": 0.311, "sym": "ZTG", "tool": "near_watch", "v": 0.311, "wall": "M1_سعر", "wall_margin": null}
 {"cond": "rr", "day": "2026-11-20", "edge": 0.5, "label": "العائد/المخاطرة (دون الحدّ)", "margin": 12.02, "price": 1.52, "sym": "ZYBT", "tool": "near_watch", "v": 0.439917, "wall": "M_لا_مستوى_مختبر", "wall_margin": null}
+{"cond": "band", "day": "2026-11-20", "edge": 13.0, "label": "الجلوس فوق قاع الضغط %", "margin": 68.3, "price": 3.43, "sym": "BANL", "tool": "press", "v": 21.9}
+{"cond": "band", "day": "2026-11-20", "edge": 13.0, "label": "الجلوس فوق قاع الضغط %", "margin": 70.9, "price": 1.65, "sym": "LHSW", "tool": "press", "v": 22.2}
+{"cond": "band", "day": "2026-11-20", "edge": 13.0, "label": "الجلوس فوق قاع الضغط %", "margin": 9.0, "price": 2.74, "sym": "NCPL", "tool": "press", "v": 14.2}
+{"cond": "band", "day": "2026-11-20", "edge": 13.0, "label": "الجلوس فوق قاع الضغط %", "margin": 57.3, "price": 1.59, "sym": "YHC", "tool": "press", "v": 20.5}
+{"cond": "band", "day": "2026-11-20", "edge": 13.0, "label": "الجلوس فوق قاع الضغط %", "margin": 51.4, "price": 3.8, "sym": "CD", "tool": "press", "v": 19.7}
+{"cond": "band", "day": "2026-11-20", "edge": 13.0, "label": "الجلوس فوق قاع الضغط %", "margin": 29.3, "price": 2.38, "sym": "VSME", "tool": "press", "v": 16.8}
+{"cond": "band", "day": "2026-11-20", "edge": 13.0, "label": "الجلوس فوق قاع الضغط %", "margin": 29.3, "price": 2.38, "sym": "FCDH", "tool": "press", "v": 16.8}
+{"cond": "band", "day": "2026-11-20", "edge": 13.0, "label": "الجلوس فوق قاع الضغط %", "margin": 31.4, "price": 3.0501, "sym": "EPOW", "tool": "press", "v": 17.1}
+{"cond": "band", "day": "2026-11-20", "edge": 13.0, "label": "الجلوس فوق قاع الضغط %", "margin": 5.3, "price": 15.36, "sym": "MF", "tool": "press", "v": 13.7}
+{"cond": "band", "day": "2026-11-20", "edge": 13.0, "label": "الجلوس فوق قاع الضغط %", "margin": 72.7, "price": 2.4, "sym": "WCT", "tool": "press", "v": 22.4}
+{"cond": "band", "day": "2026-11-20", "edge": 13.0, "label": "الجلوس فوق قاع الضغط %", "margin": 17.6, "price": 3.47, "sym": "ADXN", "tool": "press", "v": 15.3}
+{"cond": "band", "day": "2026-11-20", "edge": 13.0, "label": "الجلوس فوق قاع الضغط %", "margin": 52.5, "price": 1.39, "sym": "GMM", "tool": "press", "v": 19.8}
+{"cond": "band", "day": "2026-11-20", "edge": 13.0, "label": "الجلوس فوق قاع الضغط %", "margin": 15.1, "price": 1.46, "sym": "CRVO", "tool": "press", "v": 15.0}
+{"cond": "band", "day": "2026-11-20", "edge": 13.0, "label": "الجلوس فوق قاع الضغط %", "margin": 53.8, "price": 1.74, "sym": "CPOP", "tool": "press", "v": 20.0}
+{"cond": "band", "day": "2026-11-20", "edge": 13.0, "label": "الجلوس فوق قاع الضغط %", "margin": 8.9, "price": 1.21, "sym": "BIYA", "tool": "press", "v": 14.2}
