@@ -17,6 +17,7 @@ for _p in (HERE, ROOT):
         sys.path.insert(0, _p)
 
 import case31 as C                      # noqa: E402
+import case31_freeze as FZ              # noqa: E402
 import case31_stats as ST               # noqa: E402
 import case31_words as W                # noqa: E402
 
@@ -121,10 +122,12 @@ def prints_section(a, arm):
         f3 = lambda x: "—" if x is None or x != x else f"{x:.3f}"       # noqa: E731
         L.append(f"| {nm} | {f3(v.get('obs'))} | {f3(v.get('p95'))} | {pct(v.get('beats_frac'))} | {'✅ يعبر' if v.get('pass') else '❌ في حدود الصدفة'} |")
     p95 = (ver.get("best_print") or {}).get("p95")
-    L += ["", "| أقوى التوليفات | z | المنفجرون | الحاملون | نسبةُ الانفجار | الحكم |", "|---|---|---|---|---|---|"]
+    L += ["", "| أقوى التوليفات | z | المنفجرون | الحاملون | نسبةُ الانفجار | مقابل ضابط الزخم | الحكم |", "|---|---|---|---|---|---|---|"]
     for t in (arm.get("top_combos") or [])[:8]:
-        L.append(f"| {' ＋ '.join(W.condition(c) for c in t['conds'])} | {t['z']:.2f} | {t['k']} | {t['n']:,} | {pct(t['k'] / t['n'] if t['n'] else None)} | "
-                 f"{'✅ يعبر' if (p95 is not None and t['z'] > p95) else '❌ في حدود الصدفة'} |")
+        ok = p95 is not None and t["z"] > p95
+        tag = "❌ في حدود الصدفة" if not ok else ("✅ يعبر" if FZ.momentum_free(t.get("matched")) else "⚠️ يعبر الخلط — زخمٌ لا بصمة (لا يُثبَّت)")
+        mt = "—" if t.get("matched") is None else f"{t['matched']:+.2f}"
+        L.append(f"| {' ＋ '.join(W.condition(c) for c in t['conds'])} | {t['z']:.2f} | {t['k']} | {t['n']:,} | {pct(t['k'] / t['n'] if t['n'] else None)} | {mt} | {tag} |")
     types = (arm.get("summary") or {}).get("types") or {}
     if types:
         L += ["", "- لكلّ نوع (الشروطُ المنفردة وخلطُها): " + " · ".join(
