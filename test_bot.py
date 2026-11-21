@@ -107568,6 +107568,221 @@ check("🔒 E3M10 T-EMA3 مُغلَقٌ مُنفَّذًا: الجلبُ وال�
       _e3r[0], _e3r[1])
 
 
+# 📈✖️③➕ E3R1-E3R5 — `T-EMA3` الملحق 1 «تقاطع إيما بعد اختبار القاع» (أمرُ المالك 2026-11-21 · العقد `fm_forensics/ema3/T_EMA3_ADDENDUM_1.md` · مسجَّلٌ بعد رؤية أرقام · قراءةٌ فقط)
+try:
+    for _e3r_p in ("ema3", "nawaqis", "case31"):
+        _e3r_d = __import__("os").path.join(__import__("os").path.dirname(__import__("os").path.abspath(__file__)), "fm_forensics", _e3r_p)
+        if _e3r_d not in __import__("sys").path:
+            __import__("sys").path.insert(0, _e3r_d)
+    import importlib as _e3r_imp                                  # وحداتٌ محلّيّة في مجلّدٍ فرعيّ ⟵ بالاسم بعد إضافة المسار
+    _E3R = _e3r_imp.import_module("ema3_retest")
+    _E3RS2 = _e3r_imp.import_module("support2")
+    _e3r_err = ""
+except Exception as _e:                                           # noqa: BLE001
+    _E3R, _E3RS2, _e3r_err = None, None, f"⛔ {type(_e).__name__}: {_e}"
+
+
+def _e3r_try(fn):
+    if _E3R is None or _E3 is None:
+        return False, _e3r_err or _e3_err
+    try:
+        return fn()
+    except Exception as _x:                                       # noqa: BLE001
+        return False, f"⛔ رمى: {type(_x).__name__}: {_x}"
+
+
+def _e3r_calls(fn):
+    return {getattr(c.func, "id", "") or getattr(c.func, "attr", "") for c in _e3_ast.walk(_e3_ast.parse(_e3_insp.getsource(fn)))
+            if isinstance(c, _e3_ast.Call)}
+
+
+# 🧾 E3R1 — العقدُ ببصمته · يُفصح أنه «بعد رؤية أرقام» وأن `T-TRIGGERS` لا وجودَ له · ويطبع تعريفَ «الدعم الثاني» بأرقامه = أرقامُ `support2` · والحارسُ أوّلُ سطر
+def _e3r1():
+    doc = open("fm_forensics/ema3/T_EMA3_ADDENDUM_1.md", encoding="utf-8").read()
+    head, s1 = doc.split("## ⓪", 1)[0], (doc.split("## ①", 1) + [""])[1].split("## ②", 1)[0]
+    s4 = (doc.split("## ④", 1) + [""])[1].split("## ⑤", 1)[0]
+    words = ("بعد رؤية أرقام" in head and "لا عقدَ ولا ملفَّ باسم `T-TRIGGERS`" in head and "44888937080" in head and "44890468806" in head
+             and "وصفٌ لا حكم" in s4 and "support2.second_entry" in s1 and "support2.level_of" in s1)
+    nums = (_E3RS2.RISE, _E3RS2.BAND_HI, _E3RS2.BAND_LO, _E3RS2.WIN) == (1.15, 1.05, 0.95, 20) and _E3R.WIN == _E3RS2.WIN \
+        and all(t in s1 for t in ("**1.15 L**", "**1.05 L**", "0.95 L** أو أكثر", "**20 جلسة**", "**30** شمعة", "**مرّتين**", "**1.5%**", "90 يومًا")) \
+        and _E3R.HIST_DAYS == 90 and _E3R.SRC_RUNS == {"discover": "44888937080", "confirm": "44890468806"}
+    td, keep = _e3_tmp.mkdtemp(), _E3R.CONTRACT_SHA
+    try:
+        g = [_E3R.guard("discover", td), _E3R.guard("confirm", td)]
+        open(_e3_os.path.join(td, "RETEST_DISCOVER.json"), "w").write("{}")
+        g += [_E3R.guard("discover", td), _E3R.guard("confirm", td)]
+        open(_e3_os.path.join(td, "RETEST_CONFIRM.json"), "w").write("{}")
+        g += [_E3R.guard("confirm", td), _E3R.guard("x", td)]
+        _E3R.CONTRACT_SHA = "0" * 64
+        g.append(_E3R.guard("discover", _e3_tmp.mkdtemp()))
+    finally:
+        _E3R.CONTRACT_SHA = keep
+        _e3_sh.rmtree(td, ignore_errors=True)
+    body = [x for x in _e3_ast.parse(_e3_insp.getsource(_E3R.mode_run)).body[0].body
+            if not (isinstance(x, _e3_ast.Expr) and isinstance(x.value, _e3_ast.Constant))]
+    first = (isinstance(body[0], _e3_ast.Assign) and getattr(body[0].value.func, "id", "") == "guard" and isinstance(body[1], _e3_ast.If)
+             and any(isinstance(x, _e3_ast.Return) for x in body[1].body))
+    ok = _E3R.contract_ok() and words and nums and g == [0, 9, 7, 0, 7, 5, 11] and first
+    return ok, f"بصمة={_E3R.contract_ok()} نصّ={words} أرقام={nums} حارس={g} أوّل={first}"
+
+
+_e3r = _e3r_try(_e3r1)
+check("🧾 E3R1 T-EMA3 الملحق 1: العقدُ ببصمته · يُفصح «بعد رؤية أرقام» ولا `T-TRIGGERS` · وتعريفُ «الدعم الثاني» بأرقامه = `support2` · والحارسُ أوّلُ سطر (11 · 7 · 9)",
+      _e3r[0], _e3r[1])
+
+
+# 🪜 E3R2 — «قاع ثم ارتداد ثم رجوع» بتعريف `T-SUPPORT2` بالاسم: المستوى على شموعٍ حتى يوم القرار وحدَها · والحالةُ من `second_entry` · والحدثُ الواحد بأبكر يوم قرار
+def _e3r2():
+    import datetime as dt
+    ses = [(dt.date(2024, 1, 1) + dt.timedelta(days=k)).isoformat() for k in range(120)]
+    cl = [10.0] * 120
+    hi = list(cl)
+    lo = list(cl)
+    for k in range(40, 47):
+        hi[k], lo[k], cl[k] = 11.6, 10.9, 11.0                    # ارتدادٌ 16% فوق المستوى 10 · ولا لمسَ لـ1.05 L قبل 47
+    lo[47], cl[47] = 10.2, 10.3                                   # رجوعٌ إلى 1.05 L دون كسر ⟵ d′ = ses[47]
+    rows = {"AAA": [(ses[k], cl[k], hi[k], lo[k], cl[k], 1.0) for k in range(120)],
+            "BRK": [(ses[k], cl[k], hi[k], (9.0 if k == 47 else lo[k]), (9.2 if k == 47 else cl[k]), 1.0) for k in range(120)],
+            "NOL": [(ses[k], cl[k], hi[k], lo[k], cl[k], 1.0) for k in range(120)],
+            "SDY": [(ses[k], 10.0, (11.6 if k == 60 else 10.0), 10.0, 10.0, 1.0) for k in range(120)]}   # الارتدادُ يومَ القرار نفسَه ⟵ لا يُعَدّ
+    seen = []
+
+    def level(hist):
+        seen.append(hist[-1][0])
+        return None if hist[-1][0] == ses[36] else 10.0          # «لا مستوى» ليومٍ بعينه
+
+    pairs = [("AAA", ses[35]), ("AAA", ses[38]), ("BRK", ses[35]), ("NOL", ses[36]), ("ZZZ", ses[35]), ("AAA", "1999-01-01"), ("SDY", ses[60])]
+    ev, why = _E3R.retests(pairs, rows, ses, level)
+    want_st = _E3RS2.second_entry([(r[0], r[2], r[3], r[4]) for r in rows["AAA"][36:56]], 10.0)
+    ok = (set(ev) == {("AAA", ses[47])} and ev[("AAA", ses[47])]["d"] == ses[35] and ev[("AAA", ses[47])]["up"] == ses[40]
+          and want_st == ("ok", ses[40], ses[47]) and why.get("ok") == 2 and why.get("broke") == 1 and why.get("لا مستوى") == 1
+          and why.get("no_rise") == 1 and why.get("بلا شموع") == 1 and why.get("خارج التقويم") == 1 and ses[35] in seen and sorted(set(seen)) == sorted({ses[35], ses[38], ses[36], ses[60]})
+          and "second_entry" in _e3r_calls(_E3R.retests) and "level_of" in _e3r_calls(_E3R.mode_run))
+    return ok, f"أحداث={sorted(ev)} عدّ={why} مراجع={want_st}"
+
+
+_e3r = _e3r_try(_e3r2)
+check("🪜 E3R2 T-EMA3 الملحق 1: «قاع ثم ارتداد ثم رجوع» بتعريف `T-SUPPORT2` بالاسم (`second_entry` · `level_of`) · المستوى بشموعٍ حتى يوم القرار · والحدثُ مرّةً بأبكر يوم قرار",
+      _e3r[0], _e3r[1])
+
+
+# 🕓 E3R3 — الإشارةُ بعد الرجوع: أوّلُ تقاطعٍ معدود في شمعةٍ تُغلق عند 16:00 يومَ d′ أو بعده وحتى 20 جلسة · ولا تقاطعَ قبلها يُعَدّ · والدخولُ عند الرجوع أوّلُ شمعةٍ من الجلسة التالية
+def _e3r3():
+    days = [f"2024-02-{k:02d}" for k in range(1, 29)] + [f"2024-03-{k:02d}" for k in range(1, 29)]
+    h4 = [((k // 4) * 86400 + (k % 4) * 14400, 1, 1, 1, 1, 1) for k in range(len(days) * 4)]
+    days4 = [days[b[0] // 86400] for b in h4]
+    hour = lambda ts: 4 + 4 * ((ts % 86400) // 14400)            # noqa: E731  — 04 · 08 · 12 · 16
+    d2 = days[5]
+    p = {"h4": h4, "days4": days4, "sigs": [5 * 4 + 1, 5 * 4 + 2, 40 * 4]}
+    a, end = _E3R.window_after(p, d2, days, hour)
+    c1 = _E3R.signal_cross(p, d2, days, hour)                     # 08:00 يومَ d′ يُغلق 12:00 قبل الإغلاق ⟵ لا · و12:00 يُغلق 16:00 ⟵ نعم
+    p2 = dict(p, sigs=[5 * 4 + 1, 26 * 4 + 1])
+    c2 = _E3R.signal_cross(p2, d2, days, hour)                    # تقاطعٌ يومَ days[26] بعد 21 جلسة ⟵ خارج النافذة
+    p3 = dict(p, sigs=[25 * 4 + 3])
+    c3 = _E3R.signal_cross(p3, d2, days, hour)                    # الجلسةُ العشرون بعد d′ ⟵ داخل
+    r = _E3R.return_entry(p, d2)
+    st = [-1] * 30 + [1] * (len(h4) - 30)                         # +1 من 30 داخل النافذة ⟵ الحرفيّةُ بعد التسخين 64
+    lit = _E3R.signal_state(dict(p, sigs=[]), d2, days, hour, st)
+    ok = (a == 5 * 4 + 2 and end == days[25] and c1 == 5 * 4 + 2 and c2 is None and c3 == 25 * 4 + 3 and r == 6 * 4
+          and lit == 64 and _E3.WARMUP == 64 and _E3R.CLOSE_HOUR == 16)
+    return ok, f"بداية={a} نهاية={end} تقاطع={c1}/{c2}/{c3} رجوع={r} حرفيّ={lit}"
+
+
+_e3r = _e3r_try(_e3r3)
+check("🕓 E3R3 T-EMA3 الملحق 1: الإشارةُ أوّلُ تقاطعٍ معدود في شمعةٍ تُغلق 16:00 يومَ الرجوع أو بعده حتى 20 جلسة · والدخولُ عند الرجوع أوّلُ شمعةٍ من الجلسة التالية",
+      _e3r[0], _e3r[1])
+
+
+# ⚖️ E3R4 — المقارناتُ الثلاث من مسار الحساب: الزوجيّةُ = الإشارة − الدخول عند الرجوع للحدث نفسِه · والأولى بلا صفوف الثانية · والزخمُ من `ema3.match` · والحكمُ المنفرد بأحواله الأربعة
+def _e3r4():
+    n = 80 * 4
+    import datetime as dt
+    days = [(dt.date(2024, 1, 1) + dt.timedelta(days=k)).isoformat() for k in range(80)]
+    day_of = lambda ts: days[int(ts) // 86400]                    # noqa: E731
+    hour = lambda ts: 4 + 4 * ((ts % 86400) // 14400)             # noqa: E731
+
+    def bars(cl):
+        return [((k // 4) * 86400 + (k % 4) * 14400, cl[k - 1] if k else cl[0], max(cl[k], cl[k - 1] if k else cl[0]),
+                 min(cl[k], cl[k - 1] if k else cl[0]), cl[k], 1.0) for k in range(n)]
+
+    def daily(h):
+        return [(d * 86400, h[d * 4][1], max(b[2] for b in h[d * 4:d * 4 + 4]), min(b[3] for b in h[d * 4:d * 4 + 4]), h[d * 4 + 3][4], 4.0)
+                for d in range(n // 4)]
+
+    cross = [20.0 - 0.02 * k if k < 150 else 20.0 - 0.02 * 150 + 0.4 * (k - 149) for k in range(n)]
+    h4 = {"SIG": bars(cross)}
+    for q in range(1, 8):
+        h4[f"C{q}"] = bars([30.0 + q - (0.004 + 0.006 * q) * k for k in range(n)])
+    dl = {s: daily(v) for s, v in h4.items()}
+    P = _E3.prep(h4, dl, day_of)
+    c = P["SIG"]["sigs"][0]
+    d2 = days[c // 4 - 1]
+    mem = {days[c // 4]: set(h4)}
+    base = [{"sym": "SIG", "t": h4["SIG"][c + 1][0], "D0": days[(c + 1) // 4], "sig": {"r20": 9.9}},
+            {"sym": "OTH", "t": 1, "D0": days[30], "sig": {"r20": 0.05}}, {"sym": "OTH2", "t": 2, "D0": days[31], "sig": {"r20": 0.01}}]
+    ev = {("SIG", d2): {"L": 10.0, "d": days[c // 4 - 3]}}
+    res = _E3R.measure(P, mem, ev, days, hour, base, keep=True)
+    rec = (res.get("recs") or [{}])[0]
+    o = _E3.outcome(h4["SIG"], P["SIG"]["days4"], c + 1, dl["SIG"], P["SIG"]["ddays"])
+    ro = _E3.outcome(h4["SIG"], P["SIG"]["days4"], _E3R.return_entry(P["SIG"], d2), dl["SIG"], P["SIG"]["ddays"])
+    cells = res["cells"]
+    ok = (res["counts"]["signals"] == 1 and abs(cells["ret"]["mean"] - (o["r20"] - ro["r20"])) < 1e-12
+          and res["base_n"] == 2 and abs(cells["sig1"]["mean"] - (o["r20"] - 0.03)) < 1e-12 and cells["match"]["n"] == 1
+          and res["enough"] is False and 0 < len(rec.get("m") or ()) < rec.get("n_same", 0)
+          and abs(cells["match"]["mean"] - (o["r20"] - sum(_E3.outcome(h4[q], P[q]["days4"], c + 1, dl[q], P[q]["ddays"])["r20"] for q in rec["m"]) / len(rec["m"]))) < 1e-12
+          and "match" in _e3r_calls(_E3R.measure) and "pool_at" in _e3r_calls(_E3R.measure))
+    G = lambda e, lo: {"enough": e, "cells": {k: {"lo": lo, "hi": 1.0} for k in ("ret", "sig1", "match")}}   # noqa: E731
+    v = [_E3R.verdict(G(False, 0.1), G(True, 0.1))["verdict"], _E3R.verdict(G(True, -0.1), G(False, 0.1))["verdict"],
+         _E3R.verdict(G(True, 0.1), G(False, 0.1))["verdict"], _E3R.verdict(G(True, 0.1), G(True, 0.1))["verdict"],
+         _E3R.verdict(G(True, 0.1), G(True, 0.0))["verdict"]]
+    one = G(True, 0.1)
+    one["cells"]["ret"]["lo"] = 0.0
+    v.append(_E3R.verdict(one, G(True, 0.1))["verdict"])
+    two = G(True, 0.1)
+    two["cells"]["ret"]["lo"] = 0.0
+    v.append(_E3R.verdict(G(True, 0.1), two)["verdict"])                 # التأكيدُ يسقط في خليّةٍ واحدة ⟵ لا تعبر
+    ok = ok and v == ["وصف لا حكم", "لا تعبر", "وصف لا حكم", "تعبر", "لا تعبر", "لا تعبر", "لا تعبر"]
+    return ok, f"خلايا={ {k: round(x.get('mean') or 0, 4) for k, x in cells.items()} } أساس={res['base_n']} أحكام={v}"
+
+
+_e3r = _e3r_try(_e3r4)
+check("⚖️ E3R4 T-EMA3 الملحق 1: الزوجيّةُ = الإشارة − الدخول عند الرجوع للحدث نفسِه · الأولى بلا صفوف الثانية · الزخمُ بـ`ema3.match` · والحكمُ المنفرد (وصف لا حكم · لا تعبر · تعبر)",
+      _e3r[0], _e3r[1])
+
+
+# 🔒 E3R5 — قراءةٌ فقط: لا جلبَ ولا تلغرام ولا Polygon ولا إسنادَ CONFIG · ولا نداءَ لأوضاع `ema3` المُغلَقة · والـworkflow يدويٌّ ينزّل مادّةَ التشغيلتين وحدَها
+def _e3r5():
+    src = open("fm_forensics/ema3/ema3_retest.py", encoding="utf-8").read()
+    names = set()
+    for nd in _e3_ast.walk(_e3_ast.parse(src)):
+        if isinstance(nd, _e3_ast.Import):
+            names |= {a.name for a in nd.names}
+        elif isinstance(nd, _e3_ast.ImportFrom):
+            names.add(nd.module or "")
+        elif isinstance(nd, _e3_ast.Attribute):
+            names.add(nd.attr)
+        elif isinstance(nd, _e3_ast.Call):
+            names.add(getattr(nd.func, "id", "") or getattr(nd.func, "attr", ""))
+    bad = sorted(x for x in names if any(w in x.lower() for w in ("telegram", "polygon", "requests", "git_save", "fetch_many", "tv_frames"))
+                 or x in ("CONFIG", "mode_fetch", "main") and x != "main")
+    bad += [x for x in ("mode_fetch",) if f"E.{x}" in src]
+    raw = open(".github/workflows/ema3_retest.yml", encoding="utf-8").read()
+    wf = _e3_yaml.safe_load(raw)
+    code = "\n".join(ln.split("#", 1)[0] for ln in raw.splitlines())
+    on = wf.get(True) or wf.get("on") or {}
+    steps = wf["jobs"]["run"]["steps"]
+    dl = [s for s in steps if "download-artifact" in str(s.get("uses", ""))]
+    wf_ok = (set(on) == {"workflow_dispatch"} and "secrets." not in code and "TELEGRAM" not in code and "POLYGON" not in code
+             and "ema3.py fetch" not in code and len(dl) == 1 and "44888937080" in str(dl[0]["with"]["run-id"])
+             and "44890468806" in str(dl[0]["with"]["run-id"]) and "ema3_retest.py run" in code)
+    return (not bad and wf_ok and _E3R.CLOSED in (False, True)), f"ممنوع={bad} workflow={wf_ok}"
+
+
+_e3r = _e3r_try(_e3r5)
+check("🔒 E3R5 T-EMA3 الملحق 1: قراءةٌ فقط بلا جلبٍ ولا تلغرام ولا Polygon ولا CONFIG ولا أوضاعِ `ema3` المُغلَقة · والـworkflow يدويٌّ ينزّل مادّةَ التشغيلتين وحدَها",
+      _e3r[0], _e3r[1])
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

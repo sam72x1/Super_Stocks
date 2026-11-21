@@ -320,12 +320,8 @@ def table_b(recs):
     return B, gov
 
 
-def measure(bars_h4, bars_d, members, day_of, find_events=None, slot_of=None, keep=False):
-    """المجتمع ⟵ القياساتُ الثلاثة (العقد §③). `bars_h4`/`bars_d` = {رمز: [(ts,o,h,l,c,v)]} · `members` = {جلسة: {رموز}}."""
-    days = sorted(members)
-    if not days:
-        return None
-    lo, hi = days[0], days[-1]
+def prep(bars_h4, bars_d, day_of):
+    """⟵ {رمز: بنيةُ السهم}: شموعُه وأيّامُها وفهرسُ الطوابع والإشاراتُ والتقاطعاتُ والقائم واليوميّ (لمَن له الفريمان)."""
     P = {}
     for s, h4 in bars_h4.items():
         d = bars_d.get(s)
@@ -335,6 +331,30 @@ def measure(bars_h4, bars_d, members, day_of, find_events=None, slot_of=None, ke
         sigs, crosses, stand_at = fire(states([b[4] for b in h4]))
         P[s] = {"h4": h4, "days4": days4, "ix": {b[0]: k for k, b in enumerate(h4)}, "sigs": sigs, "crosses": crosses, "stand": stand_at,
                 "drows": d, "ddays": [day_of(b[0]) for b in d], "xdays": {days4[c] for c in crosses}}
+    return P
+
+
+def pool_at(P, member_syms, dx, t):
+    """ضابطُ اليوم نفسِه عند الطابع `t`: أعضاءُ جلسة `dx` بلا تقاطعٍ في `dx` وبشمعةٍ بالطابع نفسِه بعد التسخين ⟵ {رمز: رقمُ شمعة الدخول}."""
+    pool = {}
+    for s in sorted(member_syms):
+        p = P.get(s)
+        if p is None or dx in p["xdays"]:
+            continue
+        j = p["ix"].get(t)
+        if j is None or j < WARMUP:
+            continue
+        pool[s] = j
+    return pool
+
+
+def measure(bars_h4, bars_d, members, day_of, find_events=None, slot_of=None, keep=False):
+    """المجتمع ⟵ القياساتُ الثلاثة (العقد §③). `bars_h4`/`bars_d` = {رمز: [(ts,o,h,l,c,v)]} · `members` = {جلسة: {رموز}}."""
+    days = sorted(members)
+    if not days:
+        return None
+    lo, hi = days[0], days[-1]
+    P = prep(bars_h4, bars_d, day_of)
     cache = {}
 
     def oc(s, i):
@@ -358,15 +378,7 @@ def measure(bars_h4, bars_d, members, day_of, find_events=None, slot_of=None, ke
     keys = REC_KEYS
     recs, no_ctl, no_mom = [], 0, 0
     for (t, dx), group in sorted(by_t.items()):
-        pool = {}
-        for s in sorted(members[dx]):
-            p = P.get(s)
-            if p is None or dx in p["xdays"]:
-                continue
-            j = p["ix"].get(t)
-            if j is None or j < WARMUP:
-                continue
-            pool[s] = j
+        pool = pool_at(P, members[dx], dx, t)
         mom = {}
         for s, j in list(pool.items()) + group:
             m = momentum(P[s]["h4"], P[s]["days4"], j, P[s]["drows"], P[s]["ddays"])
