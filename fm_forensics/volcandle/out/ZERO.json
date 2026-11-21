@@ -1,0 +1,269 @@
+{
+ "contract_sha": "8b36b4c831b2b3987c7830baa7c29d4e4daede0c974233dd313e1f22535cfec2",
+ "excluded": [
+  {
+   "band": [
+    2.0,
+    2.2
+   ],
+   "id": "TG_76001 + TG_75999",
+   "sym": "JEM",
+   "why": "تاريخُ المنشور غيرُ مؤكَّد (لقطةُ TG_76000 بعد إغلاق 23/10 حدٌّ أدنى لا يوم) · والبطاقةُ بلا كاتبٍ ظاهر"
+  },
+  {
+   "band": null,
+   "id": "TG_76021",
+   "sym": "FBGL",
+   "why": "طابعٌ نسبيّ «4 د» · قبل 10-15 بلا يومٍ مُثبَت"
+  },
+  {
+   "band": [
+    2.186,
+    2.27
+   ],
+   "id": "X_20260918_04_ELPW + CH_20260918_03_ELPW",
+   "sym": "ELPW",
+   "why": "لا تاريخَ للمنشور (الاستلامُ دفعة 2026-09-18) · والتأريخُ بالشموع محورٌ مُغلَق"
+  }
+ ],
+ "gate": {
+  "chosen": null,
+  "need": 2,
+  "numeric_dated": 1,
+  "per_def": [
+   {
+    "def": "K3·w60·body",
+    "matched_numeric": 0,
+    "mean_iou": null,
+    "pass": false,
+    "plain_ok": false
+   },
+   {
+    "def": "K3·w60·wick",
+    "matched_numeric": 0,
+    "mean_iou": null,
+    "pass": false,
+    "plain_ok": false
+   },
+   {
+    "def": "K3·expl·body",
+    "matched_numeric": 0,
+    "mean_iou": null,
+    "pass": false,
+    "plain_ok": false
+   },
+   {
+    "def": "K3·expl·wick",
+    "matched_numeric": 0,
+    "mean_iou": null,
+    "pass": false,
+    "plain_ok": false
+   },
+   {
+    "def": "K5·w60·body",
+    "matched_numeric": 0,
+    "mean_iou": null,
+    "pass": false,
+    "plain_ok": false
+   },
+   {
+    "def": "K5·w60·wick",
+    "matched_numeric": 0,
+    "mean_iou": null,
+    "pass": false,
+    "plain_ok": false
+   },
+   {
+    "def": "K5·expl·body",
+    "matched_numeric": 0,
+    "mean_iou": null,
+    "pass": false,
+    "plain_ok": false
+   },
+   {
+    "def": "K5·expl·wick",
+    "matched_numeric": 0,
+    "mean_iou": null,
+    "pass": false,
+    "plain_ok": false
+   }
+  ],
+  "reachable": false,
+  "verdict": "التعريف لا يُعاد إنتاجه"
+ },
+ "witnesses": [
+  {
+   "chart_px": 2.95,
+   "dec_day": "2026-10-20",
+   "faisal": [
+    1.8,
+    2.2
+   ],
+   "id": "TG_76009",
+   "last_bar": 1792497600,
+   "price": 2.83,
+   "rows": [
+    {
+     "def": "K3·w60·body",
+     "hi": null,
+     "iou": null,
+     "lo": null,
+     "n": 0,
+     "n_vol": 22,
+     "start": "2026-07-28"
+    },
+    {
+     "def": "K3·w60·wick",
+     "hi": null,
+     "iou": null,
+     "lo": null,
+     "n": 0,
+     "n_vol": 22,
+     "start": "2026-07-28"
+    },
+    {
+     "def": "K3·expl·body",
+     "hi": null,
+     "iou": null,
+     "lo": null,
+     "n": 0,
+     "n_vol": 46,
+     "start": "2026-04-01"
+    },
+    {
+     "def": "K3·expl·wick",
+     "hi": null,
+     "iou": null,
+     "lo": null,
+     "n": 0,
+     "n_vol": 46,
+     "start": "2026-04-01"
+    },
+    {
+     "def": "K5·w60·body",
+     "hi": null,
+     "iou": null,
+     "lo": null,
+     "n": 0,
+     "n_vol": 10,
+     "start": "2026-07-28"
+    },
+    {
+     "def": "K5·w60·wick",
+     "hi": null,
+     "iou": null,
+     "lo": null,
+     "n": 0,
+     "n_vol": 10,
+     "start": "2026-07-28"
+    },
+    {
+     "def": "K5·expl·body",
+     "hi": null,
+     "iou": null,
+     "lo": null,
+     "n": 0,
+     "n_vol": 27,
+     "start": "2026-04-01"
+    },
+    {
+     "def": "K5·expl·wick",
+     "hi": null,
+     "iou": null,
+     "lo": null,
+     "n": 0,
+     "n_vol": 27,
+     "start": "2026-04-01"
+    }
+   ],
+   "scale": 0.9593,
+   "status": "ok",
+   "sym": "ELAB"
+  },
+  {
+   "chart_px": 1.3,
+   "dec_day": "2026-10-13",
+   "faisal": null,
+   "id": "TG_76014",
+   "last_bar": 1791921600,
+   "price": 1.3,
+   "rows": [
+    {
+     "def": "K3·w60·body",
+     "hi": null,
+     "iou": null,
+     "lo": null,
+     "n": 0,
+     "n_vol": 14,
+     "start": "2026-07-21"
+    },
+    {
+     "def": "K3·w60·wick",
+     "hi": null,
+     "iou": null,
+     "lo": null,
+     "n": 0,
+     "n_vol": 14,
+     "start": "2026-07-21"
+    },
+    {
+     "def": "K3·expl·body",
+     "hi": null,
+     "iou": null,
+     "lo": null,
+     "n": 0,
+     "n_vol": 14,
+     "start": "2026-07-22"
+    },
+    {
+     "def": "K3·expl·wick",
+     "hi": null,
+     "iou": null,
+     "lo": null,
+     "n": 0,
+     "n_vol": 14,
+     "start": "2026-07-22"
+    },
+    {
+     "def": "K5·w60·body",
+     "hi": null,
+     "iou": null,
+     "lo": null,
+     "n": 0,
+     "n_vol": 10,
+     "start": "2026-07-21"
+    },
+    {
+     "def": "K5·w60·wick",
+     "hi": null,
+     "iou": null,
+     "lo": null,
+     "n": 0,
+     "n_vol": 10,
+     "start": "2026-07-21"
+    },
+    {
+     "def": "K5·expl·body",
+     "hi": null,
+     "iou": null,
+     "lo": null,
+     "n": 0,
+     "n_vol": 10,
+     "start": "2026-07-22"
+    },
+    {
+     "def": "K5·expl·wick",
+     "hi": null,
+     "iou": null,
+     "lo": null,
+     "n": 0,
+     "n_vol": 10,
+     "start": "2026-07-22"
+    }
+   ],
+   "scale": 1.0,
+   "status": "ok",
+   "sym": "ZCMD"
+  }
+ ]
+}
