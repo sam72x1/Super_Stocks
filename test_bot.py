@@ -107783,6 +107783,46 @@ check("🔒 E3R5 T-EMA3 الملحق 1: قراءةٌ فقط بلا جلبٍ ول
       _e3r[0], _e3r[1])
 
 
+# 🔒 E3R6 — `T-EMA3` الملحق 1 صدر «لا تعبر» ⟵ مُغلَقٌ مُنفَّذًا (2026-11-21): القياسُ يخرج 8 بلا أيّ نداء و«1» حرفيًّا يفتح · والحكمُ المودَع يُعاد توليدُه بايتًا من `RETEST_*.json` · وخلاياه الستّ في وثيقة النتيجة
+def _e3r6():
+    calls = []
+    keep = (_E3R.mode_run, _e3_os.environ.get("EMA3_REOPEN"))
+    try:
+        _E3R.mode_run = lambda *a, **k: (calls.append(a) or 0)                # جذعٌ يُسجَّل ولا يُنفَّذ
+        _e3_os.environ.pop("EMA3_REOPEN", None)
+        shut = [_E3R.main(["x", "run", "discover", "--dir", "d"]), _E3R.main(["x", "run", "confirm", "--dir", "d"])]
+        for val in ("0", "true", " 1", ""):
+            _e3_os.environ["EMA3_REOPEN"] = val
+            shut.append(_E3R.main(["x", "run", "discover", "--dir", "d"]))
+        n_shut = len(calls)
+        _e3_os.environ["EMA3_REOPEN"] = "1"
+        opened = _E3R.main(["x", "run", "confirm", "--dir", "d"])
+    finally:
+        _E3R.mode_run = keep[0]
+        if keep[1] is None:
+            _e3_os.environ.pop("EMA3_REOPEN", None)
+        else:
+            _e3_os.environ["EMA3_REOPEN"] = keep[1]
+    import json as _j
+    js = [_j.load(open(f"fm_forensics/ema3/out/RETEST_{p}.json", encoding="utf-8")) for p in ("DISCOVER", "CONFIRM")]
+    vmd = open("fm_forensics/ema3/out/RETEST_VERDICT.md", encoding="utf-8").read()
+    regen = _E3R.render_verdict(*js) == vmd
+    res = open("fm_forensics/ema3/T_EMA3_ADDENDUM_1_RESULT.md", encoding="utf-8").read()
+    rows = [ln for ln in vmd.splitlines() if ln.startswith("| الاكتشاف |") or ln.startswith("| التأكيد |")]
+    ivs = [ln.split("|")[3].strip() for ln in rows]
+    v = _E3R.verdict(*js)
+    cells = len(ivs) == 6 and all(iv in res for iv in ivs) and v["verdict"] == "لا تعبر" and "**الحكم: لا تعبر**" in res and "**الحكم: لا تعبر**" in vmd
+    wf = "\n".join(ln.split("#", 1)[0] for ln in open(".github/workflows/ema3_retest.yml", encoding="utf-8").read().splitlines())
+    ok = (_E3R.CLOSED is True and shut == [8] * 6 and n_shut == 0 and opened == 0 and len(calls) == 1 and regen and cells
+          and "EMA3_REOPEN" not in wf and "مُغلَقٌ مُنفَّذًا" in res and "بعد رؤية أرقام" in res)
+    return ok, f"CLOSED={_E3R.CLOSED} مغلق={shut} نداءات={n_shut}/{len(calls)} فتح={opened} توليد={regen} خلايا={cells} حكم={v['verdict']}"
+
+
+_e3r = _e3r_try(_e3r6)
+check("🔒 E3R6 T-EMA3 الملحق 1 مُغلَقٌ مُنفَّذًا («لا تعبر»): القياسُ يخرج 8 بلا نداء و«1» حرفيًّا يفتح · والحكمُ المودَع يُعاد بايتًا من `RETEST_*.json` وخلاياه الستّ في وثيقة النتيجة",
+      _e3r[0], _e3r[1])
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
