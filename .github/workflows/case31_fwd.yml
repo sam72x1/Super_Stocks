@@ -51,7 +51,10 @@ jobs:
           set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -f fm_forensics/case31/data/case31_fwd.jsonl fm_forensics/case31/data/case31_fwd_settled.jsonl fm_forensics/case31/out/FWD.md 2>/dev/null || true
+          # 🔧 2026-11-21 (CSF3): كلُّ ملفٍّ بندائه — `git add` بمسارٍ غائبٍ يفشل كلُّه، فكان غيابُ دفتر الحسم (أوّل 20 جلسة) سيمنع دفعَ دفتر التسجيل نفسِه
+          for f in fm_forensics/case31/data/case31_fwd.jsonl fm_forensics/case31/data/case31_fwd_settled.jsonl fm_forensics/case31/out/FWD.md; do
+            if [ -e "$f" ]; then git add -f "$f"; fi
+          done
           if git diff --cached --quiet; then echo "لا جديد — لا دفع"; exit 0; fi
           git commit -q -m "🗂️ T-CASE31 الدفترُ الأماميّ"
           for i in 1 2 3 4; do
