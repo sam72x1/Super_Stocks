@@ -1,0 +1,27 @@
+{
+ "symbols": 1239,
+ "no_bars": 666,
+ "x100_any": 2419,
+ "outside_membership": 2165,
+ "dropped": 0,
+ "events": 254,
+ "days": 208,
+ "rows": 27330,
+ "entries": 4475,
+ "daily": 573,
+ "h4": 785,
+ "need": 1239,
+ "splits": 532,
+ "finra_days": 755,
+ "finra_need": 755,
+ "h4_first_median": "2020-12-29",
+ "sessions": [
+  "2020-12-02",
+  "2026-11-20"
+ ],
+ "events_by_year": {
+  "2023": 45,
+  "2024": 95,
+  "2025": 114
+ }
+}
