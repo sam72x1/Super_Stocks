@@ -1,0 +1,120 @@
+name: "📈✖️③ T-EMA3 — تقاطع إيما 9 و15 و16 على 4 ساعات (قراءةٌ وتحليل · بلا تلغرام)"
+
+# أمرُ المالك 2026-11-21 «T-EMA3» · العقد fm_forensics/ema3/T_EMA3_prereg.md · قراءةٌ وتحليلٌ فقط.
+# يدويٌّ بلا كرون · لا تلغرام · لا Polygon · المخرجاتُ بياناتٌ تحت fm_forensics/ema3/out/ يودعها هذا الـworkflow (بياناتٌ لا كود · سابقةُ case31.yml).
+permissions:
+  contents: write
+  actions: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: "status (عدٌّ بلا نتيجة) · discover (2023-2025) · confirm (2026 · مرّةً واحدة بعد الاكتشاف)"
+        required: true
+        default: "status"
+      src_run:
+        description: "discover و confirm: رقمُ تشغيلةٍ سابقة تُقرأ مادّتُها المجلوبة (فارغٌ ⟵ جلبٌ جديد)"
+        required: false
+        default: ""
+
+concurrency:
+  group: super-stocks-ema3
+  cancel-in-progress: false
+
+jobs:
+  status:
+    if: ${{ inputs.stage == 'status' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0              # لقطاتُ git اليوميّة لـ«تحت المتابعة»
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: 📋 عدٌّ بلا نتيجة
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/ema3/ema3.py status
+
+  fetch:
+    if: ${{ (inputs.stage == 'discover' || inputs.stage == 'confirm') && inputs.src_run == '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        if: ${{ inputs.stage == 'discover' }}
+        with:
+          pattern: basket-shard-*
+          path: basket_slices
+          merge-multiple: true
+          run-id: "43955351411"       # شرائحُ T-BASKET (إدخالاتُ CURRENT 2023-2025) — العقد §②
+          github-token: ${{ github.token }}
+      - name: 🧺 الجلب (TradingView)
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/ema3/ema3.py fetch ${{ inputs.stage }} --dir basket_slices
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ema3-data-${{ inputs.stage }}
+          path: ema3_data/
+          retention-days: 90
+          compression-level: 0
+
+  run:
+    needs: fetch
+    if: ${{ always() && (inputs.stage == 'discover' || inputs.stage == 'confirm') && (needs.fetch.result == 'success' || inputs.src_run != '') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: ema3-data-${{ inputs.stage }}
+          path: ema3_data
+          run-id: ${{ inputs.src_run != '' && inputs.src_run || github.run_id }}
+          github-token: ${{ github.token }}
+      - name: 🧮 القياس — ${{ inputs.stage }}
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: |
+          set -o pipefail
+          python fm_forensics/ema3/ema3.py run ${{ inputs.stage }} --dir ema3_data | tee ema3_${{ inputs.stage }}.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ema3-out-${{ inputs.stage }}
+          path: |
+            fm_forensics/ema3/out/
+            ema3_${{ inputs.stage }}.log
+          retention-days: 90
+      - name: 💾 إيداعُ المخرجات (بياناتٌ لا كود)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -d fm_forensics/ema3/out ]; then git add -f fm_forensics/ema3/out; fi
+          if git diff --cached --quiet; then echo "لا جديد"; exit 0; fi
+          git commit -q -m "📈 T-EMA3 بيانات: ${{ inputs.stage }}"
+          for i in 1 2 3 4 5; do
+            if git push; then exit 0; fi
+            git fetch origin "$GITHUB_REF_NAME" && git rebase "origin/$GITHUB_REF_NAME" || git rebase --abort || true
+            sleep 5
+          done
+          exit 1
