@@ -1,0 +1,10 @@
+# 👁️ X_20260827_labt_supports_wait · $LABT
+
+- **D:** 2026-08-21 · إغلاقُ D (TradingView): 2.24 · بمقياس يومها 2.24 (معامل 1.0)
+- **المصدر:** منشور · التأريخ: سجلُّ العين (EXACT)
+- **الموقع من الحركة (‏+100%):** قبله · وذراعُ ‏+50%: قبله
+- **قبل الانفجار:** 53 جلسة إلى البداية (2026-11-05) · بلغ -57.1% من إغلاق D (القمّة 2026-11-05) · وأقصى هبوطٍ قبلها -92.5%
+- **كلامُه (انتظار مستوى):** «انتظار الدعوم الاساسيه 2 < 1.80 · 15 الف شورت · 687٪ اقتراض · شمعة غبيه بعد تحليلنا السابق»
+- **مستوياتُه:** {"support": 2.0, "zone": [1.8, 2.0]} ⟵ لمسُ الدعم: 9 · كنسٌ ثمّ استعادة: 11 · الهدف: None · الوقف: None · الأوّل: None (بالجلسات بعد D)
+- **سماتُ D (فهرس T-CASE31 · أوّلُ 40 · الكاملُ في FILES.json):** D.adx14=20.201567389829805 · D.atr14_p=0.2167829273842687 · D.bb.pctb=0.530391121271525 · D.bb.squeeze_rank=0.0 · D.bb.width=0.24417437619955903 · D.bot.adx=20.201567389829805 · D.bot.atr_p=0.2167829273842687 · D.bot.bb_pctb=0.530391121271525 · D.bot.cci14=-5.498966838708634 · D.bot.ema30_dist=-0.26957439610437584 · D.bot.ema50_dist=-0.6732514980090496 · D.bot.fsto_k=48.84784074606811 · D.bot.klinger_bull=False · D.bot.kst_diff=77.12529630363588 · D.bot.macd_hist_p=0.08147554220898039 · D.bot.mfi=57.91895382171435 · D.bot.rsi14=32.0452747795558 · D.bot.stochrsi_k=89.13722574241889 · D.bot.willr=-54.073298429319365 · D.cci20=12.79838098717642 · D.cdl.bear_engulf.ago=None · D.cdl.bear_engulf.any10=False · D.cdl.bear_harami.ago=6.0 · D.cdl.bear_harami.any10=True · D.cdl.bull_engulf.ago=None · D.cdl.bull_engulf.any10=False · D.cdl.bull_harami.ago=None · D.cdl.bull_harami.any10=False · D.cdl.bull_marubozu.ago=None · D.cdl.bull_marubozu.any10=False · D.cdl.dark_cloud.ago=None · D.cdl.dark_cloud.any10=False · D.cdl.doji.ago=2.0 · D.cdl.doji.any10=True · D.cdl.dragonfly.ago=6.0 · D.cdl.dragonfly.any10=True · D.cdl.evening_star.ago=None · D.cdl.evening_star.any10=False · D.cdl.gravestone.ago=None · D.cdl.gravestone.any10=False
+- **عند البوت يوم D:** {"near_watch.json": "لا لقطة", "weekly_watchlist.json": {"in": false, "snap": "2026-08-24"}}

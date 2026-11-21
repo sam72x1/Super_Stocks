@@ -37,7 +37,7 @@ OCR = os.path.join(ROOT, "fm_forensics", "date_candles", "data", "header_ocr.jso
 CARDS = os.path.join(DATA, "eye_cards.jsonl")
 LEDGER = os.path.join(DATA, "eye_ledger.jsonl")
 RC_OK, RC_DATA, RC_ONCE, RC_CLOSED, RC_CONTRACT = 0, 5, 7, 8, 11
-CLOSED = False
+CLOSED = True                                                      # 🔒 مُغلَقٌ مُنفَّذًا بعد النتيجة 2026-11-21 · الفتحُ FAISAL_EYE_REOPEN=1 (إقرارُ المالك)
 
 TEST_IDS = ("IMG_0142", "IMG_0320", "IMG_0500", "IMG_0587", "IMG_0698", "TG_1823", "TG_1833", "TG_1834", "TG_1838", "TG_1851", "TG_1964",
             "TG_1997", "TG_2109", "TG_2112", "TG_2117", "TG_2121", "TG_2171", "TG_2196", "TG_2213", "TG_50575", "TG_50579", "TG_50818",
