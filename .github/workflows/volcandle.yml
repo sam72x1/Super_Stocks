@@ -1,0 +1,52 @@
+name: "🕯️📊 T-VOLCANDLE — شموع الفوليوم · المرحلةُ صفر (قياسٌ فقط · بلا تلغرام)"
+
+# أمرُ المالك 2026-11-21 · العقد fm_forensics/volcandle/T_VOLCANDLE_prereg.md (مدموجٌ قبل أيّ رقم) · قياسٌ فقط.
+# يدويٌّ بلا كرون · لا تلغرام · لا Polygon · لا أسرار: شموعُ TradingView للشاهدَين المؤرَّخين ⟵ fm_forensics/volcandle/out/ZERO.*
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: super-stocks-volcandle
+  cancel-in-progress: false
+
+jobs:
+  zero:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: 🕯️ المرحلةُ صفر
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: |
+          set -o pipefail
+          python fm_forensics/volcandle/volcandle.py zero | tee volcandle_zero.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: volcandle-zero
+          path: |
+            fm_forensics/volcandle/out/
+            volcandle_zero.log
+          retention-days: 90
+      - name: 💾 إيداعُ المخرجات (بياناتٌ لا كود)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -d fm_forensics/volcandle/out ]; then git add -f fm_forensics/volcandle/out; fi
+          if git diff --cached --quiet; then echo "لا جديد"; exit 0; fi
+          git commit -q -m "🕯️ T-VOLCANDLE بيانات: المرحلة صفر"
+          for i in 1 2 3 4 5; do
+            if git push; then exit 0; fi
+            git fetch origin "$GITHUB_REF_NAME" && git rebase "origin/$GITHUB_REF_NAME" || git rebase --abort || true
+            sleep 5
+          done
+          exit 1
