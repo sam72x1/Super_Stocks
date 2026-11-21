@@ -108057,6 +108057,155 @@ check("🔒 VCD6 T-VOLCANDLE مُغلَقٌ مُنفَّذًا («التعريف
       _vcd[0], _vcd[1])
 
 
+# 👁️ EYE1-EYE6 — `T-FAISAL-EYE` «عين فيصل» المرحلة أ (أمرُ المالك 2026-11-21 · العقد `fm_forensics/faisal_eye/T_FAISAL_EYE_prereg.md` · قياسٌ فقط)
+try:
+    _eye_d = __import__("os").path.join(__import__("os").path.dirname(__import__("os").path.abspath(__file__)), "fm_forensics", "faisal_eye")
+    if _eye_d not in __import__("sys").path:
+        __import__("sys").path.insert(0, _eye_d)
+    import importlib as _eye_imp
+    _EYE = _eye_imp.import_module("eye")
+    _eye_err = ""
+except Exception as _e:                                           # noqa: BLE001
+    _EYE, _eye_err = None, f"⛔ {type(_e).__name__}: {_e}"
+import ast as _eye_ast
+import json as _eye_json
+import tempfile as _eye_tmp
+import shutil as _eye_sh
+import os as _eye_os
+
+# 🧾 EYE1 — العقدُ ببصمته · ومجموعةُ الاختبار الأربعون في نصّه · وأرقامُ الأداة = العقد · والحارس (11 · 7 · 0)
+try:
+    _e1_doc = open(_EYE.CONTRACT, encoding="utf-8").read()
+    _e1_sha = _EYE.sha_of(_EYE.CONTRACT) == _EYE.CONTRACT_SHA
+    _e1_ids = len(_EYE.TEST_IDS) == 40 and all(f"`{i}`" in _e1_doc.split("## ③")[0] for i in _EYE.TEST_IDS)
+    _e1_num = (_EYE.PX_TOL == 0.02 and "±2%" in _e1_doc and _EYE.HIT_MIN == 0.85 and "85% فأكثر" in _e1_doc
+               and _EYE.MIN_ANSWERED == 10 and "10 فأكثر" in _e1_doc and _EYE.MAX_CAND == 8 and "حتى **8**" in _e1_doc)
+    _e1_dir = _eye_tmp.mkdtemp()
+    _e1_g0 = _EYE.guard_score(_e1_dir)
+    open(_eye_os.path.join(_e1_dir, "TEST.json"), "w").write("{}")
+    _e1_g7 = _EYE.guard_score(_e1_dir)
+    _e1_old = _EYE.CONTRACT_SHA
+    try:
+        _EYE.CONTRACT_SHA = "0" * 64
+        _e1_g11 = _EYE.guard_score(_e1_dir)
+    finally:
+        _EYE.CONTRACT_SHA = _e1_old
+    _eye_sh.rmtree(_e1_dir, ignore_errors=True)
+    _e1_v = (_e1_sha, _e1_ids, _e1_num, _e1_g0, _e1_g7, _e1_g11)
+except Exception as _e:                                           # noqa: BLE001
+    _e1_v = (f"⛔ {type(_e).__name__}: {_e} {_eye_err}",)
+check("🧾 EYE1 T-FAISAL-EYE: العقدُ ببصمته · الأربعون في نصّه · السعرُ ±2% والإصابة 85% والمُجاب 10 والمرشَّحات 8 = العقد · والحارس 0 ثمّ 7 بعد النتيجة و11 لعقدٍ متغيّر",
+      _e1_v == (True, True, True, 0, 7, 11), str(_e1_v)[:200])
+
+# 🎯 EYE2 — المقياس: الإصابةُ ±1 شمعة من الحقيقة · والتسرّبُ يُعَدّ ويبقى في المقام · والبوّابةُ تشترط المُجابَ 10 والإصابةَ 85% معًا
+try:
+    import datetime as _e2_dt
+    from zoneinfo import ZoneInfo as _e2_Z
+    _e2_days = [(_e2_dt.date(2025, 1, 1) + _e2_dt.timedelta(days=k)).isoformat() for k in range(60)]
+    _e2_bars = {"1D": [[d, 1, 1, 1, 1, 1] for d in _e2_days]}
+    _e2_t = _e2_dt.datetime(2025, 1, 20, 17, 0, tzinfo=_e2_Z("America/New_York"))   # بعد 16:00 ⟵ شمعةُ اليوم نفسِه = 19
+    _e2_k = _EYE.truth_index("1D", _e2_bars["1D"], _e2_t)
+    _e2_kb = _EYE.truth_index("1D", _e2_bars["1D"], _e2_t.replace(hour=10))
+    def _e2_run(es, n_leak=0):
+        ids = _EYE.TEST_IDS
+        led = {ids[j]: {"verdict": "مطابق", "e": e} for j, e in enumerate(es)}
+        cards = {i: {"sym": "X", "frame": "1D", "kind": "candles"} for i in ids}
+        for j in range(n_leak):
+            cards[ids[-1 - j]] = {"kind": "leak"}
+        return _EYE.score_rows(led, cards, lambda s: _e2_bars, lambda i: _e2_t)[1]
+    _e2_a = _e2_run([19, 20, 18, 19, 19, 19, 19, 19, 19, 21], n_leak=3)     # 9 من 10 = 90%
+    _e2_b = _e2_run([19] * 9)                                              # 9 مُجاب ⟵ دون 10
+    _e2_c = _e2_run([19] * 8 + [22, 22])                                   # 8 من 10 = 80%
+    _e2_v = (_e2_k, _e2_kb, _e2_a["answered"], _e2_a["hits"], _e2_a["leaks"], _e2_a["n"], _e2_a["pass"], _e2_b["pass"], _e2_c["pass"])
+except Exception as _e:                                           # noqa: BLE001
+    _e2_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🎯 EYE2 T-FAISAL-EYE: الحقيقةُ آخرُ شمعةٍ مكتملة (بعد 16:00 اليوم نفسُه وقبلها السابقة) · الإصابةُ ±1 · التسرّبُ يُعَدّ والمقامُ 40 · البوّابةُ 10 مُجابًا و85% معًا",
+      _e2_v == (19, 18, 10, 9, 3, 40, True, False, False), str(_e2_v)[:200])
+
+# 🪟 EYE3 — المرشَّحات: نافذةٌ واحدةٌ تطابق الأرقامَ ±2% · ومعاملُ التقسيم بعد النافذة · ورقمان على الأقلّ · ومن 2023 · والأرقامُ وحدها يومٌ بسعرٍ وتغيّر
+try:
+    _e3_days = [(_e2_dt.date(2023, 1, 2) + _e2_dt.timedelta(days=k)).isoformat() for k in range(120)]
+    _e3_b = [[d, 1.0, 1.05, 0.95, 1.0, 1] for d in _e3_days]
+    _e3_b[50] = [_e3_days[50], 1.0, 3.0, 0.95, 1.0, 1]                    # قمّة 3.0
+    _e3_b[60] = [_e3_days[60], 1.0, 1.05, 0.5, 1.2, 1]                    # قاع 0.5 وآخرُ سعر 1.2 (+20%)
+    _e3_card = {"frame": "1D", "n": 11, "last": 1.2, "top": 3.0, "bottom": 0.5}
+    _e3_c = [c[0] for c in _EYE.candidates(_e3_card, _e3_b, [])]
+    _e3_far = [c[0] for c in _EYE.candidates(dict(_e3_card, last=1.26), _e3_b, [])]      # +5% ⟵ لا
+    _e3_one = _EYE.candidates({"frame": "1D", "n": 11, "last": 1.2}, _e3_b, [])          # رقمٌ واحد ⟵ []
+    _e3_sp = [c[:2] for c in _EYE.candidates(dict(_e3_card, last=12.0, top=30.0, bottom=5.0), _e3_b, [[_e3_days[100], 10.0]])]
+    _e3_old = [[d.replace("2023", "2022"), *r[1:]] for d, r in zip(_e3_days, _e3_b)]
+    _e3_pre = _EYE.candidates(_e3_card, _e3_old, [])                                      # قبل 2023 ⟵ []
+    _e3_dn = _EYE.day_numbers({"last": 1.2, "chg": 20.0}, _e3_b, [])
+    _e3_v = (_e3_c, _e3_far, _e3_one, _e3_sp, _e3_pre, _e3_dn)
+except Exception as _e:                                           # noqa: BLE001
+    _e3_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🪟 EYE3 T-FAISAL-EYE: نافذةٌ واحدة تعبر (آخرُ سعرٍ وقمّةٌ وقاع ±2%) · و+5% لا تعبر · ورقمٌ واحد لا يكفي · ومعاملُ تقسيمٍ بعد النافذة يُطبَّق · وما قبل 2023 خارج · والأرقامُ وحدها يومٌ واحد",
+      _e3_v == ([60], [], [], [(60, 10.0)], [], [60]), str(_e3_v)[:200])
+
+# 🗂️ EYE4 — البطاقاتُ الأربعون مودعةٌ قبل الجلب · وأنواعُها من العقد · والتسرّباتُ المعلنة 11 تشمل اسمَي X_ وIMG_0142 · والفريمُ خارج 1D/4H/1W ⟵ أرقامٌ فقط
+try:
+    _e4_rows = [_eye_json.loads(x) for x in open(_EYE.CARDS, encoding="utf-8") if x.strip()]
+    _e4_ids = [r["id"] for r in _e4_rows]
+    _e4_kind = {r["id"]: r["kind"] for r in _e4_rows}
+    _e4_leak = sorted(i for i, k in _e4_kind.items() if k == "leak")
+    _e4_t = _eye_ast.parse(open(_eye_os.path.join(_eye_d, "eye.py"), encoding="utf-8").read())
+    _e4_fn = next(n for n in _eye_ast.walk(_e4_t) if isinstance(n, _eye_ast.FunctionDef) and n.name == "mode_cand")
+    _e4_route = any(isinstance(n, _eye_ast.Compare) and any(isinstance(o, _eye_ast.NotIn) for o in n.ops)
+                    and isinstance(n.comparators[0], _eye_ast.Name) and n.comparators[0].id == "FRAMES" for n in _eye_ast.walk(_e4_fn))
+    _e4_v = (sorted(_e4_ids) == sorted(_EYE.TEST_IDS) and len(_e4_ids) == 40, set(_e4_kind.values()) <= {"candles", "numbers", "none", "leak"},
+             len(_e4_leak), {"IMG_0142", "X_20260827_labt_supports_wait", "X_20260905_12"} <= set(_e4_leak), _e4_route,
+             "11 «تسرُّب»" in open(_EYE.CONTRACT, encoding="utf-8").read())
+except Exception as _e:                                           # noqa: BLE001
+    _e4_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🗂️ EYE4 T-FAISAL-EYE: البطاقاتُ 40 = مجموعةُ الاختبار وأنواعُها الأربعة · التسرّباتُ 11 (IMG_0142 واسما X_ منها) معلنةٌ في العقد · والفريمُ غيرُ 1D/4H/1W يذهب للأرقام",
+      _e4_v == (True, True, 11, True, True, True), str(_e4_v)[:200])
+
+# 🖼️ EYE5 — الصورُ لا تُدفع · والـworkflow يدويٌّ بلا أسرارٍ ولا تلغرام ولا Polygon · ولا نداءَ لأدوات T-DATE-CANDLES المقفلة
+try:
+    import subprocess as _e5_sp
+    _e5_root = _eye_os.path.dirname(_eye_os.path.abspath(__file__))
+    _e5_tracked = _e5_sp.run(["git", "ls-files", "fm_forensics/faisal_eye"], cwd=_e5_root, capture_output=True, text=True).stdout.split()
+    _e5_img = [f for f in _e5_tracked if f.lower().endswith((".png", ".jpg", ".jpeg", ".webp"))]
+    _e5_gi = ".scratch/" in open(_eye_os.path.join(_e5_root, ".gitignore"), encoding="utf-8").read()
+    _e5_wf = "\n".join(x for x in open(_eye_os.path.join(_e5_root, ".github", "workflows", "faisal_eye.yml"), encoding="utf-8").read().splitlines()
+                        if not x.lstrip().startswith("#"))                 # الكودُ لا التعليق (§② من lock-and-mutate)
+    _e5_wfok = ("secrets." not in _e5_wf and "TELEGRAM" not in _e5_wf.upper() and "POLYGON" not in _e5_wf.upper()
+                and "schedule:" not in _e5_wf and "workflow_dispatch" in _e5_wf and ".scratch" not in _e5_wf and "faisal_eye/data/bars" in _e5_wf)
+    _e5_imp = set()
+    for n in _eye_ast.walk(_e4_t):
+        if isinstance(n, _eye_ast.Import):
+            _e5_imp |= {a.name for a in n.names}
+        elif isinstance(n, _eye_ast.ImportFrom):
+            _e5_imp.add(n.module or "")
+    _e5_v = (_e5_img, _e5_gi, _e5_wfok, sorted(m for m in _e5_imp if m in ("auto_card", "app_v2", "closed", "polygon") or "date_candles" in m))
+except Exception as _e:                                           # noqa: BLE001
+    _e5_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🖼️ EYE5 T-FAISAL-EYE: صفرُ صورةٍ متتبَّعة و.scratch مُتجاهَل · والـworkflow يدويٌّ بلا أسرارٍ ولا تلغرام ولا Polygon · ولا استيرادَ لقارئَي T-DATE-CANDLES المقفلَين",
+      _e5_v == ([], True, True, []), str(_e5_v)[:200])
+
+# 🔒 EYE6 — مفتاحُ الإقفال يعمل: CLOSED ⟵ الأداةُ تخرج 8 قبل أيّ عمل ما لم يُقَرّ FAISAL_EYE_REOPEN بـ"1" حرفيًّا
+try:
+    _e6_old, _e6_env = _EYE.CLOSED, _eye_os.environ.pop("FAISAL_EYE_REOPEN", None)
+    try:
+        _e6_open = _EYE.main(["eye.py"])
+        _EYE.CLOSED = True
+        _e6_c = _EYE.main(["eye.py", "score"])
+        _eye_os.environ["FAISAL_EYE_REOPEN"] = "0"
+        _e6_c0 = _EYE.closed()
+        _eye_os.environ["FAISAL_EYE_REOPEN"] = "1"
+        _e6_c1 = _EYE.closed()
+    finally:
+        _EYE.CLOSED = _e6_old
+        _eye_os.environ.pop("FAISAL_EYE_REOPEN", None)
+        if _e6_env is not None:
+            _eye_os.environ["FAISAL_EYE_REOPEN"] = _e6_env
+    _e6_v = (_e6_open, _e6_c, _e6_c0, _e6_c1)
+except Exception as _e:                                           # noqa: BLE001
+    _e6_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🔒 EYE6 T-FAISAL-EYE: مفتوحٌ الآن (بلا وضعٍ ⟵ 5) · والإقفالُ يُخرج 8 قبل أيّ عمل · و«0» لا يفتح و«1» وحدَه يفتح",
+      _e6_v == (5, 8, True, False), str(_e6_v)[:200])
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
