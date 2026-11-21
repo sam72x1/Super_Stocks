@@ -1,0 +1,10 @@
+# 👁️ EDU_20260827_wnw_entry_decision_4h · $WNW
+
+- **D:** 2026-08-26 · إغلاقُ D (TradingView): 2.48 · بمقياس يومها 2.48 (معامل 1.0)
+- **المصدر:** منشور · التأريخ: طابعُ الرأس
+- **الموقع من الحركة (‏+100%):** لا انفجار خلال 60 · وذراعُ ‏+50%: قبله
+- **لا انفجار خلال 60:** أقصى صعود +48.8% · أقصى هبوط -27.4% · واليوم -33.7%
+- **كلامُه (دخول):** «رجع يختبر2.30 ولاكسرها وثبت فوق 2.40 هنا قرار الدخول · تاريخ 21 / 7 شمعة الهبوط اليوم 27 > 8 يعني حقق متوسط 30 · شورت كان 30 الف على عدد اسهمه لاشي · Rsi كان 20 وتعافى»
+- **مستوياتُه:** {"support": 2.3, "resist": 2.4} ⟵ لمسُ الدعم: 7 · كنسٌ ثمّ استعادة: 11 · الهدف: None · الوقف: None · الأوّل: None (بالجلسات بعد D)
+- **سماتُ D (فهرس T-CASE31 · أوّلُ 40 · الكاملُ في FILES.json):** D.adx14=32.629358380694946 · D.atr14_p=0.0984639431921798 · D.bb.pctb=0.2916484132739246 · D.bb.squeeze_rank=0.058333333333333334 · D.bb.width=0.17528500095878344 · D.bot.adx=32.629358380694946 · D.bot.atr_p=0.0984639431921798 · D.bot.bb_pctb=0.2916484132739246 · D.bot.cci14=-98.38751652560715 · D.bot.ema30_dist=-0.11597858196741884 · D.bot.ema50_dist=-0.4687904794106893 · D.bot.fsto_k=7.329670329670347 · D.bot.klinger_bull=False · D.bot.kst_diff=21.280077283239223 · D.bot.macd_hist_p=0.011231495326394685 · D.bot.mfi=5.7619495071404 · D.bot.rsi14=40.239407445794875 · D.bot.stochrsi_k=11.56181089020132 · D.bot.willr=-91.2087912087912 · D.cci20=-42.40040529799072 · D.cdl.bear_engulf.ago=None · D.cdl.bear_engulf.any10=False · D.cdl.bear_harami.ago=None · D.cdl.bear_harami.any10=False · D.cdl.bull_engulf.ago=0.0 · D.cdl.bull_engulf.any10=True · D.cdl.bull_harami.ago=None · D.cdl.bull_harami.any10=False · D.cdl.bull_marubozu.ago=None · D.cdl.bull_marubozu.any10=False · D.cdl.dark_cloud.ago=None · D.cdl.dark_cloud.any10=False · D.cdl.doji.ago=2.0 · D.cdl.doji.any10=True · D.cdl.dragonfly.ago=None · D.cdl.dragonfly.any10=False · D.cdl.evening_star.ago=None · D.cdl.evening_star.any10=False · D.cdl.gravestone.ago=2.0 · D.cdl.gravestone.any10=True
+- **عند البوت يوم D:** {"near_watch.json": {"in": true, "readiness": 35, "snap": "2026-08-27"}, "weekly_watchlist.json": {"in": false, "snap": "2026-08-27"}}

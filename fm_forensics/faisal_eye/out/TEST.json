@@ -1,0 +1,284 @@
+{
+ "cards_sha": "0320f16afb388bf87b039909de27c7e8b7c100fac5521aef073bd83b72695e3c",
+ "contract_sha": "c82db6b982bb51a5c0828a92ce743d148500411c3fe5c1eff5f9d76164caa98c",
+ "ledger_sha": "2848dca6d72fd7a391d60d54aae39b6b7f874e36d802fe6b776a706ad4918f53",
+ "rows": [
+  {
+   "frame": null,
+   "id": "IMG_0142",
+   "kind": "leak",
+   "verdict": "تسرُّب"
+  },
+  {
+   "frame": null,
+   "id": "IMG_0320",
+   "kind": "candles",
+   "verdict": "غير محسوم"
+  },
+  {
+   "frame": "4H",
+   "id": "IMG_0500",
+   "kind": "none",
+   "verdict": "لا يُقرأ"
+  },
+  {
+   "frame": null,
+   "id": "IMG_0587",
+   "kind": "numbers",
+   "verdict": "غير محسوم"
+  },
+  {
+   "frame": "1D",
+   "id": "IMG_0698",
+   "kind": "leak",
+   "verdict": "تسرُّب"
+  },
+  {
+   "frame": "4H",
+   "id": "TG_1823",
+   "kind": "candles",
+   "verdict": "غير محسوم"
+  },
+  {
+   "frame": "1D",
+   "id": "TG_1833",
+   "kind": "candles",
+   "verdict": "غير محسوم"
+  },
+  {
+   "frame": "1D",
+   "id": "TG_1834",
+   "kind": "leak",
+   "verdict": "تسرُّب"
+  },
+  {
+   "frame": "intraday",
+   "id": "TG_1838",
+   "kind": "candles",
+   "verdict": "غير محسوم"
+  },
+  {
+   "frame": "1D",
+   "id": "TG_1851",
+   "kind": "candles",
+   "verdict": "غير محسوم"
+  },
+  {
+   "frame": null,
+   "id": "TG_1964",
+   "kind": "leak",
+   "verdict": "تسرُّب"
+  },
+  {
+   "frame": null,
+   "id": "TG_1997",
+   "kind": "candles",
+   "verdict": "غير محسوم"
+  },
+  {
+   "dist": 0,
+   "e": 1338,
+   "frame": "1D",
+   "hit": true,
+   "id": "TG_2109",
+   "kind": "candles",
+   "truth": 1338,
+   "verdict": "مطابق"
+  },
+  {
+   "frame": null,
+   "id": "TG_2112",
+   "kind": "candles",
+   "verdict": "لا تطابق"
+  },
+  {
+   "frame": "4H",
+   "id": "TG_2117",
+   "kind": "candles",
+   "verdict": "لا تطابق"
+  },
+  {
+   "dist": 0,
+   "e": 1919,
+   "frame": "4H",
+   "hit": true,
+   "id": "TG_2121",
+   "kind": "candles",
+   "truth": 1919,
+   "verdict": "مطابق"
+  },
+  {
+   "frame": null,
+   "id": "TG_2171",
+   "kind": "candles",
+   "verdict": "غير محسوم"
+  },
+  {
+   "dist": 0,
+   "e": 1109,
+   "frame": null,
+   "hit": true,
+   "id": "TG_2196",
+   "kind": "candles",
+   "truth": 1109,
+   "verdict": "يوم واحد"
+  },
+  {
+   "frame": null,
+   "id": "TG_2213",
+   "kind": "numbers",
+   "verdict": "غير محسوم"
+  },
+  {
+   "frame": null,
+   "id": "TG_50575",
+   "kind": "none",
+   "verdict": "لا يُقرأ"
+  },
+  {
+   "frame": "1D",
+   "id": "TG_50579",
+   "kind": "candles",
+   "verdict": "لا تطابق"
+  },
+  {
+   "frame": null,
+   "id": "TG_50818",
+   "kind": "none",
+   "verdict": "لا يُقرأ"
+  },
+  {
+   "frame": null,
+   "id": "TG_50833",
+   "kind": "none",
+   "verdict": "لا يُقرأ"
+  },
+  {
+   "frame": null,
+   "id": "TG_57872",
+   "kind": "leak",
+   "verdict": "تسرُّب"
+  },
+  {
+   "frame": null,
+   "id": "TG_57873",
+   "kind": "leak",
+   "verdict": "تسرُّب"
+  },
+  {
+   "frame": null,
+   "id": "TG_57879",
+   "kind": "none",
+   "verdict": "لا يُقرأ"
+  },
+  {
+   "frame": null,
+   "id": "TG_57891",
+   "kind": "candles",
+   "verdict": "غير محسوم"
+  },
+  {
+   "frame": "1D",
+   "id": "TG_58046",
+   "kind": "candles",
+   "verdict": "غير محسوم"
+  },
+  {
+   "frame": "1D",
+   "id": "TG_58397",
+   "kind": "leak",
+   "verdict": "تسرُّب"
+  },
+  {
+   "dist": 0,
+   "e": 1185,
+   "frame": "4H",
+   "hit": true,
+   "id": "TG_58423",
+   "kind": "candles",
+   "truth": 1185,
+   "verdict": "مطابق"
+  },
+  {
+   "dist": 0,
+   "e": 962,
+   "frame": "1D",
+   "hit": true,
+   "id": "TG_58525",
+   "kind": "candles",
+   "truth": 962,
+   "verdict": "مطابق"
+  },
+  {
+   "dist": 0,
+   "e": 1478,
+   "frame": "intraday",
+   "hit": true,
+   "id": "TG_76004",
+   "kind": "candles",
+   "truth": 1478,
+   "verdict": "يوم واحد"
+  },
+  {
+   "dist": 0,
+   "e": 317,
+   "frame": "1D",
+   "hit": true,
+   "id": "TG_76013",
+   "kind": "candles",
+   "truth": 317,
+   "verdict": "مطابق"
+  },
+  {
+   "frame": null,
+   "id": "TG_76016",
+   "kind": "leak",
+   "verdict": "تسرُّب"
+  },
+  {
+   "frame": null,
+   "id": "TG_76017",
+   "kind": "leak",
+   "verdict": "تسرُّب"
+  },
+  {
+   "frame": "1D",
+   "id": "TG_76019",
+   "kind": "candles",
+   "verdict": "لا تطابق"
+  },
+  {
+   "frame": "4H",
+   "id": "TG_76025",
+   "kind": "none",
+   "verdict": "لا يُقرأ"
+  },
+  {
+   "frame": "intraday",
+   "id": "TG_82792",
+   "kind": "candles",
+   "verdict": "غير محسوم"
+  },
+  {
+   "frame": "4H",
+   "id": "X_20260827_labt_supports_wait",
+   "kind": "leak",
+   "verdict": "تسرُّب"
+  },
+  {
+   "frame": null,
+   "id": "X_20260905_12",
+   "kind": "leak",
+   "verdict": "تسرُّب"
+  }
+ ],
+ "summary": {
+  "answer_rate": 0.175,
+  "answered": 7,
+  "hit_rate": 1.0,
+  "hits": 7,
+  "leaks": 11,
+  "n": 40,
+  "pass": false
+ }
+}

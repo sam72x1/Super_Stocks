@@ -1,0 +1,49 @@
+{"id": "EDU_20260827_ma_rizq_rule_sle", "sym": "SLE", "support": 2.5, "zone": [2.0, 2.5]}
+{"id": "EDU_20260827_wnw_entry_decision_4h", "sym": "WNW", "support": 2.3, "resist": 2.4}
+{"id": "IMG_0690", "sym": "DXST", "support": 2.8, "target": 3.5, "note": "وصفٌ لما حدث"}
+{"id": "IMG_9925", "sym": "SPRC", "support": 4.0, "resist": 4.53}
+{"id": "TG_50585", "sym": "LIMN", "support": 3.4, "zone": [3.29, 3.4]}
+{"id": "TG_57870", "sym": "OMH", "support": 2.3, "zone": [2.1, 2.3], "sweep": 1.8}
+{"id": "TG_57881", "sym": "CIIT", "support": 2.26, "sweep": 2.0}
+{"id": "TG_57884", "sym": "CIIT", "support": 2.26, "sweep": 2.0}
+{"id": "TG_58391", "sym": "INLF", "support": 2.0}
+{"id": "TG_58392", "sym": "INLF", "support": 2.0}
+{"id": "TG_58393", "sym": "WHLR", "support": 1.92, "zone": [1.8, 1.92]}
+{"id": "TG_58414", "sym": "NCT", "support": 1.4, "resist": 2.0, "note": "وصفٌ لما حدث"}
+{"id": "TG_58526", "sym": "NCT", "support": 1.24}
+{"id": "TG_58527", "sym": "SXTC", "target": 6.31}
+{"id": "TG_77198", "sym": "SVRE", "entry": 1.1, "resist": 1.45}
+{"id": "TG_77203", "sym": "FBGL", "support": 1.9}
+{"id": "TG_77204", "sym": "GNPX", "support": 1.51}
+{"id": "TG_77205", "sym": "BTOC", "support": 1.9, "zone": [1.8, 1.9]}
+{"id": "TG_77207", "sym": "CYCU", "support": 2.0, "sweep": 1.8}
+{"id": "TG_77214", "sym": "BRAI", "support": 3.35, "target": 5.0, "note": "وصفٌ لما حدث"}
+{"id": "TG_77217", "sym": "SVRE", "resist": 1.6, "target": 3.0}
+{"id": "TG_80998", "sym": "BNAI", "support": 3.94, "stop": 3.77}
+{"id": "TG_82780", "sym": "DKI", "support": 1.6}
+{"id": "X_20260828_13", "sym": "HCWB", "support": 3.19}
+{"id": "IMG_0320", "sym": "ONCO", "support": 0.7, "zone": [0.6, 0.7]}
+{"id": "IMG_0698", "sym": "ZNB", "support": 2.0}
+{"id": "TG_1833", "sym": "CANF", "resist": 3.5}
+{"id": "TG_2095", "sym": "ELPW", "support": 1.25, "zone": [1.2, 1.25], "stop": 1.16, "target": 1.73}
+{"id": "TG_2171", "sym": "ONCO", "support": 0.7, "zone": [0.6, 0.7]}
+{"id": "TG_2196", "sym": "ONCO", "support": 0.92, "target": 1.19}
+{"id": "TG_57873", "sym": "OMH", "support": 2.6, "resist": 3.0}
+{"id": "X_20260827_labt_supports_wait", "sym": "LABT", "support": 2.0, "zone": [1.8, 2.0]}
+{"id": "TG_58423", "sym": "NCT", "resist": 3.0, "target": 6.0}
+{"id": "IMG_0142", "sym": "PAVS", "support": 3.76, "target": 6.5}
+{"id": "TG_1838", "sym": "PPCB", "support": 1.53, "resist": 1.95, "note": "تقريرُ طرفٍ ثالث نشره فيصل"}
+{"id": "TG_1851", "sym": "EZRA", "resist": 3.0}
+{"id": "TG_2109", "sym": "CLIR", "support": 4.0, "zone": [3.87, 4.0], "sweep": 3.5, "note": "منشورُ متابِع (S.) لا فيصل"}
+{"id": "TG_2213", "sym": "PAVS", "support": 3.76, "target": 6.5}
+{"id": "TG_57891", "sym": "GCTK", "support": 3.12}
+{"id": "TG_58046", "sym": "EZRA", "resist": 5.4}
+{"id": "IMG_0587", "sym": "UPC", "support": 5.0, "target": 8.0}
+{"id": "TG_50575", "sym": "DCOY", "support": 3.7}
+{"id": "TG_57872", "sym": "OMH", "resist": 2.64}
+{"id": "TG_2117", "sym": "BETA", "support": 14.0}
+{"id": "TG_76004", "sym": "BKYI", "support": 2.63, "entry": 2.7, "stop": 2.4}
+{"id": "TG_76009", "sym": "ELAB", "support": 2.2, "zone": [1.8, 2.2]}
+{"id": "TG_76014", "sym": "ZCMD", "resist": 1.27}
+{"id": "TG_76016", "sym": "CETX", "target": 2.3, "support": 1.9}
+{"id": "TG_82792", "sym": "SPRC", "entry": 4.4}

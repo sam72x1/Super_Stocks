@@ -108187,7 +108187,10 @@ check("🖼️ EYE5 T-FAISAL-EYE: صفرُ صورةٍ متتبَّعة و.scratc
 try:
     _e6_old, _e6_env = _EYE.CLOSED, _eye_os.environ.pop("FAISAL_EYE_REOPEN", None)
     try:
-        _e6_open = _EYE.main(["eye.py"])
+        _e6_shut = _EYE.main(["eye.py", "score"])                       # مُغلَقٌ الآن ⟵ 8 قبل أيّ عمل
+        _eye_os.environ["FAISAL_EYE_REOPEN"] = "1"
+        _e6_open = _EYE.main(["eye.py"])                                 # بالإقرار ⟵ يصل إلى الوصف (5)
+        _eye_os.environ.pop("FAISAL_EYE_REOPEN", None)
         _EYE.CLOSED = True
         _e6_c = _EYE.main(["eye.py", "score"])
         _eye_os.environ["FAISAL_EYE_REOPEN"] = "0"
@@ -108199,11 +108202,26 @@ try:
         _eye_os.environ.pop("FAISAL_EYE_REOPEN", None)
         if _e6_env is not None:
             _eye_os.environ["FAISAL_EYE_REOPEN"] = _e6_env
-    _e6_v = (_e6_open, _e6_c, _e6_c0, _e6_c1)
+    _e6_v = (_e6_shut, _e6_open, _e6_c, _e6_c0, _e6_c1, _e6_old)
 except Exception as _e:                                           # noqa: BLE001
     _e6_v = (f"⛔ {type(_e).__name__}: {_e}",)
-check("🔒 EYE6 T-FAISAL-EYE: مفتوحٌ الآن (بلا وضعٍ ⟵ 5) · والإقفالُ يُخرج 8 قبل أيّ عمل · و«0» لا يفتح و«1» وحدَه يفتح",
-      _e6_v == (5, 8, True, False), str(_e6_v)[:200])
+check("🔒 EYE6 T-FAISAL-EYE: مُغلَقٌ مُنفَّذًا بعد النتيجة (CLOSED) ⟵ 8 قبل أيّ عمل · و«1» وحدَه يفتح (يصل إلى الوصف 5) و«0» لا يفتح",
+      _e6_v == (8, 5, 8, True, False, True), str(_e6_v)[:200])
+
+# 📊 EYE7 — النتيجةُ = المُخرَج: TEST.json (7 مُجاب · 7 مصيب · لا تعبر · 11 تسرّب) · والدفترُ 40 بحكمٍ من العقد · والوثيقةُ تقول «لا تعبر» و«وصفٌ بلا حكم»
+try:
+    _e7_t = _eye_json.load(open(_eye_os.path.join(_EYE.OUT, "TEST.json"), encoding="utf-8"))["summary"]
+    _e7_led = [_eye_json.loads(x) for x in open(_EYE.LEDGER, encoding="utf-8") if x.strip()]
+    _e7_doc = open(_eye_os.path.join(_eye_d, "T_FAISAL_EYE_RESULT.md"), encoding="utf-8").read()
+    _e7_rs = _EYE.score_rows({r["id"]: r for r in _e7_led}, _EYE._load_jsonl(_EYE.CARDS), _EYE.load_bars,
+                             lambda i: _EYE.truth_ny(_EYE.test_set()[i]))[1]
+    _e7_v = (_e7_t["answered"], _e7_t["hits"], _e7_t["pass"], _e7_t["leaks"], _e7_rs == _e7_t, len(_e7_led),
+             {r["verdict"] for r in _e7_led} <= {"مطابق", "يوم واحد", "غير محسوم", "لا تطابق", "تسرُّب", "لا يُقرأ"},
+             "«لا تعبر»" in _e7_doc and "وصفٌ بلا حكم" in _e7_doc.split("## ②")[0])
+except Exception as _e:                                           # noqa: BLE001
+    _e7_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("📊 EYE7 T-FAISAL-EYE: TEST.json = إعادةُ التقييم من الدفتر المودَع (7 مُجاب · 7 مصيب · 11 تسرّب · لا تعبر) · والدفترُ 40 بأحكام العقد · والوثيقةُ تبدأ بـ«لا تعبر» و«وصفٌ بلا حكم»",
+      _e7_v == (7, 7, False, 11, True, 40, True, True), str(_e7_v)[:200])
 
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
