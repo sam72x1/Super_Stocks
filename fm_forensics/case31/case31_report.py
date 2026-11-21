@@ -195,6 +195,20 @@ def dossier_section(idx):
     return L
 
 
+def validation_numbers(r):
+    """(نقيّة) صفُّ تحقّقٍ ⟵ أرقامُه الحاكمة نصًّا (الحاملون والنسبتان والربحان للبصمة · حصّتا المنفجرين والضابطة للاستبعاد)."""
+    if r.get("kind") == "استبعاد":
+        if r.get("pos") is None:
+            return "—"
+        return f"المنفجرون الحاملون {r.get('pos_carry')} من {r.get('pos')} ({pct(r.get('pos_share'))}) · الضابطة {pct(r.get('neg_share'))}"
+    if r.get("n") is None:
+        return "—"
+    out = f"الحاملون {r['n']:,} · منفجرون {r.get('k')} ({pct(r.get('rate'))}) · نسبةُ المجتمع {pct(r.get('base'))}"
+    if r.get("wilson_lo") is not None:
+        out += f" · أدنى ويلسون {pct(r['wilson_lo'])} · الربح بعد الكلفة {pct(r.get('profit'))} مقابل غير الحاملين {pct(r.get('profit_ctrl'))} · الخاسرون {pct(r.get('losers'))}"
+    return out
+
+
 def build():
     V, idx = _load("verify.json"), _load(os.path.join("dossiers", "index.json"))
     arms = {a: _load(f"arm{a}.json.gz") for a in ("A", "B")}
@@ -211,8 +225,10 @@ def build():
     for a in ("A", "B"):
         L += prints_section(a, arms[a])
     if val:
-        L += ["### التحقّقُ للخلف لما ثُبِّت", "", "| الذراع | النوع | البصمة | المجتمع | الحكم |", "|---|---|---|---|---|"]
-        L += [f"| {r['arm']} | {r['kind']} | {' ＋ '.join(W.condition(t) for t in r['texts'])} | {r['pop']} | **{r['verdict']}** |" for r in val] + [""]
+        L += ["### التحقّقُ للخلف لما ثُبِّت", "", "| الذراع | النوع | البصمة | المجتمع | الأرقام | الحكم |", "|---|---|---|---|---|---|"]
+        L += [f"| {r['arm']} | {r['kind']} | {' ＋ '.join(W.condition(t) for t in r['texts'])} | {r['pop']} | {validation_numbers(r)} | **{r['verdict']}** |" for r in val] + [""]
+        L += ["- الحاكم (العقد §⑥): البصمةُ تثبت حين أدنى ويلسون 95% لنسبة الانفجار عند الحاملين فوق نسبة المجتمع **و**الربحُ بعد كلفة 1.8% موجبٌ وفوق غير الحاملين في الأيّام نفسِها · "
+              "وحاملون دون 20 «لا قياس» · والاستبعادُ يثبت حين يحمله 5% فأقلّ من المنفجرين و20% فأكثر من الضابطة.", ""]
     else:
         L += ["- التحقّق: لم يصدر (يلزمه ملفُّ تثبيتٍ · وصفرُ عابرٍ ⟵ لا تثبيتَ ولا تحقّق).", ""]
     L += missed_section(arms["A"], idx) + dossier_section(idx)

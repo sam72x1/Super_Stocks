@@ -107051,6 +107051,51 @@ except Exception as _e:                                           # noqa: BLE001
 check("🧊 CSG2 T-CASE31 الأثرُ البنيويّ: «ليس في تحت المتابعة» يوسَم في جدول الفروق والتوليفات حين كلُّ حامليه منفجرون وللذراع منفجرون خارج المتابعة وحدَه · وقاعدةُ التثبيت لا تستثنيه",
       bool(_csg2), _csg2d)
 
+# 🔧 CSF3 — `T-CASE31` الدفترُ الأماميّ: خطوةُ الدفع تضيف كلَّ ملفٍّ بندائه (عطلٌ مُثبَت في أوّل تشغيلة `44860010187` · 2026-11-21: `git add` بثلاثة مسارات
+#    وأحدُها غائب يفشل كلُّه ⟵ «لا جديد — لا دفع» والتقريرُ مكتوب) — سلوكيًّا: الخطوةُ نفسُها تُشغَّل في مستودعٍ مؤقّت فيه ملفّان من الثلاثة.
+try:
+    _csf3_wf = __import__("yaml").safe_load(open(".github/workflows/case31_fwd.yml", encoding="utf-8"))
+    _csf3_run = [s for s in _csf3_wf["jobs"]["fwd"]["steps"] if "دفعُ الدفتر" in str(s.get("name"))][0]["run"]
+    _csf3_add = _csf3_run.split("if git diff --cached --quiet")[0]                      # ما قبل فحص «لا جديد»: الإعدادُ والإضافة وحدَهما (لا commit ولا دفع)
+    _csf3_d = __import__("tempfile").mkdtemp()
+    _csf3_sp = __import__("subprocess")
+    _csf3_sh = lambda cmd: _csf3_sp.run(["bash", "-c", cmd], cwd=_csf3_d, capture_output=True, text=True, timeout=60)        # noqa: E731
+    try:
+        _csf3_sh("git init -q . && mkdir -p fm_forensics/case31/data fm_forensics/case31/out && echo x > fm_forensics/case31/data/case31_fwd.jsonl "
+                 "&& echo y > fm_forensics/case31/out/FWD.md && printf '*.jsonl\\n' > .gitignore")
+        _csf3_r = _csf3_sh(_csf3_add + "\ngit diff --cached --name-only")
+        _csf3_staged = sorted(x for x in _csf3_r.stdout.split() if x)
+    finally:
+        __import__("shutil").rmtree(_csf3_d, ignore_errors=True)
+    _csf3 = (_csf3_r.returncode == 0 and _csf3_staged == ["fm_forensics/case31/data/case31_fwd.jsonl", "fm_forensics/case31/out/FWD.md"]
+             and "git commit" not in _csf3_add and "git push" not in _csf3_add)
+    _csf3d = f"rc={_csf3_r.returncode} staged={_csf3_staged} err={_csf3_r.stderr[-80:]!r}"
+except Exception as _e:                                           # noqa: BLE001
+    _csf3, _csf3d = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔧 CSF3 T-CASE31 الدفترُ الأماميّ: خطوةُ الدفع تضيف الموجودَ من الملفّات الثلاثة ولو غاب أحدُها (دفترُ الحسم غائبٌ في أوّل 20 جلسة) ولو كان `*.jsonl` مُتجاهَلًا",
+      bool(_csf3), _csf3d)
+
+# 🧾 CSG3 — `T-CASE31` المخرجُ النهائيّ مولَّدٌ لا يُعدَّل باليد: `out/FINAL_BODY.md` المودَع = `case31_report.build()` على ملفّات `out/` المودَعة ·
+#    وأرقامُ التحقّق الحاكمة في جدوله (الحاملون · النسبتان · الربحان) · والتحقّقُ المودَع لا بصمةَ تثبت فيه (2026-11-21).
+try:
+    _csg3_md = _CSE_R.build()
+    _csg3_file = open(__import__("os").path.join(_CSD_FZ.C.OUT, "FINAL_BODY.md"), encoding="utf-8").read()
+    _csg3_val = __import__("json").load(open(__import__("os").path.join(_CSD_FZ.C.OUT, "validate.json"), encoding="utf-8"))
+    _csg3_vn = _CSE_R.validation_numbers
+    _csg3_p = _csg3_vn({"kind": "بصمة", "n": 8161, "k": 85, "rate": 0.0104, "base": 0.0063, "wilson_lo": 0.0084, "profit": -0.2944, "profit_ctrl": -0.2282, "losers": 0.9129})
+    _csg3 = (_csg3_md == _csg3_file
+             and _csg3_p == "الحاملون 8,161 · منفجرون 85 (1.0%) · نسبةُ المجتمع 0.6% · أدنى ويلسون 0.8% · الربح بعد الكلفة -29.4% مقابل غير الحاملين -22.8% · الخاسرون 91.3%"
+             and _csg3_vn({"kind": "بصمة", "n": 14, "k": 14, "rate": 1.0, "base": 0.0073}) == "الحاملون 14 · منفجرون 14 (100.0%) · نسبةُ المجتمع 0.7%"
+             and _csg3_vn({"kind": "استبعاد", "pos": 62, "pos_carry": 8, "pos_share": 0.129, "neg_share": 0.1427}) == "المنفجرون الحاملون 8 من 62 (12.9%) · الضابطة 14.3%"
+             and _csg3_vn({"kind": "بصمة", "verdict": "لا قياس — المجتمعُ غائب"}) == "—" and _csg3_vn({"kind": "استبعاد"}) == "—"
+             and len(_csg3_val) == 12 and not any(str(r["verdict"]).startswith("✅") for r in _csg3_val)
+             and all(_csg3_vn(r) in _csg3_file for r in _csg3_val))
+    _csg3d = f"eq={_csg3_md == _csg3_file} rows={len(_csg3_val)} | {_csg3_p[:60]}"
+except Exception as _e:                                           # noqa: BLE001
+    _csg3, _csg3d = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧾 CSG3 T-CASE31 المخرجُ النهائيّ المودَع يُعاد توليدُه بايتًا من `out/` · وجدولُ التحقّق يحمل الأرقامَ الحاكمة · والتحقّقُ المودَع بلا بصمةٍ تثبت",
+      bool(_csg3), _csg3d)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
