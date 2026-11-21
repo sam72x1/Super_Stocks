@@ -44,6 +44,7 @@ NEWS_BEFORE = 3                                                   # المحفّ
 OFFER_AFTER = 10                                                  # الطرحُ اللاحق: 10 جلسات بعد البداية (وصف)
 TV_DAILY_N = 320
 RC_OK, RC_DATA, RC_ONCE, RC_BLIND, RC_FREEZE, RC_CONTRACT = 0, 5, 7, 8, 9, 11
+FREEZE_SHA = None                                                 # بصمةُ `data/case31_freeze.json` — تُكتب في PR التثبيت وحدَه (العقد §⑥)
 OFFER_FORMS = ("424B", "S-1", "F-1", "S-3", "F-3")
 NEWS_FORMS = ("8-K", "6-K")
 KEYWORDS = (                                                      # §①-ط نوعُ المحفّز بالكلمات (أوّلُ مطابقةٍ بالترتيب)
@@ -133,11 +134,12 @@ def window_of(ev):
     return "الشهر" if MONTH_FROM <= s <= WIN_TO else ("قبل الشهر" if WIN_FROM <= s < MONTH_FROM else "قبل النافذة")
 
 
-def pick_events(rows):
-    """⟵ (أحداثُ زناد الضعف، أحداثُ زناد 1.5× غيرُ المتداخلة معها) — لكلٍّ صنفُه بالحاكمة."""
-    e2 = find_events(rows, WIN_FROM, WIN_TO, 2.0)
+def pick_events(rows, lo=None, hi=None):
+    """⟵ (أحداثُ زناد الضعف، أحداثُ زناد 1.5× غيرُ المتداخلة معها) — لكلٍّ صنفُه بالحاكمة · النافذةُ [lo، hi] وافتراضُها نافذةُ العقد."""
+    lo, hi = lo or WIN_FROM, hi or WIN_TO
+    e2 = find_events(rows, lo, hi, 2.0)
     spans = [(e["ix"]["b"], e["ix"]["p"]) for e in e2]
-    e15 = [e for e in find_events(rows, WIN_FROM, WIN_TO, 1.5)
+    e15 = [e for e in find_events(rows, lo, hi, 1.5)
            if not any(a <= e["ix"]["s"] <= z or a <= e["ix"]["p"] <= z or (e["ix"]["b"] <= a and e["ix"]["p"] >= z) for a, z in spans)]
     return e2, e15
 
@@ -180,12 +182,12 @@ def second_source(ev, rows2):
     return {"rD": a[4] / ev["close_D"], "rP": b[2] / ev["top"], "gov2": b[2] / a[4] - 1.0}
 
 
-def drop_reason(ev, cls, rows, rows2, splits):
-    """⟵ (سببُ الإسقاط أو None، وسمُ المصدر) بقواعد §⓪-ب (أ) (ب) (ج) بترتيبها."""
+def drop_reason(ev, cls, rows, rows2, splits, lo=None, hi=None):
+    """⟵ (سببُ الإسقاط أو None، وسمُ المصدر) بقواعد §⓪-ب (أ) (ب) (ج) بترتيبها · [lo، hi] نافذةُ إعادة الفحص (افتراضُها نافذةُ العقد)."""
     un = unadjusted_splits(rows, splits, ev["ix"]["b"], ev["ix"]["p"])
     if un:
         fixed = apply_splits(rows, un)
-        e2, e15 = pick_events(fixed)
+        e2, e15 = pick_events(fixed, lo, hi)
         still = [event_class(e) for e in e2 + e15 if e["s"] == ev["s"] or e["D"] == ev["D"]]
         keep = ("x100" in still) if cls == "x100" else any(c in ("x100", "x50") for c in still)
         if not keep:

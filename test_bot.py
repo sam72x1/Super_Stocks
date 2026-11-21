@@ -106668,6 +106668,164 @@ check("🗂️ CSB5 T-CASE31 ①: التوقيتُ اللحظيّ بأدقّ ف�
       bool(_csb5), _csb5d)
 
 
+# 🗂️🔬 CSC1-CSC3 — `T-CASE31` مجتمعُ الذراع ب (شرائح 2023-2025) وعماها عن 2026
+try:
+    _CSC_B = _csb_imp.import_module("case31_b")
+    _csc_err = ""
+except Exception as _e:                                           # noqa: BLE001
+    _CSC_B, _csc_err = None, f"⛔ {type(_e).__name__}: {_e}"
+
+# CSC1 — العضويّة والخطّة: الموجبُ حدثٌ يومُ قراره داخل نافذة عضويّة وحتى 2025 · والضابطةُ أعضاءُ يومه · والشرائحُ تُقرأ لـCURRENT والسنوات الثلاث وحدَها
+_csc_td = _csb_tmp.mkdtemp(prefix="csc1_")
+try:
+    _csc_rows = _csa_mk([1.0] * 45 + [2.0, 1.8, 1.7, 1.6] + [1.5] * 30, start="2024-03-01", hi={45: 2.5})
+    _csc_sess = [r[0] for r in _csc_rows]
+    _csc_D = _csc_rows[44][0]
+    _csc_mem_in = _CSC_B.membership([("AAA", _csc_rows[30][0]), ("BBB", _csc_rows[40][0]), ("CCC", _csc_rows[2][0])], _csc_sess)
+    _csc_p_in = _CSC_B.plan_b(_csc_mem_in, {"AAA": _csc_rows, "BBB": _csc_rows[:44] + [(r[0], 1, 1.01, .99, 1, 1e6) for r in _csc_rows[44:]]}, {"AAA": [], "BBB": []}, _csc_sess)
+    _csc_mem_out = _CSC_B.membership([("AAA", _csc_rows[10][0])], _csc_sess)                 # النافذةُ تنتهي قبل يوم القرار بأربع جلسات
+    _csc_p_out = _CSC_B.plan_b(_csc_mem_out, {"AAA": _csc_rows}, {"AAA": []}, _csc_sess)
+    _csc_late = _csa_mk([1.0] * 45 + [2.0, 1.8] + [1.5] * 20, start="2025-11-03", hi={45: 2.5})   # يومُ القرار في يناير 2026
+    _csc_ls = [r[0] for r in _csc_late]
+    _csc_p_late = _CSC_B.plan_b(_CSC_B.membership([("AAA", _csc_late[40][0])], _csc_ls), {"AAA": _csc_late}, {"AAA": []}, _csc_ls)
+    with _csb_gz.open(_csc_td + "/basket_shard_00.json.gz", "wt", encoding="utf-8") as _fh:
+        _csb_json.dump({"recs": [{"sym": "aaa", "d": "2024-03-05", "y": "2024", "lists": ["CURRENT"]}, {"sym": "NEW1", "d": "2024-03-05", "y": "2024", "lists": ["NEW"]},
+                                 {"sym": "OLD", "d": "2026-03-05", "y": "2026", "lists": ["CURRENT"]}, {"sym": "AAA", "d": "2024-03-05", "y": "2024", "lists": ["CURRENT", "NEW"]}]}, _fh)
+    _csc1 = (_csc_mem_in["AAA"] == [(_csc_rows[30][0], _csc_rows[50][0])] and _CSC_B.is_member(_csc_mem_in, "AAA", _csc_rows[50][0])
+             and not _CSC_B.is_member(_csc_mem_in, "AAA", _csc_rows[51][0]) and not _CSC_B.is_member(_csc_mem_in, "AAA", _csc_rows[29][0])
+             and [(e["sym"], e["D"], e["win"]) for e in _csc_p_in["events"]] == [("AAA", _csc_D, "B")] and _csc_p_in["days"] == [_csc_D]
+             and _csc_p_in["members"][_csc_D] == ["AAA", "BBB"] and _csc_p_in["stat"]["no_bars"] == 1
+             and _csc_p_out["events"] == [] and _csc_p_out["stat"]["outside_membership"] == 1
+             and _csc_late[44][0] > "2025-12-31" and _csc_p_late["events"] == [] and _csc_p_late["stat"]["outside_membership"] == 1
+             and _CSC_B.entries_from_shards(_csc_td) == [("AAA", "2024-03-05")] and _CSC_B.MEMBER_WIN == 20 and _CSC_B.B_TO == "2025-12-31")
+    _csc1d = f"{_csc_p_in['stat']} | {_csc_p_out['stat']} | {_csc_late[44][0]}"
+except Exception as _e:                                           # noqa: BLE001
+    _csc1, _csc1d = False, _csc_err or f"⛔ {type(_e).__name__}: {_e}"
+finally:
+    _csb_sh.rmtree(_csc_td, ignore_errors=True)
+check("🗂️ CSC1 T-CASE31 الذراع ب: الموجبُ حدثُ ‏+100% يومُ قراره داخل نافذة عضويّته (20 جلسة) وحتى 2025 · والضابطةُ أعضاءُ يومه · والشرائحُ تُقرأ لـCURRENT و2023-2025 وحدَها",
+      bool(_csc1), _csc1d)
+
+# CSC2 — العمى: الذراع ب لا تبحث إلّا في شرائحَ موسومة `arm=B` بلا صفٍّ بعد 2025 (خروج 8 وإلّا)
+_csc_td2 = _csb_tmp.mkdtemp(prefix="csc2_")
+try:
+    def _csc_w(name, arm, days):
+        import os as _o
+        _o.makedirs(_csc_td2 + "/" + name, exist_ok=True)
+        with _csb_gz.open(_csc_td2 + "/" + name + "/feat_0.json.gz", "wt", encoding="utf-8") as fh:
+            _csb_json.dump({"rows": [{"sym": "A", "D": d, "ok": False} for d in days], "catalog_sha": _CSB_CAT.sha(), **({"arm": arm} if arm else {})}, fh)
+    _csc_w("ok", "B", ["2023-05-01", "2025-12-31"])
+    _csc_w("y26", "B", ["2025-12-31", "2026-01-02"])
+    _csc_w("armA", None, ["2024-05-01"])
+    _csc_rc = [_CSB_A.main(["x", "observe", "B", "--dir", _csc_td2 + "/" + nm]) for nm in ("ok", "y26", "armA", "none")]
+    _csc2 = (_CSB_A.b_blind_ok(_csc_td2 + "/ok") is True and _CSB_A.b_blind_ok(_csc_td2 + "/y26") is False and _CSB_A.b_blind_ok(_csc_td2 + "/armA") is False
+             and _CSB_A.b_blind_ok(_csc_td2 + "/none") is False and _csc_rc[0] == _CSB_C.RC_DATA and _csc_rc[1:] == [_CSB_C.RC_BLIND] * 3
+             and _CSB_A.B_LAST_DAY == "2025-12-31")
+    _csc2d = str(_csc_rc)
+except Exception as _e:                                           # noqa: BLE001
+    _csc2, _csc2d = False, _csc_err or f"⛔ {type(_e).__name__}: {_e}"
+finally:
+    _csb_sh.rmtree(_csc_td2, ignore_errors=True)
+check("🗂️ CSC2 T-CASE31 الذراع ب عمياءُ عن 2026: شريحةٌ غيرُ موسومةٍ `arm=B` أو فيها يومُ قرارٍ بعد 2025 أو مجلّدٌ فارغ ⟵ خروج 8 · والسليمةُ تمضي إلى البحث",
+      bool(_csc2), _csc2d)
+
+# CSC3 — الإسقاطُ في نافذة الذراع ب: تقسيمٌ غيرُ مسوّى في 2024 يُسقَط والحقيقيُّ المسوّى يبقى (إعادةُ الفحص في نافذة ب لا نافذة 2026) · والـworkflow يقرأ شرائحَ T-BASKET
+try:
+    _csc_f = _csa_mk([1.0] * 45 + [10.0] * 12, start="2024-03-01", op={45: 10.0})
+    _csc_fe = _CSA.find_events(_csc_f, "2023-01-01", "2025-12-31", 2.0)[0]
+    _csc_t = _csa_mk([1.0] * 45 + [30.0] + [25.0] * 12, start="2024-03-01", op={45: 10.0}, hi={45: 31.0})   # تقسيمٌ غيرُ مسوّى ومعه انفجارٌ حقيقيّ (‏10 ⟵ 31)
+    _csc_te = _CSA.find_events(_csc_t, "2023-01-01", "2025-12-31", 2.0)[0]
+    _csc_d1 = _CSA.drop_reason(_csc_fe, "x100", _csc_f, None, [(_csc_f[45][0], 0.1)], lo="2023-01-01", hi="2025-12-31")
+    _csc_d2 = _CSA.drop_reason(_csc_te, "x100", _csc_t, None, [(_csc_t[45][0], 0.1)], lo="2023-01-01", hi="2025-12-31")
+    _csc_d3 = _CSA.drop_reason(_csc_te, "x100", _csc_t, None, [(_csc_t[45][0], 0.1)])            # نافذةُ العقد الافتراضيّة (2026) لا ترى 2024
+    _csc_wfb = __import__("yaml").safe_load(open(".github/workflows/case31.yml", encoding="utf-8"))["jobs"]
+    _csc_cb = str(_csc_wfb["collect_b"]["steps"])
+    _csc3 = (str(_csc_d1[0]).startswith("(أ)") and _csc_d2 == (None, "مصدرٌ واحد") and str(_csc_d3[0]).startswith("(أ)")
+             and _CSA.pick_events(_csc_t)[0] == [] and len(_CSA.pick_events(_csc_t, "2023-01-01", "2025-12-31")[0]) == 1
+             and _CSA.pick_events(_csc_t, "2023-01-01", "2025-12-31") == _CSA.pick_events(_csc_t, lo="2023-01-01", hi="2025-12-31")
+             and _CSA.pick_events(_csa_r1) == _CSA.pick_events(_csa_r1, _CSA.WIN_FROM, _CSA.WIN_TO)
+             and "43955351411" in _csc_cb and "basket-shard-*" in _csc_cb and set(_csc_wfb["assemble_b"]["needs"]) == {"observe_b", "shuffle_b"}
+             and len(_csc_wfb["shuffle_b"]["strategy"]["matrix"]["k"]) == 20
+             and all("exit 7" in str(_csc_wfb[j]["steps"]) for j in ("collect_b", "observe_b", "shuffle_b")))
+    _csc3d = str((_csc_d1, _csc_d2, _csc_d3))[:200]
+except Exception as _e:                                           # noqa: BLE001
+    _csc3, _csc3d = False, _csc_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🗂️ CSC3 T-CASE31 الذراع ب: قاعدةُ الإسقاط (أ) تُعاد في نافذة 2023-2025 (الحقيقيُّ المسوّى يبقى والوهميُّ يُسقَط) · والـworkflow يقرأ شرائحَ T-BASKET ويجمّع مرّةً واحدة",
+      bool(_csc3), _csc3d)
+
+
+# 🗂️🔬 CSD1 — `T-CASE31` ملفُّ التثبيت: العابرُ للخلط وحدَه · أفضلُ 3 بترتيبٍ حتميّ · وصفرُ عابرٍ ⟵ لا تثبيت
+try:
+    _CSD_FZ = _csb_imp.import_module("case31_freeze")
+    _csd_arm = {"summary": {"verdict": {"best_print": {"p95": 5.0}, "best_excl": {"p95": 0.30}}},
+                "thresholds": {"a<q20": 1.5, "b>q80": 2.5, "c=1": None, "d<q40": 0.1, "e>q60": 9.0},
+                "top_singles": [{"cond": "a<q20", "z": 6.0, "k": 9, "n": 50}, {"cond": "c=1", "z": 4.9, "k": 8, "n": 60}, {"cond": "b>q80", "z": 5.0, "k": 8, "n": 60}],
+                "top_combos": [{"conds": ["a<q20", "b>q80"], "z": 9.0, "k": 8, "n": 10}, {"conds": ["a<q20", "b>q80", "c=1"], "z": 8.5, "k": 8, "n": 9},
+                               {"conds": ["d<q40", "e>q60"], "z": 7.0, "k": 8, "n": 12}, {"conds": ["a<q20", "c=1"], "z": 6.0, "k": 8, "n": 12},
+                               {"conds": ["d<q40", "c=1"], "z": 5.5, "k": 8, "n": 12}],
+                "exclusions": [{"cond": "e>q60", "removes": 0.31, "pos_share": 0.0}, {"cond": "d<q40", "removes": 0.30, "pos_share": 0.0},
+                               {"cond": "a<q20", "removes": 0.45, "pos_share": 0.02}]}
+    _csd_s = _CSD_FZ.select(_csd_arm)
+    _csd_f = {"a": 1.0, "b": 3.0, "c": True, "d": None}
+    _csd_none = {"summary": {"verdict": {"best_print": {"p95": 99.0}, "best_excl": {"p95": 1.0}}}, "top_singles": [{"cond": "a<q20", "z": 6.0, "k": 1, "n": 1}],
+                 "top_combos": [], "exclusions": [{"cond": "a<q20", "removes": 0.9, "pos_share": 0.0}], "thresholds": {"a<q20": 1.0}}
+    _csd1 = ([(p["texts"], p["z"]) for p in _csd_s["prints"]] == [(["a<q20", "b>q80"], 9.0), (["d<q40", "e>q60"], 7.0), (["a<q20"], 6.0)]
+             and [(e["texts"], e["removes"]) for e in _csd_s["excl"]] == [(["a<q20"], 0.45), (["e>q60"], 0.31)]
+             and _csd_s["prints"][0]["conds"] == [{"f": "a", "op": "<", "v": 1.5, "text": "a<q20"}, {"f": "b", "op": ">", "v": 2.5, "text": "b>q80"}]
+             and _CSD_FZ.parse_cond("c=1", None) == {"f": "c", "op": "==", "v": 1, "text": "c=1"}
+             and _CSD_FZ.carries(_csd_s["prints"][0]["conds"], _csd_f) is True and _CSD_FZ.holds({"f": "d", "op": "<", "v": 0.1}, _csd_f) is None
+             and _CSD_FZ.carries([{"f": "d", "op": "<", "v": 0.1}], _csd_f) is False and _CSD_FZ.holds({"f": "c", "op": "==", "v": 0}, _csd_f) is False
+             and _CSD_FZ.carries([{"f": "a", "op": "<", "v": 1.0}], _csd_f) is False
+             and list(_CSD_FZ.build_freeze({"A": _csd_arm, "B": _csd_none})["arms"]) == ["A"] and _CSD_FZ.build_freeze({"B": _csd_none}) is None
+             and _CSD_FZ.select(dict(_csd_none, summary={"verdict": {"best_print": {"p95": 6.0}, "best_excl": {"p95": 0.9}}})) == {"prints": [], "excl": [], "p95_print": 6.0, "p95_excl": 0.9}
+             and len(_CSD_FZ.select(dict(_csd_none, summary={"verdict": {"best_print": {"p95": 5.99}, "best_excl": {"p95": 0.89}}}))["prints"]) == 1
+             and _CSD_FZ.TOP == 3 and (_CSA.FREEZE_SHA is not None or _CSD_FZ.load_freeze() is None))
+    _csd1d = str([(p["texts"], p["z"]) for p in _csd_s["prints"]])[:200]
+except Exception as _e:                                           # noqa: BLE001
+    _csd1, _csd1d = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🗂️ CSD1 T-CASE31 التثبيت: لا يُثبَّت إلّا ما فاق المئين 95 لأقصى الخلطات · أفضلُ 3 بالدرجة ثمّ الأقصر ثمّ الاسم بلا مشاركة شرطين · والمجهولُ لا يحمل · وصفرُ عابرٍ ⟵ لا ملفّ",
+      bool(_csd1), _csd1d)
+
+
+# 🗂️🔬 CSD2 — `T-CASE31` التحقّقُ للخلف: يرفض بلا ملفّ تثبيت (9) · والحاكمُ ويلسون فوق نسبة المجتمع مع ربحٍ موجبٍ فوق غير الحاملين · ودون 20 «لا قياس»
+try:
+    _CSD_V = _csb_imp.import_module("case31_validate")
+    _csd_c = [{"f": "a", "op": ">", "v": 0.5}]
+
+    def _csd_pop(k_pos, n_car, ret_car, ret_other, others=200, days=4):
+        out = []
+        for i in range(n_car):
+            out.append({"y": int(i < k_pos), "f": {"a": 1.0}, "ret": ret_car, "day": f"d{i % days}", "src": {"dd_before": -0.1}})
+        for i in range(others):
+            out.append({"y": int(i < 2), "f": {"a": 0.0}, "ret": ret_other, "day": f"d{i % days}"})
+        return out
+    _csd_ok = _CSD_V.judge_print(_csd_c, _csd_pop(10, 30, 0.30, 0.0))
+    _csd_low = _CSD_V.judge_print(_csd_c, _csd_pop(1, 30, 0.30, 0.0))            # ويلسون دون نسبة المجتمع
+    _csd_neg = _CSD_V.judge_print(_csd_c, _csd_pop(10, 30, 0.01, 0.0))           # الربحُ بعد الكلفة سالب
+    _csd_ctl = _CSD_V.judge_print(_csd_c, _csd_pop(10, 30, 0.30, 0.50))          # دون غير الحاملين في أيّامهم
+    _csd_few = _CSD_V.judge_print(_csd_c, _csd_pop(10, 19, 0.30, 0.0))
+    _csd_ex = lambda cp, npos, cn, nneg: _CSD_V.judge_excl(_csd_c, [{"y": 1, "f": {"a": float(i < cp)}} for i in range(npos)]      # noqa: E731
+                                                                  + [{"y": 0, "f": {"a": float(i < cn)}} for i in range(nneg)])["verdict"]
+    _csd_fz = {"arms": {"A": {"prints": [{"texts": ["px.ret5>q80"], "conds": [{"f": "px.ret5", "op": ">", "v": 0.1}]},
+                                          {"texts": ["bot.readiness>q80"], "conds": [{"f": "bot.readiness", "op": ">", "v": 50}]}], "excl": []},
+                        "B": {"prints": [{"texts": ["px.ret5>q80"], "conds": [{"f": "px.ret5", "op": ">", "v": 0.1}]}], "excl": []}}}
+    _csd_run = _CSD_V.run(_csd_fz, {"قبل الشهر": [], "2023-2025": [], "2026 (09-29…11-20)": []})
+    _csd2 = (_csd_ok["verdict"] == "✅ تثبت" and _csd_ok["n"] == 30 and _csd_ok["k"] == 10 and abs(_csd_ok["profit"] - (0.30 - 0.018)) < 1e-9
+             and abs(_csd_ok["max_dd"] + 0.1) < 1e-9 and _csd_low["verdict"] == "❌ لا تثبت" and _csd_neg["verdict"] == "❌ لا تثبت"
+             and _csd_ctl["verdict"] == "❌ لا تثبت" and _csd_few["verdict"] == "لا قياس"
+             and _csd_ex(1, 40, 30, 100) == "✅ يثبت" and _csd_ex(3, 40, 30, 100) == "❌ لا يثبت" and _csd_ex(1, 40, 19, 100) == "❌ لا يثبت"
+             and _csd_ex(1, 10, 30, 100) == "✅ يثبت" and _csd_ex(2, 10, 30, 100) == "❌ لا يثبت" and _csd_ex(0, 10, 5, 100) == "لا قياس"
+             and sorted((r["arm"], r["texts"][0], r["pop"]) for r in _csd_run) == [("A", "bot.readiness>q80", "قبل الشهر"), ("A", "px.ret5>q80", "2023-2025"),
+                                                                                   ("A", "px.ret5>q80", "قبل الشهر"), ("B", "px.ret5>q80", "2026 (09-29…11-20)")]
+             and (_CSA.FREEZE_SHA is not None or _CSD_V.mode_validate("", "") == _CSB_C.RC_FREEZE == 9)
+             and _CSD_V.MIN_CARRIERS == 20 and _CSD_V.COST == 0.018)
+    _csd2d = f"{_csd_ok['verdict']} wl={_csd_ok.get('wilson_lo'):.3f} base={_csd_ok.get('base'):.3f} | {_csd_low['verdict']} {_csd_neg['verdict']} {_csd_ctl['verdict']} {_csd_few['verdict']}"
+except Exception as _e:                                           # noqa: BLE001
+    _csd2, _csd2d = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🗂️ CSD2 T-CASE31 التحقّق: بلا ملفّ تثبيتٍ خروج 9 · «تثبت» ⟸ أدنى ويلسون فوق نسبة المجتمع وربحٌ بعد الكلفة موجبٌ وفوق غير الحاملين · دون 20 حاملًا «لا قياس» · وبصماتُ أ على قبل الشهر وب على 2026",
+      bool(_csd2), _csd2d)
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

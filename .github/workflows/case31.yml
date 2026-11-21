@@ -10,16 +10,20 @@ on:
   workflow_dispatch:
     inputs:
       stage:
-        description: "verify (⓪) · collect (الجمع ثمّ السمات ثمّ ملفّاتُ الأسهم ①②) · armA (الذراع أ: المرصود ثمّ 1,000 خلطة ثمّ التجميع)"
+        description: "verify (⓪) · collect (الجمع ثمّ السمات ثمّ ملفّاتُ الأسهم ①②) · armA (الذراع أ: المرصود ثمّ 1,000 خلطة ثمّ التجميع) · armB (الذراع ب: شرائح 2023-2025) · validate (التحقّقُ للخلف بعد ملفّ التثبيت)"
         required: true
         default: "verify"
       src_run:
-        description: "armA: رقمُ تشغيلة collect التي تُقرأ سماتُها"
+        description: "armA و validate: رقمُ تشغيلة collect التي تُقرأ سماتُها"
+        required: false
+        default: ""
+      b_run:
+        description: "validate: رقمُ تشغيلة armB التي تُقرأ سماتُها (فارغٌ ⟵ بلا مجتمع 2023-2025)"
         required: false
         default: ""
 
 concurrency:
-  group: super-stocks-case31
+  group: super-stocks-case31-${{ inputs.stage }}    # لكلّ مرحلةٍ مجموعتُها: الذراع ب تعمل والجمعُ قائم · والإيداعُ بإعادة تأسيسٍ ومحاولات
   cancel-in-progress: false
 
 jobs:
@@ -272,3 +276,216 @@ jobs:
           done
           exit 1
 
+
+  # ══ armB: شرائح T-BASKET 2023-2025 ⟵ الجمع ⟵ السمات (20 شريحة) ⟵ المرصود و1,000 خلطة ⟵ التجميع (مرّةً واحدة) ══
+  collect_b:
+    if: ${{ inputs.stage == 'armB' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: ⛔ لا محاولةَ ثانية
+        run: if [ -f fm_forensics/case31/out/ARM_B.md ]; then echo "نتيجةُ الذراع ب صادرة"; exit 7; fi
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: basket-shard-*
+          path: basket_slices
+          merge-multiple: true
+          run-id: "43955351411"       # شرائحُ T-BASKET (إدخالاتُ CURRENT 2023-2025) — العقد §②
+          github-token: ${{ github.token }}
+      - name: 🧺 جمعُ الذراع ب
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/case31/case31_b.py collect --dir basket_slices
+      - uses: actions/upload-artifact@v4
+        with:
+          name: case31-datab
+          path: case31_data_b/
+          retention-days: 90
+          compression-level: 0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: case31-coverageb
+          path: fm_forensics/case31/out/collect_b_coverage.json
+          retention-days: 90
+
+  feat_b:
+    if: ${{ inputs.stage == 'armB' }}
+    needs: collect_b
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix:
+        k: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: case31-datab
+          path: case31_data_b
+      - name: 🧮 سماتُ الذراع ب — الشريحة ${{ matrix.k }}
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/case31/case31_b.py feat ${{ matrix.k }} 20 --dir case31_data_b
+      - uses: actions/upload-artifact@v4
+        with:
+          name: case31-featb-${{ matrix.k }}
+          path: case31_feat_b/
+          retention-days: 90
+
+  observe_b:
+    if: ${{ inputs.stage == 'armB' }}
+    needs: feat_b
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: ⛔ لا محاولةَ ثانية
+        run: if [ -f fm_forensics/case31/out/ARM_B.md ]; then echo "نتيجةُ الذراع ب صادرة"; exit 7; fi
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: case31-featb-*
+          path: case31_feat_b
+          merge-multiple: true
+      - name: ⚖️ المرصود
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/case31/case31_arm.py observe B --dir case31_feat_b
+      - uses: actions/upload-artifact@v4
+        with:
+          name: case31-obs-B
+          path: case31_arm/
+          retention-days: 90
+
+  shuffle_b:
+    if: ${{ inputs.stage == 'armB' }}
+    needs: feat_b
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix:
+        k: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: ⛔ لا محاولةَ ثانية
+        run: if [ -f fm_forensics/case31/out/ARM_B.md ]; then echo "نتيجةُ الذراع ب صادرة"; exit 7; fi
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: case31-featb-*
+          path: case31_feat_b
+          merge-multiple: true
+      - name: 🔀 الخلط — الشريحة ${{ matrix.k }}
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/case31/case31_arm.py shuffle B ${{ matrix.k }} 20 --dir case31_feat_b
+      - uses: actions/upload-artifact@v4
+        with:
+          name: case31-shuf-B-${{ matrix.k }}
+          path: case31_arm/
+          retention-days: 90
+
+  assemble_b:
+    if: ${{ inputs.stage == 'armB' }}
+    needs: [observe_b, shuffle_b]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: case31-*-B*
+          path: case31_arm
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: case31-coverageb
+          path: fm_forensics/case31/out
+      - name: 🧾 التجميع (مرّةً واحدة)
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/case31/case31_arm.py assemble B --dir case31_arm
+      - name: 💾 إيداعُ المخرجات (بياناتٌ لا كود)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f fm_forensics/case31/out
+          if git diff --cached --quiet; then echo "لا جديد"; exit 0; fi
+          git commit -q -m "🗂️ T-CASE31 بيانات: الذراع ب"
+          for i in 1 2 3 4 5; do
+            if git push; then exit 0; fi
+            git fetch origin "$GITHUB_REF_NAME" && git rebase "origin/$GITHUB_REF_NAME" || git rebase --abort || true
+            sleep 5
+          done
+          exit 1
+
+  # ══ validate: التحقّقُ للخلف لما ثُبِّت وحدَه (يرفض 9 بلا ملفّ تثبيتٍ ببصمته · مرّةً واحدة 7) ══
+  validate:
+    if: ${{ inputs.stage == 'validate' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: case31-feat-*
+          path: case31_feat
+          merge-multiple: true
+          run-id: ${{ inputs.src_run }}
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@v4
+        if: ${{ inputs.b_run != '' }}
+        with:
+          pattern: case31-featb-*
+          path: case31_feat_b
+          merge-multiple: true
+          run-id: ${{ inputs.b_run }}
+          github-token: ${{ github.token }}
+      - name: ✅ التحقّقُ للخلف
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/case31/case31_validate.py validate --feat case31_feat --featb case31_feat_b
+      - name: 💾 إيداعُ المخرجات (بياناتٌ لا كود)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f fm_forensics/case31/out
+          if git diff --cached --quiet; then echo "لا جديد"; exit 0; fi
+          git commit -q -m "🗂️ T-CASE31 بيانات: التحقّق"
+          for i in 1 2 3 4 5; do
+            if git push; then exit 0; fi
+            git fetch origin "$GITHUB_REF_NAME" && git rebase "origin/$GITHUB_REF_NAME" || git rebase --abort || true
+            sleep 5
+          done
+          exit 1
