@@ -112,3 +112,6 @@ fm_forensics/basket/out/
 trade_journal.jsonl
 trade_journal_state.json
 trade_journal.vault.tmp
+
+# 👁️ T-FAISAL-EYE — الصورُ المحجوبة والرسومُ المرشَّحة لا تُدفع
+fm_forensics/faisal_eye/.scratch/
