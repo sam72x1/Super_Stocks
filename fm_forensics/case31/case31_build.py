@@ -343,6 +343,18 @@ def mode_collect():
 
 
 # ══ السماتُ غيرُ الشمعيّة (نقيّة · كلُّها بمادّةٍ مؤرَّخةٍ عند يوم القرار أو قبله) ════════════════════════════════════════════════
+def _num(x):
+    """رقمٌ من قيمة سجلٍّ (عدد أو نصّ «1,200») ⟵ float أو None."""
+    if isinstance(x, bool) or x is None:
+        return None
+    if isinstance(x, (int, float)):
+        return float(x) if x == x else None
+    try:
+        return float(str(x).replace(",", "").strip())
+    except ValueError:
+        return None
+
+
 def _days_between(a, b):
     return (dt.date.fromisoformat(b) - dt.date.fromisoformat(a)).days
 
@@ -487,12 +499,13 @@ def bot_features(pool, pool5, pool10, sym, day, L):
         hit = any(0 <= _days_between(s_, day) <= TOOL_DAYS for h in hs for s_ in L["tools"].get((h, sym), []) if s_ <= day)
         out[f"bot.{name}"] = None if name == "tool20_three" else bool(hit)
     out["bot.faisal_post30"] = bool(any(p and p <= day and _days_between(p, day) <= POST_DAYS for p in L["posts"].get(sym, [])))
-    br = [(d, a, fee) for d, a, fee in L["borrow"].get(sym, []) if d <= day and _days_between(d, day) <= BORROW_DAYS and a is not None]
+    br = [(str(d)[:10], _num(a), _num(fee)) for d, a, fee in L["borrow"].get(sym, []) if d and str(d)[:10] <= day]
+    br = [t for t in br if t[1] is not None and _days_between(t[0], day) <= BORROW_DAYS]
     out["bw.avail"] = out["bw.fee"] = out["bw.avail_le20k"] = None
     if br:
-        d, a, fee = max(br)
-        out["bw.avail"], out["bw.fee"] = float(a), (float(fee) if fee is not None else None)
-        out["bw.avail_le20k"] = bool(float(a) <= 20_000)
+        d, a, fee = max(br, key=lambda t: t[0])                    # الأحدثُ بالتاريخ وحدَه (قراءتان في يومٍ واحد لا تُقارَن قيمُهما)
+        out["bw.avail"], out["bw.fee"] = a, fee
+        out["bw.avail_le20k"] = bool(a <= 20_000)
     return out
 
 
@@ -589,7 +602,7 @@ def mode_feat(k, n, d_in):
     for e in plan["events"]:                                       # ذراع +50%: صفُّ المنفجر وحدَه (وصف)
         jobs.setdefault(e["sym"], set()).add(e["D"])
     mine = sorted(s for s in jobs if (sum(map(ord, s)) % n) == k)
-    out, t0 = [], time.time()
+    out, t0, errs = [], time.time(), {}
     for j, s in enumerate(mine):
         rd = bars_d.get(s)
         if not rd:
@@ -610,22 +623,31 @@ def mode_feat(k, n, d_in):
             i = days_s.index(d)
             rf = raw_factor(meta["splits"].get(s), d)
             f = F.with_deltas(dfD, dfH, d, rf)
-            f.update(short_features(meta["finra"], s, d, all_days, vol_by))
-            for kk in (5, 10):
-                dprev = sessions_before(all_days, d, kk)
-                sp = short_features(meta["finra"], s, dprev, all_days, vol_by) if dprev else {}
-                for nm in ("sh.ratio_d", "sh.ratio5", "sh.ratio10", "sh.vol_d"):
-                    a, b = f.get(nm), sp.get(nm)
-                    f[f"{nm}.d{kk}"] = (a - b) if a is not None and b is not None else None
+            def fam(name, fn):                                     # أسرةٌ غيرُ شمعيّة تتعطّل ⟵ سماتُها «غير مقيس» ويُعَدّ عطلُها (لا يوقف التشغيل)
+                try:
+                    f.update(fn())
+                except Exception as ex:                            # noqa: BLE001
+                    errs[f"{name}:{type(ex).__name__}"] = errs.get(f"{name}:{type(ex).__name__}", 0) + 1
+
+            def short_block():
+                o = dict(short_features(meta["finra"], s, d, all_days, vol_by))
+                for kk in (5, 10):
+                    dprev = sessions_before(all_days, d, kk)
+                    sp = short_features(meta["finra"], s, dprev, all_days, vol_by) if dprev else {}
+                    for nm in ("sh.ratio_d", "sh.ratio5", "sh.ratio10", "sh.vol_d"):
+                        a, b = o.get(nm), sp.get(nm)
+                        o[f"{nm}.d{kk}"] = (a - b) if a is not None and b is not None else None
+                return o
+
             pool = pools.get(d)
             row = (pool or {}).get("rows", {}).get(s)
-            f.update(edgar_features(meta["edgar"].get(s), d))
-            f.update(split_features(meta["splits"].get(s), d))
-            f.update(identity_features(meta["ident"].get(s), row, rows_d[i][4], rows_d[i][5], sum(r[5] for r in rows_d[max(0, i - 19):i + 1]),
-                                       len(rd) if len(rd) < TV_D_N else None, d))
-            f["id.has_options"] = meta["options"].get(s)
-            f.update(bot_features(pool, pool_at(sessions_before(all_days, d, 5)), pool_at(sessions_before(all_days, d, 10)), s, d, meta["ledgers"]))
-            f.update(contagion_features(cx, meta["ident"], s, d, all_days))
+            fam("sh", short_block)
+            fam("ed", lambda: edgar_features(meta["edgar"].get(s), d))
+            fam("cp", lambda: split_features(meta["splits"].get(s), d))
+            fam("id", lambda: dict(identity_features(meta["ident"].get(s), row, rows_d[i][4], rows_d[i][5], sum(r[5] for r in rows_d[max(0, i - 19):i + 1]),
+                                                     len(rd) if len(rd) < TV_D_N else None, d), **{"id.has_options": meta["options"].get(s)}))
+            fam("bot", lambda: bot_features(pool, pool_at(sessions_before(all_days, d, 5)), pool_at(sessions_before(all_days, d, 10)), s, d, meta["ledgers"]))
+            fam("ct", lambda: contagion_features(cx, meta["ident"], s, d, all_days))
             x, n_after, ret = label(rows_d, d)
             e = ev_by.get(d, {}).get(s)
             rec = {"sym": s, "D": d, "ok": True, "x20": x, "after": n_after, "ret": ret, "ev": (e["cls"], e["win"]) if e else None,
@@ -642,11 +664,11 @@ def mode_feat(k, n, d_in):
     os.makedirs(C.OUT, exist_ok=True)
     os.makedirs(os.path.join(ROOT, "case31_feat"), exist_ok=True)
     with gzip.open(os.path.join(ROOT, "case31_feat", f"feat_{k}.json.gz"), "wt", encoding="utf-8") as fh:
-        json.dump({"shard": k, "of": n, "rows": out, "catalog_sha": CAT.sha()}, fh, ensure_ascii=False)
+        json.dump({"shard": k, "of": n, "rows": out, "catalog_sha": CAT.sha(), "family_errors": errs}, fh, ensure_ascii=False)
     if k == 0:
         with open(os.path.join(ROOT, "case31_feat", "plan_events.json"), "w", encoding="utf-8") as fh:
             json.dump(plan["events"], fh, ensure_ascii=False)
-    log(f"🧮 الشريحة {k}/{n}: {len(mine)} رمزًا · {len(out)} صفًّا · سليم {sum(1 for r in out if r.get('ok'))}")
+    log(f"🧮 الشريحة {k}/{n}: {len(mine)} رمزًا · {len(out)} صفًّا · سليم {sum(1 for r in out if r.get('ok'))} · أعطالُ أُسَرٍ غيرِ شمعيّة: {errs or 'لا شيء'}")
     return C.RC_OK
 
 

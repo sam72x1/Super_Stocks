@@ -229,7 +229,9 @@ def mode_dossier(d_data, d_feat):
     known = [x for x in index if x["timing"] and x["timing"].get("session")]
     L = ["# 🗂️ `T-CASE31` — ① فهرسُ الملفّات (مولَّدٌ آليًّا · وصفٌ لا حكم)", "",
          f"- ملفّات {len(index)} · بسماتٍ كاملة {sum(x['has_features'] for x in index)} · بتوقيتٍ لحظيّ {len(known)} · "
-         f"بدأت خارج الجلسة النظاميّة {sum(1 for x in known if x['timing']['session'] != 'الجلسة النظاميّة')} من {len(known)}", "",
+         f"بدأت خارج الجلسة النظاميّة {sum(1 for x in known if x['timing']['session'] != 'الجلسة النظاميّة')} من {len(known)}",
+         "- أعطالُ أُسَرٍ غيرِ شمعيّة في الشرائح (سماتُها «غير مقيس» ولم يتوقّف التشغيل): "
+         + (" · ".join(f"{k} × {v:,}" for k, v in sorted(A.family_errors(d_feat).items())) or "لا شيء"), "",
          "| السهم | النافذة | يوم القرار | البداية | الحاكمة | المحفّز | بدايةُ الحركة | في المتابعة | رفضُ الفرز | طرحٌ بعده |", "|---|---|---|---|---|---|---|---|---|---|"]
     for x in sorted(index, key=lambda x: (x["win"], x["D"], x["sym"])):
         t = x["timing"] or {}

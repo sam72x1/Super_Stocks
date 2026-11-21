@@ -106826,6 +106826,73 @@ check("🗂️ CSD2 T-CASE31 التحقّق: بلا ملفّ تثبيتٍ خرو
       bool(_csd2), _csd2d)
 
 
+# 🗂️🔬 CSE1-CSE2 — `T-CASE31`: عطلُ `feat` المُثبَت (تشغيلة 44839688296 · قراءتا اقتراضٍ في يومٍ واحد إحداهما بلا رسوم) · وأداتا الوصف والتقرير النهائيّ
+try:
+    _cse_L = {"tools": {}, "posts": {}, "borrow": {"AAA": [("2026-11-10", 5000, 12.5), ("2026-11-12", 15000, None), ("2026-11-12", "18,000", 44.0), ("2026-11-12", 15000, 7.0),
+                                                           ("2026-11-13", 900, 1.0), ("2026-11-12", None, 3.0), ("2026-11-12", "—", 9.0)],
+                                               "BBB": [("2026-11-01", 100, 1.0)], "CCC": [("2026-11-12", "7,500", "88.5")]}}
+    _cse_a = _CSB_B.bot_features(None, None, None, "AAA", "2026-11-12", _cse_L)
+    _cse_b = _CSB_B.bot_features(None, None, None, "BBB", "2026-11-12", _cse_L)
+    _cse_c = _CSB_B.bot_features(None, None, None, "CCC", "2026-11-12", _cse_L)
+    _cse_src = _csa_ast.parse(open(_csa_dir + "/case31_build.py", encoding="utf-8").read())
+    _cse_mf = next(n for n in _csa_ast.walk(_cse_src) if isinstance(n, _csa_ast.FunctionDef) and n.name == "mode_feat")
+    _cse_fams = {"short_features", "edgar_features", "split_features", "identity_features", "bot_features", "contagion_features"}
+
+    def _cse_bare(node, guarded=False):
+        """نداءاتُ الأُسَر غير الشمعيّة خارج lambda/دالّةٍ داخليّة (= خارج حارس `fam`) ⟵ أسماؤها."""
+        out = []
+        for ch in _csa_ast.iter_child_nodes(node):
+            g = guarded or isinstance(ch, (_csa_ast.Lambda, _csa_ast.FunctionDef))
+            if isinstance(ch, _csa_ast.Call) and getattr(ch.func, "id", None) in _cse_fams and not g:
+                out.append(ch.func.id)
+            out += _cse_bare(ch, g)
+        return out
+    _cse_calls = {getattr(c.func, "id", None) for c in _csa_ast.walk(_cse_mf) if isinstance(c, _csa_ast.Call)}
+    _cse1 = (_cse_a["bw.avail"] == 15000.0 and _cse_a["bw.fee"] is None and _cse_a["bw.avail_le20k"] is True       # الأحدثُ بالتاريخ حتى يوم القرار · وأوّلُ قراءةٍ في يومه
+             and _cse_b["bw.avail"] is None and _cse_b["bw.avail_le20k"] is None                                  # أقدمُ من 7 أيّام ⟵ غير مقيس
+             and _cse_c["bw.avail"] == 7500.0 and _cse_c["bw.fee"] == 88.5 and _cse_c["bw.avail_le20k"] is True   # أرقامٌ نصّيّة تُقرأ
+             and _CSB_B._num("—") is None and _CSB_B._num(True) is None and _CSB_B._num(float("nan")) is None
+             and not _cse_bare(_cse_mf) and _cse_fams <= _cse_calls and "fam" in _cse_calls)
+    _cse1d = f"{_cse_a['bw.avail']} {_cse_a['bw.fee']} | {_cse_b['bw.avail']} | {_cse_c['bw.avail']} {_cse_c['bw.fee']} | bare={_cse_bare(_cse_mf)}"
+except Exception as _e:                                           # noqa: BLE001
+    _cse1, _cse1d = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🗂️ CSE1 T-CASE31 عطلُ feat: قراءتا اقتراضٍ في يومٍ واحد (إحداهما بلا رسوم) لا تُسقطان الشريحة · الأحدثُ بالتاريخ وحدَه · والأُسَرُ غيرُ الشمعيّة كلُّها خلف حارس «غير مقيس ولا يوقف التشغيل»",
+      bool(_cse1), _cse1d)
+
+try:
+    _CSE_W = _csb_imp.import_module("case31_words")
+    _CSE_R = _csb_imp.import_module("case31_report")
+    _cse_names = [n for n, _k, _a in _CSB_CAT.expanded()]
+    _cse_miss = [n for n in _cse_names if _CSE_W.feature(n) == n]
+    _cse_arm = {"stat": {"pos": 10, "ctrl": 90}, "summary": {"verdict": {"best_single": {"p95": 3.0}}},
+                "top_singles": [{"cond": "d.rsi14<q20", "z": 4.0, "k": 6, "n": 20}, {"cond": "d.rsi14.d5<q20", "z": 3.9, "k": 5, "n": 20},
+                                {"cond": "bot.in_list=1", "z": 3.0, "k": 3, "n": 9}, {"cond": "px.ret5>q80", "z": 2.0, "k": 4, "n": 20}]}
+    _cse_top, _cse_p95 = _CSE_R.top_differences(_cse_arm)
+    _cse_ld = _CSE_R._load
+    try:
+        _CSE_R._load = lambda _n: None                               # بلا ملفّات نتائج: القفلُ لا يعتمد على ما يودعه الـworkflow في out/
+        _cse_md = _CSE_R.build()
+    finally:
+        _CSE_R._load = _cse_ld
+    _cse_heads = [_cse_md.find(h) for h in ("## ② أهمُّ 10 فروق", "## ③ سماتُ الاستبعاد", "## ④ البصماتُ", "## ⑤ «ما فات البوت»", "## ⑥ الملفّات")]
+    _cse_rt = _csa_ast.parse(open(_csa_dir + "/case31_report.py", encoding="utf-8").read())
+    _cse_rc = {getattr(c.func, "attr", getattr(c.func, "id", "")) for c in _csa_ast.walk(_cse_rt) if isinstance(c, _csa_ast.Call)}
+    _cse2 = (not _cse_miss and len(_cse_names) == len(set(_cse_names))
+             and _CSE_W.condition("bot.in_list=1").endswith(": نعم") and _CSE_W.condition("bot.in_list=0").endswith(": لا")
+             and _CSE_W.condition("px.ret5<q20").endswith("في أدنى خُمس الصفوف") and _CSE_W.condition("px.ret5>q80").endswith("في أعلى خُمس الصفوف")
+             and _CSE_W.feature("d.rsi14.d5").endswith("تغيّرُه في 5 جلسات") and _CSE_W.feature("لا.وجود") == "لا.وجود"
+             and [t["text"] for t in _cse_top] == ["d.rsi14<q20", "bot.in_list=1", "px.ret5>q80"]                 # السمةُ الأساسيّة لا تتكرّر بتغيّرها
+             and [t["pass"] for t in _cse_top] == [True, False, False] and _cse_p95 == 3.0                        # «يعبر» فوق المئين 95 حصرًا (التعادلُ لا يعبر)
+             and abs(_cse_top[0]["share_pos"] - 0.6) < 1e-9 and abs(_cse_top[0]["share_all"] - 0.2) < 1e-9
+             and all(i > 0 for i in _cse_heads) and _cse_heads == sorted(_cse_heads)                              # ترتيبُ المالك للمخرج النهائيّ
+             and not ({"send_telegram", "send_owner_document", "subs_mirror", "git_save"} & _cse_rc))
+    _cse2d = f"miss={len(_cse_miss)} {_cse_miss[:3]} top={[t['text'] for t in _cse_top]} pass={[t['pass'] for t in _cse_top]} heads={_cse_heads}"
+except Exception as _e:                                           # noqa: BLE001
+    _cse2, _cse2d = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🗂️ CSE2 T-CASE31 التقرير: كلُّ سمات الفهرس لها وصفٌ عربيّ · «أهمّ الفروق» لا يكرّر السمةَ الأساسيّة و«يعبر» فوق المئين 95 حصرًا · والأقسامُ بترتيب المالك · بلا تلغرام",
+      bool(_cse2), _cse2d)
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

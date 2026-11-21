@@ -49,6 +49,16 @@ def load_feat(d_in):
     return rows
 
 
+def family_errors(d_in):
+    """مجموعُ أعطال الأُسَر غير الشمعيّة في الشرائح (سماتُها كُتبت «غير مقيس» ولم يتوقّف التشغيل) ⟵ {«أسرة:نوع»: عدد}."""
+    tot = {}
+    for p in sorted(glob.glob(os.path.join(d_in, "**", "feat_*.json.gz"), recursive=True)):
+        with gzip.open(p, "rt", encoding="utf-8") as fh:
+            for k, v in (json.load(fh).get("family_errors") or {}).items():
+                tot[k] = tot.get(k, 0) + int(v)
+    return tot
+
+
 B_LAST_DAY = "2025-12-31"        # الذراع ب: لا صفَّ بيوم قرارٍ بعد 2025 قبل ملفّ التثبيت (العقد §⑧)
 
 
@@ -143,6 +153,7 @@ def mode_observe(arm, d_in, window="الشهر"):
         if "plan_events.json" in files:
             plan = json.load(open(os.path.join(base, "plan_events.json"), encoding="utf-8"))
     rows, stat = build_rows(feat, window)
+    stat["family_errors"] = family_errors(d_in)
     if plan:
         attach_events(rows, plan)
     if stat["pos"] < MIN_K[arm]:
@@ -242,6 +253,9 @@ def assemble(obs, shuf, type_shuf):
           f"- **المجرَّب:** سمات {obs['tried']['features']:,} (المؤهَّلة بالتغطية {obs['tried']['eligible_features']:,}) · شروط {obs['tried']['conditions']:,} "
           f"(الصالحة منفردةً {obs['tried']['valid_singles']:,}) · توليفات {obs['tried']['combos']:,} · نماذج {obs['tried']['models']} "
           f"× {obs['tried']['folds']} طيّة · خلطات {len(shuf):,}", ""]
+    if st.get("family_errors"):
+        L[-1:] = ["- ⚠️ **أعطالُ أُسَرٍ غيرِ شمعيّة (سماتُها «غير مقيس» في صفوفها ولم يتوقّف التشغيل):** "
+                  + " · ".join(f"{k} × {v:,}" for k, v in sorted(st["family_errors"].items())), ""]
     verdict = {}
     L += ["## ① نتيجةُ الخلط (القِمم: المرصودُ مقابل المئين 95 لأقصى الخلطات)", "", "| القمّة | المرصود | مئين 95 للخلطات | يفوق من الخلطات | الحكم |", "|---|---|---|---|---|"]
     for key, name in (("best_single", "أقوى شرطٍ منفرد (z)"), ("best_combo", "أقوى توليفة (z)"), ("best_print", "أقوى بصمة (z)"),
