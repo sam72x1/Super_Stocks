@@ -106759,15 +106759,16 @@ try:
     _CSD_FZ = _csb_imp.import_module("case31_freeze")
     _csd_arm = {"summary": {"verdict": {"best_print": {"p95": 5.0}, "best_excl": {"p95": 0.30}}},
                 "thresholds": {"a<q20": 1.5, "b>q80": 2.5, "c=1": None, "d<q40": 0.1, "e>q60": 9.0},
-                "top_singles": [{"cond": "a<q20", "z": 6.0, "k": 9, "n": 50}, {"cond": "c=1", "z": 4.9, "k": 8, "n": 60}, {"cond": "b>q80", "z": 5.0, "k": 8, "n": 60}],
-                "top_combos": [{"conds": ["a<q20", "b>q80"], "z": 9.0, "k": 8, "n": 10}, {"conds": ["a<q20", "b>q80", "c=1"], "z": 8.5, "k": 8, "n": 9},
-                               {"conds": ["d<q40", "e>q60"], "z": 7.0, "k": 8, "n": 12}, {"conds": ["a<q20", "c=1"], "z": 6.0, "k": 8, "n": 12},
-                               {"conds": ["d<q40", "c=1"], "z": 5.5, "k": 8, "n": 12}],
+                "top_singles": [{"cond": "a<q20", "z": 6.0, "k": 9, "n": 50, "matched": 0.1}, {"cond": "c=1", "z": 4.9, "k": 8, "n": 60, "matched": 0.1},
+                                {"cond": "b>q80", "z": 5.0, "k": 8, "n": 60, "matched": 0.1}],      # 🔄 2026-11-21: الفِكستشر يحمل `matched` موجبًا (قاعدةُ «زخمٌ لا بصمة» مقفولةٌ بعده)
+                "top_combos": [{"conds": ["a<q20", "b>q80"], "z": 9.0, "k": 8, "n": 10, "matched": 0.1}, {"conds": ["a<q20", "b>q80", "c=1"], "z": 8.5, "k": 8, "n": 9, "matched": 0.1},
+                               {"conds": ["d<q40", "e>q60"], "z": 7.0, "k": 8, "n": 12, "matched": 0.1}, {"conds": ["a<q20", "c=1"], "z": 6.0, "k": 8, "n": 12, "matched": 0.1},
+                               {"conds": ["d<q40", "c=1"], "z": 5.5, "k": 8, "n": 12, "matched": 0.1}],
                 "exclusions": [{"cond": "e>q60", "removes": 0.31, "pos_share": 0.0}, {"cond": "d<q40", "removes": 0.30, "pos_share": 0.0},
                                {"cond": "a<q20", "removes": 0.45, "pos_share": 0.02}]}
     _csd_s = _CSD_FZ.select(_csd_arm)
     _csd_f = {"a": 1.0, "b": 3.0, "c": True, "d": None}
-    _csd_none = {"summary": {"verdict": {"best_print": {"p95": 99.0}, "best_excl": {"p95": 1.0}}}, "top_singles": [{"cond": "a<q20", "z": 6.0, "k": 1, "n": 1}],
+    _csd_none = {"summary": {"verdict": {"best_print": {"p95": 99.0}, "best_excl": {"p95": 1.0}}}, "top_singles": [{"cond": "a<q20", "z": 6.0, "k": 1, "n": 1, "matched": 0.1}],
                  "top_combos": [], "exclusions": [{"cond": "a<q20", "removes": 0.9, "pos_share": 0.0}], "thresholds": {"a<q20": 1.0}}
     _csd1 = ([(p["texts"], p["z"]) for p in _csd_s["prints"]] == [(["a<q20", "b>q80"], 9.0), (["d<q40", "e>q60"], 7.0), (["a<q20"], 6.0)]
              and [(e["texts"], e["removes"]) for e in _csd_s["excl"]] == [(["a<q20"], 0.45), (["e>q60"], 0.31)]
@@ -106777,7 +106778,7 @@ try:
              and _CSD_FZ.carries([{"f": "d", "op": "<", "v": 0.1}], _csd_f) is False and _CSD_FZ.holds({"f": "c", "op": "==", "v": 0}, _csd_f) is False
              and _CSD_FZ.carries([{"f": "a", "op": "<", "v": 1.0}], _csd_f) is False
              and list(_CSD_FZ.build_freeze({"A": _csd_arm, "B": _csd_none})["arms"]) == ["A"] and _CSD_FZ.build_freeze({"B": _csd_none}) is None
-             and _CSD_FZ.select(dict(_csd_none, summary={"verdict": {"best_print": {"p95": 6.0}, "best_excl": {"p95": 0.9}}})) == {"prints": [], "excl": [], "p95_print": 6.0, "p95_excl": 0.9}
+             and _CSD_FZ.select(dict(_csd_none, summary={"verdict": {"best_print": {"p95": 6.0}, "best_excl": {"p95": 0.9}}})) == {"prints": [], "excl": [], "p95_print": 6.0, "p95_excl": 0.9, "momentum_only": []}
              and len(_CSD_FZ.select(dict(_csd_none, summary={"verdict": {"best_print": {"p95": 5.99}, "best_excl": {"p95": 0.89}}}))["prints"]) == 1
              and _CSD_FZ.TOP == 3 and (_CSA.FREEZE_SHA is not None or _CSD_FZ.load_freeze() is None))
     _csd1d = str([(p["texts"], p["z"]) for p in _csd_s["prints"]])[:200]
@@ -106892,6 +106893,163 @@ except Exception as _e:                                           # noqa: BLE001
 check("🗂️ CSE2 T-CASE31 التقرير: كلُّ سمات الفهرس لها وصفٌ عربيّ · «أهمّ الفروق» لا يكرّر السمةَ الأساسيّة و«يعبر» فوق المئين 95 حصرًا · والأقسامُ بترتيب المالك · بلا تلغرام",
       bool(_cse2), _cse2d)
 
+
+# 🗂️🔬 CSE3 — `T-CASE31` التثبيت: «زخمٌ لا بصمة» (العقد §⑤) — ما عبر الخلطَ ولم يبقَ فرقُه موجبًا مقابل ضابط الزخم المطابق لا يُثبَّت ويُسمّى
+try:
+    _CSE_FZ = _csb_imp.import_module("case31_freeze")
+    _cse_armz = {"summary": {"verdict": {"best_print": {"p95": 5.0}, "best_excl": {"p95": None}}},
+                 "thresholds": {"a<q20": 1.0, "b>q80": 2.0, "c<q20": 3.0, "d>q80": 4.0, "e<q20": 5.0},
+                 "top_singles": [{"cond": "a<q20", "z": 9.0, "k": 9, "n": 30, "matched": 0.0},          # يعبر الخلطَ · والفرقُ صفر ⟵ زخم
+                                 {"cond": "b>q80", "z": 8.0, "k": 8, "n": 30, "matched": -0.1},         # سالب ⟵ زخم
+                                 {"cond": "c<q20", "z": 7.0, "k": 7, "n": 30, "matched": None},         # مجهول ⟵ لا يُثبَّت
+                                 {"cond": "d>q80", "z": 6.0, "k": 6, "n": 30, "matched": 0.05},         # موجب ⟵ يُثبَّت
+                                 {"cond": "e<q20", "z": 4.0, "k": 4, "n": 30, "matched": 0.5}],         # دون المئين 95 ⟵ خارج الاثنين
+                 "top_combos": []}
+    _cse_sel = _CSE_FZ.select(_cse_armz)
+    _cse3 = ([p["texts"] for p in _cse_sel["prints"]] == [["d>q80"]] and _cse_sel["prints"][0]["matched"] == 0.05
+             and [m["texts"] for m in _cse_sel["momentum_only"]] == [["a<q20"], ["b>q80"], ["c<q20"]]
+             and _CSE_FZ.momentum_free(0.01) and not _CSE_FZ.momentum_free(0.0) and not _CSE_FZ.momentum_free(None) and not _CSE_FZ.momentum_free(float("nan"))
+             and _CSE_FZ.build_freeze({"A": dict(_cse_armz, top_singles=_cse_armz["top_singles"][:3])}) is None)      # كلُّ العابر زخم ⟵ صفرُ مثبَّت ⟵ لا ملفّ
+    _cse3d = f"prints={[p['texts'] for p in _cse_sel['prints']]} momentum={[m['texts'] for m in _cse_sel['momentum_only']]}"
+except Exception as _e:                                           # noqa: BLE001
+    _cse3, _cse3d = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🗂️ CSE3 T-CASE31 التثبيت: ما عبر الخلطَ وفرقُه مقابل ضابط الزخم المطابق صفرٌ أو سالبٌ أو مجهول «زخمٌ لا بصمة» لا يُثبَّت · وكلُّ العابر زخمًا ⟵ لا ملفَّ تثبيت",
+      bool(_cse3), _cse3d)
+
+
+# 🗂️🔬 CSF1-CSF2 — `T-CASE31` الدفترُ الأماميّ الصامت (العقد §⑥ «للأمام»): قناعُ المثبَّتات · الأيّامُ المستحقّة · الحكمُ بقاعدة العقد · وworkflow مجدولٌ بلا تلغرام
+try:
+    _CSF = _csb_imp.import_module("case31_fwd")
+    _csf_fz = {"arms": {"B": {"prints": [{"texts": ["px.ret20<q20", "D.sma21.dist<q20"], "conds": [{"f": "px.ret20", "op": "<", "v": -0.3}, {"f": "D.sma21.dist", "op": "<", "v": -0.2}]}], "excl": []},
+                        "A": {"prints": [{"texts": ["bot.in_list=1"], "conds": [{"f": "bot.in_list", "op": "==", "v": 1}]}],
+                              "excl": [{"texts": ["ed.offer30=1"], "conds": [{"f": "ed.offer30", "op": "==", "v": 1}]}]}}}
+    _csf_it = _CSF.items_of(_csf_fz)
+    _csf_now = __import__("datetime").datetime
+    _csf_days = ["2026-11-18", "2026-11-19", "2026-11-20", "2026-11-23", "2026-11-24"]
+    _csf_closed = _CSF.closed_sessions(_csf_days, _csf_now(2026, 11, 24, 9, 0))
+    _csf_led = [{"kind": "day", "D": "2026-11-20", "items": ["AP1", "AX1", "BP1"]}] + \
+               [{"D": "2026-11-20", "sym": f"S{i}", "c": 1.0, "m": ("1" if i < 30 else "0") + "?" + ("1" if i < 25 else "0")} for i in range(200)]
+    _csf_st = [{"kind": "day", "D": "2026-11-20", "n": 200}] + \
+              [{"D": "2026-11-20", "sym": f"S{i}", "x": (i < 10) if i != 199 else None, "ret": 0.30 if i < 30 else 0.0, "after": 20} for i in range(200)]
+    _csf_rows = _CSF.fwd_rows(_csf_led, _csf_st)
+    _csf_j = {x["id"]: x for x in _CSF.judge(_csf_it, _csf_rows)}
+    _csf_md = _CSF.report_md(_csf_it, _csf_led, _csf_st, "2026-12-21")
+    _csf1 = ([x["id"] for x in _csf_it] == ["AP1", "AX1", "BP1"]
+             and _CSF.mask_of(_csf_it, {"bot.in_list": True, "ed.offer30": False, "px.ret20": -0.5, "D.sma21.dist": -0.3}) == "101"
+             and _CSF.mask_of(_csf_it, {"bot.in_list": False, "px.ret20": -0.5, "D.sma21.dist": None}) == "0??"          # مجهولٌ بلا مخالفٍ معلوم ⟵ «?»
+             and _CSF.mask_of(_csf_it, {"px.ret20": -0.1, "D.sma21.dist": None}) == "??0"                                 # مخالفٌ معلومٌ يغلب المجهول
+             and _CSF.mask_of(_csf_it, {}) == "???"
+             and _csf_closed == ["2026-11-18", "2026-11-19", "2026-11-20", "2026-11-23"]                                  # يومُ نيويورك الجاري قبل 20:00 ليس مغلقًا
+             and _CSF.closed_sessions(_csf_days, _csf_now(2026, 11, 24, 20, 5))[-1] == "2026-11-24"
+             and _CSF.pending_days(_csf_closed, {"2026-11-20"}) == ["2026-11-23"]                                         # 11-18 و11-19 قبل `FWD_FROM` (نافذتا الاكتشاف والتحقّق)
+             and _CSF.FWD_FROM == "2026-11-20" and _CSF.LOOKBACK == 5 and _CSF.WIN == 20
+             and _CSF.settle_due([f"d{i:02d}" for i in range(30)], {"d05", "d09", "d10"}, {"d05"}) == ["d09"]             # 20 جلسةً مغلقة بعده بالضبط · و10 لم يحلّ
+             and _CSF.unsupported(_csf_it) == ["ed.offer30"]
+             and len(_csf_rows) == 199                                                                                     # غيرُ الموسوم (x مجهول) خارج الحكم
+             and _csf_j["AP1"]["verdict"] == "✅ تثبت" and _csf_j["AP1"]["n"] == 30 and _csf_j["AP1"]["k"] == 10
+             and abs(_csf_j["AP1"]["profit"] - (0.30 - 0.018)) < 1e-9
+             and _csf_j["AX1"]["verdict"] == "لا قياس" and _csf_j["BP1"]["n"] == 25
+             and _CSF.judge(_csf_it, [])[0]["verdict"] == "لم يُحسم بعد"
+             and "| AP1 | A | بصمة |" in _csf_md and "`ed.offer30`" in _csf_md and "| 30 | 0 | ✅ تثبت" in _csf_md and "| 0 | 200 | لا قياس" in _csf_md)
+    _csf1d = f"{[x['id'] for x in _csf_it]} closed={_csf_closed[-1]} AP1={_csf_j['AP1'].get('verdict')} AX1={_csf_j['AX1'].get('verdict')} rows={len(_csf_rows)}"
+except Exception as _e:                                           # noqa: BLE001
+    _csf1, _csf1d = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🗂️ CSF1 T-CASE31 الدفترُ الأماميّ: القناعُ (يحمل · لا يحمل · غير مقيس) · لا يومَ قبل 2026-11-20 · الحسمُ بعد 20 جلسةً مغلقة · والحكمُ بقاعدة العقد على المحسوم الموسوم وحدَه",
+      bool(_csf1), _csf1d)
+
+try:
+    _csf_tmp = __import__("tempfile").mkdtemp()
+    _csf_p = __import__("os").path.join(_csf_tmp, "sub", "l.jsonl")
+    _CSF.append_jsonl(_csf_p, [{"a": 1}])
+    _CSF.append_jsonl(_csf_p, [{"b": 2}, {"c": 3}])
+    _csf_src = _csa_ast.parse(open(_csa_dir + "/case31_fwd.py", encoding="utf-8").read())
+    _csf_calls = {getattr(c.func, "attr", getattr(c.func, "id", "")) for c in _csa_ast.walk(_csf_src) if isinstance(c, _csa_ast.Call)}
+    _csf_strs = [c.value for c in _csa_ast.walk(_csf_src) if isinstance(c, _csa_ast.Constant) and isinstance(c.value, str)]
+    _csf_opens = [c for c in _csa_ast.walk(_csf_src) if isinstance(c, _csa_ast.Call) and getattr(c.func, "id", "") == "open" and len(c.args) > 1
+                  and isinstance(c.args[1], _csa_ast.Constant) and "w" in str(c.args[1].value)]
+    _csf_wf = __import__("yaml").safe_load(open(".github/workflows/case31_fwd.yml", encoding="utf-8"))
+    _csf_wft = open(".github/workflows/case31_fwd.yml", encoding="utf-8").read()
+    _csf_fn = {n.name: n for n in _csa_ast.walk(_csf_src) if isinstance(n, _csa_ast.FunctionDef)}
+    _csf2 = (_CSF.read_jsonl(_csf_p) == [{"a": 1}, {"b": 2}, {"c": 3}]                                                    # إلحاقٌ لا إعادةُ كتابة
+             and len(_csf_opens) == 1                                                                                      # الكتابةُ بوضع w لملفّ التقرير وحدَه
+             and not ({"send_telegram", "send_owner_document", "subs_mirror", "git_save"} & _csf_calls)
+             and not any("api.polygon.io" in s for s in _csf_strs)
+             and all(_csa_ast.unparse(_csf_fn[m].body[0]) == "fz = FZ.load_freeze()" and isinstance(_csf_fn[m].body[1], _csa_ast.If)
+                     and _csa_ast.unparse(_csf_fn[m].body[1].test) == "fz is None" and _csa_ast.unparse(_csf_fn[m].body[1].body[-1]) == "return C.RC_FREEZE"
+                     for m in ("mode_record", "mode_report"))                                                             # الحارسُ أوّلُ ما في الوضعين (قبل أيّ استيرادٍ أو جلب)
+             and (_CSA.FREEZE_SHA is not None or (_CSF.mode_record() == _CSB_C.RC_FREEZE == 9 and _CSF.mode_report() == 9))  # بلا ملفّ تثبيتٍ لا يُسجَّل شيء
+             and [x["cron"] for x in _csf_wf[True]["schedule"]] == ["37 13 * * 2-6"] and "workflow_dispatch" in _csf_wf[True]
+             and "secrets.TELEGRAM" not in _csf_wft and "secrets.POLYGON" not in _csf_wft and "TELEGRAM" not in _csf_wft
+             and _csf_wf["concurrency"]["group"] == "super-stocks-case31-fwd" and _csf_wf["concurrency"]["cancel-in-progress"] is False
+             and _csf_wf["jobs"]["fwd"]["steps"][0]["with"]["fetch-depth"] == 0)
+    _csf2d = f"opens_w={len(_csf_opens)} cron={[x['cron'] for x in _csf_wf[True]['schedule']]}"
+except Exception as _e:                                           # noqa: BLE001
+    _csf2, _csf2d = False, f"⛔ {type(_e).__name__}: {_e}"
+finally:
+    __import__("shutil").rmtree(_csf_tmp, ignore_errors=True)
+check("🗂️ CSF2 T-CASE31 الدفترُ الأماميّ قراءةٌ وإلحاق: لا تلغرام ولا Polygon · الدفتران إلحاقيّان · بلا ملفّ تثبيتٍ خروج 9 قبل أيّ جلب · والـworkflow مجدولٌ بكرونه ومجموعتِه",
+      bool(_csf2), _csf2d)
+
+
+# 🧊 CSG1/CSG2 — `T-CASE31` التثبيت (2026-11-21 · العقد §⑥): الملفُّ المثبَّت = ما تُخرجه القاعدةُ من نتيجتَي الذراعين المودَعتين ببصمته ·
+#    وبصمةٌ لا تطابق أو غائبة ⟵ خروج 9 في التحقّق والدفتر الأماميّ · والأثرُ البنيويّ («ليس في تحت المتابعة») يُفصَح عنه في التقرير ولا يغيّر حكمًا.
+try:
+    _csg_C = _CSD_FZ.C
+    _csg_sv = _csg_C.FREEZE_SHA
+    _csg_fz = _CSD_FZ.load_freeze()
+    _csg_arms = {}
+    for _csg_a in ("A", "B"):
+        with __import__("gzip").open(__import__("os").path.join(_csg_C.OUT, f"arm{_csg_a}.json.gz"), "rt", encoding="utf-8") as _csg_fh:
+            _csg_arms[_csg_a] = __import__("json").load(_csg_fh)
+    _csg_re = _CSD_FZ.build_freeze(_csg_arms)
+    _csg_out, _csg_tmp = _csg_C.OUT, __import__("tempfile").mkdtemp()
+    try:
+        _csg_C.OUT = _csg_tmp                                      # لو انكسر الحارسُ لا يُكتب تحقّقٌ في `out/` الحقيقيّ
+        _csg_C.FREEZE_SHA = "f" * 64                               # بصمةٌ لا تطابق الملفّ
+        _csg_bad = (_CSD_FZ.load_freeze() is None, _CSD_V.mode_validate("", ""))   # والدفترُ الأماميّ حارسُه أوّلُ سطرَيه (CSF2 بالـAST) — لا يُنادى هنا: لو انكسر الحارسُ لجلب من الشبكة
+        _csg_C.FREEZE_SHA = None                                   # بلا بصمة
+        _csg_none = (_CSD_FZ.load_freeze() is None, _CSD_V.mode_validate("", ""))
+    finally:
+        _csg_C.FREEZE_SHA, _csg_C.OUT = _csg_sv, _csg_out
+        __import__("shutil").rmtree(_csg_tmp, ignore_errors=True)
+    _csg1 = (isinstance(_csg_sv, str) and len(_csg_sv) == 64 and _CSD_FZ.freeze_sha() == _csg_sv and _csg_fz is not None
+             and _csg_fz == _csg_re                                # لا بصمةَ أُضيفت ولا حُذفت باليد: الملفُّ يُعاد اشتقاقُه من `out/arm?.json.gz`
+             and _csg_fz["contract_sha"] == _csg_C.CONTRACT_SHA
+             and [len(_csg_fz["arms"][a]["prints"]) for a in ("A", "B")] == [3, 3] and [len(_csg_fz["arms"][a]["excl"]) for a in ("A", "B")] == [3, 0]
+             and all(_CSD_FZ.momentum_free(p["matched"]) and p["z"] > _csg_fz["arms"][a]["p95_print"] for a in ("A", "B") for p in _csg_fz["arms"][a]["prints"])
+             and all(e["removes"] > _csg_fz["arms"]["A"]["p95_excl"] for e in _csg_fz["arms"]["A"]["excl"])
+             and _csg_bad == (True, 9) and _csg_none == (True, 9))
+    _csg1d = f"sha={str(_csg_sv)[:12]} eq={_csg_fz == _csg_re} bad={_csg_bad} none={_csg_none}"
+except Exception as _e:                                           # noqa: BLE001
+    _csg1, _csg1d = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧊 CSG1 T-CASE31 التثبيت: الملفُّ ببصمته يطابق ما تُخرجه قاعدةُ العقد من نتيجتَي الذراعين (3 بصمات لكلّ ذراع · 3 استبعادٍ للذراع أ) · وبصمةٌ لا تطابق أو غائبة ⟵ لا تُحمَّل والتحقّقُ يخرج 9",
+      bool(_csg1), _csg1d)
+
+try:
+    _csg_fx = lambda k, n, unt: {"stat": {"pos": 10, "ctrl": 100, "pos_untracked": unt, "days": 3, "days_no_pool": 0, "open_window": 0},      # noqa: E731
+                                 "tried": {"features": 5, "eligible_features": 5, "conditions": 9, "combos": 4}, "thresholds": {"px.ret5<q20": -0.1, "px.ret10<q20": -0.2},
+                                 "summary": {"n_shuffles": 1000, "verdict": {"best_single": {"p95": 4.0}, "best_print": {"p95": 6.0}}},
+                                 "top_singles": [{"cond": "bot.nw_tracked=0", "z": 50.0, "k": k, "n": n, "matched": 0.2},
+                                                 {"cond": "px.ret5<q20", "z": 7.0, "k": 5, "n": 20, "matched": 0.1}],
+                                 "top_combos": [{"conds": ["bot.nw_tracked=0", "px.ret5<q20"], "z": 30.0, "k": 2, "n": 2, "matched": 0.1},
+                                                {"conds": ["px.ret10<q20", "px.ret5<q20"], "z": 9.0, "k": 4, "n": 9, "matched": 0.1}]}
+    _csg_art, _csg_real, _csg_trk = _csg_fx(3, 3, 3), _csg_fx(2, 3, 3), _csg_fx(3, 3, 0)
+    _csg_rows = lambda arm: [ln for ln in _CSE_R.arm_section("A", arm)[0] if ln.startswith("| 1 |") or ln.startswith("| 2 |")]               # noqa: E731
+    _csg_cmb = lambda arm: [ln for ln in _CSE_R.prints_section("A", arm) if "＋" in ln]                                                      # noqa: E731
+    _csg2 = (_CSE_R.structural(_csg_art) == {"k": 3, "n": 3} and _CSE_R.structural(_csg_real) is None                # حاملٌ غيرُ منفجر ⟵ إشارةٌ لا أثرُ بناء
+             and _CSE_R.structural(_csg_trk) is None and _CSE_R.structural(None) is None and _CSE_R.structural({}) is None
+             and "أثرٌ بنيويّ" in _csg_rows(_csg_art)[0] and "✅ يعبر" in _csg_rows(_csg_art)[1] and "أثرٌ بنيويّ" not in _csg_rows(_csg_art)[1]
+             and "✅ يعبر" in _csg_rows(_csg_real)[0] and "✅ يعبر" in _csg_rows(_csg_trk)[0]
+             and "أثرٌ بنيويّ" in _csg_cmb(_csg_art)[0] and "أثرٌ بنيويّ" not in _csg_cmb(_csg_art)[1] and "✅ يعبر" in _csg_cmb(_csg_art)[1]
+             and "أثرٌ بنيويّ" not in "\n".join(_csg_cmb(_csg_real))
+             and len(_CSE_R.structural_lines(_csg_art)) == 3 and "3 من 3" in _CSE_R.structural_lines(_csg_art)[0] and _CSE_R.structural_lines(_csg_real) == []
+             and _CSE_R.structural(_csg_arms["A"]) == {"k": 30, "n": 30} and _CSE_R.structural(_csg_arms["B"]) is None   # النتيجةُ المودَعة نفسُها
+             and _CSD_FZ.select(_csg_art)["prints"][0]["texts"] == ["bot.nw_tracked=0"])                                 # الإفصاحُ عرضٌ: قاعدةُ التثبيت لا تستثني
+    _csg2d = f"art={_CSE_R.structural(_csg_art)} real={_CSE_R.structural(_csg_real)} A={_CSE_R.structural(_csg_arms['A'])}"
+except Exception as _e:                                           # noqa: BLE001
+    _csg2, _csg2d = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧊 CSG2 T-CASE31 الأثرُ البنيويّ: «ليس في تحت المتابعة» يوسَم في جدول الفروق والتوليفات حين كلُّ حامليه منفجرون وللذراع منفجرون خارج المتابعة وحدَه · وقاعدةُ التثبيت لا تستثنيه",
+      bool(_csg2), _csg2d)
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

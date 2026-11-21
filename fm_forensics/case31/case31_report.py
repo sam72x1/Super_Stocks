@@ -17,6 +17,7 @@ for _p in (HERE, ROOT):
         sys.path.insert(0, _p)
 
 import case31 as C                      # noqa: E402
+import case31_freeze as FZ              # noqa: E402
 import case31_stats as ST               # noqa: E402
 import case31_words as W                # noqa: E402
 
@@ -36,6 +37,29 @@ def _load(name):
 
 def pct(x, d=1):
     return "—" if x is None or x != x else f"{x * 100:.{d}f}%"
+
+
+STRUCT = "bot.nw_tracked=0"                                        # «ليس في تحت المتابعة»: الضابطةُ كلُّها من «تحت المتابعة» ⟵ حاملُه منفجرٌ بالبناء
+
+
+def structural(arm):
+    """(نقيّة) هل «ليس في تحت المتابعة» أثرُ بناء؟ ⟵ {k, n} حين كلُّ حامليه منفجرون وللذراع منفجرون خارج المتابعة · وإلّا None. إفصاحٌ في العرض وحدَه: لا يغيّر حكمًا ولا تثبيتًا."""
+    if not arm or not ((arm.get("stat") or {}).get("pos_untracked") or 0):
+        return None
+    for t in arm.get("top_singles") or []:
+        if t.get("cond") == STRUCT:
+            return {"k": t["k"], "n": t["n"]} if t["n"] and t["k"] == t["n"] else None
+    return None
+
+
+def structural_lines(arm):
+    s = structural(arm)
+    if not s:
+        return []
+    return [f"- ⚠️ **أثرٌ بنيويّ لا بصمة:** «ليس في «تحت المتابعة»» يحمله {s['n']} صفًّا كلُّهم منفجرون ({s['k']} من {s['n']}) — لأنّ صفوف الضابطة تؤخذ من «تحت المتابعة» وحدَها، "
+            "فكلُّ صفٍّ خارجها في هذا المجتمع منفجرٌ بطريقة البناء لا بسلوك السهم. الشرطُ وكلُّ توليفةٍ تحويه **لا يُتداول عليه ولا يصف المنفجرين قبل انفجارهم**؛ "
+            "وقاعدةُ التثبيت في العقد طُبِّقت بحرفها (لا تعديلَ تعريفٍ بعد رؤية النتيجة) فثُبِّت ويُقرأ بهذا الوسم.",
+            "- ⚠️ وقممُ النموذجين (الشجرة واللوجستيّ) في هذا الذراع من مدخلاتها هذه السمةُ وسماتُ صفّ البوت الغائبةُ عن غير المتابَع ⟵ لا تُقرأ دليلًا مستقلًّا (استنتاجٌ قويّ لا قياس).", ""]
 
 
 def top_differences(arm, k=10):
@@ -86,12 +110,13 @@ def arm_section(a, arm):
          f"ضابطةٌ لم تكتمل نافذتُها {st.get('open_window'):,} · المجرَّب: سمات {arm['tried']['features']:,} (المؤهَّلة {arm['tried']['eligible_features']:,}) · "
          f"شروط {arm['tried']['conditions']:,} · توليفات {arm['tried']['combos']:,} · خلطات {(arm.get('summary') or {}).get('n_shuffles')}", "",
          "| # | الفرق بلغةٍ بسيطة | يحمله من المنفجرين | يحمله من كلّ الصفوف | z | مقابل ضابط الزخم | حكمُ الخلط |", "|---|---|---|---|---|---|---|"]
+    sx = structural(arm)
     for i, d in enumerate(diffs, 1):
         mt = "—" if d["matched"] is None else f"{d['matched']:+.2f}"
-        L.append(f"| {i} | {d['plain']} | {d['k']} ({pct(d['share_pos'])}) | {pct(d['share_all'])} | {d['z']:.2f} | {mt} | "
-                 f"{'✅ يعبر' if d['pass'] else '❌ في حدود الصدفة'} |")
+        tag = "❌ في حدود الصدفة" if not d["pass"] else ("⚠️ أثرٌ بنيويّ" if (sx and d["text"] == STRUCT) else "✅ يعبر")
+        L.append(f"| {i} | {d['plain']} | {d['k']} ({pct(d['share_pos'])}) | {pct(d['share_all'])} | {d['z']:.2f} | {mt} | {tag} |")
     thr = "—" if p95 is None else f"{p95:.2f}"
-    L += ["", f"- عتبةُ العبور (المئين 95 لأقصى شرطٍ في الخلطات): z = {thr}", ""]
+    L += ["", f"- عتبةُ العبور (المئين 95 لأقصى شرطٍ في الخلطات): z = {thr}", ""] + structural_lines(arm)
     return L, ver
 
 
@@ -121,15 +146,20 @@ def prints_section(a, arm):
         f3 = lambda x: "—" if x is None or x != x else f"{x:.3f}"       # noqa: E731
         L.append(f"| {nm} | {f3(v.get('obs'))} | {f3(v.get('p95'))} | {pct(v.get('beats_frac'))} | {'✅ يعبر' if v.get('pass') else '❌ في حدود الصدفة'} |")
     p95 = (ver.get("best_print") or {}).get("p95")
-    L += ["", "| أقوى التوليفات | z | المنفجرون | الحاملون | نسبةُ الانفجار | الحكم |", "|---|---|---|---|---|---|"]
+    sx = structural(arm)
+    L += ["", "| أقوى التوليفات | z | المنفجرون | الحاملون | نسبةُ الانفجار | مقابل ضابط الزخم | الحكم |", "|---|---|---|---|---|---|---|"]
     for t in (arm.get("top_combos") or [])[:8]:
-        L.append(f"| {' ＋ '.join(W.condition(c) for c in t['conds'])} | {t['z']:.2f} | {t['k']} | {t['n']:,} | {pct(t['k'] / t['n'] if t['n'] else None)} | "
-                 f"{'✅ يعبر' if (p95 is not None and t['z'] > p95) else '❌ في حدود الصدفة'} |")
+        ok = p95 is not None and t["z"] > p95
+        tag = "❌ في حدود الصدفة" if not ok else ("✅ يعبر" if FZ.momentum_free(t.get("matched")) else "⚠️ يعبر الخلط — زخمٌ لا بصمة (لا يُثبَّت)")
+        if ok and sx and STRUCT in t["conds"]:
+            tag = "⚠️ أثرٌ بنيويّ (يحوي «ليس في تحت المتابعة»)"
+        mt = "—" if t.get("matched") is None else f"{t['matched']:+.2f}"
+        L.append(f"| {' ＋ '.join(W.condition(c) for c in t['conds'])} | {t['z']:.2f} | {t['k']} | {t['n']:,} | {pct(t['k'] / t['n'] if t['n'] else None)} | {mt} | {tag} |")
     types = (arm.get("summary") or {}).get("types") or {}
     if types:
         L += ["", "- لكلّ نوع (الشروطُ المنفردة وخلطُها): " + " · ".join(
             k + (": ✅" if v.get("pass") else ": ❌") + f" (z {v.get('obs'):.2f} مقابل {v.get('p95'):.2f})" for k, v in types.items())]
-    return L + [""]
+    return L + [""] + structural_lines(arm)
 
 
 def missed_section(arm, idx):

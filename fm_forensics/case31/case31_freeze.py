@@ -52,26 +52,35 @@ def carries(conds, f):
     return all(holds(c, f) is True for c in conds)
 
 
+def momentum_free(matched):
+    """العقد §⑤: البصمةُ تُثبَّت فقط إن بقي فرقُ حملها موجبًا مقابل ضابط الزخم المطابق (المجهولُ لا يُثبَّت)."""
+    return matched is not None and matched == matched and matched > 0
+
+
 def select(arm):
     """(نقيّة) نتيجةُ ذراعٍ (`arm?.json.gz`) ⟵ {prints, excl, p95_print, p95_excl}: العابرُ وحدَه (فوق المئين 95 لأقصى الخلطات) بالترتيب الحتميّ."""
     ver = (arm.get("summary") or {}).get("verdict") or {}
     p95p, p95e = (ver.get("best_print") or {}).get("p95"), (ver.get("best_excl") or {}).get("p95")
     thr = arm.get("thresholds") or {}
-    cands = [{"conds": [t["cond"]], "z": t["z"], "k": t["k"], "n": t["n"]} for t in arm.get("top_singles") or []]
-    cands += [{"conds": list(t["conds"]), "z": t["z"], "k": t["k"], "n": t["n"]} for t in arm.get("top_combos") or []]
+    cands = [{"conds": [t["cond"]], "z": t["z"], "k": t["k"], "n": t["n"], "matched": t.get("matched")} for t in arm.get("top_singles") or []]
+    cands += [{"conds": list(t["conds"]), "z": t["z"], "k": t["k"], "n": t["n"], "matched": t.get("matched")} for t in arm.get("top_combos") or []]
     cands = [c for c in cands if p95p is not None and c["z"] is not None and c["z"] > p95p]
     cands.sort(key=lambda c: (-c["z"], len(c["conds"]), "+".join(sorted(c["conds"]))))
-    prints = []
+    prints, momentum = [], []
     for c in cands:
+        if not momentum_free(c["matched"]):                           # العقد §⑤: تعبر الخلطَ ولا يبقى فرقُها موجبًا مقابل ضابط الزخم ⟵ «زخمٌ لا بصمة» ولا تُثبَّت
+            momentum.append({"texts": sorted(c["conds"]), "z": c["z"], "matched": c["matched"]})
+            continue
         if any(len(set(c["conds"]) & set(p["texts"])) >= 2 for p in prints) or any(set(c["conds"]) == set(p["texts"]) for p in prints):
             continue
-        prints.append({"texts": sorted(c["conds"]), "conds": [parse_cond(t, thr.get(t)) for t in sorted(c["conds"])], "z": c["z"], "k": c["k"], "n": c["n"]})
+        prints.append({"texts": sorted(c["conds"]), "conds": [parse_cond(t, thr.get(t)) for t in sorted(c["conds"])], "z": c["z"], "k": c["k"], "n": c["n"],
+                       "matched": c["matched"]})
         if len(prints) == TOP:
             break
     ex = [e for e in arm.get("exclusions") or [] if p95e is not None and e["removes"] > p95e]
     ex.sort(key=lambda e: (-e["removes"], e["cond"]))
     excl = [{"texts": [e["cond"]], "conds": [parse_cond(e["cond"], thr.get(e["cond"]))], "removes": e["removes"], "pos_share": e["pos_share"]} for e in ex[:TOP]]
-    return {"prints": prints, "excl": excl, "p95_print": p95p, "p95_excl": p95e}
+    return {"prints": prints, "excl": excl, "p95_print": p95p, "p95_excl": p95e, "momentum_only": momentum}
 
 
 def build_freeze(arms):
