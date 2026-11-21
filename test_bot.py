@@ -107823,6 +107823,199 @@ check("🔒 E3R6 T-EMA3 الملحق 1 مُغلَقٌ مُنفَّذًا («لا
       _e3r[0], _e3r[1])
 
 
+# 🕯️📊 VCD1-VCD5 — `T-VOLCANDLE` «شموع الفوليوم» المرحلةُ صفر (أمرُ المالك 2026-11-21 · العقد `fm_forensics/volcandle/T_VOLCANDLE_prereg.md` · قياسٌ فقط)
+try:
+    _vcd_d = __import__("os").path.join(__import__("os").path.dirname(__import__("os").path.abspath(__file__)), "fm_forensics", "volcandle")
+    if _vcd_d not in __import__("sys").path:
+        __import__("sys").path.insert(0, _vcd_d)
+    import importlib as _vcd_imp
+    _VCD = _vcd_imp.import_module("volcandle")
+    _vcd_err = ""
+except Exception as _e:                                           # noqa: BLE001
+    _VCD, _vcd_err = None, f"⛔ {type(_e).__name__}: {_e}"
+import ast as _vcd_ast
+import inspect as _vcd_insp
+import tempfile as _vcd_tmp
+import shutil as _vcd_sh
+
+
+def _vcd_try(fn):
+    if _VCD is None:
+        return False, _vcd_err
+    try:
+        return fn()
+    except Exception as _x:                                       # noqa: BLE001
+        return False, f"⛔ رمى: {type(_x).__name__}: {_x}"
+
+
+def _vcd_bars(n, base=3.0, spikes=(), t_end=1_800_000_000):
+    """شموعُ 4 ساعات اصطناعيّة تنتهي عند `t_end` (افتتاحُ الأخيرة + 4 ساعات = t_end) · وspikes = {i: (o, h, l, c, v)}."""
+    t0 = t_end - n * 4 * 3600
+    out = []
+    for i in range(n):
+        o, h, l, c, v = spikes.get(i, (base, base * 1.02, base * 0.98, base, 100.0)) if isinstance(spikes, dict) else (base, base * 1.02, base * 0.98, base, 100.0)
+        out.append((t0 + i * 4 * 3600, o, h, l, c, v))
+    return out
+
+
+# 🧾 VCD1 — العقدُ ببصمته · وشواهدُه بتواريخها (الداخلان والثلاثةُ الخارجة) · والأرقامُ الهندسيّة في الأداة = العقد · والحارسُ أوّلُ سطر (11 · 7 · 0)
+def _vcd1():
+    doc = open("fm_forensics/volcandle/T_VOLCANDLE_prereg.md", encoding="utf-8").read()
+    s1 = (doc.split("## ①", 1) + [""])[1].split("## ②", 1)[0]
+    s3 = (doc.split("## ③", 1) + [""])[1].split("## ④", 1)[0]
+    rows = {ln.split("|")[1].strip().split(" ·")[0]: ln for ln in s1.splitlines() if ln.startswith("| ") and "·" in ln.split("|")[1]}
+    dated = ("✅ يدخل" in rows.get("ELAB", "") and "2026-10-20 19:52 نيويورك" in rows.get("ELAB", "") and "✅ يدخل" in rows.get("ZCMD", "")
+             and all("❌ يُسمّى ويخرج" in rows.get(k, "") for k in ("JEM", "FBGL", "ELPW")))
+    tool = ([w["sym"] for w in _VCD.WITNESSES] == ["ELAB", "ZCMD"] and [x["sym"] for x in _VCD.EXCLUDED] == ["JEM", "FBGL", "ELPW"]
+            and _VCD.WITNESSES[0]["band"] == (1.80, 2.20) and _VCD.WITNESSES[0]["post_utc"] == "2026-10-20T23:52:00Z"
+            and _VCD.WITNESSES[1]["post_utc"] == "2026-10-14T00:57:00Z" and _VCD.WITNESSES[1]["band"] is None)
+    nums = (_VCD.KS == (3, 5) and _VCD.AVG_N == 20 and _VCD.WIN_SESS == 60 and _VCD.EXPL_LOOK == 250 and _VCD.IOU_MIN == 0.5
+            and _VCD.NEED_NUMERIC == 2 and (_VCD.SCALE_LO, _VCD.SCALE_HI) == (0.85, 1.15)
+            and all(t in s3 for t in ("**3** أو **5**", "**آخرُ 60 جلسة**", "`EXPLOSION_PCT`", "**التقاطع ÷ الاتّحاد ≥ 0.5**", "**شاهدين رقميّين على الأقلّ**"))
+            and "VOLCANDLE_REOPEN" in doc and "لا يُكرَّر اليوميّ" in doc)
+    td, keep = _vcd_tmp.mkdtemp(), _VCD.CONTRACT_SHA
+    try:
+        g = [_VCD.guard(td)]
+        open(_vcd_os.path.join(td, "ZERO.json"), "w").write("{}")
+        g.append(_VCD.guard(td))
+        _VCD.CONTRACT_SHA = "0" * 64
+        g.append(_VCD.guard(_vcd_tmp.mkdtemp()))
+    finally:
+        _VCD.CONTRACT_SHA = keep
+        _vcd_sh.rmtree(td, ignore_errors=True)
+    body = [x for x in _vcd_ast.parse(_vcd_insp.getsource(_VCD.mode_zero)).body[0].body
+            if not (isinstance(x, _vcd_ast.Expr) and isinstance(x.value, _vcd_ast.Constant))]
+    first = (isinstance(body[1], _vcd_ast.Assign) and getattr(body[1].value.func, "id", "") == "guard" and isinstance(body[2], _vcd_ast.If))
+    ok = _VCD.contract_ok() and dated and tool and nums and g == [0, 7, 11] and first
+    return ok, f"بصمة={_VCD.contract_ok()} شواهد={dated} أداة={tool} أرقام={nums} حارس={g} أوّل={first}"
+
+
+_vcd_os = __import__("os")
+_vcd = _vcd_try(_vcd1)
+check("🧾 VCD1 T-VOLCANDLE: العقدُ ببصمته · ELAB وZCMD يدخلان بتاريخهما والثلاثة (JEM · FBGL · ELPW) تُسمّى وتخرج · وأرقامُ الأداة = العقد · والحارسُ أوّلُ عمل (0 · 7 · 11)",
+      _vcd[0], _vcd[1])
+
+
+# 🕯️ VCD2 — شموعُ 4 ساعات المكتملة وحدَها قبل لحظة المنشور · وشمعةُ الفوليوم حجمُها ≥ K × متوسّطِ العشرين **قبلها بلا هي** · وما قبله أقلُّ من 20 لا يُعَدّ
+def _vcd2():
+    b = _vcd_bars(30, spikes={3: (3.0, 3.1, 2.9, 3.0, 2000.0), 25: (3.0, 3.1, 2.9, 3.0, 300.0), 26: (3.0, 3.1, 2.9, 3.0, 299.0)})
+    cut = b[-1][0] + 4 * 3600
+    c_all, c_less = len(_VCD.completed(b, cut)), len(_VCD.completed(b, cut - 1))
+    i3, i5 = _VCD.vol_idx(b, 3), _VCD.vol_idx(b, 5)
+    # 25: 300 مقابل متوسّطِ 100 ⟵ 3× حرفيًّا يُعَدّ عند K=3 · و26: متوسّطُها يشمل 25 (110) ⟵ 299 دون 3×110 · و3 قبل الشمعة العشرين ⟵ لا يُعَدّ
+    ok = c_all == 30 and c_less == 29 and i3 == [25] and i5 == []
+    return ok, f"مكتملة={c_all}/{c_less} K3={i3} K5={i5}"
+
+
+_vcd = _vcd_try(_vcd2)
+check("🕯️ VCD2 T-VOLCANDLE: الشموعُ المكتملة وحدَها قبل المنشور · وشمعةُ الفوليوم ≥ K × متوسّطِ العشرين قبلها بلا هي · وقبل الشمعة العشرين لا تُعَدّ",
+      _vcd[0], _vcd[1])
+
+
+# 📏 VCD3 — النطاق: شموعُ الفوليوم **تحت السعر** بحدّها الأعلى المستعمَل · الأجسامُ [أدنى جسم، أعلى جسم] والذيولُ [أدنى Low، أعلى High] · والتقاطع ÷ الاتّحاد · ونافذتا «60 جلسة» و«منذ الانفجار» (بـ`EXPLOSION_PCT` بالاسم)
+def _vcd3():
+    bars = [(0, 2.0, 2.3, 1.7, 2.1, 1.0), (1, 2.2, 2.6, 1.9, 1.95, 1.0), (2, 3.0, 3.3, 2.8, 3.2, 1.0)]
+    body = _VCD.band_of(bars, [0, 1, 2], 2.5, "body")             # الثالثةُ فوق السعر ⟵ تخرج · والثانيةُ جسمُها 1.95-2.2 تحته
+    wick = _VCD.band_of(bars, [0, 1, 2], 2.5, "wick")             # الثانيةُ ذيلُها الأعلى 2.6 فوق السعر ⟵ تخرج في الذيول
+    io = [_VCD.iou((1.8, 2.2), (1.8, 2.2)), round(_VCD.iou((1.8, 2.2), (2.0, 2.4)), 6), _VCD.iou((1.0, 1.5), (2.0, 2.4)), _VCD.iou(None, (1, 2))]
+    import datetime as _d
+    day = lambda ts: (_d.date(2026, 1, 1) + _d.timedelta(days=int(ts))).isoformat()   # noqa: E731
+    closes = [10.0] * 300
+    closes[200] = 15.0                                            # +50% حرفيًّا عن 199 ⟵ انفجار
+    closes[201:] = [15.0] * 99
+    daily = [(k, 0, 0, 0, closes[k], 0) for k in range(300)]
+    dec = day(280)
+    w60 = _VCD.window_days(daily, day, dec, "w60")
+    ex = _VCD.window_days(daily, day, dec, "expl")
+    flat = [(k, 0, 0, 0, 10.0, 0) for k in range(300)]
+    none = _VCD.window_days(flat, day, dec, "expl")
+    near = list(closes)
+    near[200] = 14.99
+    nx = _VCD.window_days([(k, 0, 0, 0, near[k], 0) for k in range(300)], day, dec, "expl")
+    src = _vcd_insp.getsource(_VCD.window_days)
+    ok = (body == (1.95, 2.2, 2) and wick == (1.7, 2.3, 1) and io == [1.0, round(0.2 / 0.6, 6), 0.0, None]
+          and w60 == day(221) and ex == day(200) and none is None and nx is None and 'CONFIG["EXPLOSION_PCT"]' in src)
+    return ok, f"أجسام={body} ذيول={wick} تقاطع={io} w60={w60} انفجار={ex}/{none}/{nx}"
+
+
+_vcd = _vcd_try(_vcd3)
+check("📏 VCD3 T-VOLCANDLE: النطاقُ من شموع الفوليوم تحت السعر (الأجسام/الذيول) · والتقاطع ÷ الاتّحاد · ونافذتا «60 جلسة» و«منذ الانفجار» بـ`EXPLOSION_PCT` بالاسم",
+      _vcd[0], _vcd[1])
+
+
+# 🚪 VCD4 — البوّابة: شاهدٌ رقميٌّ واحد ⟵ «التعريف لا يُعاد إنتاجه» مهما طابق · وشاهدان رقميّان مطابقان والشاهدُ بلا رقم له نطاق ⟵ تعريفٌ واحد بترتيب البساطة عند التعادل · وفحصُ المقياس يُخرج الشاهد
+def _vcd4():
+    defs = _VCD.definitions()
+
+    def W(band, iou_all, n_all):
+        return {"status": "ok", "faisal": band, "rows": [{"iou": iou_all, "n": n_all} for _d in defs]}
+    one = _VCD.gate([W((1.8, 2.2), 0.9, 3), W(None, None, 2)])
+    two = _VCD.gate([W((1.8, 2.2), 0.9, 3), W((2.0, 2.2), 0.6, 2), W(None, None, 2)])
+    noplain = _VCD.gate([W((1.8, 2.2), 0.9, 3), W((2.0, 2.2), 0.6, 2), W(None, None, 0)])
+    low = _VCD.gate([W((1.8, 2.2), 0.49, 3), W((2.0, 2.2), 0.9, 2)])
+    w = {"id": "X", "sym": "X", "post_utc": "2027-01-15T08:00:00Z", "band": (1.0, 2.0), "chart_px": 2.0}
+    t_end = _VCD.post_ts(w)
+    bars = _vcd_bars(40, base=3.0, t_end=t_end)
+    sc = _VCD.witness_rows(w, bars, [(b[0], 0, 0, 0, 3.0, 0) for b in bars], lambda ts: "2027-01-01")
+    ok = (one["verdict"] == "التعريف لا يُعاد إنتاجه" and one["reachable"] is False and one["chosen"] is None
+          and two["verdict"] == "يُعاد إنتاجه" and two["chosen"] == defs[0]["name"] == "K3·w60·body"
+          and noplain["chosen"] is None and low["chosen"] is None and sc["status"] == "فرقُ مقياس" and sc["rows"] == [])
+    return ok, f"واحد={one['verdict']} اثنان={two['chosen']} بلا_نطاق={noplain['chosen']} دون_0.5={low['chosen']} مقياس={sc['status']}"
+
+
+_vcd = _vcd_try(_vcd4)
+check("🚪 VCD4 T-VOLCANDLE: شاهدٌ رقميٌّ واحد ⟵ «التعريف لا يُعاد إنتاجه» · واثنان مطابقان ‏+ نطاقٌ للشاهد بلا رقم ⟵ تعريفٌ واحد بالبساطة · وفرقُ المقياس يُخرج الشاهد",
+      _vcd[0], _vcd[1])
+
+
+# 🔒 VCD5 — قياسٌ فقط: لا تلغرام ولا Polygon ولا requests ولا إسنادَ CONFIG · والجلبُ للشاهدَين المؤرَّخين وحدَهما · والـworkflow يدويٌّ بلا أسرار · والإقفالُ `VOLCANDLE_REOPEN == "1"` حرفيًّا
+def _vcd5():
+    src = open("fm_forensics/volcandle/volcandle.py", encoding="utf-8").read()
+    names, assigns = set(), []
+    for nd in _vcd_ast.walk(_vcd_ast.parse(src)):
+        if isinstance(nd, _vcd_ast.Import):
+            names |= {a.name for a in nd.names}
+        elif isinstance(nd, _vcd_ast.ImportFrom):
+            names.add(nd.module or "")
+        elif isinstance(nd, _vcd_ast.Attribute):
+            names.add(nd.attr)
+        elif isinstance(nd, _vcd_ast.Assign):
+            assigns += [_vcd_ast.dump(t) for t in nd.targets]
+    bad = sorted(x for x in names if any(w in x.lower() for w in ("telegram", "polygon", "requests", "git_save")))
+    cfg = [a for a in assigns if "CONFIG" in a]
+    seen = []
+    td = _vcd_tmp.mkdtemp()
+    try:
+        rc = _VCD.mode_zero(td, fetch=lambda syms: (seen.append(list(syms)) or ({}, {})))
+    finally:
+        _vcd_sh.rmtree(td, ignore_errors=True)
+    raw = open(".github/workflows/volcandle.yml", encoding="utf-8").read()
+    code = "\n".join(ln.split("#", 1)[0] for ln in raw.splitlines())
+    wf = _e3_yaml.safe_load(raw)
+    on = wf.get(True) or wf.get("on") or {}
+    wf_ok = set(on) == {"workflow_dispatch"} and "secrets." not in code and "TELEGRAM" not in code and "POLYGON" not in code and "volcandle.py zero" in code
+    keep = (_VCD.CLOSED, _vcd_os.environ.get("VOLCANDLE_REOPEN"))
+    try:
+        _VCD.CLOSED = True
+        st = []
+        for v in ("", "0", "true", " 1", "1"):
+            _vcd_os.environ["VOLCANDLE_REOPEN"] = v
+            st.append(_VCD.closed())
+    finally:
+        _VCD.CLOSED = keep[0]
+        if keep[1] is None:
+            _vcd_os.environ.pop("VOLCANDLE_REOPEN", None)
+        else:
+            _vcd_os.environ["VOLCANDLE_REOPEN"] = keep[1]
+    ok = not bad and not cfg and seen == [["ELAB", "ZCMD"]] and rc == 5 and wf_ok and st == [True, True, True, True, False]
+    return ok, f"ممنوع={bad} CONFIG={cfg} جلب={seen} rc={rc} workflow={wf_ok} إقفال={st}"
+
+
+_vcd = _vcd_try(_vcd5)
+check("🔒 VCD5 T-VOLCANDLE: قياسٌ فقط بلا تلغرام ولا Polygon ولا CONFIG · والجلبُ للشاهدَين المؤرَّخين وحدَهما · والـworkflow يدويٌّ بلا أسرار · والإقفالُ «1» حرفيًّا",
+      _vcd[0], _vcd[1])
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
