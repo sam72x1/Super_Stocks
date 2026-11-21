@@ -107096,6 +107096,413 @@ except Exception as _e:                                           # noqa: BLE001
 check("🧾 CSG3 T-CASE31 المخرجُ النهائيّ المودَع يُعاد توليدُه بايتًا من `out/` · وجدولُ التحقّق يحمل الأرقامَ الحاكمة · والتحقّقُ المودَع بلا بصمةٍ تثبت",
       bool(_csg3), _csg3d)
 
+# 📈✖️③ E3M1-E3M8 — `T-EMA3` تقاطع إيما 9 و15 و16 على 4 ساعات (أمرُ المالك 2026-11-21 · العقد `fm_forensics/ema3/T_EMA3_prereg.md` · قراءةٌ فقط)
+import ast as _e3_ast                                             # noqa: E402
+import bisect as _e3_bis                                          # noqa: E402
+import inspect as _e3_insp                                        # noqa: E402
+import random as _e3_rnd                                          # noqa: E402
+import shutil as _e3_sh                                           # noqa: E402
+import tempfile as _e3_tmp                                        # noqa: E402
+import yaml as _e3_yaml                                           # noqa: E402
+_e3_os, _e3_sys = __import__("os"), __import__("sys")
+try:
+    for _e3_p in ("ema3", "case31"):
+        _e3_d = _e3_os.path.join(_e3_os.path.dirname(_e3_os.path.abspath(__file__)), "fm_forensics", _e3_p)
+        if _e3_d not in _e3_sys.path:
+            _e3_sys.path.insert(0, _e3_d)
+    import importlib as _e3_imp                                   # وحدةٌ محلّيّة في مجلّدٍ فرعيّ ⟵ بالاسم بعد إضافة المسار
+    _E3 = _e3_imp.import_module("ema3")
+    _e3_err = ""
+except Exception as _e:                                           # noqa: BLE001
+    _E3, _e3_err = None, f"⛔ {type(_e).__name__}: {_e}"
+
+
+def _e3_try(fn):
+    if _E3 is None:
+        return False, _e3_err
+    try:
+        return fn()
+    except Exception as _x:                                       # noqa: BLE001
+        return False, f"⛔ رمى: {type(_x).__name__}: {_x}"
+
+
+# ── فِكستشر: أيّامٌ متتالية · 4 شموع في اليوم · الطابع = رقمُ اليوم × 86400 + الفتحة × 14400 ──
+_E3_DAYS = [f"2025-{1 + k // 28:02d}-{1 + k % 28:02d}" for k in range(84)]
+
+
+def _e3_day(ts):
+    return _E3_DAYS[int(ts) // 86400]
+
+
+def _e3_h4(closes, mods=None):
+    out, prev = [], closes[0]
+    for k, c in enumerate(closes):
+        o, h, lo = prev, max(prev, c), min(prev, c)
+        if mods and k in mods:
+            o, h, lo, c = mods[k]
+        out.append(((k // 4) * 86400 + (k % 4) * 14400, o, h, lo, c, 1000.0))
+        prev = c
+    return out
+
+
+def _e3_daily(h4, n_days=None):
+    out = []
+    for d in range((len(h4) // 4) if n_days is None else n_days):
+        day = h4[d * 4:d * 4 + 4]
+        out.append((d * 86400, day[0][1], max(b[2] for b in day), min(b[3] for b in day), day[-1][4], 4000.0))
+    return out
+
+
+# 🧾 E3M1 — العقدُ ببصمته · ⓪ فيه ما قيس سابقًا «بفرق طولٍ واحد» · ④ نصُّ المالك بحرفه · وأرقامُ الأداة = أرقامُ العقد · والحارسُ قبل أيّ عمل
+def _e3m1():
+    doc = open("fm_forensics/ema3/T_EMA3_prereg.md", encoding="utf-8").read()
+
+    def sec(a, b):
+        t = doc.split(a, 1)
+        return t[1].split(b, 1)[0] if len(t) == 2 and b in t[1] else ""
+
+    s0, s1, s3, s4 = sec("## ⓪", "## ①"), sec("## ①", "## ②"), sec("## ③", "## ④"), sec("## ④", "## ⑤")
+    words = ("بفرق طولٍ واحد" in s0 and "T-GCROSS" in s0 and "H4.ema8x15.xup10" in s0 and "شموع الدقيقة" in s0
+             and "إن كان فاصل الفرق عن الضابط فوق الصفر في الاكتشاف والتأكيد معًا، اقترح وسم عرض «تقاطع إيما» في «تحت المتابعة» وانتظر موافقتي. "
+                 "وإلا يُقفل المحور بمفتاح." in s4
+             and "لا شرطَ إضافيّ" in s1 and "بالجلسة الممتدّة" in s1)
+    nums = (f"الشمعة رقم {_E3.WARMUP} " in s1 and f"{_E3.COST * 100:g}%" in s3 and f"أقربُ {_E3.K_MATCH} " in s3 and f"{_E3.BOOT_N:,} سحبة" in s3
+            and str(_E3.SEED) in s3 and f"{_E3.MIN_SIG} إشارةٍ" in s4 and f"{_E3.MIN_DAYS} يومَ دخولٍ" in s4 and f"عند {_E3.GOV_H} جلسة" in s4
+            and (_E3.FAST, _E3.SLOW, _E3.HORIZONS, _E3.TARGETS, _E3.STOP) == (9, (15, 16), (5, 10, 20), (0.30, 0.50), -0.10)
+            and (_E3.D_FROM, _E3.D_TO, _E3.D_BLIND, _E3.C_FROM, _E3.SNAP_FROM) == ("2023-01-01", "2025-12-31", "2026-02-28", "2026-09-30", "2026-09-29")
+            and _E3.D_BLIND in sec("## ②", "## ③") and _E3.BASKET_RUN in sec("## ②", "## ③"))
+    td, keep = _e3_tmp.mkdtemp(), _E3.CONTRACT_SHA
+    try:
+        g = [_E3.guard("discover", td), _E3.guard("confirm", td)]
+        open(_e3_os.path.join(td, "DISCOVER.json"), "w").write("{}")
+        g += [_E3.guard("discover", td), _E3.guard("confirm", td)]
+        open(_e3_os.path.join(td, "CONFIRM.json"), "w").write("{}")
+        g += [_E3.guard("confirm", td), _E3.guard("other", td)]
+        _E3.CONTRACT_SHA = "0" * 64
+        g.append(_E3.guard("discover", _e3_tmp.mkdtemp()))
+        _E3.CONTRACT_SHA = ""
+        g.append(_E3.guard("discover", _e3_tmp.mkdtemp()))
+    finally:
+        _E3.CONTRACT_SHA = keep
+        _e3_sh.rmtree(td, ignore_errors=True)
+
+    def first_guard(fn):
+        body = [x for x in _e3_ast.parse(_e3_insp.getsource(fn)).body[0].body
+                if not (isinstance(x, _e3_ast.Expr) and isinstance(x.value, _e3_ast.Constant))]
+        a, b = body[0], body[1]
+        return (isinstance(a, _e3_ast.Assign) and isinstance(a.value, _e3_ast.Call) and getattr(a.value.func, "id", "") == "guard"
+                and isinstance(b, _e3_ast.If) and isinstance(b.test, _e3_ast.Name) and b.test.id == a.targets[0].id
+                and any(isinstance(x, _e3_ast.Return) and isinstance(x.value, _e3_ast.Name) and x.value.id == b.test.id for x in b.body))
+
+    ok = (_E3.contract_ok() and words and nums and g == [0, 9, 7, 0, 7, 5, 11, 11] and first_guard(_E3.mode_fetch) and first_guard(_E3.mode_run))
+    return ok, f"بصمة={_E3.contract_ok()} نصّ={words} أرقام={nums} حارس={g}"
+
+
+_e3r = _e3_try(_e3m1)
+check("🧾 E3M1 T-EMA3 العقدُ ببصمته: ⓪ ما قيس سابقًا بفرق طولٍ واحد · ④ نصُّ المالك بحرفه · أرقامُ الأداة أرقامُه · والحارسُ أوّلُ سطرٍ (11 · 7 · 9)",
+      _e3r[0], _e3r[1])
+
+
+# 📈 E3M2 — التعريفُ بالحرف: EMA ببذرة TradingView · الإشارةُ أوّلُ «فوق» بعد «تحت» · «وسط» لا يُطلق ولا يُلغي · ولا إشارةَ قبل التسخين
+def _e3m2():
+    def ref(closes, warm):
+        def e(n):
+            out = [None] * len(closes)
+            if len(closes) >= n:
+                v = sum(closes[:n]) / n
+                out[n - 1] = v
+                for i in range(n, len(closes)):
+                    v = (closes[i] - v) * (2.0 / (n + 1)) + v
+                    out[i] = v
+            return out
+        f, a, b = e(9), e(15), e(16)
+        sig, last, mixed = [], None, 0
+        for i in range(len(closes)):
+            if b[i] is None:
+                continue
+            up, dn = f[i] > a[i] and f[i] > b[i], f[i] < a[i] and f[i] < b[i]
+            if up and last == "dn" and i >= warm:
+                sig.append(i)
+            if up:
+                last = "up"
+            elif dn:
+                last = "dn"
+            else:
+                mixed += 1
+        return sig, mixed
+
+    tot, mixed, same = 0, 0, True
+    for seed in range(24):
+        rng, c, closes = _e3_rnd.Random(seed), 10.0, []
+        for _k in range(420):
+            c = max(0.2, c * (1.0 + rng.gauss(0, 0.03)) + 0.04 * (10.0 - c))
+            closes.append(c)
+        want, mx = ref(closes, _E3.WARMUP)
+        got = _E3.fire(_E3.states(closes))[0]
+        same = same and got == want
+        tot, mixed = tot + len(want), mixed + mx
+    lin = _E3.ema([float(v) for v in range(1, 11)], 3)
+    seedok = lin[:2] == [None, None] and all(abs(lin[i] - i) < 1e-9 for i in range(2, 10))
+    f1 = _E3.fire([-1, 0, 1, 0, 1, -1, 0, 0, 1], warmup=0)
+    f2 = _E3.fire([0, 1, 1, -1, 1], warmup=4)
+    f3 = _E3.fire([0, 1, 1, -1, 1], warmup=5)
+    f4 = _E3.fire([None, None, -1, 1, 0, 1, 1], warmup=0)
+    cases = (f1 == ([2, 8], [2, 8], [None, None, 2, 2, 2, None, None, None, 8])
+             and f2[0] == [4] and f2[2] == [None, -1, -1, None, 4]
+             and f3[0] == [] and f3[1] == [4] and f3[2][4] == 4
+             and f4[0] == [3] and f4[2] == [None, None, None, 3, 3, 3, 3])
+    return (same and tot >= 60 and mixed >= 10 and seedok and cases,
+            f"مطابقةُ المرجع={same} إشارات={tot} وسط={mixed} بذرة={seedok} حالات={cases}")
+
+
+_e3r = _e3_try(_e3m2)
+check("📈 E3M2 T-EMA3 الإشارةُ بالحرف: EMA9 فوق 15 وفوق 16 معًا بعد أن كان تحتهما (مرجعٌ مستقلّ على 24 سلسلة) · «وسط» لا يُطلق ولا يُلغي · ولا إشارةَ قبل التسخين",
+      _e3r[0], _e3r[1])
+
+
+# 🎯 E3M3 — نتيجةُ الدخول: العائدُ بعد الكلفة على إغلاق الجلسة k · الهدفُ قبل الوقف · اجتماعُهما وقف · النافذةُ 20 جلسة · والناقصُ None
+def _e3m3():
+    def run(mods, n_days=40, i=8, n_daily=None):
+        h4 = _e3_h4([10.0] * (n_days * 4), mods)
+        d = _e3_daily(h4, n_daily)
+        d = [(r[0], r[1], r[2], r[3], 10.0 + k * 0.1, r[5]) for k, r in enumerate(d)]
+        return _E3.outcome(h4, [_e3_day(b[0]) for b in h4], i, d, [_e3_day(r[0]) for r in d])
+
+    a = run({10: (10, 13.1, 10, 10)})
+    b = run({10: (10, 13.1, 8.9, 10)})
+    c = run({9: (10, 10, 8.9, 10), 10: (10, 15.2, 10, 10), 11: (10, 20.0, 10, 10)})
+    d = run({9: (10, 15.0, 10, 10), 10: (10, 10, 8.0, 10)})
+    last_in, first_out = 22 * 4 + 3, 23 * 4
+    e_in, e_out = run({last_in: (10, 13.0, 10, 10)}), run({first_out: (10, 13.0, 10, 10)})
+    f = run({10: (10, 13.1, 10, 10)}, n_daily=20)
+    g = run({8: (0.0, 1, 0, 1)})
+    edge = run({10: (10, 12.99, 9.01, 10)})
+    ok = (abs(a["r5"] - (10.7 / 10 - 1 - 0.018)) < 1e-12 and abs(a["r10"] - (11.2 / 10 - 1 - 0.018)) < 1e-12
+          and abs(a["r20"] - (12.2 / 10 - 1 - 0.018)) < 1e-12 and a["D0"] == _E3_DAYS[2] and a["full"]
+          and (a["tp30"], a["tp50"], a["x100"]) == (True, False, False)
+          and (b["tp30"], b["tp50"]) == (False, False)
+          and (c["tp30"], c["tp50"], c["x100"]) == (False, False, True)
+          and (d["tp30"], d["tp50"]) == (True, True)
+          and e_in["tp30"] is True and e_out["tp30"] is False
+          and f["full"] is False and f["tp30"] is None and f["r20"] is None and f["r5"] is not None and f["x100"] is None
+          and g is None and (edge["tp30"], edge["tp50"]) == (False, False))
+    return ok, f"a={a} b={b['tp30']} c={(c['tp30'], c['x100'])} d={d['tp30']} نافذة={(e_in['tp30'], e_out['tp30'])} ناقص={f['full']}"
+
+
+_e3r = _e3_try(_e3m3)
+check("🎯 E3M3 T-EMA3 نتيجةُ الدخول: العائدُ بعد كلفة 1.8% على إغلاق الجلسة 5 و10 و20 · الهدفُ قبل الوقف · اجتماعُهما في شمعةٍ وقف · النافذةُ 20 جلسة · والناقصُ خارج",
+      _e3r[0], _e3r[1])
+
+
+# 🧺 E3M4 — العضويّةُ بلا معلومةٍ من يومها: الاكتشافُ من الجلسة التالية للإدخال 20 جلسة · التأكيدُ بلقطة الجلسة السابقة · والاكتشافُ يُقصّ عند 2026-02-28
+def _e3m4():
+    import datetime as dt
+    ses = [(dt.date(2024, 3, 1) + dt.timedelta(days=k)).isoformat() for k in range(60) if (dt.date(2024, 3, 1) + dt.timedelta(days=k)).weekday() < 5]
+    m = _E3.members_discover([("aaa", ses[3]), ("BBB", "2024-03-09")], ses)            # 03-09 سبت
+    a_days = sorted(d for d, v in m.items() if "AAA" in v)
+    b_days = sorted(d for d, v in m.items() if "BBB" in v)
+    tail = [(dt.date(2025, 12, 1) + dt.timedelta(days=k)).isoformat() for k in range(60)]
+    late = _E3.members_discover([("ZZZ", "2025-12-20")], tail)
+    early = _E3.members_discover([("YYY", "2022-12-20")], [(dt.date(2022, 12, 1) + dt.timedelta(days=k)).isoformat() for k in range(60)])
+    mc = _E3.members_confirm(["2026-09-28", "2026-09-29", "2026-09-30", "2026-10-01", "2026-10-02", "2026-10-05"],
+                             {"2026-09-28": ["X"], "2026-09-29": ["A"], "2026-09-30": ["B"], "2026-10-02": ["C"]})
+    cut = _E3.cut_blind({"S": [(k * 86400, 1, 1, 1, 1, 1) for k in range(10)]}, lambda ts: f"2026-02-{24 + ts // 86400:02d}" if ts // 86400 < 5
+                        else f"2026-03-{ts // 86400 - 4:02d}", _E3.D_BLIND)
+    src_f, src_r = _e3_ast.parse(_e3_insp.getsource(_E3.mode_fetch)), _e3_ast.parse(_e3_insp.getsource(_E3.mode_run))
+    calls = lambda t: {getattr(c.func, "id", "") for c in _e3_ast.walk(t) if isinstance(c, _e3_ast.Call)}       # noqa: E731
+    ok = (a_days == ses[4:24] and ses[3] not in a_days and b_days[0] == "2024-03-11" and len(b_days) == 20
+          and sorted(late) == [d for d in tail if "2025-12-20" < d <= "2025-12-31"] and min(early) == "2023-01-01"
+          and mc == {"2026-09-30": {"A"}, "2026-10-01": {"B"}, "2026-10-05": {"C"}}
+          and len(cut["S"]) == 5 and "cut_blind" in calls(src_f) and "cut_blind" in calls(src_r) and "members_discover" in calls(src_r)
+          and "members_confirm" in calls(src_r))
+    return ok, f"أ={a_days[:1]}…{a_days[-1:]} ({len(a_days)}) ب={b_days[:1]} متأخّر={len(late)} تأكيد={sorted(mc)} قصّ={len(cut['S'])}"
+
+
+_e3r = _e3_try(_e3m4)
+check("🧺 E3M4 T-EMA3 العضويّةُ بلا معلومةٍ من يومها: الاكتشافُ من الجلسة التالية للإدخال 20 جلسة · التأكيدُ بلقطة الجلسة السابقة · والاكتشافُ يُقصّ عند 2026-02-28",
+      _e3r[0], _e3r[1])
+
+
+# ⚖️ E3M5 — الضابطان من مسار الحساب الحيّ: «اليوم نفسه» بلا صاحب تقاطعٍ في يومه وبالطابع نفسِه ومن الأعضاء · و«الزخمُ المطابق» أقربُ 5 برتبتَي الزخم
+def _e3m5():
+    n = 80 * 4
+
+    def falling(start, step):
+        return [max(0.5, start - step * k) for k in range(n)]
+
+    def crossing(at):
+        return [20.0 - 0.02 * k if k < at else 20.0 - 0.02 * at + 0.5 * (k - at + 1) for k in range(n)]
+
+    def bent(start, a, b):                                         # هبوطٌ بميلين: `a` حتى الشمعة 150 ثمّ `b` ⟵ بُعدا الزخم لا يتطابق ترتيبُهما
+        out, c = [], start
+        for k in range(n):
+            c -= a if k < 150 else b
+            out.append(c)
+        return out
+
+    closes = {"SIG": crossing(160), "XS": crossing(161), "NOB": falling(30, 0.01), "NM": falling(31, 0.012), "NMX": crossing(160)}
+    for q, (st, a, b) in enumerate([(40, 0.006, 0.01), (41, 0.004, 0.07), (42, 0.02, 0.03), (43, 0.006, 0.004), (44, 0.004, 0.004),
+                                    (45, 0.02, 0.05), (46, 0.008, 0.09)], 1):
+        closes[f"C{q}"] = bent(st, a, b)
+    h4 = {s: _e3_h4(v) for s, v in closes.items()}
+    sg = _E3.fire(_E3.states(closes["SIG"]))[0]
+    xg = _E3.fire(_E3.states(closes["XS"]))[0]
+    if len(sg) != 1 or len(xg) != 1 or sg[0] // 4 != xg[0] // 4:
+        return False, f"⛔ الفِكستشر: SIG={sg} XS={xg}"
+    c, dx = sg[0], _E3_DAYS[sg[0] // 4]
+    t = h4["SIG"][c + 1][0]
+    h4["NOB"] = [b for b in h4["NOB"] if b[0] != t]
+    dly = {s: _e3_daily(_e3_h4(closes[s])) for s in closes}
+    mem = {dx: {"SIG", "XS", "NOB"} | {f"C{q}" for q in range(1, 8)}}
+    res = _E3.measure(h4, dly, mem, _e3_day, keep=True)
+    recs = {r["sym"]: r for r in res["recs"]}
+    r = recs.get("SIG")
+    if r is None:
+        return False, f"⛔ لا صفَّ للإشارة: {sorted(recs)}"
+    days4 = {s: [_e3_day(b[0]) for b in h4[s]] for s in h4}
+    dd = {s: [_e3_day(b[0]) for b in dly[s]] for s in dly}
+    ctl = [f"C{q}" for q in range(1, 8)]
+    mom = {s: _E3.momentum(h4[s], days4[s], c + 1, dly[s], dd[s]) for s in ctl + ["SIG"]}
+
+    def rk(dim):
+        ks = sorted(mom, key=lambda s: (mom[s][dim], s))
+        return {s: i / (len(ks) - 1) for i, s in enumerate(ks)}
+
+    r0, r1 = rk(0), rk(1)
+    want = [s for _d, s in sorted((abs(r0[s] - r0["SIG"]) + abs(r1[s] - r1["SIG"]), s) for s in ctl)[:5]]
+    one0 = {s for _d, s in sorted((abs(r0[s] - r0["SIG"]), s) for s in ctl)[:5]}
+    one1 = {s for _d, s in sorted((abs(r1[s] - r1["SIG"]), s) for s in ctl)[:5]}
+    d0 = (c + 1) // 4
+    hand = (closes["SIG"][c] / closes["SIG"][c - 9] - 1.0, closes["SIG"][c] / closes["SIG"][(d0 - 20) * 4 + 3] - 1.0)
+    if set(want) in (one0, one1) or max(abs(hand[0] - mom["SIG"][0]), abs(hand[1] - mom["SIG"][1])) > 1e-12:
+        return False, f"⛔ الزخم: {want} بُعد0={sorted(one0)} بُعد1={sorted(one1)} يدويّ={hand} الأداة={mom['SIG']}"
+    oc = {s: _E3.outcome(h4[s], days4[s], c + 1, dly[s], dd[s]) for s in ctl + ["SIG"]}
+    m_same = sum(oc[s]["r20"] for s in ctl) / 7
+    m_match = sum(oc[s]["r20"] for s in want) / 5
+    ok = (r["n_same"] == 7 and r["m"] == want and r["n_match"] == 5 and r["Dx"] == dx and r["t"] == t
+          and abs(r["same"]["r20"] - m_same) < 1e-12 and abs(r["match"]["r20"] - m_match) < 1e-12 and abs(m_same - m_match) > 1e-6
+          and abs(r["sig"]["r20"] - oc["SIG"]["r20"]) < 1e-12 and recs["XS"]["n_same"] == 7 + (0 if recs["XS"]["t"] == t else 1)
+          and "SIG" not in recs["XS"]["m"] and "XS" not in r["m"] and "NOB" not in r["m"] and set(recs) == {"SIG", "XS"}
+          and res["C"]["in_members"] == 2 and res["pop"]["member_rows"] == 10 and len(set(want)) == 5)
+    res2 = _E3.measure(h4, dly, {_E3_DAYS[sg[0] // 4 + 1]: mem[dx]}, _e3_day, keep=True)                       # اليومُ التالي: لا تقاطعَ فيه ⟵ لا إشارة
+    ok = ok and res2["recs"] == [] and res2["C"]["in_members"] == 0
+    return ok, f"يوم={r['n_same']} مطابق={r['m']} المنتظر={want} متوسّطا الضابطين={m_same:.4f}/{m_match:.4f} صفوف={sorted(recs)}"
+
+
+_e3r = _e3_try(_e3m5)
+check("⚖️ E3M5 T-EMA3 الضابطان من مسار الحساب: «اليوم نفسه» بلا صاحب تقاطعٍ في يومه وبالطابع نفسِه ومن الأعضاء وحدَهم · و«الزخمُ المطابق» أقربُ 5 برتبتَي الزخم",
+      _e3r[0], _e3r[1])
+
+
+# 🎲 E3M6 — الفاصلُ عنقوديٌّ باليوم وحتميّ · والحكمُ بالأضعف: الحدودُ الأربعة فوق الصفر والأرضيّةُ مستوفاة في الجزأين وإلّا لا تعبر
+def _e3m6():
+    one = _E3.boot_ci([("d1", v) for v in (0.1, -0.2, 0.5, 0.3)])
+    two = _E3.boot_ci([("A", 1.0)] * 50 + [("B", -1.0)])
+    rng = _e3_rnd.Random(3)
+    many = [(f"d{k % 40}", rng.gauss(0.02, 0.2)) for k in range(400)]
+    m1, m2, m3 = _E3.boot_ci(many), _E3.boot_ci(many), _E3.boot_ci(many, seed=7)
+
+    def rec(day, sig, same, match):
+        z = {k: None for k in _E3.REC_KEYS}
+        return {"D0": day, "sig": dict(z, r20=sig), "same": dict(z, r20=same), "match": dict(z, r20=match)}
+
+    def gov(n, days, d_same, d_match):
+        return _E3.table_b([rec(f"d{k % days:03d}", 0.10 + (0.02 if k % 2 else -0.02), 0.10 - d_same, 0.10 - d_match) for k in range(n)])[1]
+
+    good, few, fewd, zero_m, zero_s = gov(120, 30, 0.05, 0.05), gov(99, 30, 0.05, 0.05), gov(120, 19, 0.05, 0.05), gov(120, 30, 0.05, 0.0), gov(120, 30, 0.0, 0.05)
+    v_ok = _E3.verdict({"gov": good}, {"gov": good})
+    v_m = _E3.verdict({"gov": good}, {"gov": zero_m})
+    v_s = _E3.verdict({"gov": zero_s}, {"gov": good})
+    v_n = _E3.verdict({"gov": good}, {"gov": few})
+    v_d = _E3.verdict({"gov": fewd}, {"gov": good})
+    edge = dict(good, match=[0.0, 0.1])
+    v_e = _E3.verdict({"gov": good}, {"gov": edge})
+    ok = (abs(one["lo"] - one["mean"]) < 1e-12 and abs(one["hi"] - one["mean"]) < 1e-12 and one["days"] == 1 and one["n"] == 4
+          and two["lo"] == -1.0 and two["hi"] == 1.0 and abs(two["mean"] - 49 / 51) < 1e-12
+          and m1 == m2 and (m1["lo"], m1["hi"]) != (m3["lo"], m3["hi"]) and m1["lo"] < m1["mean"] < m1["hi"] and m1["days"] == 40
+          and good["pass"] and good["enough"] and not few["enough"] and not few["pass"] and not fewd["enough"]
+          and zero_m["enough"] and not zero_m["pass"] and not zero_s["pass"]
+          and (v_ok["verdict"], v_ok["pass"]) == ("تعبر", True) and (v_m["verdict"], v_m["pass"]) == ("لا تعبر", False)
+          and v_s["pass"] is False and (v_n["verdict"], v_n["pass"]) == ("لا قياس", False) and v_d["verdict"] == "لا قياس"
+          and (v_e["verdict"], v_e["pass"]) == ("لا تعبر", False) and len(v_ok["cells"]) == 4)
+    return ok, f"عنقودٌ واحد={one['lo']:.3f}/{one['hi']:.3f} عنقودان={two['lo']}/{two['hi']} حتميّ={m1 == m2} أحكام={[v['verdict'] for v in (v_ok, v_m, v_s, v_n, v_d, v_e)]}"
+
+
+_e3r = _e3_try(_e3m6)
+check("🎲 E3M6 T-EMA3 الفاصلُ عنقوديٌّ باليوم وحتميٌّ بالبذرة · والحكمُ بالأضعف: الحدودُ الأربعة فوق الصفر والأرضيّةُ (100 إشارة · 20 يومًا) في الجزأين وإلّا لا تعبر",
+      _e3r[0], _e3r[1])
+
+
+# 🧭 E3M7 — موقعُ التقاطع من الحركة: «قبل» إشارةٌ قائمة عند يوم القرار · «أثناء» حتى شمعة القمّة بنسبة الصعود المتحقّقة · «بعد» خلال 20 جلسة
+def _e3m7():
+    nb = 60 * 4
+    hs = {53: 30.0}
+    h4 = [((k // 4) * 86400 + (k % 4) * 14400, 10.0, hs.get(k, 12.0), 9.0, 15.0 if k == 46 else 11.0, 1.0) for k in range(nb)]
+    days4, dd = [_e3_day(b[0]) for b in h4], _E3_DAYS[:60]
+    ev = {"D": _E3_DAYS[10], "s": _E3_DAYS[11], "p": _E3_DAYS[13], "close_D": 10.0}
+
+    def pos(crosses, stand_at_d=None, e=ev):
+        st = [None] * nb
+        i_d = _e3_bis.bisect_right(days4, e["D"]) - 1
+        st[i_d] = stand_at_d
+        return _E3.position(e, h4, days4, crosses, st, dd)
+
+    before, before_u = pos([20], 20), pos([], -1)
+    during, at_peak, after0 = pos([10, 46]), pos([53]), pos([54])
+    after17, none = pos([30 * 4]), pos([34 * 4])
+    unm = pos([], None, dict(ev, D=_E3_DAYS[2], s=_E3_DAYS[3], p=_E3_DAYS[4]))
+    ok = (before == {"cls": "قبل", "lead": 5} and before_u == {"cls": "قبل", "lead": None}
+          and during["cls"] == "أثناء" and abs(during["frac"] - 0.25) < 1e-12
+          and at_peak["cls"] == "أثناء" and abs(at_peak["frac"] - 0.05) < 1e-12
+          and after0 == {"cls": "بعد", "after": 0} and after17 == {"cls": "بعد", "after": 17}
+          and none == {"cls": "لا تقاطع"} and unm == {"cls": "غير مقيس"})
+    return ok, f"قبل={before} أثناء={during} قمّة={at_peak} بعد={after0}/{after17} لا={none} غيرُ مقيس={unm}"
+
+
+_e3r = _e3_try(_e3m7)
+check("🧭 E3M7 T-EMA3 موقعُ التقاطع من الحركة: «قبل» إشارةٌ قائمة عند يوم القرار · «أثناء» حتى شمعة القمّة بنسبة الصعود المتحقّقة · «بعد» خلال 20 جلسة وإلّا لا تقاطع",
+      _e3r[0], _e3r[1])
+
+
+# 🔒 E3M8 — قراءةٌ فقط: لا تلغرام ولا Polygon ولا إسنادَ CONFIG في الأداة · والـworkflow يدويٌّ بلا كرون وبلا أسرار · والمخرجُ يُعاد توليدُه من صفوفه
+def _e3m8():
+    src = open("fm_forensics/ema3/ema3.py", encoding="utf-8").read()
+    tree = _e3_ast.parse(src)
+    names = set()
+    for nd in _e3_ast.walk(tree):
+        if isinstance(nd, _e3_ast.Import):
+            names |= {a.name for a in nd.names}
+        elif isinstance(nd, _e3_ast.ImportFrom):
+            names.add(nd.module or "")
+        elif isinstance(nd, _e3_ast.Call):
+            names.add(getattr(nd.func, "id", "") or getattr(nd.func, "attr", ""))
+        elif isinstance(nd, _e3_ast.Attribute):
+            names.add(nd.attr)
+    bad = sorted(x for x in names if any(w in x.lower() for w in ("telegram", "polygon", "git_save", "requests")) or x in ("CONFIG", "send_owner_document"))
+    wf = _e3_yaml.safe_load(open(".github/workflows/ema3.yml", encoding="utf-8"))
+    raw = open(".github/workflows/ema3.yml", encoding="utf-8").read()
+    on = wf.get(True) or wf.get("on") or {}
+    code = "\n".join(ln.split("#", 1)[0] for ln in raw.splitlines())
+    wf_ok = (set(on) == {"workflow_dispatch"} and "secrets." not in code and "TELEGRAM" not in code and "POLYGON" not in code
+             and set(wf["jobs"]) == {"status", "fetch", "run"} and wf["jobs"]["run"]["needs"] == "fetch"
+             and all("ema3.py" in "".join(str(s.get("run", "")) for s in j["steps"]) for j in wf["jobs"].values()))
+    rng = _e3_rnd.Random(5)
+    recs = []
+    for k in range(150):
+        z = {q: rng.gauss(0, 0.2) if q.startswith("r") else rng.random() < 0.3 for q in _E3.REC_KEYS}
+        recs.append({"D0": f"d{k % 30:02d}", "sig": z, "same": {q: rng.gauss(0, 0.05) if q.startswith("r") else rng.random() for q in _E3.REC_KEYS},
+                     "match": {q: rng.gauss(0, 0.05) if q.startswith("r") else rng.random() for q in _E3.REC_KEYS}})
+    b1, g1 = _E3.table_b(recs)
+    b2, g2 = _E3.table_b(__import__("json").loads(__import__("json").dumps(recs)))
+    regen = g1 == g2 and b1["r20"]["match"] == b2["r20"]["match"] and b1["tp30"]["sig"]["n"] == 150
+    return (not bad and wf_ok and regen), f"ممنوع={bad} workflow={wf_ok} إعادةُ التوليد={regen}"
+
+
+_e3r = _e3_try(_e3m8)
+check("🔒 E3M8 T-EMA3 قراءةٌ فقط: لا تلغرام ولا Polygon ولا إسنادَ CONFIG · الـworkflow يدويٌّ بلا كرون ولا أسرار · وجدولُ ب والحاكمةُ يُعادان من صفوف الإشارات حتميًّا",
+      _e3r[0], _e3r[1])
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
