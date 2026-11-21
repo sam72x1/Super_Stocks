@@ -107503,6 +107503,71 @@ check("🔒 E3M8 T-EMA3 قراءةٌ فقط: لا تلغرام ولا Polygon و
       _e3r[0], _e3r[1])
 
 
+# 🧾 E3M9 — `T-EMA3` المخرجُ المودَع يُعاد توليدُه: جدولُ ب والحاكمةُ من صفوف الإشارات المودَعة · وملفّاتُ `.md` من ملفّات `.json` بايتًا · والحكمُ في وثيقة النتيجة = الحكمُ المحسوب
+def _e3m9():
+    import gzip
+    import json
+    out, js = "fm_forensics/ema3/out", {}
+    det = []
+    for part, nm in _E3.PARTS.items():
+        j = json.load(open(f"{out}/{nm}.json", encoding="utf-8"))
+        rows = json.loads(gzip.open(f"{out}/{nm}_rows.json.gz").read().decode("utf-8"))
+        B, gov = _E3.table_b(rows)
+        same = (json.loads(json.dumps(B)) == j["B"] and json.loads(json.dumps(gov)) == j["gov"]
+                and _E3.render(part, j) == open(f"{out}/{nm}.md", encoding="utf-8").read()
+                and j["contract_sha"] == _E3.CONTRACT_SHA and j["signals"]["n"] == len(rows) and j["part"] == part)
+        det.append(f"{nm}={same} ({len(rows)})")
+        js[part] = j if same else None
+    if not all(js.values()):
+        return False, " · ".join(det)
+    v = _E3.verdict(js["discover"], js["confirm"])
+    vmd = open(f"{out}/VERDICT.md", encoding="utf-8").read() == _E3.render_verdict(js["discover"], js["confirm"])
+    res = open("fm_forensics/ema3/T_EMA3_RESULT.md", encoding="utf-8").read()
+    sec = res.split("## ① الحكم", 1)
+    sec = sec[1].split("\n## ", 1)[0] if len(sec) == 2 else ""
+    cells = all(f"[{_E3._p(c['lo'])}، {_E3._p(c['hi'])}]" in sec for c in v["cells"])
+    said = f"**الحكم: {v['verdict']}**" in sec and v["pass"] is False and len(v["cells"]) == 4
+    return (vmd and cells and said), " · ".join(det) + f" · الحكم={v['verdict']} VERDICT.md={vmd} خلايا={cells} نصّ={said}"
+
+
+_e3r = _e3_try(_e3m9)
+check("🧾 E3M9 T-EMA3 المخرجُ المودَع يُعاد توليدُه: جدولُ ب والحاكمةُ من صفوف الإشارات · والـmd من الـjson بايتًا · والفواصلُ الأربعة والحكمُ في وثيقة النتيجة = المحسوب",
+      _e3r[0], _e3r[1])
+
+
+# 🔒 E3M10 — `T-EMA3` مُغلَقٌ مُنفَّذًا (2026-11-21 · الحكم «لا تعبر» · العقد §④): الجلبُ والقياسُ يخرجان 8 قبل أيّ عمل · والفتحُ `EMA3_REOPEN == "1"` حرفيًّا
+def _e3m10():
+    calls = []
+    keep = (_E3.mode_fetch, _E3.mode_run, _e3_os.environ.get("EMA3_REOPEN"))
+    try:
+        _E3.mode_fetch = lambda *a, **k: (calls.append(("fetch",) + a) or 0)          # جذعٌ يُسجَّل ولا يُنفَّذ
+        _E3.mode_run = lambda *a, **k: (calls.append(("run",) + a) or 0)
+        _e3_os.environ.pop("EMA3_REOPEN", None)
+        shut = [_E3.main(["x", "fetch", "discover"]), _E3.main(["x", "run", "confirm", "--dir", "d"]), _E3.main(["x", "fetch", "confirm"])]
+        for val in ("0", "true", " 1", ""):
+            _e3_os.environ["EMA3_REOPEN"] = val
+            shut.append(_E3.main(["x", "run", "discover", "--dir", "d"]))
+        n_shut = len(calls)
+        _e3_os.environ["EMA3_REOPEN"] = "1"
+        opened = [_E3.main(["x", "fetch", "discover"]), _E3.main(["x", "run", "confirm", "--dir", "d"])]
+    finally:
+        _E3.mode_fetch, _E3.mode_run = keep[0], keep[1]
+        if keep[2] is None:
+            _e3_os.environ.pop("EMA3_REOPEN", None)
+        else:
+            _e3_os.environ["EMA3_REOPEN"] = keep[2]
+    wf = "\n".join(ln.split("#", 1)[0] for ln in open(".github/workflows/ema3.yml", encoding="utf-8").read().splitlines())
+    res = open("fm_forensics/ema3/T_EMA3_RESULT.md", encoding="utf-8").read()
+    ok = (_E3.CLOSED is True and shut == [8] * 7 and n_shut == 0 and opened == [0, 0] and [c[0] for c in calls] == ["fetch", "run"]
+          and "EMA3_REOPEN" not in wf and "EMA3_REOPEN" in res and "مُغلَقٌ مُنفَّذًا" in res)
+    return ok, f"CLOSED={_E3.CLOSED} مغلق={shut} نداءاتٌ قبل الفتح={n_shut} بعد الإقرار={opened}/{[c[0] for c in calls]}"
+
+
+_e3r = _e3_try(_e3m10)
+check("🔒 E3M10 T-EMA3 مُغلَقٌ مُنفَّذًا: الجلبُ والقياسُ يخرجان 8 بلا أيّ نداء · و«0» و«true» ومسافةٌ قبل 1 والفارغ لا تفتح · و«1» حرفيًّا يفتح · ولا مُدخَلَ في الـworkflow يُمرِّر المفتاح",
+      _e3r[0], _e3r[1])
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

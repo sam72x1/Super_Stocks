@@ -46,6 +46,12 @@ TV_N = {"discover": (1500, 5000), "confirm": (500, 1100)}          # (يوميّ
 EARLY_FRAC = 0.25
 REC_KEYS = ("r5", "r10", "r20", "tp30", "tp50", "x100")
 RC_OK, RC_DATA, RC_ONCE, RC_CLOSED, RC_ORDER, RC_CONTRACT = 0, 5, 7, 8, 9, 11
+CLOSED = True                                                      # 🔒 2026-11-21: الحكمُ «لا قياس/لا تعبر» ⟵ الجلبُ والقياسُ يخرجان 8 بلا إقرار `EMA3_REOPEN`
+
+
+def closed():
+    """المحورُ مُغلَقٌ مُنفَّذًا ما لم يُقِرّ المالك بفتحه (`EMA3_REOPEN` = "1" حرفيًّا)."""
+    return bool(CLOSED) and os.environ.get("EMA3_REOPEN", "") != "1"
 
 
 def log(m=""):
@@ -719,6 +725,9 @@ def main(argv):
     if mode == "verdict":
         return mode_verdict()
     if mode in ("fetch", "run") and len(argv) >= 3:
+        if closed():
+            log(f"🔒 `T-EMA3` مُغلَقٌ مُنفَّذًا (الحكم «لا تعبر» · `T_EMA3_RESULT.md`) — الفتحُ إقرارُ المالك `EMA3_REOPEN=1` · خروج {RC_CLOSED}")
+            return RC_CLOSED
         part = argv[2]
         if mode == "fetch":
             return mode_fetch(part, d_in)
