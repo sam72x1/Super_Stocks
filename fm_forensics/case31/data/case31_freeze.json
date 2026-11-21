@@ -1,0 +1,226 @@
+{
+ "arms": {
+  "A": {
+   "excl": [
+    {
+     "conds": [
+      {
+       "f": "W.ema5.dist.d10",
+       "op": ">",
+       "text": "W.ema5.dist.d10>q80",
+       "v": 0.07678281515836717
+      }
+     ],
+     "pos_share": 0.020202020202020204,
+     "removes": 0.2008936445411253,
+     "texts": [
+      "W.ema5.dist.d10>q80"
+     ]
+    },
+    {
+     "conds": [
+      {
+       "f": "D.di_diff.d10",
+       "op": ">",
+       "text": "D.di_diff.d10>q80",
+       "v": 7.922696495056155
+      }
+     ],
+     "pos_share": 0.020202020202020204,
+     "removes": 0.2008348521371039,
+     "texts": [
+      "D.di_diff.d10>q80"
+     ]
+    },
+    {
+     "conds": [
+      {
+       "f": "D.ema21.dist.d10",
+       "op": ">",
+       "text": "D.ema21.dist.d10>q80",
+       "v": 0.09450647234916687
+      }
+     ],
+     "pos_share": 0.04040404040404041,
+     "removes": 0.2007760597330825,
+     "texts": [
+      "D.ema21.dist.d10>q80"
+     ]
+    }
+   ],
+   "momentum_only": [],
+   "p95_excl": 0.0,
+   "p95_print": 9.852611839613816,
+   "prints": [
+    {
+     "conds": [
+      {
+       "f": "bot.nw_tracked",
+       "op": "==",
+       "text": "bot.nw_tracked=0",
+       "v": 0
+      }
+     ],
+     "k": 30,
+     "matched": 0.2916666666666667,
+     "n": 30,
+     "texts": [
+      "bot.nw_tracked=0"
+     ],
+     "z": 71.79305275750868
+    },
+    {
+     "conds": [
+      {
+       "f": "H4.macd.line_p",
+       "op": "<",
+       "text": "H4.macd.line_p<q20",
+       "v": -0.09696648567914963
+      },
+      {
+       "f": "bot.nw_tracked",
+       "op": "==",
+       "text": "bot.nw_tracked=0",
+       "v": 0
+      }
+     ],
+     "k": 10,
+     "matched": 0.09375,
+     "n": 10,
+     "texts": [
+      "H4.macd.line_p<q20",
+      "bot.nw_tracked=0"
+     ],
+     "z": 41.44973833549263
+    },
+    {
+     "conds": [
+      {
+       "f": "D.atr14_p.d10",
+       "op": ">",
+       "text": "D.atr14_p.d10>q80",
+       "v": 0.0411154642701149
+      },
+      {
+       "f": "bot.nw_tracked",
+       "op": "==",
+       "text": "bot.nw_tracked=0",
+       "v": 0
+      }
+     ],
+     "k": 9,
+     "matched": 0.09375,
+     "n": 9,
+     "texts": [
+      "D.atr14_p.d10>q80",
+      "bot.nw_tracked=0"
+     ],
+     "z": 39.32267446744597
+    }
+   ]
+  },
+  "B": {
+   "excl": [],
+   "momentum_only": [],
+   "p95_excl": 0.0,
+   "p95_print": 6.512614571182483,
+   "prints": [
+    {
+     "conds": [
+      {
+       "f": "D.sma21.dist",
+       "op": "<",
+       "text": "D.sma21.dist<q20",
+       "v": -0.17109135389328003
+      },
+      {
+       "f": "W.sma13.dist",
+       "op": "<",
+       "text": "W.sma13.dist<q20",
+       "v": -0.3385549962520599
+      },
+      {
+       "f": "px.ret20",
+       "op": "<",
+       "text": "px.ret20<q20",
+       "v": -0.28971740007400515
+      }
+     ],
+     "k": 82,
+     "matched": 0.17780037850278535,
+     "n": 1357,
+     "texts": [
+      "D.sma21.dist<q20",
+      "W.sma13.dist<q20",
+      "px.ret20<q20"
+     ],
+     "z": 10.606086549134014
+    },
+    {
+     "conds": [
+      {
+       "f": "D.ema5x20.gap",
+       "op": "<",
+       "text": "D.ema5x20.gap<q20",
+       "v": -0.12798388302326202
+      },
+      {
+       "f": "D.sma34.dist",
+       "op": "<",
+       "text": "D.sma34.dist<q20",
+       "v": -0.249623566865921
+      },
+      {
+       "f": "px.ret20",
+       "op": "<",
+       "text": "px.ret20<q20",
+       "v": -0.28971740007400515
+      }
+     ],
+     "k": 101,
+     "matched": 0.20356525379209814,
+     "n": 1849,
+     "texts": [
+      "D.ema5x20.gap<q20",
+      "D.sma34.dist<q20",
+      "px.ret20<q20"
+     ],
+     "z": 10.600546485915721
+    },
+    {
+     "conds": [
+      {
+       "f": "D.sma50.dist",
+       "op": "<",
+       "text": "D.sma50.dist<q20",
+       "v": -0.32258047461509703
+      },
+      {
+       "f": "H4.ema20x50.gap",
+       "op": "<",
+       "text": "H4.ema20x50.gap<q20",
+       "v": -0.08771948665380477
+      },
+      {
+       "f": "px.ret20",
+       "op": "<",
+       "text": "px.ret20<q20",
+       "v": -0.28971740007400515
+      }
+     ],
+     "k": 89,
+     "matched": 0.18741349727962373,
+     "n": 1542,
+     "texts": [
+      "D.sma50.dist<q20",
+      "H4.ema20x50.gap<q20",
+      "px.ret20<q20"
+     ],
+     "z": 10.546906492006327
+    }
+   ]
+  }
+ },
+ "catalog_sha": "50edfc023c15f922b0652d32301469df9e676c4d039daa76c447e18fcbdfc317",
+ "contract_sha": "0086212ce08a3c99d40e8bc51f611161b0c535edf93dd4d06e211223a5add7af"
+}

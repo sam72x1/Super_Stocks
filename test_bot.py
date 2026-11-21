@@ -106991,6 +106991,66 @@ check("🗂️ CSF2 T-CASE31 الدفترُ الأماميّ قراءةٌ وإل
       bool(_csf2), _csf2d)
 
 
+# 🧊 CSG1/CSG2 — `T-CASE31` التثبيت (2026-11-21 · العقد §⑥): الملفُّ المثبَّت = ما تُخرجه القاعدةُ من نتيجتَي الذراعين المودَعتين ببصمته ·
+#    وبصمةٌ لا تطابق أو غائبة ⟵ خروج 9 في التحقّق والدفتر الأماميّ · والأثرُ البنيويّ («ليس في تحت المتابعة») يُفصَح عنه في التقرير ولا يغيّر حكمًا.
+try:
+    _csg_C = _CSD_FZ.C
+    _csg_sv = _csg_C.FREEZE_SHA
+    _csg_fz = _CSD_FZ.load_freeze()
+    _csg_arms = {}
+    for _csg_a in ("A", "B"):
+        with __import__("gzip").open(__import__("os").path.join(_csg_C.OUT, f"arm{_csg_a}.json.gz"), "rt", encoding="utf-8") as _csg_fh:
+            _csg_arms[_csg_a] = __import__("json").load(_csg_fh)
+    _csg_re = _CSD_FZ.build_freeze(_csg_arms)
+    _csg_out, _csg_tmp = _csg_C.OUT, __import__("tempfile").mkdtemp()
+    try:
+        _csg_C.OUT = _csg_tmp                                      # لو انكسر الحارسُ لا يُكتب تحقّقٌ في `out/` الحقيقيّ
+        _csg_C.FREEZE_SHA = "f" * 64                               # بصمةٌ لا تطابق الملفّ
+        _csg_bad = (_CSD_FZ.load_freeze() is None, _CSD_V.mode_validate("", ""))   # والدفترُ الأماميّ حارسُه أوّلُ سطرَيه (CSF2 بالـAST) — لا يُنادى هنا: لو انكسر الحارسُ لجلب من الشبكة
+        _csg_C.FREEZE_SHA = None                                   # بلا بصمة
+        _csg_none = (_CSD_FZ.load_freeze() is None, _CSD_V.mode_validate("", ""))
+    finally:
+        _csg_C.FREEZE_SHA, _csg_C.OUT = _csg_sv, _csg_out
+        __import__("shutil").rmtree(_csg_tmp, ignore_errors=True)
+    _csg1 = (isinstance(_csg_sv, str) and len(_csg_sv) == 64 and _CSD_FZ.freeze_sha() == _csg_sv and _csg_fz is not None
+             and _csg_fz == _csg_re                                # لا بصمةَ أُضيفت ولا حُذفت باليد: الملفُّ يُعاد اشتقاقُه من `out/arm?.json.gz`
+             and _csg_fz["contract_sha"] == _csg_C.CONTRACT_SHA
+             and [len(_csg_fz["arms"][a]["prints"]) for a in ("A", "B")] == [3, 3] and [len(_csg_fz["arms"][a]["excl"]) for a in ("A", "B")] == [3, 0]
+             and all(_CSD_FZ.momentum_free(p["matched"]) and p["z"] > _csg_fz["arms"][a]["p95_print"] for a in ("A", "B") for p in _csg_fz["arms"][a]["prints"])
+             and all(e["removes"] > _csg_fz["arms"]["A"]["p95_excl"] for e in _csg_fz["arms"]["A"]["excl"])
+             and _csg_bad == (True, 9) and _csg_none == (True, 9))
+    _csg1d = f"sha={str(_csg_sv)[:12]} eq={_csg_fz == _csg_re} bad={_csg_bad} none={_csg_none}"
+except Exception as _e:                                           # noqa: BLE001
+    _csg1, _csg1d = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧊 CSG1 T-CASE31 التثبيت: الملفُّ ببصمته يطابق ما تُخرجه قاعدةُ العقد من نتيجتَي الذراعين (3 بصمات لكلّ ذراع · 3 استبعادٍ للذراع أ) · وبصمةٌ لا تطابق أو غائبة ⟵ لا تُحمَّل والتحقّقُ يخرج 9",
+      bool(_csg1), _csg1d)
+
+try:
+    _csg_fx = lambda k, n, unt: {"stat": {"pos": 10, "ctrl": 100, "pos_untracked": unt, "days": 3, "days_no_pool": 0, "open_window": 0},      # noqa: E731
+                                 "tried": {"features": 5, "eligible_features": 5, "conditions": 9, "combos": 4}, "thresholds": {"px.ret5<q20": -0.1, "px.ret10<q20": -0.2},
+                                 "summary": {"n_shuffles": 1000, "verdict": {"best_single": {"p95": 4.0}, "best_print": {"p95": 6.0}}},
+                                 "top_singles": [{"cond": "bot.nw_tracked=0", "z": 50.0, "k": k, "n": n, "matched": 0.2},
+                                                 {"cond": "px.ret5<q20", "z": 7.0, "k": 5, "n": 20, "matched": 0.1}],
+                                 "top_combos": [{"conds": ["bot.nw_tracked=0", "px.ret5<q20"], "z": 30.0, "k": 2, "n": 2, "matched": 0.1},
+                                                {"conds": ["px.ret10<q20", "px.ret5<q20"], "z": 9.0, "k": 4, "n": 9, "matched": 0.1}]}
+    _csg_art, _csg_real, _csg_trk = _csg_fx(3, 3, 3), _csg_fx(2, 3, 3), _csg_fx(3, 3, 0)
+    _csg_rows = lambda arm: [ln for ln in _CSE_R.arm_section("A", arm)[0] if ln.startswith("| 1 |") or ln.startswith("| 2 |")]               # noqa: E731
+    _csg_cmb = lambda arm: [ln for ln in _CSE_R.prints_section("A", arm) if "＋" in ln]                                                      # noqa: E731
+    _csg2 = (_CSE_R.structural(_csg_art) == {"k": 3, "n": 3} and _CSE_R.structural(_csg_real) is None                # حاملٌ غيرُ منفجر ⟵ إشارةٌ لا أثرُ بناء
+             and _CSE_R.structural(_csg_trk) is None and _CSE_R.structural(None) is None and _CSE_R.structural({}) is None
+             and "أثرٌ بنيويّ" in _csg_rows(_csg_art)[0] and "✅ يعبر" in _csg_rows(_csg_art)[1] and "أثرٌ بنيويّ" not in _csg_rows(_csg_art)[1]
+             and "✅ يعبر" in _csg_rows(_csg_real)[0] and "✅ يعبر" in _csg_rows(_csg_trk)[0]
+             and "أثرٌ بنيويّ" in _csg_cmb(_csg_art)[0] and "أثرٌ بنيويّ" not in _csg_cmb(_csg_art)[1] and "✅ يعبر" in _csg_cmb(_csg_art)[1]
+             and "أثرٌ بنيويّ" not in "\n".join(_csg_cmb(_csg_real))
+             and len(_CSE_R.structural_lines(_csg_art)) == 3 and "3 من 3" in _CSE_R.structural_lines(_csg_art)[0] and _CSE_R.structural_lines(_csg_real) == []
+             and _CSE_R.structural(_csg_arms["A"]) == {"k": 30, "n": 30} and _CSE_R.structural(_csg_arms["B"]) is None   # النتيجةُ المودَعة نفسُها
+             and _CSD_FZ.select(_csg_art)["prints"][0]["texts"] == ["bot.nw_tracked=0"])                                 # الإفصاحُ عرضٌ: قاعدةُ التثبيت لا تستثني
+    _csg2d = f"art={_CSE_R.structural(_csg_art)} real={_CSE_R.structural(_csg_real)} A={_CSE_R.structural(_csg_arms['A'])}"
+except Exception as _e:                                           # noqa: BLE001
+    _csg2, _csg2d = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧊 CSG2 T-CASE31 الأثرُ البنيويّ: «ليس في تحت المتابعة» يوسَم في جدول الفروق والتوليفات حين كلُّ حامليه منفجرون وللذراع منفجرون خارج المتابعة وحدَه · وقاعدةُ التثبيت لا تستثنيه",
+      bool(_csg2), _csg2d)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
